@@ -1,0 +1,665 @@
+`int` Action0 =>
+  $ = `const` { 41 }
+;
+
+
+`void` ActionVoid0 =>
+  $ = `const` { 41 }
+;
+
+`int` Action1 =>
+  $ = `const` { 41 }
+;
+
+
+`void` ActionVoid1 =>
+  $ = `const` { 41 }
+;
+
+`int` Action2 =>
+  $ = `const int` { 41 }
+;
+
+
+`void` ActionVoid2 =>
+  $ = `const int` { 41 }
+;
+
+`int` Action3 =>
+  { const x = 41; }
+  $ = `const` { x }
+;
+
+
+`void` ActionVoid3 =>
+  { const x = 41; }
+  $ = `const` { x }
+;
+
+`String` AndPredicate0 =>
+  & 'abc'
+  $ = 'abcd'
+;
+
+
+`void` AndPredicateVoid0 =>
+  & 'abc'
+  $ = 'abcd'
+;
+
+`void` AndPredicate1 =>
+  & 'abc'
+;
+
+
+`int` AnyCharacter0 =>
+  .
+;
+
+
+`void` AnyCharacterVoid0 =>
+  .
+;
+
+`String` Capture0 =>
+  <[a]>
+;
+
+
+`void` CaptureVoid0 =>
+  <[a]>
+;
+
+`void` Capture1 =>
+  <[a]>
+;
+
+
+`String` Capture2 =>
+  <[a] / [b]>
+;
+
+
+`void` CaptureVoid2 =>
+  <[a] / [b]>
+;
+
+`String` Capture3 =>
+  [a]
+  $ = <[b] / [c]>
+;
+
+
+`void` CaptureVoid3 =>
+  [a]
+  $ = <[b] / [c]>
+;
+
+`int` CharacterClass0 =>
+  [a]
+;
+
+
+`void` CharacterClassVoid0 =>
+  [a]
+;
+
+`int` CharacterClass1 =>
+  [a-z]
+;
+
+
+`void` CharacterClassVoid1 =>
+  [a-z]
+;
+
+`int` CharacterClass2 =>
+  [^a]
+;
+
+
+`void` CharacterClassVoid2 =>
+  [^a]
+;
+
+`int` CharacterClass3 =>
+  [^ab]
+;
+
+
+`void` CharacterClassVoid3 =>
+  [^ab]
+;
+
+`int` CharacterClass4 =>
+  [^abc]
+;
+
+
+`void` CharacterClassVoid4 =>
+  [^abc]
+;
+
+`int` CharacterClass5 =>
+  [^a-z]
+;
+
+
+`void` CharacterClassVoid5 =>
+  [^a-z]
+;
+
+`int` CharacterClass6 =>
+  [\^]
+;
+
+
+`void` CharacterClassVoid6 =>
+  [\^]
+;
+
+`int` CharacterClass7 =>
+  [\-]
+;
+
+
+`void` CharacterClassVoid7 =>
+  [\-]
+;
+
+`int` CharacterClass8 =>
+  [\u{20}]
+;
+
+
+`void` CharacterClassVoid8 =>
+  [\u{20}]
+;
+
+`int` CharacterClass9 =>
+  [\u{30}-\u{39}]
+;
+
+
+`void` CharacterClassVoid9 =>
+  [\u{30}-\u{39}]
+;
+
+`int` CharacterClass10 =>
+  [\u{0}]
+;
+
+
+`void` CharacterClassVoid10 =>
+  [\u{0}]
+;
+
+`int` CharacterClass11 =>
+  [\u{0}-\u{9}]
+;
+
+
+`void` CharacterClassVoid11 =>
+  [\u{0}-\u{9}]
+;
+
+`int` CharacterClass12 =>
+  [^\u{0}]
+;
+
+
+`void` CharacterClassVoid12 =>
+  [^\u{0}]
+;
+
+`int` CharacterClass13 =>
+  [^\u{0}-\u{9}]
+;
+
+
+`void` CharacterClassVoid13 =>
+  [^\u{0}-\u{9}]
+;
+
+`int` Group0 =>
+  ([a] / [z])
+;
+
+
+`void` GroupVoid0 =>
+  ([a] / [z])
+;
+
+`String` Literal0 =>
+  'abc'
+;
+
+
+`void` LiteralVoid0 =>
+  'abc'
+;
+
+`String` Literal1 =>
+  "abc"
+;
+
+
+`void` LiteralVoid1 =>
+  "abc"
+;
+
+`String` Literal2 =>
+  ""
+;
+
+
+`void` LiteralVoid2 =>
+  ""
+;
+
+`String` Literal3 =>
+  ''
+;
+
+
+`void` LiteralVoid3 =>
+  ''
+;
+
+`String` Literal4 =>
+  "\r\n"
+;
+
+
+`void` LiteralVoid4 =>
+  "\r\n"
+;
+
+`String` NotPredicate0 =>
+  ! 'abc'
+  $ = 'ab'
+;
+
+
+`void` NotPredicateVoid0 =>
+  ! 'abc'
+  $ = 'ab'
+;
+
+`String` NotPredicate1 =>
+  $ = 'abc'
+  ! '=>'
+;
+
+
+`void` NotPredicateVoid1 =>
+  $ = 'abc'
+  ! '=>'
+;
+
+`List<int>` NotPredicate2 =>
+  ! @while (2) {
+    [a]
+  }
+  $ = [a]*
+;
+
+
+`void` NotPredicateVoid2 =>
+  ! @while (2) {
+    [a]
+  }
+  $ = [a]*
+;
+
+`void` NotPredicate3 =>
+  !''
+;
+
+
+`void` NotPredicate4 =>
+  ![a]?
+;
+
+
+`void` NotPredicate5 =>
+  !([a] / [z])?
+;
+
+
+`List<int>` OneOrMore0 =>
+  [a]+
+;
+
+
+`void` OneOrMoreVoid0 =>
+  [a]+
+;
+
+`List<int>` OneOrMore1 =>
+  ([a] / [z])+
+;
+
+
+`void` OneOrMoreVoid1 =>
+  ([a] / [z])+
+;
+
+`int?` Optional0 =>
+  [a]?
+;
+
+
+`void` OptionalVoid0 =>
+  [a]?
+;
+
+`int?` Optional1 =>
+  ([a] / [b])?
+;
+
+
+`void` OptionalVoid1 =>
+  ([a] / [b])?
+;
+
+`int?` Optional2 =>
+  ([a] $ = [b])?
+;
+
+
+`void` OptionalVoid2 =>
+  ([a] $ = [b])?
+;
+
+`int?` Optional3 =>
+  ($ = [a] [b])?
+;
+
+
+`void` OptionalVoid3 =>
+  ($ = [a] [b])?
+;
+
+`int?` Optional4 =>
+  ([a] / [b])? $ = [c]
+;
+
+
+`void` OptionalVoid4 =>
+  ([a] / [b])? $ = [c]
+;
+
+`void` Predicate0 =>
+  & { true }
+;
+
+
+`void` Predicate1 =>
+  & { false }
+;
+
+
+`void` Predicate2 =>
+  ! { true }
+;
+
+
+`void` Predicate3 =>
+  ! { false }
+;
+
+
+`void` Predicate4 =>
+  & (a = { false })
+;
+
+
+`int` Sequence0 =>
+  a = [0-9]
+  b = [0-9]
+  c = [0-9]
+  $ = { a -48 + b - 48 + c - 48 }
+;
+
+
+`void` SequenceVoid0 =>
+  a = [0-9]
+  b = [0-9]
+  c = [0-9]
+  $ = { a -48 + b - 48 + c - 48 }
+;
+
+`String` Sequence1 =>
+  [a]
+  [b]
+  [c]
+  $ = `const` { 'abc' }
+  ~ {
+    state.errorExpected('abc');
+    state.errorIncorrect('Full', true);
+    state.errorIncorrect('End', false);
+    state.errorIncorrect('Start', null);
+  }
+;
+
+
+`void` SequenceVoid1 =>
+  [a]
+  [b]
+  [c]
+  $ = `const` { 'abc' }
+  ~ {
+    state.errorExpected('abc');
+    state.errorIncorrect('Full', true);
+    state.errorIncorrect('End', false);
+    state.errorIncorrect('Start', null);
+  }
+;
+
+`List<int>` While0 =>
+  @while (0) {
+    [a]
+  }
+;
+
+
+`void` WhileVoid0 =>
+  @while (0) {
+    [a]
+  }
+;
+
+`List<int>` While1 =>
+  @while (0) {
+    [a] / [z]
+  }
+;
+
+
+`void` WhileVoid1 =>
+  @while (0) {
+    [a] / [z]
+  }
+;
+
+`List<int>` While2 =>
+  @while (1) {
+    [a]
+  }
+;
+
+
+`void` WhileVoid2 =>
+  @while (1) {
+    [a]
+  }
+;
+
+`List<int>` While3 =>
+  @while (1) {
+    [a] / [z]
+  }
+;
+
+
+`void` WhileVoid3 =>
+  @while (1) {
+    [a] / [z]
+  }
+;
+
+`List<int>` While4 =>
+  @while (2) {
+    [a]
+  }
+;
+
+
+`void` WhileVoid4 =>
+  @while (2) {
+    [a]
+  }
+;
+
+`List<int>` While5 =>
+  @while (2) {
+    [a] / [z]
+  }
+;
+
+
+`void` WhileVoid5 =>
+  @while (2) {
+    [a] / [z]
+  }
+;
+
+`List<int>` While6 =>
+  @while (0, 1) {
+    [a]
+  }
+;
+
+
+`void` WhileVoid6 =>
+  @while (0, 1) {
+    [a]
+  }
+;
+
+`List<int>` While7 =>
+  @while (0, 2) {
+    [a]
+  }
+;
+
+
+`void` WhileVoid7 =>
+  @while (0, 2) {
+    [a]
+  }
+;
+
+`List<int>` While8 =>
+  @while (1, 1) {
+    [a]
+  }
+;
+
+
+`void` WhileVoid8 =>
+  @while (1, 1) {
+    [a]
+  }
+;
+
+`List<int>` While9 =>
+  @while (2, 2) {
+    [a]
+  }
+;
+
+
+`void` WhileVoid9 =>
+  @while (2, 2) {
+    [a]
+  }
+;
+
+`List<int>` While10 =>
+  @while (2, 3) {
+    [a]
+  }
+;
+
+
+`void` WhileVoid10 =>
+  @while (2, 3) {
+    [a]
+  }
+;
+
+`List<int>` While11 =>
+  ([a] / [b])
+  $ = @while (1) {
+    [c]
+  }
+;
+
+
+`void` WhileVoid11 =>
+  ([a] / [b])
+  $ = @while (1) {
+    [c]
+  }
+;
+
+`List<int>` ZeroOrMore0 =>
+  [a]*
+;
+
+
+`void` ZeroOrMoreVoid0 =>
+  [a]*
+;
+
+`List<int>` ZeroOrMore1 =>
+  ([a] / [z])*
+;
+
+
+`void` ZeroOrMoreVoid1 =>
+  ([a] / [z])*
+;
+
+`String` Identifier0 =>
+  !(
+    (
+      "foreach"
+      ----
+      "for"
+    )
+    ! [a-zA-Z0-9]
+  )
+  $ = <
+    [a-zA-Z]
+    [a-zA-Z0-9]*
+  >
+;
+
+
+`void` IdentifierVoid0 =>
+  !(
+    (
+      "foreach"
+      ----
+      "for"
+    )
+    ! [a-zA-Z0-9]
+  )
+  $ = <
+    [a-zA-Z]
+    [a-zA-Z0-9]*
+  >
+;

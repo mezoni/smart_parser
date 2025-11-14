@@ -1,0 +1,157 @@
+%{
+import 'package:source_span/source_span.dart';
+
+import 'json_token.dart';
+
+List<Token> tokenize(String source) {
+  const lexer = JsonTokenizer();
+  final state = State(source);
+  final result = lexer.parseStart(state);
+  if (result == null) {
+    final file = SourceFile.fromString(source);
+    throw FormatException(
+      state
+          .getErrors()
+          .map((e) => file.span(e.start, e.end).message(e.message))
+          .join('\n'),
+    );
+  }
+
+  return result.$1;
+}
+}%
+
+%%
+const JsonTokenizer();
+
+Token _token(int start, int end, TokenType type, Object? value) {
+  return Token(start: start, end: end, type: type, value: value);
+}
+%%
+
+`List<Token>` Start =>
+  $ = Tokens
+  !.
+
+`List<Token>` Tokens =>
+  $ = (
+    S
+    $ = (
+      { final int start = state.position; }
+      ":"
+      $ = { _token(start, state.position, TokenType.colon, ':') }
+      ----
+      ","
+      $ = { _token(start, state.position, TokenType.comma, ',') }
+      ----
+      "{"
+      $ = { _token(start, state.position, TokenType.openBrace, '\u007B') }
+      ----
+      "}"
+      $ = { _token(start, state.position, TokenType.closeBrace, '\u007D') }
+      ----
+      "["
+      $ = { _token(start, state.position, TokenType.openBracket, '[') }
+      ----
+      "]"
+      $ = { _token(start, state.position, TokenType.closeBracket, ']') }
+      ----
+      "null"
+      $ = { _token(start, state.position, TokenType.null$, null) }
+      ----
+      "true"
+      $ = { _token(start, state.position, TokenType.true$, true) }
+      ----
+      "false"
+      $ = { _token(start, state.position, TokenType.false$, false) }
+      ----
+      "\""
+      v = String
+      $ = { _token(start, state.position, TokenType.string, v) }
+      ----
+      v = Number
+      $ = { _token(start, state.position, TokenType.number, v) }
+    )
+  )*
+  S
+
+`String` Hex =>
+  s = <
+    @while (4, 4) {
+      [a-fA-F0-9]
+    }
+  >
+  $ = { String.fromCharCode(int.parse(s, radix: 16)) }
+  ~ {
+    state.errorExpected('4 hexadecimal digit number');
+    state.errorIncorrect('Expected hexadecimal digit', false);
+    state.errorIncorrect('Incorrect 4 hexadecimal digit number', true);
+  }
+
+`String` EscapeC =>
+  (
+    ["]
+    $ = `const` { '"' }
+    ----
+    [\\]
+    $ = `const` { '\\' }
+    ----
+    [/]
+    $ = `const` { '/' }
+    ----
+    [b]
+    $ = `const` { '\b' }
+    ----
+    [f]
+    $ = `const` { '\f' }
+    ----
+    [n]
+    $ = `const` { '\n' }
+    ----
+    [r]
+    $ = `const` { '\r' }
+    ----
+    [t]
+    $ = `const` { '\t' }
+  )
+  ~ { state.error('Illegal escape character'); }
+
+`String` Escaped =>
+  [\\]
+  $ = (
+    [u]
+    $ = Hex
+    ----
+    EscapeC
+  )
+
+`String` String =>
+  p = @while (0) {
+    <[^{0-1F}"\\]+>
+    ---
+    Escaped
+  }
+  '"'
+  $ = { p.join() }
+
+`num` Number =>
+  {
+    final start = state.position;
+    var flag = true;
+  }
+  [-]? ([0] / [1-9] [0-9]*)
+  (
+    ([.] [0-9]+)
+    { flag = false; }
+    ~ { state.errorIncorrect('Unterminated fractional number'); }
+  )?
+  (
+    ([eE] [\-+]? [0-9]+)
+    { flag = false; }
+    ~ { state.errorIncorrect('Exponent part is missing a number'); }
+  )?
+  s = { state.substring(start, state.position) }
+  $ = { flag && s.length <= 18 ? int.parse(s) : num.parse(s)  }
+
+`void` S =>
+  [\n\r\t ]*

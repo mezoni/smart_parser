@@ -1,0 +1,181 @@
+%{
+import 'package:source_span/source_span.dart';
+
+Object? parse(String source) {
+  const parser = JsonParser();
+  final state = State(source);
+  final result = parser.parseStart(state);
+  if (result == null) {
+    final file = SourceFile.fromString(source);
+    throw FormatException(
+      state
+          .getErrors()
+          .map((e) => file.span(e.start, e.end).message(e.message))
+          .join('\n'),
+    );
+  }
+
+  return result.$1;
+}
+}%
+
+%%
+const JsonParser();
+%%
+
+`Object?` Start =>
+  S
+  $ = Value
+  & { state.peek() < 0 }
+
+`List<Object?>` Elements =>
+  v = Value
+  { final l = [v]; }
+  @while (0) {
+    ',' S
+    v = Value
+    { l.add(v); }
+  }
+  $ = { l }
+
+`List<Object?>` Array =>
+  '[' S
+  e = Elements?
+  ']' S
+  $ = { e ?? [] }
+
+`MapEntry<String, Object?>` KeyValue =>
+  k = String
+  ':' S
+  v = Value
+  $ = { MapEntry(k, v) }
+
+`Map<String, Object?>` Map =>
+  kv = KeyValue
+  {
+    final m = <String, Object?>{};
+    m[kv.key] = kv.value;
+  }
+  @while (0) {
+    ',' S
+    kv = KeyValue
+    { m[kv.key] = kv.value; }
+  }
+  $ = { m }
+
+`Map<String, Object?>` Object =>
+  '{' S
+  m = Map?
+  '}' S
+  $ = { m ?? {} }
+
+`String` Hex =>
+  s = <
+    @while (4, 4) {
+      [a-fA-F0-9]
+    }
+  >
+  $ = { String.fromCharCode(int.parse(s, radix: 16)) }
+  ~ {
+    state.errorIncorrect('Expected hexadecimal digit', false);
+    state.errorIncorrect('Unterminated 4 hexadecimal digit number', true);
+    state.errorExpected('4 hexadecimal digit number');
+  }
+
+`String` EscapeC =>
+  (
+    ["]
+    $ = `const` { '"' }
+    ----
+    [\\]
+    $ = `const` { '\\' }
+    ----
+    [/]
+    $ = `const` { '/' }
+    ----
+    [b]
+    $ = `const` { '\b' }
+    ----
+    [f]
+    $ = `const` { '\f' }
+    ----
+    [n]
+    $ = `const` { '\n' }
+    ----
+    [r]
+    $ = `const` { '\r' }
+    ----
+    [t]
+    $ = `const` { '\t' }
+  )
+  ~ {
+    if (state.position == state.length) {
+      state.errorExpected('escape character');
+    } else {
+      state.error('Illegal escape character');
+    }
+  }
+
+`String` Escaped =>
+  [\\]
+  $ = (
+    [u]
+    $ = Hex
+    ----
+    EscapeC
+  )
+
+`String` String =>
+  '"' S
+  p = @while (0) {
+    <[^{0-1F}"\\]+>
+    ---
+    Escaped
+  }
+  '"' S
+  $ = { p.join() }
+
+`num` Number =>
+  {
+    final start = state.position;
+    var flag = true;
+  }
+  [-]? ([0] / [1-9] [0-9]*)
+  (
+    ([.] [0-9]+)
+    { flag = false; }
+    ~ { state.errorIncorrect('Fractional part is missing a number'); }
+  )?
+  (
+    ([eE] [\-+]? [0-9]+)
+    { flag = false; }
+    ~ { state.errorIncorrect('Exponent part is missing a number'); }
+  )?
+  s = { state.substring(start, state.position) }
+  S
+  $ = { flag && s.length <= 18 ? int.parse(s) : num.parse(s) }
+  ~ {
+    state.errorIncorrect('Unterminated number', true);
+    state.errorExpected('number');
+  }
+
+`Object?` Value =>
+  'null' S
+  $ = `const` { null }
+  ----
+  'true' S
+  $ = `const` { true }
+  ----
+  'false' S
+  $ = `const` { false }
+  ----
+  Object
+  ----
+  Array
+  ----
+  String
+  ----
+  Number
+
+  `void` S =>
+    [\n\r\t ]*

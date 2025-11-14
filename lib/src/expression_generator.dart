@@ -1,0 +1,1096 @@
+import 'package:simple_sparse_list/ranges_helper.dart';
+
+import '../parser_generator_options.dart';
+import 'allocator.dart';
+import 'code_builder.dart';
+import 'expressions.dart';
+import 'helper.dart';
+import 'range_generator.dart';
+import 'state_machine.dart';
+
+typedef ExpressionState = State<Code>;
+
+class ExpressionGenerator implements Visitor<ExpressionState> {
+  static const _invalid = '__INVALID__';
+
+  static const _none = 'Result.none';
+
+  static const _null = 'Result.none.\$1';
+
+  final Allocator allocator;
+
+  final ParserGeneratorOptions options;
+
+  Map<String, String> _cache = {};
+
+  ExpressionGenerator({required this.allocator, required this.options});
+
+  ExpressionState generate(Expression expression) {
+    return _buildExpression(expression);
+  }
+
+  @override
+  ExpressionState visitAction(ActionExpression node) {
+    final source = node.source;
+    final start = _newState();
+    start.onProcess.listen((code) {
+      _writeBlock(code, source);
+      const isTrue = 'true';
+      const isFalse = 'false';
+      final handler = code.ifElse(isTrue, isFalse);
+      handler.ifBlock((code) {
+        _acceptVoid(code, start);
+      });
+      handler.elseBlock(start.reject);
+    });
+
+    return start;
+  }
+
+  @override
+  ExpressionState visitAndPredicate(AndPredicateExpression node) {
+    final child = node.expression;
+    final start = _newState();
+    final state0 = _buildExpression(child);
+    final usePosition = child.canChangePosition;
+    start.onPreprocess.listen((code) {
+      code.stmt('state.predicate++');
+      final pos = !usePosition ? _invalid : _getPosition(code);
+      state0.onAccept.listen((event) {
+        final code = event.output;
+        if (usePosition) {
+          code.stmt('state.backtrack($pos)');
+        }
+
+        code.stmt('state.predicate--');
+        _acceptVoid(code, start);
+      });
+      state0.onReject.listen((code) {
+        code.stmt('state.predicate--');
+        start.reject(code);
+      });
+    });
+
+    start.onProcess.listen(state0.build);
+    return start;
+  }
+
+  @override
+  ExpressionState visitAnyCharacter(AnyCharacterExpression node) {
+    final start = _newState();
+    start.onProcess.listen((code) {
+      final value = _getCh(code);
+      final charSize = _charSize(value, const [(0, 0x10ffff)], false);
+      final result = 'Ok($value)';
+      final isTrue = '$value >= 0';
+      final isFalse = '$value < 0';
+      final handler = code.ifElse(isTrue, isFalse);
+      handler.ifBlock((code) {
+        code.stmt('state.position += $charSize');
+        start.accept(
+          AcceptEvent(
+            output: code,
+            isConst: false,
+            result: result,
+            value: value,
+          ),
+        );
+      });
+      handler.elseBlock(start.reject);
+    });
+
+    return start;
+  }
+
+  @override
+  ExpressionState visitCapture(CaptureExpression node) {
+    final child = node.expression;
+    final isVoid = node.isVoid;
+    final start = _newState();
+    final state0 = _buildExpression(child);
+    start.onPreprocess.listen((code) {
+      final pos = isVoid ? _invalid : _getPosition(code);
+      state0.onAccept.listen((event) {
+        final code = event.output;
+        if (isVoid) {
+          _acceptVoid(code, start);
+        } else {
+          final value = _allocate();
+          final result = 'Ok($value)';
+          code.declare('final', value, 'state.substring($pos, state.position)');
+          start.accept(
+            AcceptEvent(
+              output: code,
+              isConst: false,
+              result: result,
+              value: value,
+            ),
+          );
+        }
+      });
+      state0.onReject.listen(start.reject);
+    });
+
+    start.onProcess.listen(state0.build);
+    return start;
+  }
+
+  @override
+  ExpressionState visitCharacterClass(CharacterClassExpression node) {
+    final negate = node.negate;
+    final ranges = node.ranges;
+    final start = _newState();
+    start.onProcess.listen((code) {
+      final ch = _getCh(code);
+      final (predicate, char) = _getPredicateAndChar(ch, ranges, negate);
+      if (char != null) {
+        final value = '$char';
+        final result = 'const Ok($value)';
+        final charSize = _charSize(value, [(char, char)], false);
+        final escaped = escapeString(String.fromCharCode(char));
+        code.writeln('// $escaped');
+        final isTrue = '$ch == $char';
+        final isFalse = '$ch != $char';
+        final handler = code.ifElse(isTrue, isFalse);
+        handler.ifBlock((code) {
+          code.stmt('state.position += $charSize');
+          start.accept(
+            AcceptEvent(
+              output: code,
+              isConst: true,
+              result: result,
+              value: value,
+            ),
+          );
+        });
+        handler.elseBlock(start.reject);
+      } else {
+        final value = ch;
+        final result = 'Ok($value)';
+        final isSuccess = _allocate();
+        final charSize = _charSize(value, ranges, negate);
+        code.declare('final', isSuccess, predicate);
+        final isTrue = isSuccess;
+        final isFalse = '!$isSuccess';
+        final handler = code.ifElse(isTrue, isFalse);
+        handler.ifBlock((code) {
+          code.stmt('state.position += $charSize');
+          start.accept(
+            AcceptEvent(
+              output: code,
+              isConst: false,
+              result: result,
+              value: value,
+            ),
+          );
+        });
+        handler.elseBlock(start.reject);
+      }
+    });
+
+    return start;
+  }
+
+  @override
+  ExpressionState visitGroup(GroupExpression node) {
+    final child = node.expression;
+    return _buildExpression(child);
+  }
+
+  @override
+  ExpressionState visitLiteral(LiteralExpression node) {
+    final text = node.text;
+    final start = _newState();
+    final isVoid = node.isVoid;
+    final isPrimitive = node.isPrimitive;
+    final escaped = escapeString(text);
+    start.onProcess.listen((code) {
+      if (text.isEmpty) {
+        final value = escaped;
+        final result = 'const Ok($escaped)';
+        const isTrue = 'true';
+        const isFalse = 'false';
+        final handler = code.ifElse(isTrue, isFalse);
+        handler.ifBlock((code) {
+          start.accept(
+            AcceptEvent(
+              output: code,
+              isConst: true,
+              result: result,
+              value: value,
+            ),
+          );
+        });
+        handler.elseBlock((code) {
+          if (!isPrimitive) {
+            code.stmt('state.errorExpected($escaped)');
+          }
+
+          start.reject(code);
+        });
+      } else {
+        final runes = text.runes;
+        final firstRune = runes.first;
+        final c = _getCh(code);
+        final value = isVoid ? _null : escaped;
+        final result = isVoid ? _none : 'const Ok($escaped)';
+        final length = _strlen(escaped, text);
+        final test = runes.length == 1
+            ? '$c == $firstRune'
+            : '$c == $firstRune && state.startsWith($escaped)';
+        if (runes.length == 1 && isVoid) {
+          code.writeln('// $escaped');
+        }
+
+        final isTrue = test;
+        final isFalse = '$c != $firstRune';
+        final handler = code.ifElse(isTrue, isFalse);
+        handler.ifBlock((code) {
+          code.stmt('state.position += $length');
+          start.accept(
+            AcceptEvent(
+              output: code,
+              isConst: true,
+              result: result,
+              value: value,
+            ),
+          );
+        });
+        handler.elseBlock((code) {
+          if (!isPrimitive) {
+            code.stmt('state.errorExpected($escaped)');
+          }
+
+          start.reject(code);
+        });
+      }
+    });
+
+    return start;
+  }
+
+  @override
+  ExpressionState visitNotPredicate(NotPredicateExpression node) {
+    final child = node.expression;
+    final canChangePosition = child.canChangePosition;
+    final hasSideEffects = child.hasSideEffects;
+    final isSingleExitPoint = child.isSingleExitPoint;
+    final combine = hasSideEffects || !isSingleExitPoint;
+    final usePosition = canChangePosition;
+    final start = _newState();
+    final state0 = _buildExpression(child);
+    var label = _invalid;
+    var isSuccess = _invalid;
+    start.onPreprocess.listen((code) {
+      code.stmt('state.predicate++');
+      final pos = !usePosition ? _invalid : _getPosition(code);
+      isSuccess = _allocate();
+      code.declare('var', isSuccess, 'true');
+      label = _allocateIf(combine, 'l');
+      state0.onAccept.listen((event) {
+        final code = event.output;
+        code.assign(isSuccess, 'false');
+        if (usePosition) {
+          code.stmt('state.backtrack($pos)');
+        }
+
+        if (combine) {
+          code.stmt('break $label');
+        }
+      });
+    });
+
+    start.onProcess.listen((code) {
+      if (combine) {
+        code.writeln('$label:');
+        _cache = {};
+        code.group(state0.build);
+      } else {
+        state0.build(code);
+      }
+
+      final isTrue = isSuccess;
+      final isFalse = '!$isSuccess';
+      code.stmt('state.predicate--');
+      final handler = code.ifElse(isTrue, isFalse);
+      handler.ifBlock((code) {
+        _acceptVoid(code, start);
+      });
+      handler.elseBlock(start.reject);
+    });
+
+    return start;
+  }
+
+  @override
+  ExpressionState visitOneOrMore(OneOrMoreExpression node) {
+    const range = (1, null);
+    return _visitWhile(node, range);
+  }
+
+  @override
+  ExpressionState visitOptional(OptionalExpression node) {
+    final child = node.expression;
+    final hasSideEffects = child.hasSideEffects;
+    final isSingleExitPoint = child.isSingleExitPoint;
+    final isVoid = node.isVoid;
+    final isProduction = child is ProductionExpression;
+    final combine = hasSideEffects || !isSingleExitPoint;
+    final hasResultVariable = !isVoid && !isProduction;
+    final start = _newState();
+    final state0 = _buildExpression(child);
+    var variable = _invalid;
+    var label = _invalid;
+    start.onPreprocess.listen((code) {
+      variable = _allocateIf(!isVoid);
+      label = _allocateIf(combine, 'l');
+      if (hasResultVariable) {
+        final type = getNullableType(node.type);
+        code.declare(type, variable);
+      }
+
+      state0.onAccept.listen((event) {
+        final code = event.output;
+        if (hasResultVariable) {
+          code.assign(variable, event.value);
+        }
+
+        if (combine) {
+          code.stmt('break $label');
+        }
+      });
+    });
+
+    start.onProcess.listen((code) {
+      if (combine) {
+        code.writeln('$label:');
+        _cache = {};
+        code.group(state0.build);
+      } else {
+        if (child case final ProductionExpression child) {
+          final name = child.name;
+          final invocation = 'parse$name(state)';
+          if (isVoid) {
+            code.stmt(invocation);
+          } else {
+            code.declare('final', variable, invocation);
+          }
+        } else {
+          state0.build(code);
+        }
+      }
+    });
+
+    start.onPostprocess.listen((code) {
+      const isTrue = 'true';
+      const isFalse = 'false';
+      final handler = code.ifElse(isTrue, isFalse);
+      handler.ifBlock((code) {
+        if (isVoid) {
+          _acceptVoid(code, start);
+        } else {
+          var value = _invalid;
+          var result = _invalid;
+          if (child is ProductionExpression) {
+            value = '$variable?.\$1';
+            result = variable;
+          } else {
+            value = variable;
+            result = 'Ok($value)';
+          }
+
+          start.accept(
+            AcceptEvent(
+              output: code,
+              isConst: false,
+              result: result,
+              value: value,
+            ),
+          );
+        }
+      });
+      handler.elseBlock(start.reject);
+    });
+
+    return start;
+  }
+
+  @override
+  ExpressionState visitOrderedChoice(OrderedChoiceExpression node) {
+    final children = node.expressions;
+    if (children.length == 1) {
+      final child = children.first;
+      return _buildExpression(child);
+    }
+
+    final start = _newState();
+    final states = <ExpressionState>[];
+    for (var i = 0; i < children.length; i++) {
+      final child = children[i];
+      final state = _buildExpression(child);
+      states.add(state);
+    }
+
+    start.onPreprocess.listen((code) {
+      for (var i = 0; i < states.length; i++) {
+        final state = states[i];
+        state.onAccept.listen(start.accept);
+      }
+    });
+
+    _cache = {};
+    start.onProcess.listen((code) {
+      final cache = _cache;
+      for (var i = 0; i < states.length; i++) {
+        final state = states[i];
+        state.build(code);
+        _cache = cache;
+      }
+    });
+
+    start.onPostprocess.listen(start.reject);
+    return start;
+  }
+
+  @override
+  ExpressionState visitPosition(PositionExpression node) {
+    final action = node.action;
+    final start = _newState();
+    start.onProcess.listen((code) {
+      const isTrue = 'true';
+      const isFalse = 'false';
+      final handler = code.ifElse(isTrue, isFalse);
+      handler.ifBlock((code) {
+        code.assign('state.position', action.trim());
+        _acceptVoid(code, start);
+      });
+      handler.elseBlock(start.reject);
+    });
+
+    return start;
+  }
+
+  @override
+  ExpressionState visitPredicate(PredicateExpression node) {
+    final negate = node.negate;
+    final predicate = node.predicate;
+    final start = _newState();
+    start.onProcess.listen((code) {
+      final isSuccess = _allocate();
+      code.declare('final', isSuccess, predicate.trim());
+      final isTrue = negate ? '!$isSuccess' : isSuccess;
+      final isFalse = negate ? isSuccess : '!$isSuccess';
+      final handler = code.ifElse(isTrue, isFalse);
+      handler.ifBlock((code) {
+        _acceptVoid(code, start);
+      });
+      handler.elseBlock(start.reject);
+    });
+
+    return start;
+  }
+
+  @override
+  ExpressionState visitProduction(ProductionExpression node) {
+    final name = node.name;
+    final isVoid = node.isVoid;
+    final isAlwaysSuccessful = node.isAlwaysSuccessful;
+    final start = _newState();
+    start.onProcess.listen((code) {
+      if (isAlwaysSuccessful) {
+        final result = _allocateIf(!isVoid);
+        if (isVoid) {
+          code.stmt('parse$name(state)');
+        } else {
+          code.declare('final', result, 'parse$name(state)');
+        }
+
+        const isTrue = 'true';
+        const isFalse = 'false';
+        final handler = code.ifElse(isTrue, isFalse);
+        handler.ifBlock((code) {
+          if (isVoid) {
+            _acceptVoid(code, start);
+          } else {
+            final value = '$result.\$1';
+            start.accept(
+              AcceptEvent(
+                output: code,
+                isConst: false,
+                result: result,
+                value: value,
+              ),
+            );
+          }
+        });
+        handler.elseBlock(start.reject);
+      } else {
+        final result = _allocate();
+        code.declare('final', result, 'parse$name(state)');
+        final isTrue = '$result != null';
+        final isFalse = '$result == null';
+        final handler = code.ifElse(isTrue, isFalse);
+        handler.ifBlock((code) {
+          if (isVoid) {
+            _acceptVoid(code, start);
+          } else {
+            final value = '$result.\$1';
+            start.accept(
+              AcceptEvent(
+                output: code,
+                isConst: false,
+                result: result,
+                value: value,
+              ),
+            );
+          }
+        });
+        handler.elseBlock(start.reject);
+      }
+    });
+
+    return start;
+  }
+
+  @override
+  ExpressionState visitSequence(SequenceExpression node) {
+    final children = node.expressions;
+    final errorHandler = node.errorHandler;
+    if (children.length == 1) {
+      final child = children.first;
+      if (errorHandler == null) {
+        return _buildExpression(child);
+      }
+
+      final start = _newState();
+      final state0 = _buildExpression(child);
+      final errorState = _allocate();
+      final farthestPosition = _allocate();
+      start.onPreprocess.listen((code) {
+        code.declare('final', errorState, 'state.setErrorState()');
+        code.declare('final', farthestPosition, 'state.setFarthestPosition()');
+        state0.onAccept.listen(start.accept);
+      });
+
+      start.onProcess.listen(state0.build);
+
+      start.onPostprocess.listen((code) {
+        _writeBlock(code, errorHandler);
+        code.stmt('state.restoreFarthestPosition($farthestPosition)');
+        code.stmt('state.restoreErrorState($errorState)');
+        start.reject(code);
+      });
+
+      return start;
+    }
+
+    final isAlwaysSuccessful = node.isAlwaysSuccessful;
+    final unsafeChildren = children.where((e) => e.canChangePosition).toSet();
+    final usePosition = unsafeChildren.length > 1 && !isAlwaysSuccessful;
+    final unsafeStates = <ExpressionState>{};
+    final states = <ExpressionState>[];
+    final start = _newState();
+    ExpressionState? res;
+    for (var i = 0; i < children.length; i++) {
+      final child = children[i];
+      final isSingleExitPoint = child.isSingleExitPoint;
+      final combine = !isSingleExitPoint && i != children.length - 1;
+      final state = _buildExpression(child, combine: combine);
+      states.add(state);
+      if (unsafeChildren.contains(child)) {
+        unsafeStates.add(state);
+      }
+
+      final semanticValue = child.semanticValue;
+      if (semanticValue == '\$') {
+        res = state;
+      }
+    }
+
+    var pos = _invalid;
+    var errorState = _invalid;
+    var farthestPosition = _invalid;
+    start.onPreprocess.listen((code) {
+      final caches = <ExpressionState, Map<String, String>>{};
+      var cache = _cache;
+      errorState = _allocateIf(errorHandler != null);
+      farthestPosition = _allocateIf(errorHandler != null);
+      for (final state in states) {
+        caches[state] = cache;
+        if (unsafeStates.contains(state)) {
+          cache = {};
+        }
+      }
+
+      if (errorHandler != null) {
+        code.declare('final', errorState, 'state.setErrorState()');
+        code.declare('final', farthestPosition, 'state.setFarthestPosition()');
+      }
+
+      if (usePosition) {
+        pos = _getPosition(code);
+      }
+
+      var result = _none;
+      var value = _null;
+      var isConst = true;
+      if (res != null) {
+        res.onAccept.listen((event) {
+          isConst = event.isConst;
+          result = event.result;
+          value = event.value;
+        });
+      }
+
+      for (var i = 0; i < states.length; i++) {
+        final state = states[i];
+        if (i == states.length - 1) {
+          state.onAccept.listen((event) {
+            final code = event.output;
+            if (errorHandler != null) {
+              code.stmt('state.restoreFarthestPosition($farthestPosition)');
+              code.stmt('state.restoreErrorState($errorState)');
+            }
+
+            start.accept(
+              AcceptEvent(
+                output: code,
+                isConst: isConst,
+                result: result,
+                value: value,
+              ),
+            );
+          });
+        } else {
+          final next = states[i + 1];
+          state.onAccept.listen((event) {
+            final code = event.output;
+            _cache = caches[next]!;
+            next.build(code);
+          });
+        }
+      }
+    });
+
+    start.onProcess.listen((code) {
+      final state = states.first;
+      state.build(code);
+    });
+
+    start.onPostprocess.listen((code) {
+      if (usePosition) {
+        code.stmt('state.backtrack($pos)');
+      }
+
+      if (errorHandler != null) {
+        _writeBlock(code, errorHandler);
+        code.stmt('state.restoreFarthestPosition($farthestPosition)');
+        code.stmt('state.restoreErrorState($errorState)');
+      }
+
+      start.reject(code);
+    });
+
+    return start;
+  }
+
+  @override
+  ExpressionState visitValue(ValueExpression node) {
+    final source = node.source;
+    final valueType = node.valueType;
+    final start = _newState();
+    start.onProcess.listen((code) {
+      const isTrue = 'true';
+      const isFalse = 'false';
+      final handler = code.ifElse(isTrue, isFalse);
+      handler.ifBlock((code) {
+        var isConst = false;
+        var type = valueType;
+        if (type != null) {
+          if (type.startsWith('const')) {
+            isConst = true;
+          }
+        }
+
+        type ??= 'final';
+        final value = _allocate();
+        code.declare(type, value, source.trim());
+        final result = isConst ? 'const Ok($value)' : 'Ok($value)';
+        start.accept(
+          AcceptEvent(
+            output: code,
+            isConst: isConst,
+            result: result,
+            value: value,
+          ),
+        );
+      });
+      handler.elseBlock(start.reject);
+    });
+
+    return start;
+  }
+
+  @override
+  ExpressionState visitWhile(WhileExpression node) {
+    final range = node.range;
+    return _visitWhile(node, range);
+  }
+
+  @override
+  ExpressionState visitZeroOrMore(ZeroOrMoreExpression node) {
+    const range = (0, null);
+    return _visitWhile(node, range);
+  }
+
+  void _acceptVoid(Code output, ExpressionState state) {
+    state.accept(
+      AcceptEvent(output: output, isConst: true, result: _none, value: _null),
+    );
+  }
+
+  String _allocate([String name = '']) {
+    return allocator.allocate(name);
+  }
+
+  String _allocateIf(bool cond, [String name = '']) {
+    return !cond ? _invalid : allocator.allocate(name);
+  }
+
+  ExpressionState _buildExpression(Expression node, {bool combine = false}) {
+    final semanticValue = node.semanticValue;
+    final isVoid = node.isVoid;
+    final start = combine ? _combine(node, isVoid) : node.accept(this);
+    if (semanticValue != null && semanticValue != '\$') {
+      start.onAccept.listen((event) {
+        final code = event.output;
+        final value = event.value;
+        if (event.isConst) {
+          code.declare('const', semanticValue, value);
+        } else {
+          code.declare('final', semanticValue, value);
+        }
+      });
+    }
+
+    return start;
+  }
+
+  String _charSize(String name, List<(int, int)> ranges, bool negate) {
+    String calc() {
+      return '$name > 0xffff ? 2 : 1';
+    }
+
+    if (options.inputType != InputType.string) {
+      return 'state.charSize($name)';
+    }
+
+    if (negate) {
+      return calc();
+    }
+
+    ranges = normalizeRanges(ranges);
+    if (ranges.any((e) => e.$1 > 0xffff || e.$2 > 0xffff)) {
+      return calc();
+    }
+
+    return '1';
+  }
+
+  ExpressionState _combine(Expression node, bool isVoid) {
+    final start = _newState();
+    //final state0 = _buildExpression(node);
+    final state0 = node.accept(this);
+    var label = _invalid;
+    var result = _invalid;
+    start.onPreprocess.listen((code) {
+      label = _allocate('l');
+      result = _allocate();
+      if (isVoid) {
+        code.declare('var', result, 'false');
+      } else {
+        final type = node.type;
+        code.declare('Result<$type>?', result);
+      }
+      state0.onAccept.listen((event) {
+        final code = event.output;
+        if (isVoid) {
+          code.assign(result, 'true');
+        } else {
+          code.assign(result, event.result);
+        }
+
+        code.stmt('break $label');
+      });
+    });
+
+    start.onProcess.listen((code) {
+      code.writeln('$label:');
+      code.group(state0.build);
+      final isTrue = isVoid ? result : '$result != null';
+      final isFalse = isVoid ? '!$result' : '$result == null';
+      final handler = code.ifElse(isTrue, isFalse);
+      handler.ifBlock((code) {
+        if (!isVoid) {
+          final value = '$result.\$1';
+          start.accept(
+            AcceptEvent(
+              output: code,
+              isConst: false,
+              result: result,
+              value: value,
+            ),
+          );
+        } else {
+          _acceptVoid(code, start);
+        }
+      });
+      handler.elseBlock(start.reject);
+    });
+
+    return start;
+  }
+
+  String _getCachedValue(String name, String Function() f) {
+    if (_cache.containsKey(name)) {
+      return _cache[name]!;
+    }
+
+    final value = f();
+    _cache[name] = value;
+    return value;
+  }
+
+  String _getCh(Code code) {
+    return _getCachedValue('ch', () {
+      final value = _allocate();
+      code.declare('final', value, 'state.peek()');
+      return value;
+    });
+  }
+
+  String _getPosition(Code code) {
+    return _getCachedValue('position', () {
+      final value = _allocate();
+      code.declare('final', value, 'state.position');
+      return value;
+    });
+  }
+
+  (String, int?) _getPredicateAndChar(
+    String name,
+    List<(int, int)> ranges,
+    bool negate,
+  ) {
+    final length = ranges.length;
+    if (length == 1 && !negate) {
+      final range = ranges[0];
+      final min = range.$1;
+      if (min == range.$2) {
+        return ('$name == $min', min);
+      }
+    }
+
+    final rangeGenerator = RangeGenerator(
+      name: name,
+      ranges: ranges,
+      negate: negate,
+    );
+    final predicate = rangeGenerator.generate();
+    return (predicate, null);
+  }
+
+  ExpressionState _newState() => State<Code>();
+
+  String _strlen(String string, String value) {
+    return switch (options.inputType) {
+      InputType.file => 'state.strlen($string)',
+      InputType.string => '${value.length}',
+    };
+  }
+
+  ExpressionState _visitWhile(SingleExpression node, (int?, int?)? range) {
+    final child = node.expression;
+    final isVoid = node.isVoid;
+    range = range ?? (0, null);
+    final min = range.$1 ?? 0;
+    final max = range.$2;
+    if (min < 0) {
+      throw ArgumentError.value(min, 'min', 'Must be not less than 0');
+    }
+
+    if (max != null) {
+      if (max < 1) {
+        throw ArgumentError.value(max, 'max', 'Must be not less than 1');
+      } else if (max < min) {
+        throw ArgumentError.value(max, 'max', 'Must be not less than $min');
+      }
+    }
+
+    final usePosition = min > 1;
+    final start = _newState();
+    final state0 = _buildExpression(child);
+    const list = 1;
+    const counter = 2;
+    const flag = 3;
+    const none = 4;
+    var kind = 0;
+    if (!isVoid) {
+      kind = list;
+    } else {
+      if (min > 1 || (max != null && max > 1)) {
+        kind = counter;
+      } else {
+        if (min > 0 || (max != null && max > 0)) {
+          kind = flag;
+        } else {
+          kind = none;
+        }
+      }
+    }
+
+    var variable = _invalid;
+    var pos = _invalid;
+    start.onPreprocess.listen((code) {
+      pos = !usePosition ? _invalid : _getPosition(code);
+      variable = _allocateIf(kind != none);
+      switch (kind) {
+        case list:
+          final elementType = child.type;
+          code.declare('final', variable, '<$elementType>[]');
+          break;
+        case counter:
+          code.declare('var', variable, '0');
+          break;
+        case flag:
+          code.declare('var', variable, 'false');
+          break;
+        case none:
+          break;
+      }
+
+      state0.onAccept.listen((event) {
+        final code = event.output;
+        switch (kind) {
+          case list:
+            final value = event.value;
+            code.stmt('$variable.add($value)');
+            break;
+          case counter:
+            code.stmt('$variable++');
+            break;
+          case flag:
+            code.assign(variable, 'true');
+            break;
+          case none:
+            break;
+        }
+
+        code.stmt('continue');
+      });
+    });
+
+    start.onProcess.listen((code) {
+      var loopCondition = _invalid;
+      switch (kind) {
+        case list:
+          if (max == null) {
+            loopCondition = 'true';
+          } else {
+            loopCondition = max == 1
+                ? '$variable.isEmpty'
+                : '$variable.length < $max';
+          }
+
+          break;
+        case counter:
+          if (max == null) {
+            loopCondition = 'true';
+          } else {
+            loopCondition = '$variable < $max';
+          }
+
+          break;
+        case flag:
+          if (max == null) {
+            loopCondition = 'true';
+          } else {
+            loopCondition = '!$variable';
+          }
+
+          break;
+        case none:
+          loopCondition = 'true';
+          break;
+      }
+
+      code.while$(loopCondition, (code) {
+        _cache = {};
+        state0.build(code);
+        if (!child.isAlwaysSuccessful) {
+          code.stmt('break');
+        }
+      });
+    });
+
+    start.onPostprocess.listen((code) {
+      var isSuccess = 'true';
+      switch (kind) {
+        case list:
+          if (min > 0) {
+            isSuccess = min == 1
+                ? '$variable.isNotEmpty'
+                : '$variable.length >= $min';
+          }
+
+          break;
+        case counter:
+          if (min > 0) {
+            isSuccess = '$variable >= $min';
+          }
+
+          break;
+        case flag:
+          if (min > 0) {
+            isSuccess = variable;
+          }
+
+          break;
+        case none:
+          break;
+      }
+
+      final isTrue = isSuccess;
+      final isFalse = isTrue == 'true' ? 'false' : '!($isTrue)';
+      final value = isVoid ? _null : variable;
+      final result = isVoid ? _none : 'Ok($variable)';
+      final handler = code.ifElse(isTrue, isFalse);
+      handler.ifBlock((code) {
+        start.accept(
+          AcceptEvent(
+            output: code,
+            isConst: false,
+            result: result,
+            value: value,
+          ),
+        );
+      });
+      handler.elseBlock((code) {
+        if (usePosition) {
+          code.stmt('state.backtrack($pos)');
+        }
+
+        start.reject(code);
+      });
+    });
+
+    return start;
+  }
+
+  void _writeBlock(Code code, String source) {
+    final lines = CodeBuilder.unindentText(source);
+    for (final line in lines) {
+      code.writeln(line.trimRight());
+    }
+  }
+}

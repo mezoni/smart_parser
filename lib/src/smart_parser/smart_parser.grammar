@@ -1,0 +1,514 @@
+%{
+//ignore_for_file: prefer_conditional_assignment, prefer_final_locals
+
+import 'package:source_span/source_span.dart';
+
+import '../expressions.dart';
+import '../grammar.dart';
+
+Grammar parse(String source) {
+  const parser = SmartParser();
+  final state = State(source);
+  final result = parser.parseStart(state);
+  if (result == null) {
+    final file = SourceFile.fromString(source);
+    throw FormatException(state
+        .getErrors()
+        .map((e) => file.span(e.start, e.end).message(e.message))
+        .join('\n'));
+  }
+
+  return result.$1;
+}
+}%
+
+%%
+const SmartParser();
+%%
+
+`Grammar`
+Start =>
+  S
+  g = Globals?
+  m = Members?
+  p = Production+
+  ! .
+  $ = { Grammar(globals: g, members: m, productions: p) }
+
+`String`
+Globals =>
+  '%{'
+  { final index = state.indexOf('\u{7D}%'); }
+  $ = <@position({ index == -1 ? state.length : index })>
+  '}%' S
+
+`String`
+Members =>
+  '%%'
+  { final index = state.indexOf('%%'); }
+  $ = <@position({ index == -1 ? state.length : index })>
+  '%%' S
+
+`Production`
+Production =>
+  { final start = state.position; }
+  t = Type
+  i = ProductionName
+  '=>' S
+  e = Expression
+  [;]? S
+  {
+    final end = state.position;
+    final src = state.substring(start, end).trimRight();
+  }
+  $ = { Production(expression: e, name: i, sourceCode: src, type: t) }
+
+`Expression`
+Expression =>
+  {
+    final pos = state.position;
+  }
+  e = OrderedChoice
+  { e.sourceCode = state.substring(pos, state.position).trimRight(); }
+  $ = { e }
+  ~ { state.errorExpected('expression'); }
+
+`Expression`
+OrderedChoice =>
+  n = Sequence
+  { final l = [n]; }
+  @while (0) {
+    (
+      '/'
+      ----
+      '-'+
+    ) S
+    n = Sequence
+    { l.add(n); }
+  }
+  $ = { OrderedChoiceExpression(expressions: l) }
+
+`Expression`
+Sequence =>
+  { final pos = state.position; }
+  n = (
+    { final pos = state.position; }
+    e = SequenceElement
+    { e.sourceCode = state.substring(pos, state.position).trimRight(); }
+    $ = `Expression` { e }
+  )+
+  h = (
+    '~' S
+    $ = Block
+  )?
+  e = { SequenceExpression(errorHandler: h, expressions: n) }
+  { e.sourceCode = state.substring(pos, state.position).trimRight(); }
+  $ = { e }
+
+`Expression`
+SequenceElement =>
+  Action
+  ----
+  n = (
+    VariableName
+    ---
+    $ = '$'
+    S
+  )
+  '=' S
+  e = (
+    Prefix
+    ----
+    Value
+  )
+  { e.semanticValue = n; }
+  $ = { e }
+  ----
+  Prefix
+
+`Expression`
+Prefix =>
+  '!' S
+  $ = (
+    b = Block
+    $ = { PredicateExpression(negate: true, predicate: b) }
+    ----
+    s = Suffix
+    $ = { NotPredicateExpression(expression: s) }
+  )
+  ----
+  '&' S
+  $ = (
+    b = Block
+    $ = { PredicateExpression(negate: false, predicate: b) }
+    ---
+    s = Suffix
+    $ = { AndPredicateExpression(expression: s) }
+  )
+  ----
+  Suffix
+
+`Expression`
+Suffix =>
+  p = Primary
+  $ = (
+    '*' S
+    $ = { ZeroOrMoreExpression(expression: p) }
+    ----
+    '+' S
+    $ = { OneOrMoreExpression(expression: p) }
+    ----
+    '?' S
+    $ = { OptionalExpression(expression: p) }
+    ---
+    ""
+    $ = { p }
+  )
+
+`Expression`
+Primary =>
+  (
+    Symbol
+    ---
+    CharacterClass
+    ----
+    Literal
+    ----
+    Group
+    ----
+    While
+    ----
+    AnyCharacter
+    ----
+    Capture
+    ----
+    Position
+  )
+  ~ { state.errorExpected('expression'); }
+
+`Expression`
+Symbol =>
+  n = ProductionName S
+  $ = { ProductionExpression(name: n) }
+
+`Expression`
+Action =>
+  b = Block
+  $ = { ActionExpression(source: b) }
+
+`Expression`
+Value =>
+  t = Type?
+  b = Block
+  $ = { ValueExpression(source: b, valueType: t) }
+
+`Expression`
+AnyCharacter =>
+  '.' S
+  $ = { AnyCharacterExpression() }
+
+`Expression`
+Capture =>
+  '<' S
+  e = Expression
+  '>' S
+  $ = { CaptureExpression(expression: e) }
+;
+
+`Expression`
+CharacterClass =>
+  { var negate = false; }
+  (
+    '[^'
+    { negate = true; }
+    ----
+    '['
+  )
+  r = @while (1) {
+    ! ']'
+    $ = Range
+  }
+  ']' S
+  $ = { CharacterClassExpression(ranges: r, negate: negate) }
+
+`Expression`
+Group =>
+  t = Type?
+  '(' S
+  e = Expression
+  ')' S
+  g = { GroupExpression(expression: e) }
+  { t != null ? g.type = t : null; }
+  $ = { g }
+
+`Expression`
+Literal =>
+  s = SQString
+  $ = { LiteralExpression(text: s) }
+  ----
+  s = DQString
+  $ = { LiteralExpression(isPrimitive: true, text: s) }
+
+`Expression`
+Position =>
+  '@position' S
+  '(' S
+  b = Block
+  ')' S
+  $ = { PositionExpression(action: b) }
+
+`Expression`
+  While =>
+  '@while' S
+  '(' S
+  r = WhileRange
+  ')' S
+  '{' S
+  e = Expression
+  '}' S
+  $ = { WhileExpression(expression: e, range: r) }
+
+`(int, int?)`
+WhileRange =>
+  m = DecValue S
+  n = (
+    ',' S
+    $ = DecValue1 S
+  )?
+  $ = { (m, n) }
+
+`String`
+Type =>
+  '`'
+  $ = <
+    @while (0) {
+      ! [`]
+      [a-zA-Z0-9_$<(\{,:\})>? ]
+    }
+  >
+  '`' S
+  ~ { state.errorExpected('type'); }
+
+`String`
+DQString =>
+  '"'
+  p = @while (0) {
+    <[{20-21}{23-5B}{5D-10FFFF}]+>
+    ---
+    Escaped
+  }
+  '"' S
+  $ = { p.join() }
+
+`String`
+SQString =>
+  '\''
+  p = @while (0) {
+    <[{20-26}{28-5B}{5D-10FFFF}]+>
+    ---
+    Escaped
+  }
+  '\'' S
+  $ = { p.join() }
+
+`String`
+Escaped =>
+  "\\"
+  $ = (
+    "u"
+    "{"
+    v = HexValue
+    "}"
+    $ = {String.fromCharCode(v) }
+    ~ { state.errorIncorrect('Unterminated Unicode escape sequence'); }
+    ----
+    "a"
+    $ = `const` { '\u0007' }
+    ----
+    "b"
+    $ = `const` { '\b' }
+    ----
+    "e"
+    $ = `const` { '\u001B' }
+    ----
+    "f"
+    $ = `const` { '\f' }
+    ----
+    "n"
+    $ = `const` { '\n' }
+    ----
+    "r"
+    $ = `const` { '\r' }
+    ----
+    "t"
+    $ = `const` { '\t' }
+    ----
+    "v"
+    $ = `const` { '\v' }
+    ----
+    "\\"
+    $ = `const` { '\\' }
+    ----
+    "\""
+    $ = `const` { '"' }
+    ----
+    "'"
+    $ = `const` { '\'' }
+  )
+
+`int`
+RangeChar =>
+  ! "\\"
+  $ = [^{0-1F}\{\}\[\]\\]
+  ---
+  "\\"
+  $ = (
+    "u"
+    "{"
+    $ = HexValue
+    "}"
+    ~ { state.errorIncorrect('Unterminated Unicode escape sequence'); }
+    ----
+    "a"
+    $ = `const` { 0x07 }
+    ---
+    "b"
+    $ = `const` { 0x08 }
+    ---
+    "e"
+    $ = `const` { 0x1B }
+    ---
+    "f"
+    $ = `const` { 0x0C }
+    ---
+    "n"
+    $ = `const` { 0x0A }
+    ---
+    "r"
+    $ = `const` { 0x0D }
+    ---
+    "t"
+    $ = `const` { 0x09 }
+    ---
+    "v"
+    $ = `const` { 0x0B }
+    ---
+    "-"
+    $ = `const` { 0x2D }
+    ---
+    "["
+    $ = `const` { 0x5B }
+    ---
+    "\\"
+    $ = `const` { 0x5C }
+    ---
+    "]"
+    $ = `const` { 0x5D }
+    ---
+    "^"
+    $ = `const` { 0x5E }
+    ---
+    "{"
+    $ = `const` { 0x7B }
+    ---
+    "}"
+    $ = `const` { 0x7D }
+  )
+
+`int`
+DecValue =>
+  n = <[0-9]+>
+  $ = { int.parse(n) }
+  ~ { state.errorExpected('number'); }
+
+`int`
+DecValue1 =>
+  n = <[1-9] [0-9]*>
+  $ = { int.parse(n) }
+  ~ { state.errorExpected('number'); }
+
+`int`
+HexValue =>
+  n = <[a-fA-F0-9]+>
+  $ = { int.parse(n, radix: 16) }
+  ~ { state.errorExpected('hexadecimal number'); }
+
+`(int, int)`
+Range =>
+  (
+    "{"
+    s = HexValue
+    "-"
+    e = HexValue
+    '}'
+    $ = { (s, e) }
+    ----
+    "{"
+    n = HexValue
+    '}'
+    $ = { (n, n) }
+    ---
+    s = RangeChar
+    "-"
+    e = RangeChar
+    $ = { (s, e) }
+    ----
+    n = RangeChar
+    $ = { (n, n) }
+  )
+  ~ { state.errorExpected('range'); }
+
+`String`
+Block =>
+  '{'
+  $ = <BlockBody*>
+  '}' S
+
+`void`
+BlockBody =>
+  "{"
+  BlockBody*
+  '}'
+  ----
+  ! "}"
+  .
+
+`String`
+VariableName =>
+  $ = <[a-z] [a-zA-Z0-9_]*>
+  S
+  ~ { state.errorExpected('variable name'); }
+
+`String`
+ProductionName =>
+  $ = <[A-Z] [a-zA-Z0-9_]*>
+  S
+  ~ { state.errorExpected('production name'); }
+
+`void`
+S => @while (0) {
+  Space
+  ----
+  Comment
+}
+
+`void`
+Comment =>
+  "#"
+  @while (0) {
+    ! EndOfLine
+    .
+  }
+  EndOfLine?
+
+`void`
+Space =>
+  [ \t]
+  ----
+  EndOfLine
+
+`void`
+EndOfLine =>
+  "\r\n"
+  ----
+  [\n\r]
