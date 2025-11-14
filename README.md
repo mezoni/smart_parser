@@ -2,7 +2,7 @@
 
 This software is a library that generates source code of recursive descent parsers based on a grammar consisting of the parsing expressions and native Dart language source code
 
-Version: 1.0.0-beta.1
+Version: 1.0.0-beta.2
 
 [![Pub Package](https://img.shields.io/pub/v/smart_parser.svg)](https://pub.dev/packages/smart_parser)
 [![GitHub Issues](https://img.shields.io/github/issues/mezoni/smart_parser.svg)](https://github.com/mezoni/smart_parser/issues)
@@ -141,7 +141,7 @@ Result<List<int>>? parseAB(State state) {
 The grammar is simple and intuitive. Understanding the the grammar should not be difficult.  
 The quality of the generated code is quite acceptable.  
 The performance of the generated parsers is quite good.  
-All of the above allows this software to be used for the implementation of practical applications, including thr tokenizers and real-time parsers (such as `JSON`, `CSV`, `XML` and others).  
+All of the above allows this software to be used for the implementation of practical applications, including the tokenizers and real-time parsers (such as `JSON`, `CSV`, `XML` and others).  
 
 The planned feature is to generate a parsers that parses the tokenized input produced by the tokenizers.
 
@@ -427,11 +427,13 @@ Result<Expression>? parseExpression(State state) {
   final $1 = state.setFarthestPosition();
   final $2 = parseAdditional(state);
   if ($2 != null) {
+    state.updateFarthestPosition($1);
+    state.restoreErrorState($0);
     return $2;
   }
   state.removeRecentErrors();
   state.errorExpected('expression');
-  state.restoreFarthestPosition($1);
+  state.updateFarthestPosition($1);
   state.restoreErrorState($0);
   return null;
 }
@@ -479,7 +481,7 @@ Result<int>? parseHexValue(State state) {
     final $5 = state.substring($2, state.position);
     final n = $5;
     final $6 = int.parse(n, radix: 16);
-    state.restoreFarthestPosition($1);
+    state.updateFarthestPosition($1);
     state.restoreErrorState($0);
     return Ok($6);
   } else {
@@ -487,7 +489,7 @@ Result<int>? parseHexValue(State state) {
   }
   state.errorExpected('hex number');
   state.errorIncorrect('Invalid four-digit number', true);
-  state.restoreFarthestPosition($1);
+  state.updateFarthestPosition($1);
   state.restoreErrorState($0);
   return null;
 }

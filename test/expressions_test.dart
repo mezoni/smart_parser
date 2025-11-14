@@ -4845,7 +4845,7 @@ class _TestParser {
         if ($5 == 99) {
           state.position += 1;
           const $6 = 'abc';
-          state.restoreFarthestPosition($1);
+          state.updateFarthestPosition($1);
           state.restoreErrorState($0);
           return const Ok($6);
         }
@@ -4856,7 +4856,7 @@ class _TestParser {
     state.errorIncorrect('Full', true);
     state.errorIncorrect('End', false);
     state.errorIncorrect('Start', null);
-    state.restoreFarthestPosition($1);
+    state.updateFarthestPosition($1);
     state.restoreErrorState($0);
     return null;
   }
@@ -4893,7 +4893,7 @@ class _TestParser {
         if ($5 == 99) {
           state.position += 1;
           const $6 = 'abc';
-          state.restoreFarthestPosition($1);
+          state.updateFarthestPosition($1);
           state.restoreErrorState($0);
           return Result.none;
         }
@@ -4904,7 +4904,7 @@ class _TestParser {
     state.errorIncorrect('Full', true);
     state.errorIncorrect('End', false);
     state.errorIncorrect('Start', null);
-    state.restoreFarthestPosition($1);
+    state.updateFarthestPosition($1);
     state.restoreErrorState($0);
     return null;
   }
@@ -6162,15 +6162,6 @@ class State {
   /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  void restoreFarthestPosition(int farthestPosition) {
-    if (this.farthestPosition < farthestPosition) {
-      this.farthestPosition = farthestPosition;
-    }
-  }
-
-  /// Intended for internal use only.
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
   int setErrorState() {
     final errorState = _errorState;
     if (_farthestError < position) {
@@ -6243,6 +6234,15 @@ class State {
     var line = substring(position, position + rest);
     line = line.replaceAll('\n', r'\n');
     return '|$position|$line';
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  void updateFarthestPosition(int farthestPosition) {
+    if (this.farthestPosition < farthestPosition) {
+      this.farthestPosition = farthestPosition;
+    }
   }
 }
 

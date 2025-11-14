@@ -569,14 +569,19 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
       start.onPreprocess.listen((code) {
         code.declare('final', errorState, 'state.setErrorState()');
         code.declare('final', farthestPosition, 'state.setFarthestPosition()');
-        state0.onAccept.listen(start.accept);
+        state0.onAccept.listen((event) {
+          final code = event.output;
+          code.stmt('state.updateFarthestPosition($farthestPosition)');
+          code.stmt('state.restoreErrorState($errorState)');
+          start.accept(event);
+        });
       });
 
       start.onProcess.listen(state0.build);
 
       start.onPostprocess.listen((code) {
         _writeBlock(code, errorHandler);
-        code.stmt('state.restoreFarthestPosition($farthestPosition)');
+        code.stmt('state.updateFarthestPosition($farthestPosition)');
         code.stmt('state.restoreErrorState($errorState)');
         start.reject(code);
       });
@@ -648,7 +653,7 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
           state.onAccept.listen((event) {
             final code = event.output;
             if (errorHandler != null) {
-              code.stmt('state.restoreFarthestPosition($farthestPosition)');
+              code.stmt('state.updateFarthestPosition($farthestPosition)');
               code.stmt('state.restoreErrorState($errorState)');
             }
 
@@ -684,7 +689,7 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
 
       if (errorHandler != null) {
         _writeBlock(code, errorHandler);
-        code.stmt('state.restoreFarthestPosition($farthestPosition)');
+        code.stmt('state.updateFarthestPosition($farthestPosition)');
         code.stmt('state.restoreErrorState($errorState)');
       }
 

@@ -292,15 +292,6 @@ class State {
   /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  void restoreFarthestPosition(int farthestPosition) {
-    if (this.farthestPosition < farthestPosition) {
-      this.farthestPosition = farthestPosition;
-    }
-  }
-
-  /// Intended for internal use only.
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
   int setErrorState() {
     final errorState = _errorState;
     if (_farthestError < position) {
@@ -373,6 +364,15 @@ class State {
     var line = substring(position, position + rest);
     line = line.replaceAll('\n', r'\n');
     return '|$position|$line';
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  void updateFarthestPosition(int farthestPosition) {
+    if (this.farthestPosition < farthestPosition) {
+      this.farthestPosition = farthestPosition;
+    }
   }
 }
 ''';

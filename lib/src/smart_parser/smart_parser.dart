@@ -211,12 +211,12 @@ class SmartParser {
       final e = $2.$1;
       e.sourceCode = state.substring(pos, state.position).trimRight();
       final $3 = e;
-      state.restoreFarthestPosition($1);
+      state.updateFarthestPosition($1);
       state.restoreErrorState($0);
       return Ok($3);
     }
     state.errorExpected('expression');
-    state.restoreFarthestPosition($1);
+    state.updateFarthestPosition($1);
     state.restoreErrorState($0);
     return null;
   }
@@ -614,38 +614,54 @@ class SmartParser {
     final $1 = state.setFarthestPosition();
     final $2 = parseSymbol(state);
     if ($2 != null) {
+      state.updateFarthestPosition($1);
+      state.restoreErrorState($0);
       return $2;
     }
     final $3 = parseCharacterClass(state);
     if ($3 != null) {
+      state.updateFarthestPosition($1);
+      state.restoreErrorState($0);
       return $3;
     }
     final $4 = parseLiteral(state);
     if ($4 != null) {
+      state.updateFarthestPosition($1);
+      state.restoreErrorState($0);
       return $4;
     }
     final $5 = parseGroup(state);
     if ($5 != null) {
+      state.updateFarthestPosition($1);
+      state.restoreErrorState($0);
       return $5;
     }
     final $6 = parseWhile(state);
     if ($6 != null) {
+      state.updateFarthestPosition($1);
+      state.restoreErrorState($0);
       return $6;
     }
     final $7 = parseAnyCharacter(state);
     if ($7 != null) {
+      state.updateFarthestPosition($1);
+      state.restoreErrorState($0);
       return $7;
     }
     final $8 = parseCapture(state);
     if ($8 != null) {
+      state.updateFarthestPosition($1);
+      state.restoreErrorState($0);
       return $8;
     }
     final $9 = parsePosition(state);
     if ($9 != null) {
+      state.updateFarthestPosition($1);
+      state.restoreErrorState($0);
       return $9;
     }
     state.errorExpected('expression');
-    state.restoreFarthestPosition($1);
+    state.updateFarthestPosition($1);
     state.restoreErrorState($0);
     return null;
   }
@@ -1137,7 +1153,7 @@ class SmartParser {
       if ($11 == 96) {
         state.position += 1;
         parseS(state);
-        state.restoreFarthestPosition($1);
+        state.updateFarthestPosition($1);
         state.restoreErrorState($0);
         return Ok($10);
       } else {
@@ -1148,7 +1164,7 @@ class SmartParser {
     }
     state.backtrack($2);
     state.errorExpected('type');
-    state.restoreFarthestPosition($1);
+    state.updateFarthestPosition($1);
     state.restoreErrorState($0);
     return null;
   }
@@ -1351,7 +1367,7 @@ class SmartParser {
             if ($8 == 125) {
               state.position += 1;
               final $9 = String.fromCharCode(v);
-              state.restoreFarthestPosition($3);
+              state.updateFarthestPosition($3);
               state.restoreErrorState($2);
               return Ok($9);
             }
@@ -1360,7 +1376,7 @@ class SmartParser {
       }
       state.backtrack($4);
       state.errorIncorrect('Unterminated Unicode escape sequence');
-      state.restoreFarthestPosition($3);
+      state.updateFarthestPosition($3);
       state.restoreErrorState($2);
       // 'a'
       if ($5 == 97) {
@@ -1535,7 +1551,7 @@ class SmartParser {
             // '}'
             if ($11 == 125) {
               state.position += 1;
-              state.restoreFarthestPosition($6);
+              state.updateFarthestPosition($6);
               state.restoreErrorState($5);
               return $10;
             }
@@ -1544,7 +1560,7 @@ class SmartParser {
       }
       state.backtrack($7);
       state.errorIncorrect('Unterminated Unicode escape sequence');
-      state.restoreFarthestPosition($6);
+      state.updateFarthestPosition($6);
       state.restoreErrorState($5);
       // 'a'
       if ($8 == 97) {
@@ -1668,12 +1684,12 @@ class SmartParser {
       final $6 = state.substring($2, state.position);
       final n = $6;
       final $7 = int.parse(n);
-      state.restoreFarthestPosition($1);
+      state.updateFarthestPosition($1);
       state.restoreErrorState($0);
       return Ok($7);
     }
     state.errorExpected('number');
-    state.restoreFarthestPosition($1);
+    state.updateFarthestPosition($1);
     state.restoreErrorState($0);
     return null;
   }
@@ -1706,13 +1722,13 @@ class SmartParser {
       final $7 = state.substring($2, state.position);
       final n = $7;
       final $8 = int.parse(n);
-      state.restoreFarthestPosition($1);
+      state.updateFarthestPosition($1);
       state.restoreErrorState($0);
       return Ok($8);
     }
     state.backtrack($2);
     state.errorExpected('number');
-    state.restoreFarthestPosition($1);
+    state.updateFarthestPosition($1);
     state.restoreErrorState($0);
     return null;
   }
@@ -1744,12 +1760,12 @@ class SmartParser {
       final $6 = state.substring($2, state.position);
       final n = $6;
       final $7 = int.parse(n, radix: 16);
-      state.restoreFarthestPosition($1);
+      state.updateFarthestPosition($1);
       state.restoreErrorState($0);
       return Ok($7);
     }
     state.errorExpected('hexadecimal number');
-    state.restoreFarthestPosition($1);
+    state.updateFarthestPosition($1);
     state.restoreErrorState($0);
     return null;
   }
@@ -1804,6 +1820,8 @@ class SmartParser {
             if ($7 == 125) {
               state.position += 1;
               final $8 = (s, e);
+              state.updateFarthestPosition($1);
+              state.restoreErrorState($0);
               return Ok($8);
             } else {
               state.errorExpected('}');
@@ -1824,6 +1842,8 @@ class SmartParser {
         if ($10 == 125) {
           state.position += 1;
           final $11 = (n, n);
+          state.updateFarthestPosition($1);
+          state.restoreErrorState($0);
           return Ok($11);
         } else {
           state.errorExpected('}');
@@ -1842,6 +1862,8 @@ class SmartParser {
         if ($14 != null) {
           final e = $14.$1;
           final $15 = (s, e);
+          state.updateFarthestPosition($1);
+          state.restoreErrorState($0);
           return Ok($15);
         }
       }
@@ -1851,10 +1873,12 @@ class SmartParser {
     if ($16 != null) {
       final n = $16.$1;
       final $17 = (n, n);
+      state.updateFarthestPosition($1);
+      state.restoreErrorState($0);
       return Ok($17);
     }
     state.errorExpected('range');
-    state.restoreFarthestPosition($1);
+    state.updateFarthestPosition($1);
     state.restoreErrorState($0);
     return null;
   }
@@ -1979,14 +2003,14 @@ class SmartParser {
       }
       final $7 = state.substring($2, state.position);
       parseS(state);
-      state.restoreFarthestPosition($1);
+      state.updateFarthestPosition($1);
       state.restoreErrorState($0);
       return Ok($7);
     }
     state.backtrack($2);
     state.backtrack($2);
     state.errorExpected('variable name');
-    state.restoreFarthestPosition($1);
+    state.updateFarthestPosition($1);
     state.restoreErrorState($0);
     return null;
   }
@@ -2018,14 +2042,14 @@ class SmartParser {
       }
       final $7 = state.substring($2, state.position);
       parseS(state);
-      state.restoreFarthestPosition($1);
+      state.updateFarthestPosition($1);
       state.restoreErrorState($0);
       return Ok($7);
     }
     state.backtrack($2);
     state.backtrack($2);
     state.errorExpected('production name');
-    state.restoreFarthestPosition($1);
+    state.updateFarthestPosition($1);
     state.restoreErrorState($0);
     return null;
   }
@@ -2437,15 +2461,6 @@ class State {
   /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  void restoreFarthestPosition(int farthestPosition) {
-    if (this.farthestPosition < farthestPosition) {
-      this.farthestPosition = farthestPosition;
-    }
-  }
-
-  /// Intended for internal use only.
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
   int setErrorState() {
     final errorState = _errorState;
     if (_farthestError < position) {
@@ -2518,6 +2533,15 @@ class State {
     var line = substring(position, position + rest);
     line = line.replaceAll('\n', r'\n');
     return '|$position|$line';
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  void updateFarthestPosition(int farthestPosition) {
+    if (this.farthestPosition < farthestPosition) {
+      this.farthestPosition = farthestPosition;
+    }
   }
 }
 

@@ -225,7 +225,7 @@ class JsonTokenizer {
       final $6 = state.substring($2, state.position);
       final s = $6;
       final $7 = String.fromCharCode(int.parse(s, radix: 16));
-      state.restoreFarthestPosition($1);
+      state.updateFarthestPosition($1);
       state.restoreErrorState($0);
       return Ok($7);
     } else {
@@ -234,7 +234,7 @@ class JsonTokenizer {
     state.errorExpected('4 hexadecimal digit number');
     state.errorIncorrect('Expected hexadecimal digit', false);
     state.errorIncorrect('Incorrect 4 hexadecimal digit number', true);
-    state.restoreFarthestPosition($1);
+    state.updateFarthestPosition($1);
     state.restoreErrorState($0);
     return null;
   }
@@ -277,52 +277,68 @@ class JsonTokenizer {
     if ($2 == 34) {
       state.position += 1;
       const $3 = '"';
+      state.updateFarthestPosition($1);
+      state.restoreErrorState($0);
       return const Ok($3);
     }
     // '\\'
     if ($2 == 92) {
       state.position += 1;
       const $4 = '\\';
+      state.updateFarthestPosition($1);
+      state.restoreErrorState($0);
       return const Ok($4);
     }
     // '/'
     if ($2 == 47) {
       state.position += 1;
       const $5 = '/';
+      state.updateFarthestPosition($1);
+      state.restoreErrorState($0);
       return const Ok($5);
     }
     // 'b'
     if ($2 == 98) {
       state.position += 1;
       const $6 = '\b';
+      state.updateFarthestPosition($1);
+      state.restoreErrorState($0);
       return const Ok($6);
     }
     // 'f'
     if ($2 == 102) {
       state.position += 1;
       const $7 = '\f';
+      state.updateFarthestPosition($1);
+      state.restoreErrorState($0);
       return const Ok($7);
     }
     // 'n'
     if ($2 == 110) {
       state.position += 1;
       const $8 = '\n';
+      state.updateFarthestPosition($1);
+      state.restoreErrorState($0);
       return const Ok($8);
     }
     // 'r'
     if ($2 == 114) {
       state.position += 1;
       const $9 = '\r';
+      state.updateFarthestPosition($1);
+      state.restoreErrorState($0);
       return const Ok($9);
     }
     // 't'
     if ($2 == 116) {
       state.position += 1;
       const $10 = '\t';
+      state.updateFarthestPosition($1);
+      state.restoreErrorState($0);
       return const Ok($10);
     }
     state.error('Illegal escape character');
-    state.restoreFarthestPosition($1);
+    state.updateFarthestPosition($1);
     state.restoreErrorState($0);
     return null;
   }
@@ -498,14 +514,14 @@ class JsonTokenizer {
           }
           if ($12) {
             flag = false;
-            state.restoreFarthestPosition($9);
+            state.updateFarthestPosition($9);
             state.restoreErrorState($8);
             break $l1;
           }
         }
         state.backtrack($10);
         state.errorIncorrect('Unterminated fractional number');
-        state.restoreFarthestPosition($9);
+        state.updateFarthestPosition($9);
         state.restoreErrorState($8);
       }
       $l2:
@@ -535,14 +551,14 @@ class JsonTokenizer {
           }
           if ($22) {
             flag = false;
-            state.restoreFarthestPosition($16);
+            state.updateFarthestPosition($16);
             state.restoreErrorState($15);
             break $l2;
           }
         }
         state.backtrack($17);
         state.errorIncorrect('Exponent part is missing a number');
-        state.restoreFarthestPosition($16);
+        state.updateFarthestPosition($16);
         state.restoreErrorState($15);
       }
       final $25 = state.substring(start, state.position);
@@ -867,15 +883,6 @@ class State {
   /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  void restoreFarthestPosition(int farthestPosition) {
-    if (this.farthestPosition < farthestPosition) {
-      this.farthestPosition = farthestPosition;
-    }
-  }
-
-  /// Intended for internal use only.
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
   int setErrorState() {
     final errorState = _errorState;
     if (_farthestError < position) {
@@ -948,6 +955,15 @@ class State {
     var line = substring(position, position + rest);
     line = line.replaceAll('\n', r'\n');
     return '|$position|$line';
+  }
+
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  void updateFarthestPosition(int farthestPosition) {
+    if (this.farthestPosition < farthestPosition) {
+      this.farthestPosition = farthestPosition;
+    }
   }
 }
 
