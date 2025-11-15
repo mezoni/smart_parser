@@ -6,8 +6,9 @@ import 'package:smart_parser/src/production_generator.dart';
 import 'package:yaml/yaml.dart';
 
 void main(List<String> args) {
-  const inputFileName = 'tool/README.in.md';
-  var input = File(inputFileName).readAsStringSync();
+  const inputFile = 'tool/README.in.md';
+  const outputFile = 'README.md';
+  var input = File(inputFile).readAsStringSync();
   final re = RegExp('(?<=START)(((?!END).)*)(?=END)', dotAll: true);
   for (final match in re.allMatches(input)) {
     final source = match.group(0)!.trim();
@@ -37,5 +38,5 @@ END''';
   input = input.replaceAll('{{name}}', '$name');
   input = input.replaceAll('{{description}}', '$description');
   input = input.replaceAll('{{version}}', '$version');
-  File('README.md').writeAsStringSync(input);
+  File(outputFile).writeAsStringSync(input);
 }

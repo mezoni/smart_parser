@@ -8,13 +8,18 @@ import 'src/runtime_generator.dart';
 
 export 'parser_generator_options.dart';
 
+/// [Parser Generator] generates parser source code from a given grammar
+/// [source] code.
 class ParserGenerator {
+  /// Parser generator options.
   final ParserGeneratorOptions options;
 
+  /// Source code of the grammar.
   final String source;
 
   ParserGenerator({required this.options, required this.source});
 
+  /// Generates parser source code and returns that code.
   String generate() {
     final grammarGenerator = GrammarGenerator(source: source);
     final grammar = grammarGenerator.generate();

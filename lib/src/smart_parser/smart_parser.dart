@@ -11,10 +11,12 @@ Grammar parse(String source) {
   final result = parser.parseStart(state);
   if (result == null) {
     final file = SourceFile.fromString(source);
-    throw FormatException(state
-        .getErrors()
-        .map((e) => file.span(e.start, e.end).message(e.message))
-        .join('\n'));
+    throw FormatException(
+      state
+          .getErrors()
+          .map((e) => file.span(e.start, e.end).message(e.message))
+          .join('\n'),
+    );
   }
 
   return result.$1;
@@ -2544,4 +2546,3 @@ class State {
     }
   }
 }
-

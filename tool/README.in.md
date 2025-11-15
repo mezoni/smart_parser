@@ -173,13 +173,14 @@ import 'dart:io';
 import 'package:smart_parser/parser_generator.dart';
 
 void main(List<String> args) {
-  const inputFileName = 'lib/src/smart_parser/smart_parser.grammar';
-  const outputFileName = 'lib/src/smart_parser/smart_parser.dart';
-  final source = File(inputFileName).readAsStringSync();
+  const inputFile = 'lib/src/smart_parser/smart_parser.grammar';
+  const outputFile = 'lib/src/smart_parser/smart_parser.dart';
+  final source = File(inputFile).readAsStringSync();
   final options = ParserGeneratorOptions(name: 'SmartParser');
   final parserGenerator = ParserGenerator(options: options, source: source);
   final output = parserGenerator.generate();
-  File(outputFileName).writeAsStringSync(output);
+  File(outputFile).writeAsStringSync(output);
+  Process.runSync(Platform.executable, ['format', outputFile]);
 }
 ```
 

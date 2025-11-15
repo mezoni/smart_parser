@@ -6,11 +6,14 @@ import 'src/grammar.dart';
 import 'src/smart_parser/smart_parser.dart';
 import 'src/type_resolver.dart';
 
+/// [GrammarGenerator] generates grammar from grammar [source] code.
 class GrammarGenerator {
+  /// Grammar source code.
   final String source;
 
   GrammarGenerator({required this.source});
 
+  /// Generates a grammar and returns that grammar.
   Grammar generate() {
     const parser = SmartParser();
     final state = State(source);

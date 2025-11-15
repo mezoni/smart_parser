@@ -40,6 +40,7 @@ void main(List<String> args) {
   final lines = <String>[];
   code.build(lines, '');
   File(outputFile).writeAsStringSync(lines.join('\n'));
+  Process.runSync(Platform.executable, ['format', outputFile]);
 }
 
 String _error(int start, int end, String message) {

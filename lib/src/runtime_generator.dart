@@ -374,8 +374,7 @@ class State {
       this.farthestPosition = farthestPosition;
     }
   }
-}
-''';
+}''';
 
   String generate() {
     return _template;
