@@ -2,7 +2,7 @@
 
 This software is a library that generates source code of recursive descent parsers based on a grammar consisting of the parsing expressions and native Dart language source code
 
-Version: 1.0.0-beta.3
+Version: 1.0.0-beta.4
 
 [![Pub Package](https://img.shields.io/pub/v/smart_parser.svg)](https://pub.dev/packages/smart_parser)
 [![GitHub Issues](https://img.shields.io/github/issues/mezoni/smart_parser.svg)](https://github.com/mezoni/smart_parser/issues)
