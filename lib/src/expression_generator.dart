@@ -10,6 +10,24 @@ import 'state_machine.dart';
 
 typedef ExpressionState = State<Code>;
 
+class Cache {
+  Map<String, String> data = {};
+
+  void clear() {
+    data = {};
+  }
+
+  void clone() {
+    final data = this.data;
+    this.data = {};
+    this.data.addAll(data);
+  }
+
+  void restore(Map<String, String> data) {
+    this.data = data;
+  }
+}
+
 class ExpressionGenerator implements Visitor<ExpressionState> {
   static const _invalid = '__INVALID__';
 
@@ -19,11 +37,15 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
 
   final Allocator allocator;
 
+  Cache cache;
+
   final ParserGeneratorOptions options;
 
-  Map<String, String> _cache = {};
-
-  ExpressionGenerator({required this.allocator, required this.options});
+  ExpressionGenerator({
+    required this.allocator,
+    required this.cache,
+    required this.options,
+  });
 
   ExpressionState generate(Expression expression) {
     return _buildExpression(expression);
@@ -55,7 +77,9 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
     final usePosition = child.canChangePosition;
     start.onPreprocess.listen((code) {
       code.stmt('state.predicate++');
+      final data = cache.data;
       final pos = !usePosition ? _invalid : _getPosition(code);
+      cache.clone();
       state0.onAccept.listen((event) {
         final code = event.output;
         if (usePosition) {
@@ -63,6 +87,7 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
         }
 
         code.stmt('state.predicate--');
+        cache.restore(data);
         _acceptVoid(code, start);
       });
       state0.onReject.listen((code) {
@@ -80,6 +105,7 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
     final start = _newState();
     start.onProcess.listen((code) {
       final value = _getCh(code);
+      cache.clear();
       final charSize = _charSize(value, const [(0, 0x10ffff)], false);
       final result = 'Ok($value)';
       final isTrue = '$value >= 0';
@@ -142,6 +168,7 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
     final start = _newState();
     start.onProcess.listen((code) {
       final ch = _getCh(code);
+      cache.clear();
       final (predicate, char) = _getPredicateAndChar(ch, ranges, negate);
       if (char != null) {
         final value = '$char';
@@ -232,6 +259,7 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
         final runes = text.runes;
         final firstRune = runes.first;
         final c = _getCh(code);
+        cache.clear();
         final value = isVoid ? _null : escaped;
         final result = isVoid ? _none : 'const Ok($escaped)';
         final length = _strlen(escaped, text);
@@ -282,8 +310,9 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
     var label = _invalid;
     var isSuccess = _invalid;
     start.onPreprocess.listen((code) {
-      code.stmt('state.predicate++');
       final pos = !usePosition ? _invalid : _getPosition(code);
+      code.stmt('state.predicate++');
+      cache.clone();
       isSuccess = _allocate();
       code.declare('var', isSuccess, 'true');
       label = _allocateIf(combine, 'l');
@@ -301,9 +330,10 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
     });
 
     start.onProcess.listen((code) {
+      final data = cache.data;
+      cache.clone();
       if (combine) {
         code.writeln('$label:');
-        _cache = {};
         code.group(state0.build);
       } else {
         state0.build(code);
@@ -314,6 +344,7 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
       code.stmt('state.predicate--');
       final handler = code.ifElse(isTrue, isFalse);
       handler.ifBlock((code) {
+        cache.restore(data);
         _acceptVoid(code, start);
       });
       handler.elseBlock(start.reject);
@@ -364,7 +395,6 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
     start.onProcess.listen((code) {
       if (combine) {
         code.writeln('$label:');
-        _cache = {};
         code.group(state0.build);
       } else {
         if (child case final ProductionExpression child) {
@@ -438,13 +468,19 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
       }
     });
 
-    _cache = {};
+    final canChangePosition = node.canChangePosition;
     start.onProcess.listen((code) {
-      final cache = _cache;
+      final data = cache.data;
       for (var i = 0; i < states.length; i++) {
         final state = states[i];
+        cache.restore(data);
         state.build(code);
-        _cache = cache;
+      }
+
+      if (canChangePosition) {
+        cache.clear();
+      } else {
+        cache.restore(data);
       }
     });
 
@@ -457,6 +493,7 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
     final action = node.action;
     final start = _newState();
     start.onProcess.listen((code) {
+      cache.clear();
       const isTrue = 'true';
       const isFalse = 'false';
       final handler = code.ifElse(isTrue, isFalse);
@@ -495,8 +532,13 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
     final name = node.name;
     final isVoid = node.isVoid;
     final isAlwaysSuccessful = node.isAlwaysSuccessful;
+    final canChangePosition = node.canChangePosition;
     final start = _newState();
     start.onProcess.listen((code) {
+      if (canChangePosition) {
+        cache.clear();
+      }
+
       if (isAlwaysSuccessful) {
         final result = _allocateIf(!isVoid);
         if (isVoid) {
@@ -568,10 +610,15 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
       final farthestPosition = _allocate();
       start.onPreprocess.listen((code) {
         code.declare('final', errorState, 'state.setErrorState()');
-        code.declare('final', farthestPosition, 'state.setFarthestPosition()');
+        //code.declare('final', farthestPosition, 'state.setFarthestPosition()');
+        code.declare('final', farthestPosition, 'state.farthestPosition');
+        code.assign('state.farthestPosition', 'state.position');
         state0.onAccept.listen((event) {
           final code = event.output;
-          code.stmt('state.updateFarthestPosition($farthestPosition)');
+          code.stmt(
+            'state.farthestPosition < $farthestPosition ? state.farthestPosition = $farthestPosition : null',
+          );
+          //code.stmt('state.updateFarthestPosition($farthestPosition)');
           code.stmt('state.restoreErrorState($errorState)');
           start.accept(event);
         });
@@ -581,7 +628,10 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
 
       start.onPostprocess.listen((code) {
         _writeBlock(code, errorHandler);
-        code.stmt('state.updateFarthestPosition($farthestPosition)');
+        code.stmt(
+          'state.farthestPosition < $farthestPosition ? state.farthestPosition = $farthestPosition : null',
+        );
+        //code.stmt('state.updateFarthestPosition($farthestPosition)');
         code.stmt('state.restoreErrorState($errorState)');
         start.reject(code);
       });
@@ -589,21 +639,23 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
       return start;
     }
 
-    final isAlwaysSuccessful = node.isAlwaysSuccessful;
-    final unsafeChildren = children.where((e) => e.canChangePosition).toSet();
-    final usePosition = unsafeChildren.length > 1 && !isAlwaysSuccessful;
-    final unsafeStates = <ExpressionState>{};
+    final statesThatRestorePosition = <ExpressionState>{};
+    ExpressionState? res;
+    var positionChanged = false;
     final states = <ExpressionState>[];
     final start = _newState();
-    ExpressionState? res;
     for (var i = 0; i < children.length; i++) {
       final child = children[i];
       final isSingleExitPoint = child.isSingleExitPoint;
       final combine = !isSingleExitPoint && i != children.length - 1;
       final state = _buildExpression(child, combine: combine);
       states.add(state);
-      if (unsafeChildren.contains(child)) {
-        unsafeStates.add(state);
+      if (positionChanged && !child.isAlwaysSuccessful) {
+        statesThatRestorePosition.add(state);
+      }
+
+      if (child.canChangePosition) {
+        positionChanged = true;
       }
 
       final semanticValue = child.semanticValue;
@@ -612,21 +664,13 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
       }
     }
 
+    final usePosition = statesThatRestorePosition.isNotEmpty;
     var pos = _invalid;
     var errorState = _invalid;
     var farthestPosition = _invalid;
     start.onPreprocess.listen((code) {
-      final caches = <ExpressionState, Map<String, String>>{};
-      var cache = _cache;
       errorState = _allocateIf(errorHandler != null);
       farthestPosition = _allocateIf(errorHandler != null);
-      for (final state in states) {
-        caches[state] = cache;
-        if (unsafeStates.contains(state)) {
-          cache = {};
-        }
-      }
-
       if (errorHandler != null) {
         code.declare('final', errorState, 'state.setErrorState()');
         code.declare('final', farthestPosition, 'state.setFarthestPosition()');
@@ -653,7 +697,10 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
           state.onAccept.listen((event) {
             final code = event.output;
             if (errorHandler != null) {
-              code.stmt('state.updateFarthestPosition($farthestPosition)');
+              code.stmt(
+                'state.farthestPosition < $farthestPosition ? state.farthestPosition = $farthestPosition : null',
+              );
+              //code.stmt('state.updateFarthestPosition($farthestPosition)');
               code.stmt('state.restoreErrorState($errorState)');
             }
 
@@ -666,12 +713,21 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
               ),
             );
           });
+          state.onReject.listen((code) {
+            if (statesThatRestorePosition.contains(state)) {
+              code.stmt('state.backtrack($pos)');
+            }
+          });
         } else {
           final next = states[i + 1];
           state.onAccept.listen((event) {
             final code = event.output;
-            _cache = caches[next]!;
             next.build(code);
+          });
+          state.onReject.listen((code) {
+            if (statesThatRestorePosition.contains(state)) {
+              code.stmt('state.backtrack($pos)');
+            }
           });
         }
       }
@@ -683,13 +739,12 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
     });
 
     start.onPostprocess.listen((code) {
-      if (usePosition) {
-        code.stmt('state.backtrack($pos)');
-      }
-
       if (errorHandler != null) {
         _writeBlock(code, errorHandler);
-        code.stmt('state.updateFarthestPosition($farthestPosition)');
+        code.stmt(
+          'state.farthestPosition < $farthestPosition ? state.farthestPosition = $farthestPosition : null',
+        );
+        //code.stmt('state.updateFarthestPosition($farthestPosition)');
         code.stmt('state.restoreErrorState($errorState)');
       }
 
@@ -857,12 +912,13 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
   }
 
   String _getCachedValue(String name, String Function() f) {
-    if (_cache.containsKey(name)) {
-      return _cache[name]!;
+    final data = cache.data;
+    if (data.containsKey(name)) {
+      return data[name]!;
     }
 
     final value = f();
-    _cache[name] = value;
+    data[name] = value;
     return value;
   }
 
@@ -1030,8 +1086,9 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
       }
 
       code.while$(loopCondition, (code) {
-        _cache = {};
+        cache.clear();
         state0.build(code);
+        cache.clear();
         if (!child.isAlwaysSuccessful) {
           code.stmt('break');
         }

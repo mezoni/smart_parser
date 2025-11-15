@@ -382,12 +382,14 @@
 ;
 
 `int?` Optional4 =>
-  ([a] / [b])? $ = [c]
+  ([a] / [b])?
+  $ = [c]
 ;
 
 
 `void` OptionalVoid4 =>
-  ([a] / [b])? $ = [c]
+  ([a] / [b])?
+  $ = [c]
 ;
 
 `void` Predicate0 =>

@@ -716,7 +716,8 @@ Test _testOptional() {
 
   {
     final production = test.addProduction('int?', r'''
-([a] / [b])? $ = [c]''');
+([a] / [b])?
+$ = [c]''');
     {
       production.addSuccess('ac', 2, '99');
       production.addSuccess('bc', 2, '99');

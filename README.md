@@ -96,9 +96,10 @@ Result<(int, int)>? parseABC(State state) {
       const c = 99;
       final $4 = (ab, c);
       return Ok($4);
+    } else {
+      state.backtrack($0);
     }
   }
-  state.backtrack($0);
   return null;
 }
 ```
@@ -271,66 +272,59 @@ Result<String>? parseIdentifier(State state) {
   final $0 = state.position;
   state.predicate++;
   var $1 = true;
+  var $2 = false;
   $l:
   {
-    final $2 = state.position;
-    var $3 = false;
-    $l1:
-    {
-      final $4 = state.peek();
-      if ($4 == 102 && state.startsWith('foreach')) {
-        state.position += 7;
-        $3 = true;
-        break $l1;
-      }
-      if ($4 == 102 && state.startsWith('for')) {
-        state.position += 3;
-        $3 = true;
-        break $l1;
-      }
+    final $3 = state.peek();
+    if ($3 == 102 && state.startsWith('foreach')) {
+      state.position += 7;
+      $2 = true;
+      break $l;
     }
-    if ($3) {
-      state.predicate++;
-      final $5 = state.position;
-      var $6 = true;
-      final $7 = state.peek();
-      final $8 = $7 <= 90 ? $7 >= 65 || $7 >= 48 && $7 <= 57 : $7 >= 97 && $7 <= 122;
-      if ($8) {
-        state.position += 1;
-        $6 = false;
-        state.backtrack($5);
-      }
-      state.predicate--;
-      if ($6) {
-        $1 = false;
-        state.backtrack($0);
-        break $l;
-      }
+    if ($3 == 102 && state.startsWith('for')) {
+      state.position += 3;
+      $2 = true;
+      break $l;
     }
-    state.backtrack($2);
+  }
+  if ($2) {
+    final $4 = state.position;
+    state.predicate++;
+    var $5 = true;
+    final $6 = state.peek();
+    final $7 = $6 <= 90 ? $6 >= 65 || $6 >= 48 && $6 <= 57 : $6 >= 97 && $6 <= 122;
+    if ($7) {
+      state.position += 1;
+      $5 = false;
+      state.backtrack($4);
+    }
+    state.predicate--;
+    if ($5) {
+      $1 = false;
+      state.backtrack($0);
+    } else {
+      state.backtrack($0);
+    }
   }
   state.predicate--;
   if ($1) {
-    final $9 = state.position;
-    final $10 = state.peek();
-    final $11 = $10 <= 90 ? $10 >= 65 : $10 >= 97 && $10 <= 122;
-    if ($11) {
+    final $8 = state.peek();
+    final $9 = $8 <= 90 ? $8 >= 65 : $8 >= 97 && $8 <= 122;
+    if ($9) {
       state.position += 1;
       while (true) {
-        final $12 = state.peek();
-        final $13 = $12 <= 90 ? $12 >= 65 || $12 >= 48 && $12 <= 57 : $12 >= 97 && $12 <= 122;
-        if ($13) {
+        final $10 = state.peek();
+        final $11 = $10 <= 90 ? $10 >= 65 || $10 >= 48 && $10 <= 57 : $10 >= 97 && $10 <= 122;
+        if ($11) {
           state.position += 1;
           continue;
         }
         break;
       }
-      final $14 = state.substring($9, state.position);
-      return Ok($14);
+      final $12 = state.substring($0, state.position);
+      return Ok($12);
     }
-    state.backtrack($9);
   }
-  state.backtrack($0);
   return null;
 }
 ```
@@ -425,16 +419,17 @@ Example of an error handler.
 /// ```
 Result<Expression>? parseExpression(State state) {
   final $0 = state.setErrorState();
-  final $1 = state.setFarthestPosition();
+  final $1 = state.farthestPosition;
+  state.farthestPosition = state.position;
   final $2 = parseAdditional(state);
   if ($2 != null) {
-    state.updateFarthestPosition($1);
+    state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
     state.restoreErrorState($0);
     return $2;
   }
   state.removeRecentErrors();
   state.errorExpected('expression');
-  state.updateFarthestPosition($1);
+  state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
   state.restoreErrorState($0);
   return null;
 }
@@ -482,7 +477,7 @@ Result<int>? parseHexValue(State state) {
     final $5 = state.substring($2, state.position);
     final n = $5;
     final $6 = int.parse(n, radix: 16);
-    state.updateFarthestPosition($1);
+    state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
     state.restoreErrorState($0);
     return Ok($6);
   } else {
@@ -490,7 +485,7 @@ Result<int>? parseHexValue(State state) {
   }
   state.errorExpected('hex number');
   state.errorIncorrect('Invalid four-digit number', true);
-  state.updateFarthestPosition($1);
+  state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
   state.restoreErrorState($0);
   return null;
 }
@@ -580,8 +575,8 @@ Example of the expression `eof`.
 ///   ! .
 /// ```
 Result<void>? parseEof(State state) {
-  state.predicate++;
   final $0 = state.position;
+  state.predicate++;
   var $1 = true;
   final $2 = state.peek();
   if ($2 >= 0) {
@@ -629,24 +624,25 @@ Example with single branch.
 /// ```
 Result<String>? parseAndPredicate(State state) {
   final $0 = state.position;
-  final $1 = state.peek();
-  final $2 = $1 <= 90 ? $1 >= 65 : $1 >= 97 && $1 <= 122;
-  if ($2) {
+  final $1 = state.position;
+  final $2 = state.peek();
+  final $3 = $2 <= 90 ? $2 >= 65 : $2 >= 97 && $2 <= 122;
+  if ($3) {
     state.position += 1;
-    final $3 = state.substring($0, state.position);
+    final $4 = state.substring($1, state.position);
     state.predicate++;
-    final $4 = state.position;
-    final $5 = state.peek();
-    if ($5 == 61 && state.startsWith('=>')) {
+    final $5 = state.position;
+    final $6 = state.peek();
+    if ($6 == 61 && state.startsWith('=>')) {
       state.position += 2;
-      state.backtrack($4);
+      state.backtrack($5);
       state.predicate--;
-      return Ok($3);
+      return Ok($4);
     } else {
       state.predicate--;
+      state.backtrack($0);
     }
   }
-  state.backtrack($0);
   return null;
 }
 ```
@@ -832,8 +828,8 @@ Result<int>? parseAB(State state) {
       state.position += 1;
       return const Ok(99);
     }
+    state.backtrack($0);
   }
-  state.backtrack($0);
   return null;
 }
 ```
@@ -872,9 +868,10 @@ Result<(int, int)>? parseAB(State state) {
     if ($3 == 97) {
       state.position += 1;
       return $1;
+    } else {
+      state.backtrack($0);
     }
   }
-  state.backtrack($0);
   return null;
 }
 ```
@@ -986,8 +983,8 @@ Example with a child expression with single branch.
 ///   ! [a]
 /// ```
 Result<void>? parseNotPredicate(State state) {
-  state.predicate++;
   final $0 = state.position;
+  state.predicate++;
   var $1 = true;
   final $2 = state.peek();
   // 'a'
@@ -1013,8 +1010,8 @@ Example with a child expression with multiple branches.
 ///   !([a] / [b])
 /// ```
 Result<void>? parseNotPredicate(State state) {
-  state.predicate++;
   final $0 = state.position;
+  state.predicate++;
   var $1 = true;
   $l:
   {
@@ -1435,9 +1432,10 @@ Result<(int, int)>? parseAB(State state) {
       const b = 98;
       const $3 = (a, b);
       return const Ok($3);
+    } else {
+      state.backtrack($0);
     }
   }
-  state.backtrack($0);
   return null;
 }
 ```
@@ -1460,9 +1458,10 @@ Result<void>? parseAB(State state) {
     if ($2 == 98) {
       state.position += 1;
       return Result.none;
+    } else {
+      state.backtrack($0);
     }
   }
-  state.backtrack($0);
   return null;
 }
 ```
@@ -1751,8 +1750,8 @@ Result<String>? parseEndTag(State state) {
     return const Ok('-->');
   } else {
     state.errorExpected('-->');
+    state.backtrack($0);
   }
-  state.backtrack($0);
   return null;
 }
 ```
@@ -2056,10 +2055,13 @@ Result<void>? parseFor(State state) {
       if ($6) {
         state.position += 1;
         return Result.none;
+      } else {
+        state.backtrack($0);
       }
+    } else {
+      state.backtrack($0);
     }
   }
-  state.backtrack($0);
   return null;
 }
 ```
@@ -2089,10 +2091,13 @@ Result<String>? parseFor(State state) {
         state.position += 1;
         const $7 = 'FOR';
         return const Ok($7);
+      } else {
+        state.backtrack($0);
       }
+    } else {
+      state.backtrack($0);
     }
   }
-  state.backtrack($0);
   return null;
 }
 ```
@@ -2107,24 +2112,28 @@ For the case when the result value is important.
 /// ```
 Result<String>? parseFor(State state) {
   final $0 = state.position;
-  final $1 = state.peek();
-  final $2 = $1 == 70 || $1 == 102;
-  if ($2) {
+  final $1 = state.position;
+  final $2 = state.peek();
+  final $3 = $2 == 70 || $2 == 102;
+  if ($3) {
     state.position += 1;
-    final $3 = state.peek();
-    final $4 = $3 == 79 || $3 == 111;
-    if ($4) {
+    final $4 = state.peek();
+    final $5 = $4 == 79 || $4 == 111;
+    if ($5) {
       state.position += 1;
-      final $5 = state.peek();
-      final $6 = $5 == 82 || $5 == 114;
-      if ($6) {
+      final $6 = state.peek();
+      final $7 = $6 == 82 || $6 == 114;
+      if ($7) {
         state.position += 1;
-        final $7 = state.substring($0, state.position);
-        return Ok($7);
+        final $8 = state.substring($0, state.position);
+        return Ok($8);
+      } else {
+        state.backtrack($1);
       }
+    } else {
+      state.backtrack($1);
     }
   }
-  state.backtrack($0);
   return null;
 }
 ```

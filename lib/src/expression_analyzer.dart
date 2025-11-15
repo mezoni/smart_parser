@@ -44,7 +44,7 @@ class ExpressionAnalyzer implements Visitor<void> {
     final child = node.expression;
     child.accept(this);
     _setIsAlwaysSuccessful(node, child.isAlwaysSuccessful);
-    _setCanChangePosition(node, child.canChangePosition);
+    _setCanChangePosition(node, false);
     _setIsVoid(child, true);
     _setHasSideEffects(node, child.hasSideEffects);
     _setIsSingleExitPoint(node, child.isSingleExitPoint);
@@ -102,7 +102,7 @@ class ExpressionAnalyzer implements Visitor<void> {
     final child = node.expression;
     child.accept(this);
     _setIsAlwaysSuccessful(node, false);
-    _setCanChangePosition(node, child.canChangePosition);
+    _setCanChangePosition(node, false);
     _setIsVoid(child, true);
     _setHasSideEffects(node, false);
     _setIsSingleExitPoint(node, true);

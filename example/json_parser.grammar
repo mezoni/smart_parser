@@ -51,15 +51,15 @@ const JsonParser();
   $ = { MapEntry(k, v) }
 
 `Map<String, Object?>` Map =>
-  kv = KeyValue
+  v = KeyValue
   {
     final m = <String, Object?>{};
-    m[kv.key] = kv.value;
+    m[v.key] = v.value;
   }
   @while (0) {
     ',' S
-    kv = KeyValue
-    { m[kv.key] = kv.value; }
+    v = KeyValue
+    { m[v.key] = v.value; }
   }
   $ = { m }
 
@@ -117,20 +117,18 @@ const JsonParser();
   }
 
 `String` Escaped =>
-  [\\]
-  $ = (
-    [u]
-    $ = Hex
-    ----
-    EscapeC
-  )
+  [u]
+  $ = Hex
+  ----
+  EscapeC
 
 `String` String =>
   '"' S
   p = @while (0) {
     <[^{0-1F}"\\]+>
     ---
-    Escaped
+    [\\]
+    $ = Escaped
   }
   '"' S
   $ = { p.join() }

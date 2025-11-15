@@ -17,14 +17,17 @@ class ProductionGenerator {
     final type = production.type;
     final allocator = Allocator();
     final isVoid = production.isVoid;
+    final cache = Cache();
     final expressionGenerator = ExpressionGenerator(
       allocator: allocator,
+      cache: cache,
       options: options,
     );
 
     final start = expressionGenerator.generate(expression);
     final isAlwaysSuccessful = expression.isAlwaysSuccessful;
     start.onPreprocess.listen((code) {
+      cache.data = {};
       start.onAccept.listen((event) {
         final code = event.output;
         final result = event.result;

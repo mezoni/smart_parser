@@ -3569,147 +3569,151 @@ void main() {
     expect(
       $r32,
       isNotNull,
-      reason: '([a] / [b])? \$ = [c]\n\'ac\'\nresult != null\n',
+      reason: '([a] / [b])?\n\$ = [c]\n\'ac\'\nresult != null\n',
     );
     expect(
       $s22.position,
       2,
-      reason: '([a] / [b])? \$ = [c]\n\'ac\'\nstate.position = 2\n',
+      reason: '([a] / [b])?\n\$ = [c]\n\'ac\'\nstate.position = 2\n',
     );
     expect(
       $r32.$1,
       99,
-      reason: '([a] / [b])? \$ = [c]\n\'ac\'\nresult.\$1 != 99\n',
+      reason: '([a] / [b])?\n\$ = [c]\n\'ac\'\nresult.\$1 != 99\n',
     );
     final $s23 = State('ac');
     final $r33 = $r31($s23) as dynamic;
     expect(
       $r33,
       isNotNull,
-      reason: '([a] / [b])? \$ = [c]\n\'ac\'\nresult != null\n',
+      reason: '([a] / [b])?\n\$ = [c]\n\'ac\'\nresult != null\n',
     );
     expect(
       $s23.position,
       2,
-      reason: '([a] / [b])? \$ = [c]\n\'ac\'\nstate.position = 2\n',
+      reason: '([a] / [b])?\n\$ = [c]\n\'ac\'\nstate.position = 2\n',
     );
     expect(
       $r33.$1,
       null,
-      reason: '([a] / [b])? \$ = [c]\n\'ac\'\nresult.\$1 != null\n',
+      reason: '([a] / [b])?\n\$ = [c]\n\'ac\'\nresult.\$1 != null\n',
     );
     final $s24 = State('bc');
     final $r34 = $r30($s24) as dynamic;
     expect(
       $r34,
       isNotNull,
-      reason: '([a] / [b])? \$ = [c]\n\'bc\'\nresult != null\n',
+      reason: '([a] / [b])?\n\$ = [c]\n\'bc\'\nresult != null\n',
     );
     expect(
       $s24.position,
       2,
-      reason: '([a] / [b])? \$ = [c]\n\'bc\'\nstate.position = 2\n',
+      reason: '([a] / [b])?\n\$ = [c]\n\'bc\'\nstate.position = 2\n',
     );
     expect(
       $r34.$1,
       99,
-      reason: '([a] / [b])? \$ = [c]\n\'bc\'\nresult.\$1 != 99\n',
+      reason: '([a] / [b])?\n\$ = [c]\n\'bc\'\nresult.\$1 != 99\n',
     );
     final $s25 = State('bc');
     final $r35 = $r31($s25) as dynamic;
     expect(
       $r35,
       isNotNull,
-      reason: '([a] / [b])? \$ = [c]\n\'bc\'\nresult != null\n',
+      reason: '([a] / [b])?\n\$ = [c]\n\'bc\'\nresult != null\n',
     );
     expect(
       $s25.position,
       2,
-      reason: '([a] / [b])? \$ = [c]\n\'bc\'\nstate.position = 2\n',
+      reason: '([a] / [b])?\n\$ = [c]\n\'bc\'\nstate.position = 2\n',
     );
     expect(
       $r35.$1,
       null,
-      reason: '([a] / [b])? \$ = [c]\n\'bc\'\nresult.\$1 != null\n',
+      reason: '([a] / [b])?\n\$ = [c]\n\'bc\'\nresult.\$1 != null\n',
     );
     final $s26 = State('c');
     final $r36 = $r30($s26) as dynamic;
     expect(
       $r36,
       isNotNull,
-      reason: '([a] / [b])? \$ = [c]\n\'c\'\nresult != null\n',
+      reason: '([a] / [b])?\n\$ = [c]\n\'c\'\nresult != null\n',
     );
     expect(
       $s26.position,
       1,
-      reason: '([a] / [b])? \$ = [c]\n\'c\'\nstate.position = 1\n',
+      reason: '([a] / [b])?\n\$ = [c]\n\'c\'\nstate.position = 1\n',
     );
     expect(
       $r36.$1,
       99,
-      reason: '([a] / [b])? \$ = [c]\n\'c\'\nresult.\$1 != 99\n',
+      reason: '([a] / [b])?\n\$ = [c]\n\'c\'\nresult.\$1 != 99\n',
     );
     final $s27 = State('c');
     final $r37 = $r31($s27) as dynamic;
     expect(
       $r37,
       isNotNull,
-      reason: '([a] / [b])? \$ = [c]\n\'c\'\nresult != null\n',
+      reason: '([a] / [b])?\n\$ = [c]\n\'c\'\nresult != null\n',
     );
     expect(
       $s27.position,
       1,
-      reason: '([a] / [b])? \$ = [c]\n\'c\'\nstate.position = 1\n',
+      reason: '([a] / [b])?\n\$ = [c]\n\'c\'\nstate.position = 1\n',
     );
     expect(
       $r37.$1,
       null,
-      reason: '([a] / [b])? \$ = [c]\n\'c\'\nresult.\$1 != null\n',
+      reason: '([a] / [b])?\n\$ = [c]\n\'c\'\nresult.\$1 != null\n',
     );
     final $s28 = State('');
     final $r38 = $r30($s28) as dynamic;
     expect(
       $r38,
       isNull,
-      reason: '([a] / [b])? \$ = [c]\n\'\'\nresult == null\n',
+      reason: '([a] / [b])?\n\$ = [c]\n\'\'\nresult == null\n',
     );
     expect(
       $s28.farthestPosition,
       0,
-      reason: '([a] / [b])? \$ = [c]\n\'\'\nstate.farthestPosition = 0\n',
+      reason: '([a] / [b])?\n\$ = [c]\n\'\'\nstate.farthestPosition = 0\n',
     );
     expect(
       $s28.position,
       0,
-      reason: '([a] / [b])? \$ = [c]\n\'\'\nstate.position = 0\n',
+      reason: '([a] / [b])?\n\$ = [c]\n\'\'\nstate.position = 0\n',
     );
     final $e = $s28.getErrors().map((e) => '$e').toList()..sort();
-    expect($e.length, 1, reason: '([a] / [b])? \$ = [c]\n\'\'\nerror count\n');
+    expect($e.length, 1, reason: '([a] / [b])?\n\$ = [c]\n\'\'\nerror count\n');
     expect($e, [
       '(end: 0, message: Unexpected input data, start: 0)',
-    ], reason: '([a] / [b])? \$ = [c]\n\'\'\nerrors\n');
+    ], reason: '([a] / [b])?\n\$ = [c]\n\'\'\nerrors\n');
     final $s29 = State('');
     final $r39 = $r31($s29) as dynamic;
     expect(
       $r39,
       isNull,
-      reason: '([a] / [b])? \$ = [c]\n\'\'\nresult == null\n',
+      reason: '([a] / [b])?\n\$ = [c]\n\'\'\nresult == null\n',
     );
     expect(
       $s29.farthestPosition,
       0,
-      reason: '([a] / [b])? \$ = [c]\n\'\'\nstate.farthestPosition = 0\n',
+      reason: '([a] / [b])?\n\$ = [c]\n\'\'\nstate.farthestPosition = 0\n',
     );
     expect(
       $s29.position,
       0,
-      reason: '([a] / [b])? \$ = [c]\n\'\'\nstate.position = 0\n',
+      reason: '([a] / [b])?\n\$ = [c]\n\'\'\nstate.position = 0\n',
     );
     final $e1 = $s29.getErrors().map((e) => '$e').toList()..sort();
-    expect($e1.length, 1, reason: '([a] / [b])? \$ = [c]\n\'\'\nerror count\n');
+    expect(
+      $e1.length,
+      1,
+      reason: '([a] / [b])?\n\$ = [c]\n\'\'\nerror count\n',
+    );
     expect($e1, [
       '(end: 0, message: Unexpected input data, start: 0)',
-    ], reason: '([a] / [b])? \$ = [c]\n\'\'\nerrors\n');
+    ], reason: '([a] / [b])?\n\$ = [c]\n\'\'\nerrors\n');
   });
 
   test('Predicate', () {
@@ -7361,8 +7365,8 @@ class _TestParser {
   /// ;
   /// ```
   Result<String>? parseAndPredicate0(State state) {
-    final $0 = state.position;
     state.predicate++;
+    final $0 = state.position;
     final $1 = state.peek();
     if ($1 == 97 && state.startsWith('abc')) {
       state.position += 3;
@@ -7379,7 +7383,6 @@ class _TestParser {
       state.errorExpected('abc');
       state.predicate--;
     }
-    state.backtrack($0);
     return null;
   }
 
@@ -7391,8 +7394,8 @@ class _TestParser {
   /// ;
   /// ```
   Result<void>? parseAndPredicateVoid0(State state) {
-    final $0 = state.position;
     state.predicate++;
+    final $0 = state.position;
     final $1 = state.peek();
     if ($1 == 97 && state.startsWith('abc')) {
       state.position += 3;
@@ -7409,7 +7412,6 @@ class _TestParser {
       state.errorExpected('abc');
       state.predicate--;
     }
-    state.backtrack($0);
     return null;
   }
 
@@ -7587,8 +7589,8 @@ class _TestParser {
         final $5 = state.substring($2, state.position);
         return Ok($5);
       }
+      state.backtrack($0);
     }
-    state.backtrack($0);
     return null;
   }
 
@@ -7619,8 +7621,8 @@ class _TestParser {
         final $5 = state.substring($2, state.position);
         return Result.none;
       }
+      state.backtrack($0);
     }
-    state.backtrack($0);
     return null;
   }
 
@@ -8285,7 +8287,6 @@ class _TestParser {
         state.errorExpected('ab');
       }
     }
-    state.backtrack($0);
     return null;
   }
 
@@ -8318,7 +8319,6 @@ class _TestParser {
         state.errorExpected('ab');
       }
     }
-    state.backtrack($0);
     return null;
   }
 
@@ -8334,8 +8334,8 @@ class _TestParser {
     final $1 = state.peek();
     if ($1 == 97 && state.startsWith('abc')) {
       state.position += 3;
-      state.predicate++;
       final $2 = state.position;
+      state.predicate++;
       var $3 = true;
       final $4 = state.peek();
       if ($4 == 61 && state.startsWith('=>')) {
@@ -8348,11 +8348,12 @@ class _TestParser {
       state.predicate--;
       if ($3) {
         return const Ok('abc');
+      } else {
+        state.backtrack($0);
       }
     } else {
       state.errorExpected('abc');
     }
-    state.backtrack($0);
     return null;
   }
 
@@ -8368,8 +8369,8 @@ class _TestParser {
     final $1 = state.peek();
     if ($1 == 97 && state.startsWith('abc')) {
       state.position += 3;
-      state.predicate++;
       final $2 = state.position;
+      state.predicate++;
       var $3 = true;
       final $4 = state.peek();
       if ($4 == 61 && state.startsWith('=>')) {
@@ -8382,11 +8383,12 @@ class _TestParser {
       state.predicate--;
       if ($3) {
         return Result.none;
+      } else {
+        state.backtrack($0);
       }
     } else {
       state.errorExpected('abc');
     }
-    state.backtrack($0);
     return null;
   }
 
@@ -8435,7 +8437,6 @@ class _TestParser {
       }
       return Ok($4);
     }
-    state.backtrack($0);
     return null;
   }
 
@@ -8484,7 +8485,6 @@ class _TestParser {
       }
       return Result.none;
     }
-    state.backtrack($0);
     return null;
   }
 
@@ -8516,8 +8516,8 @@ class _TestParser {
   /// ;
   /// ```
   Result<void>? parseNotPredicate4(State state) {
-    state.predicate++;
     final $0 = state.position;
+    state.predicate++;
     var $1 = true;
     final $2 = state.peek();
     // 'a'
@@ -8540,8 +8540,8 @@ class _TestParser {
   /// ;
   /// ```
   Result<void>? parseNotPredicate5(State state) {
-    state.predicate++;
     final $0 = state.position;
+    state.predicate++;
     var $1 = true;
     $l:
     {
@@ -8778,9 +8778,10 @@ class _TestParser {
           state.position += 1;
           $0 = 98;
           break $l;
+        } else {
+          state.backtrack($1);
         }
       }
-      state.backtrack($1);
     }
     return Ok($0);
   }
@@ -8804,9 +8805,10 @@ class _TestParser {
         if ($2 == 98) {
           state.position += 1;
           break $l;
+        } else {
+          state.backtrack($0);
         }
       }
-      state.backtrack($0);
     }
     return Result.none;
   }
@@ -8832,9 +8834,10 @@ class _TestParser {
           state.position += 1;
           $0 = 97;
           break $l;
+        } else {
+          state.backtrack($1);
         }
       }
-      state.backtrack($1);
     }
     return Ok($0);
   }
@@ -8858,9 +8861,10 @@ class _TestParser {
         if ($2 == 98) {
           state.position += 1;
           break $l;
+        } else {
+          state.backtrack($0);
         }
       }
-      state.backtrack($0);
     }
     return Result.none;
   }
@@ -8868,7 +8872,8 @@ class _TestParser {
   /// [int?] **Optional4**
   /// ```txt
   /// `int?` Optional4 =>
-  ///   ([a] / [b])? $ = [c]
+  ///   ([a] / [b])?
+  ///   $ = [c]
   /// ;
   /// ```
   Result<int?>? parseOptional4(State state) {
@@ -8892,15 +8897,17 @@ class _TestParser {
     if ($2 == 99) {
       state.position += 1;
       return const Ok(99);
+    } else {
+      state.backtrack($0);
     }
-    state.backtrack($0);
     return null;
   }
 
   /// [void] **OptionalVoid4**
   /// ```txt
   /// `void` OptionalVoid4 =>
-  ///   ([a] / [b])? $ = [c]
+  ///   ([a] / [b])?
+  ///   $ = [c]
   /// ;
   /// ```
   Result<void>? parseOptionalVoid4(State state) {
@@ -8924,8 +8931,9 @@ class _TestParser {
     if ($2 == 99) {
       state.position += 1;
       return Result.none;
+    } else {
+      state.backtrack($0);
     }
-    state.backtrack($0);
     return null;
   }
 
@@ -9031,10 +9039,13 @@ class _TestParser {
           final c = $5;
           final $7 = a -48 + b - 48 + c - 48;
           return Ok($7);
+        } else {
+          state.backtrack($0);
         }
+      } else {
+        state.backtrack($0);
       }
     }
-    state.backtrack($0);
     return null;
   }
 
@@ -9066,10 +9077,13 @@ class _TestParser {
           final c = $5;
           final $7 = a -48 + b - 48 + c - 48;
           return Result.none;
+        } else {
+          state.backtrack($0);
         }
+      } else {
+        state.backtrack($0);
       }
     }
-    state.backtrack($0);
     return null;
   }
 
@@ -9105,18 +9119,21 @@ class _TestParser {
         if ($5 == 99) {
           state.position += 1;
           const $6 = 'abc';
-          state.updateFarthestPosition($1);
+          state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
           state.restoreErrorState($0);
           return const Ok($6);
+        } else {
+          state.backtrack($2);
         }
+      } else {
+        state.backtrack($2);
       }
     }
-    state.backtrack($2);
     state.errorExpected('abc');
     state.errorIncorrect('Full', true);
     state.errorIncorrect('End', false);
     state.errorIncorrect('Start', null);
-    state.updateFarthestPosition($1);
+    state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
     state.restoreErrorState($0);
     return null;
   }
@@ -9153,18 +9170,21 @@ class _TestParser {
         if ($5 == 99) {
           state.position += 1;
           const $6 = 'abc';
-          state.updateFarthestPosition($1);
+          state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
           state.restoreErrorState($0);
           return Result.none;
+        } else {
+          state.backtrack($2);
         }
+      } else {
+        state.backtrack($2);
       }
     }
-    state.backtrack($2);
     state.errorExpected('abc');
     state.errorIncorrect('Full', true);
     state.errorIncorrect('End', false);
     state.errorIncorrect('Start', null);
-    state.updateFarthestPosition($1);
+    state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
     state.restoreErrorState($0);
     return null;
   }
@@ -9814,9 +9834,10 @@ class _TestParser {
       }
       if ($3.isNotEmpty) {
         return Ok($3);
+      } else {
+        state.backtrack($0);
       }
     }
-    state.backtrack($0);
     return null;
   }
 
@@ -9862,9 +9883,10 @@ class _TestParser {
       }
       if ($3.isNotEmpty) {
         return Result.none;
+      } else {
+        state.backtrack($0);
       }
     }
-    state.backtrack($0);
     return null;
   }
 
@@ -9980,66 +10002,59 @@ class _TestParser {
     final $0 = state.position;
     state.predicate++;
     var $1 = true;
+    var $2 = false;
     $l:
     {
-      final $2 = state.position;
-      var $3 = false;
-      $l1:
-      {
-        final $4 = state.peek();
-        if ($4 == 102 && state.startsWith('foreach')) {
-          state.position += 7;
-          $3 = true;
-          break $l1;
-        }
-        if ($4 == 102 && state.startsWith('for')) {
-          state.position += 3;
-          $3 = true;
-          break $l1;
-        }
+      final $3 = state.peek();
+      if ($3 == 102 && state.startsWith('foreach')) {
+        state.position += 7;
+        $2 = true;
+        break $l;
       }
-      if ($3) {
-        state.predicate++;
-        final $5 = state.position;
-        var $6 = true;
-        final $7 = state.peek();
-        final $8 = $7 <= 90 ? $7 >= 65 || $7 >= 48 && $7 <= 57 : $7 >= 97 && $7 <= 122;
-        if ($8) {
-          state.position += 1;
-          $6 = false;
-          state.backtrack($5);
-        }
-        state.predicate--;
-        if ($6) {
-          $1 = false;
-          state.backtrack($0);
-          break $l;
-        }
+      if ($3 == 102 && state.startsWith('for')) {
+        state.position += 3;
+        $2 = true;
+        break $l;
       }
-      state.backtrack($2);
+    }
+    if ($2) {
+      final $4 = state.position;
+      state.predicate++;
+      var $5 = true;
+      final $6 = state.peek();
+      final $7 = $6 <= 90 ? $6 >= 65 || $6 >= 48 && $6 <= 57 : $6 >= 97 && $6 <= 122;
+      if ($7) {
+        state.position += 1;
+        $5 = false;
+        state.backtrack($4);
+      }
+      state.predicate--;
+      if ($5) {
+        $1 = false;
+        state.backtrack($0);
+      } else {
+        state.backtrack($0);
+      }
     }
     state.predicate--;
     if ($1) {
-      final $9 = state.position;
-      final $10 = state.peek();
-      final $11 = $10 <= 90 ? $10 >= 65 : $10 >= 97 && $10 <= 122;
-      if ($11) {
+      final $8 = state.peek();
+      final $9 = $8 <= 90 ? $8 >= 65 : $8 >= 97 && $8 <= 122;
+      if ($9) {
         state.position += 1;
         while (true) {
-          final $12 = state.peek();
-          final $13 = $12 <= 90 ? $12 >= 65 || $12 >= 48 && $12 <= 57 : $12 >= 97 && $12 <= 122;
-          if ($13) {
+          final $10 = state.peek();
+          final $11 = $10 <= 90 ? $10 >= 65 || $10 >= 48 && $10 <= 57 : $10 >= 97 && $10 <= 122;
+          if ($11) {
             state.position += 1;
             continue;
           }
           break;
         }
-        final $14 = state.substring($9, state.position);
-        return Ok($14);
+        final $12 = state.substring($0, state.position);
+        return Ok($12);
       }
-      state.backtrack($9);
     }
-    state.backtrack($0);
     return null;
   }
 
@@ -10064,66 +10079,59 @@ class _TestParser {
     final $0 = state.position;
     state.predicate++;
     var $1 = true;
+    var $2 = false;
     $l:
     {
-      final $2 = state.position;
-      var $3 = false;
-      $l1:
-      {
-        final $4 = state.peek();
-        if ($4 == 102 && state.startsWith('foreach')) {
-          state.position += 7;
-          $3 = true;
-          break $l1;
-        }
-        if ($4 == 102 && state.startsWith('for')) {
-          state.position += 3;
-          $3 = true;
-          break $l1;
-        }
+      final $3 = state.peek();
+      if ($3 == 102 && state.startsWith('foreach')) {
+        state.position += 7;
+        $2 = true;
+        break $l;
       }
-      if ($3) {
-        state.predicate++;
-        final $5 = state.position;
-        var $6 = true;
-        final $7 = state.peek();
-        final $8 = $7 <= 90 ? $7 >= 65 || $7 >= 48 && $7 <= 57 : $7 >= 97 && $7 <= 122;
-        if ($8) {
-          state.position += 1;
-          $6 = false;
-          state.backtrack($5);
-        }
-        state.predicate--;
-        if ($6) {
-          $1 = false;
-          state.backtrack($0);
-          break $l;
-        }
+      if ($3 == 102 && state.startsWith('for')) {
+        state.position += 3;
+        $2 = true;
+        break $l;
       }
-      state.backtrack($2);
+    }
+    if ($2) {
+      final $4 = state.position;
+      state.predicate++;
+      var $5 = true;
+      final $6 = state.peek();
+      final $7 = $6 <= 90 ? $6 >= 65 || $6 >= 48 && $6 <= 57 : $6 >= 97 && $6 <= 122;
+      if ($7) {
+        state.position += 1;
+        $5 = false;
+        state.backtrack($4);
+      }
+      state.predicate--;
+      if ($5) {
+        $1 = false;
+        state.backtrack($0);
+      } else {
+        state.backtrack($0);
+      }
     }
     state.predicate--;
     if ($1) {
-      final $9 = state.position;
-      final $10 = state.peek();
-      final $11 = $10 <= 90 ? $10 >= 65 : $10 >= 97 && $10 <= 122;
-      if ($11) {
+      final $8 = state.peek();
+      final $9 = $8 <= 90 ? $8 >= 65 : $8 >= 97 && $8 <= 122;
+      if ($9) {
         state.position += 1;
         while (true) {
-          final $12 = state.peek();
-          final $13 = $12 <= 90 ? $12 >= 65 || $12 >= 48 && $12 <= 57 : $12 >= 97 && $12 <= 122;
-          if ($13) {
+          final $10 = state.peek();
+          final $11 = $10 <= 90 ? $10 >= 65 || $10 >= 48 && $10 <= 57 : $10 >= 97 && $10 <= 122;
+          if ($11) {
             state.position += 1;
             continue;
           }
           break;
         }
-        final $14 = state.substring($9, state.position);
+        final $12 = state.substring($0, state.position);
         return Result.none;
       }
-      state.backtrack($9);
     }
-    state.backtrack($0);
     return null;
   }
 
@@ -10494,14 +10502,5 @@ class State {
     var line = substring(position, position + rest);
     line = line.replaceAll('\n', r'\n');
     return '|$position|$line';
-  }
-
-  /// Intended for internal use only.
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  void updateFarthestPosition(int farthestPosition) {
-    if (this.farthestPosition < farthestPosition) {
-      this.farthestPosition = farthestPosition;
-    }
   }
 }

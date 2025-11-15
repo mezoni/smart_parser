@@ -40,7 +40,7 @@ Start =>
 `String`
 Globals =>
   '%{'
-  { final index = state.indexOf('\u{7D}%'); }
+  { final index = state.indexOf('\u007D%'); }
   $ = <@position({ index == -1 ? state.length : index })>
   '}%' S
 
@@ -67,9 +67,7 @@ Production =>
 
 `Expression`
 Expression =>
-  {
-    final pos = state.position;
-  }
+  { final pos = state.position; }
   e = OrderedChoice
   { e.sourceCode = state.substring(pos, state.position).trimRight(); }
   $ = { e }
