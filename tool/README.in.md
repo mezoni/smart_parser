@@ -208,7 +208,30 @@ This, in turn, means that failure can be detected automatically, while errors mu
 For this purpose, the ability to define error handlers and error generation procedures is provided.  
 An error handler can be defined at the end of a `Sequence` expression using the  `~{}` notation.
 
-Example of an error handler.
+⚠ Important information:  
+To reduce the size of the generated code and increase the performance of error handling, the generator will check for the presence of procedure calls in the handler code.  
+This is a trivial check for the presence of certain signatures.  
+Thus, for correct operation it is necessary that calls to processing procedures be implemented directly in the error handler code.  
+
+Example of incorrect usage.
+
+```dart
+START
+`Expression` Expression =>
+  Additional
+  ~ { _handle_errors(state); }
+END
+```
+
+Examples of correct usage.
+
+```dart
+START
+`String` For =>
+  $ = <[fF][oO][rR]>
+  ~ { state.errorExpected('FOR'); }
+END
+```
 
 ```dart
 START
@@ -217,6 +240,17 @@ START
   ~ {
     state.removeRecentErrors();
     state.errorExpected('expression');
+  }
+END
+```
+
+```dart
+START
+`num` Number =>
+  NumberRaw
+  ~ {
+    state.errorIncorrect('Unterminated number');
+    state.errorExpected('number');
   }
 END
 ```
@@ -399,7 +433,7 @@ Examples of hexadecimal value.
 ```dart
 START
 `int` Space =>
-  [\\u{20}]
+  [\u{20}]
 END
 ```
 
@@ -408,7 +442,7 @@ Examples of hexadecimal range.
 ```dart
 START
 `int` Digits =>
-  [\\u{30}-\\u{39}]
+  [\u{30}-\u{39}]
 END
 ```
 
@@ -435,7 +469,7 @@ Example of a `Group` expression not at the end of a `Sequence` expression.
 
 ```dart
 START
-`(int, int)` AB =>
+`int` AB =>
   $ = ([b] / [c])
   [a]
 END
@@ -445,12 +479,12 @@ END
 
 The `Literal` expression is a parsing expression that matches a string.
 
-The `Literal` expression can be specified in both regular and extended forms.  
-A `Literal` expression in its normal form is specified using double quotes `""` its expanded form is specified using single quotes `''`.
+The `Literal` expression can be specified in both normal and extended forms.  
+A `Literal` expression in its normal form is specified using double quotes `""`, its extended form is specified using single quotes `''`.
 
-The difference between the normal form and the extended form is that in the latter case the `expected` error is added to the error buffer.
+The difference between the normal form and the extended form is that when using the extended form, an `expected` error is added to the error buffer if parsing fails.
 
-Examples of regular form.
+Examples of normal form.
 
 ```dart
 START
@@ -509,7 +543,7 @@ Example with a child expression with multiple branches.
 ```dart
 START
 `void` NotPredicate =>
-  !([a] / [b])
+  ! ([a] / [b])
 END
 ```
 
@@ -807,7 +841,7 @@ END
 
 ## Meta expression `@position`
 
-The `Position` expression `@position(n)` changes the parsing position to `n`, then succeeds and returns `n`.
+The `Position` meta expression `@position(n)` changes the parsing position to `n`, then succeeds and returns `n`.
 
 Example of input data scanning.
 
@@ -910,8 +944,8 @@ END
 
 ## Semantic values
 
-Semantic values ​​are the values ​​formed by parsing expressions.  
-Semantic values ​​are used to produce parsing results.  
+Semantic values ​​are the values produced by parsing expressions.  
+Semantic values ​​are used to forming parsing results.  
 The syntax for using semantic values ​​is as follows.
 
 ```txt
@@ -934,6 +968,9 @@ START
 END
 ```
 
+The value `$` is the resulting semantic value. This value is not accessible by name; therefore, it is only available for assignment.  
+This value is used exclusively when assigning a result value if the `Sequence` expression.  
+
 ## Parsing case-insensitive data
 
 For the case when the result value is not important.
@@ -941,7 +978,8 @@ For the case when the result value is not important.
 ```dart
 START
 `void` For =>
-  [fF][oO][rR]
+  ([fF][oO][rR])
+  ~ { state.errorExpected('FOR'); }
 END
 ```
 
@@ -952,6 +990,7 @@ START
 `String` For =>
   [fF][oO][rR]
   $ = `const` { 'FOR' }
+  ~ { state.errorExpected('FOR'); }
 END
 ```
 
@@ -961,6 +1000,7 @@ For the case when the result value is important.
 START
 `String` For =>
   $ = <[fF][oO][rR]>
+  ~ { state.errorExpected('FOR'); }
 END
 ```
 

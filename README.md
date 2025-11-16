@@ -2,7 +2,7 @@
 
 This software is a library that generates source code of recursive descent parsers based on a grammar consisting of the parsing expressions and native Dart language source code
 
-Version: 1.0.0
+Version: 1.0.1
 
 [![Pub Package](https://img.shields.io/pub/v/smart_parser.svg)](https://pub.dev/packages/smart_parser)
 [![GitHub Issues](https://img.shields.io/github/issues/mezoni/smart_parser.svg)](https://github.com/mezoni/smart_parser/issues)
@@ -405,7 +405,84 @@ This, in turn, means that failure can be detected automatically, while errors mu
 For this purpose, the ability to define error handlers and error generation procedures is provided.  
 An error handler can be defined at the end of a `Sequence` expression using the  `~{}` notation.
 
-Example of an error handler.
+⚠ Important information:  
+To reduce the size of the generated code and increase the performance of error handling, the generator will check for the presence of procedure calls in the handler code.  
+This is a trivial check for the presence of certain signatures.  
+Thus, for correct operation it is necessary that calls to processing procedures be implemented directly in the error handler code.  
+
+Example of incorrect usage.
+
+```dart
+/// [Expression] **Expression**
+/// ```txt
+/// `Expression` Expression =>
+///   Additional
+///   ~ { _handle_errors(state); }
+/// ```
+Result<Expression>? parseExpression(State state) {
+  Result<Expression>? $0;
+  $l:
+  {
+    final $1 = parseAdditional(state);
+    if ($1 != null) {
+      $0 = $1;
+      break $l;
+    }
+  }
+  if ($0 != null) {
+    return $0;
+  } else {
+    _handle_errors(state);
+  }
+  return null;
+}
+```
+
+Examples of correct usage.
+
+```dart
+/// [String] **For**
+/// ```txt
+/// `String` For =>
+///   $ = <[fF][oO][rR]>
+///   ~ { state.errorExpected('FOR'); }
+/// ```
+Result<String>? parseFor(State state) {
+  Result<String>? $0;
+  $l:
+  {
+    final $1 = state.position;
+    final $2 = state.peek();
+    final $3 = $2 == 70 || $2 == 102;
+    if ($3) {
+      state.position += 1;
+      final $4 = state.peek();
+      final $5 = $4 == 79 || $4 == 111;
+      if ($5) {
+        state.position += 1;
+        final $6 = state.peek();
+        final $7 = $6 == 82 || $6 == 114;
+        if ($7) {
+          state.position += 1;
+          final $8 = state.substring($1, state.position);
+          $0 = Ok($8);
+          break $l;
+        } else {
+          state.backtrack($1);
+        }
+      } else {
+        state.backtrack($1);
+      }
+    }
+  }
+  if ($0 != null) {
+    return $0;
+  } else {
+    state.errorExpected('FOR');
+  }
+  return null;
+}
+```
 
 ```dart
 /// [Expression] **Expression**
@@ -420,25 +497,55 @@ Example of an error handler.
 Result<Expression>? parseExpression(State state) {
   Result<Expression>? $0;
   final $1 = state.setErrorState();
-  final $2 = state.farthestPosition;
-  state.farthestPosition = state.position;
   $l:
   {
-    final $3 = parseAdditional(state);
-    if ($3 != null) {
-      $0 = $3;
+    final $2 = parseAdditional(state);
+    if ($2 != null) {
+      $0 = $2;
       break $l;
     }
   }
   if ($0 != null) {
-    state.farthestPosition < $2 ? state.farthestPosition = $2 : null;
     state.restoreErrorState($1);
     return $0;
   } else {
     state.removeRecentErrors();
     state.errorExpected('expression');
-    state.farthestPosition < $2 ? state.farthestPosition = $2 : null;
     state.restoreErrorState($1);
+  }
+  return null;
+}
+```
+
+```dart
+/// [num] **Number**
+/// ```txt
+/// `num` Number =>
+///   NumberRaw
+///   ~ {
+///     state.errorIncorrect('Unterminated number');
+///     state.errorExpected('number');
+///   }
+/// ```
+Result<num>? parseNumber(State state) {
+  Result<num>? $0;
+  final $1 = state.farthestPosition;
+  state.farthestPosition = state.position;
+  $l:
+  {
+    final $2 = parseNumberRaw(state);
+    if ($2 != null) {
+      $0 = $2;
+      break $l;
+    }
+  }
+  if ($0 != null) {
+    state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
+    return $0;
+  } else {
+    state.errorIncorrect('Unterminated number');
+    state.errorExpected('number');
+    state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
   }
   return null;
 }
@@ -776,14 +883,14 @@ Examples of hexadecimal value.
 /// [int] **Space**
 /// ```txt
 /// `int` Space =>
-///   [\\u{20}]
+///   [\u{20}]
 /// ```
 Result<int>? parseSpace(State state) {
   final $0 = state.peek();
-  final $1 = $0 <= 92 ? $0 >= 92 || $0 == 32 : $0 == 117;
-  if ($1) {
+  // ' '
+  if ($0 == 32) {
     state.position += 1;
-    return Ok($0);
+    return const Ok(32);
   }
   return null;
 }
@@ -795,11 +902,11 @@ Examples of hexadecimal range.
 /// [int] **Digits**
 /// ```txt
 /// `int` Digits =>
-///   [\\u{30}-\\u{39}]
+///   [\u{30}-\u{39}]
 /// ```
 Result<int>? parseDigits(State state) {
   final $0 = state.peek();
-  final $1 = $0 <= 57 ? $0 >= 57 || $0 == 45 || $0 == 48 : $0 == 92 || $0 == 117;
+  final $1 = $0 >= 48 && $0 <= 57;
   if ($1) {
     state.position += 1;
     return Ok($0);
@@ -852,15 +959,15 @@ Result<int>? parseAB(State state) {
 Example of a `Group` expression not at the end of a `Sequence` expression.
 
 ```dart
-/// [(int, int)] **AB**
+/// [int] **AB**
 /// ```txt
-/// `(int, int)` AB =>
+/// `int` AB =>
 ///   $ = ([b] / [c])
 ///   [a]
 /// ```
-Result<(int, int)>? parseAB(State state) {
+Result<int>? parseAB(State state) {
   final $0 = state.position;
-  Result<(int, int)>? $1;
+  Result<int>? $1;
   $l:
   {
     final $2 = state.peek();
@@ -895,12 +1002,12 @@ Result<(int, int)>? parseAB(State state) {
 
 The `Literal` expression is a parsing expression that matches a string.
 
-The `Literal` expression can be specified in both regular and extended forms.  
-A `Literal` expression in its normal form is specified using double quotes `""` its expanded form is specified using single quotes `''`.
+The `Literal` expression can be specified in both normal and extended forms.  
+A `Literal` expression in its normal form is specified using double quotes `""`, its extended form is specified using single quotes `''`.
 
-The difference between the normal form and the extended form is that in the latter case the `expected` error is added to the error buffer.
+The difference between the normal form and the extended form is that when using the extended form, an `expected` error is added to the error buffer if parsing fails.
 
-Examples of regular form.
+Examples of normal form.
 
 ```dart
 /// [String] **For**
@@ -1022,7 +1129,7 @@ Example with a child expression with multiple branches.
 /// [void] **NotPredicate**
 /// ```txt
 /// `void` NotPredicate =>
-///   !([a] / [b])
+///   ! ([a] / [b])
 /// ```
 Result<void>? parseNotPredicate(State state) {
   final $0 = state.position;
@@ -1743,7 +1850,7 @@ Result<void>? parseAction(State state) {
 
 ## Meta expression `@position`
 
-The `Position` expression `@position(n)` changes the parsing position to `n`, then succeeds and returns `n`.
+The `Position` meta expression `@position(n)` changes the parsing position to `n`, then succeeds and returns `n`.
 
 Example of input data scanning.
 
@@ -2009,8 +2116,8 @@ Result<void>? parseLetters(State state) {
 
 ## Semantic values
 
-Semantic values ​​are the values ​​formed by parsing expressions.  
-Semantic values ​​are used to produce parsing results.  
+Semantic values ​​are the values produced by parsing expressions.  
+Semantic values ​​are used to forming parsing results.  
 The syntax for using semantic values ​​is as follows.
 
 ```txt
@@ -2045,6 +2152,9 @@ Result<Sting>? parseDigit(State state) {
 }
 ```
 
+The value `$` is the resulting semantic value. This value is not accessible by name; therefore, it is only available for assignment.  
+This value is used exclusively when assigning a result value if the `Sequence` expression.  
+
 ## Parsing case-insensitive data
 
 For the case when the result value is not important.
@@ -2053,29 +2163,40 @@ For the case when the result value is not important.
 /// [void] **For**
 /// ```txt
 /// `void` For =>
-///   [fF][oO][rR]
+///   ([fF][oO][rR])
+///   ~ { state.errorExpected('FOR'); }
 /// ```
 Result<void>? parseFor(State state) {
-  final $0 = state.position;
-  final $1 = state.peek();
-  final $2 = $1 == 70 || $1 == 102;
-  if ($2) {
-    state.position += 1;
-    final $3 = state.peek();
-    final $4 = $3 == 79 || $3 == 111;
-    if ($4) {
+  var $0 = false;
+  $l:
+  {
+    final $1 = state.position;
+    final $2 = state.peek();
+    final $3 = $2 == 70 || $2 == 102;
+    if ($3) {
       state.position += 1;
-      final $5 = state.peek();
-      final $6 = $5 == 82 || $5 == 114;
-      if ($6) {
+      final $4 = state.peek();
+      final $5 = $4 == 79 || $4 == 111;
+      if ($5) {
         state.position += 1;
-        return Result.none;
+        final $6 = state.peek();
+        final $7 = $6 == 82 || $6 == 114;
+        if ($7) {
+          state.position += 1;
+          $0 = true;
+          break $l;
+        } else {
+          state.backtrack($1);
+        }
       } else {
-        state.backtrack($0);
+        state.backtrack($1);
       }
-    } else {
-      state.backtrack($0);
     }
+  }
+  if ($0) {
+    return Result.none;
+  } else {
+    state.errorExpected('FOR');
   }
   return null;
 }
@@ -2089,29 +2210,40 @@ For the case when the result value is not very important.
 /// `String` For =>
 ///   [fF][oO][rR]
 ///   $ = `const` { 'FOR' }
+///   ~ { state.errorExpected('FOR'); }
 /// ```
 Result<String>? parseFor(State state) {
-  final $0 = state.position;
-  final $1 = state.peek();
-  final $2 = $1 == 70 || $1 == 102;
-  if ($2) {
-    state.position += 1;
-    final $3 = state.peek();
-    final $4 = $3 == 79 || $3 == 111;
-    if ($4) {
+  Result<String>? $0;
+  $l:
+  {
+    final $1 = state.position;
+    final $2 = state.peek();
+    final $3 = $2 == 70 || $2 == 102;
+    if ($3) {
       state.position += 1;
-      final $5 = state.peek();
-      final $6 = $5 == 82 || $5 == 114;
-      if ($6) {
+      final $4 = state.peek();
+      final $5 = $4 == 79 || $4 == 111;
+      if ($5) {
         state.position += 1;
-        const $7 = 'FOR';
-        return const Ok($7);
+        final $6 = state.peek();
+        final $7 = $6 == 82 || $6 == 114;
+        if ($7) {
+          state.position += 1;
+          const $8 = 'FOR';
+          $0 = const Ok($8);
+          break $l;
+        } else {
+          state.backtrack($1);
+        }
       } else {
-        state.backtrack($0);
+        state.backtrack($1);
       }
-    } else {
-      state.backtrack($0);
     }
+  }
+  if ($0 != null) {
+    return $0;
+  } else {
+    state.errorExpected('FOR');
   }
   return null;
 }
@@ -2124,29 +2256,40 @@ For the case when the result value is important.
 /// ```txt
 /// `String` For =>
 ///   $ = <[fF][oO][rR]>
+///   ~ { state.errorExpected('FOR'); }
 /// ```
 Result<String>? parseFor(State state) {
-  final $0 = state.position;
-  final $1 = state.peek();
-  final $2 = $1 == 70 || $1 == 102;
-  if ($2) {
-    state.position += 1;
-    final $3 = state.peek();
-    final $4 = $3 == 79 || $3 == 111;
-    if ($4) {
+  Result<String>? $0;
+  $l:
+  {
+    final $1 = state.position;
+    final $2 = state.peek();
+    final $3 = $2 == 70 || $2 == 102;
+    if ($3) {
       state.position += 1;
-      final $5 = state.peek();
-      final $6 = $5 == 82 || $5 == 114;
-      if ($6) {
+      final $4 = state.peek();
+      final $5 = $4 == 79 || $4 == 111;
+      if ($5) {
         state.position += 1;
-        final $7 = state.substring($0, state.position);
-        return Ok($7);
+        final $6 = state.peek();
+        final $7 = $6 == 82 || $6 == 114;
+        if ($7) {
+          state.position += 1;
+          final $8 = state.substring($1, state.position);
+          $0 = Ok($8);
+          break $l;
+        } else {
+          state.backtrack($1);
+        }
       } else {
-        state.backtrack($0);
+        state.backtrack($1);
       }
-    } else {
-      state.backtrack($0);
     }
+  }
+  if ($0 != null) {
+    return $0;
+  } else {
+    state.errorExpected('FOR');
   }
   return null;
 }

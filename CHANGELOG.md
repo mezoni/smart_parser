@@ -2,6 +2,8 @@
 
 - Fixed a minor bug with the use of the reused value cache at the beginning of production parsing.
 - Added the `final` type modifier to semantic value variable declarations when the type value is specified explicitly. According to this principle, all variables assigned during declaration must be immutable.
+- Fixed typos in `tool\README.in.md` file.
+- Minor improvement (in speed and size) to the code generated for error handling.
 
 ## 1.0.0
 

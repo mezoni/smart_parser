@@ -606,25 +606,44 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
       final type = node.type;
       final isVoid = node.isVoid;
       final hasRemoveRecentErrors = errorHandler.contains('removeRecentErrors');
+      var packed = errorHandler.replaceAll(' ', '');
+      packed = errorHandler.replaceAll('\n', '');
+      packed = errorHandler.replaceAll('\r', '');
+      packed = errorHandler.replaceAll('\t', '');
+      var useFarthestPosition = false;
+      if (packed.contains('state.error(')) {
+        useFarthestPosition = true;
+      }
+
+      if (packed.contains('errorIncorrect')) {
+        useFarthestPosition = true;
+      }
+
+      // TODO: Error handling needs to be improved (reduced in size, increased in speed).
       state = _combine(state, type, isVoid);
       var errorState = _invalid;
       var farthestPosition = _invalid;
       state.onPreprocess((code) {
         errorState = _allocateIf(hasRemoveRecentErrors);
-        farthestPosition = _allocate();
+        farthestPosition = _allocateIf(useFarthestPosition);
         if (hasRemoveRecentErrors) {
           code.declare('final', errorState, 'state.setErrorState()');
         }
 
-        code.declare('final', farthestPosition, 'state.farthestPosition');
-        code.assign('state.farthestPosition', 'state.position');
+        if (useFarthestPosition) {
+          code.declare('final', farthestPosition, 'state.farthestPosition');
+          code.assign('state.farthestPosition', 'state.position');
+        }
       });
 
       state.onAccept((event) {
         final code = event.output;
-        code.stmt(
-          'state.farthestPosition < $farthestPosition ? state.farthestPosition = $farthestPosition : null',
-        );
+        if (useFarthestPosition) {
+          code.stmt(
+            'state.farthestPosition < $farthestPosition ? state.farthestPosition = $farthestPosition : null',
+          );
+        }
+
         if (hasRemoveRecentErrors) {
           code.stmt('state.restoreErrorState($errorState)');
         }
@@ -632,9 +651,12 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
 
       state.onReject((code) {
         _writeBlock(code, errorHandler);
-        code.stmt(
-          'state.farthestPosition < $farthestPosition ? state.farthestPosition = $farthestPosition : null',
-        );
+        if (useFarthestPosition) {
+          code.stmt(
+            'state.farthestPosition < $farthestPosition ? state.farthestPosition = $farthestPosition : null',
+          );
+        }
+
         if (hasRemoveRecentErrors) {
           code.stmt('state.restoreErrorState($errorState)');
         }
