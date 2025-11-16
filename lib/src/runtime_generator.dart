@@ -304,15 +304,6 @@ class State {
     return errorState;
   }
 
-  /// Intended for internal use only.
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  int setFarthestPosition() {
-    final farthestPosition = this.farthestPosition;
-    this.farthestPosition = position;
-    return farthestPosition;
-  }
-
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   @pragma('vm:unsafe:no-interrupts')

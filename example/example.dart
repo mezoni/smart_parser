@@ -253,35 +253,42 @@ class JsonParser {
   ///   }
   /// ```
   Result<String>? parseHex(State state) {
-    final $0 = state.setErrorState();
-    final $1 = state.setFarthestPosition();
-    final $2 = state.position;
-    var $3 = 0;
-    while ($3 < 4) {
-      final $4 = state.peek();
-      final $5 = $4 <= 70 ? $4 >= 65 || $4 >= 48 && $4 <= 57 : $4 >= 97 && $4 <= 102;
-      if ($5) {
-        state.position += 1;
-        $3++;
-        continue;
+    Result<String>? $0;
+    final $1 = state.farthestPosition;
+    state.farthestPosition = state.position;
+    $l:
+    {
+      final $2 = state.position;
+      var $3 = 0;
+      while ($3 < 4) {
+        final $4 = state.peek();
+        final $5 = $4 <= 70 ? $4 >= 65 || $4 >= 48 && $4 <= 57 : $4 >= 97 && $4 <= 102;
+        if ($5) {
+          state.position += 1;
+          $3++;
+          continue;
+        }
+        break;
       }
-      break;
+      if ($3 >= 4) {
+        final $6 = state.substring($2, state.position);
+        final s = $6;
+        final $7 = String.fromCharCode(int.parse(s, radix: 16));
+        $0 = Ok($7);
+        break $l;
+      } else {
+        state.backtrack($2);
+      }
     }
-    if ($3 >= 4) {
-      final $6 = state.substring($2, state.position);
-      final s = $6;
-      final $7 = String.fromCharCode(int.parse(s, radix: 16));
+    if ($0 != null) {
       state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
-      state.restoreErrorState($0);
-      return Ok($7);
+      return $0;
     } else {
-      state.backtrack($2);
+      state.errorIncorrect('Expected hexadecimal digit', false);
+      state.errorIncorrect('Unterminated 4 hexadecimal digit number', true);
+      state.errorExpected('4 hexadecimal digit number');
+      state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
     }
-    state.errorIncorrect('Expected hexadecimal digit', false);
-    state.errorIncorrect('Unterminated 4 hexadecimal digit number', true);
-    state.errorExpected('4 hexadecimal digit number');
-    state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
-    state.restoreErrorState($0);
     return null;
   }
 
@@ -322,81 +329,80 @@ class JsonParser {
   ///   }
   /// ```
   Result<String>? parseEscapeC(State state) {
-    final $0 = state.setErrorState();
+    Result<String>? $0;
     final $1 = state.farthestPosition;
     state.farthestPosition = state.position;
-    final $2 = state.peek();
-    // '"'
-    if ($2 == 34) {
-      state.position += 1;
-      const $3 = '"';
-      state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
-      state.restoreErrorState($0);
-      return const Ok($3);
+    $l:
+    {
+      final $2 = state.peek();
+      // '"'
+      if ($2 == 34) {
+        state.position += 1;
+        const $3 = '"';
+        $0 = const Ok($3);
+        break $l;
+      }
+      // '\\'
+      if ($2 == 92) {
+        state.position += 1;
+        const $4 = '\\';
+        $0 = const Ok($4);
+        break $l;
+      }
+      // '/'
+      if ($2 == 47) {
+        state.position += 1;
+        const $5 = '/';
+        $0 = const Ok($5);
+        break $l;
+      }
+      // 'b'
+      if ($2 == 98) {
+        state.position += 1;
+        const $6 = '\b';
+        $0 = const Ok($6);
+        break $l;
+      }
+      // 'f'
+      if ($2 == 102) {
+        state.position += 1;
+        const $7 = '\f';
+        $0 = const Ok($7);
+        break $l;
+      }
+      // 'n'
+      if ($2 == 110) {
+        state.position += 1;
+        const $8 = '\n';
+        $0 = const Ok($8);
+        break $l;
+      }
+      // 'r'
+      if ($2 == 114) {
+        state.position += 1;
+        const $9 = '\r';
+        $0 = const Ok($9);
+        break $l;
+      }
+      // 't'
+      if ($2 == 116) {
+        state.position += 1;
+        const $10 = '\t';
+        $0 = const Ok($10);
+        break $l;
+      }
     }
-    // '\\'
-    if ($2 == 92) {
-      state.position += 1;
-      const $4 = '\\';
+    if ($0 != null) {
       state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
-      state.restoreErrorState($0);
-      return const Ok($4);
-    }
-    // '/'
-    if ($2 == 47) {
-      state.position += 1;
-      const $5 = '/';
-      state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
-      state.restoreErrorState($0);
-      return const Ok($5);
-    }
-    // 'b'
-    if ($2 == 98) {
-      state.position += 1;
-      const $6 = '\b';
-      state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
-      state.restoreErrorState($0);
-      return const Ok($6);
-    }
-    // 'f'
-    if ($2 == 102) {
-      state.position += 1;
-      const $7 = '\f';
-      state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
-      state.restoreErrorState($0);
-      return const Ok($7);
-    }
-    // 'n'
-    if ($2 == 110) {
-      state.position += 1;
-      const $8 = '\n';
-      state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
-      state.restoreErrorState($0);
-      return const Ok($8);
-    }
-    // 'r'
-    if ($2 == 114) {
-      state.position += 1;
-      const $9 = '\r';
-      state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
-      state.restoreErrorState($0);
-      return const Ok($9);
-    }
-    // 't'
-    if ($2 == 116) {
-      state.position += 1;
-      const $10 = '\t';
-      state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
-      state.restoreErrorState($0);
-      return const Ok($10);
-    }
-    if (state.position == state.length) {
-      state.errorExpected('escape character');
+      return $0;
     } else {
-      state.error('Illegal escape character');
+      if (state.position == state.length) {
+        state.errorExpected('escape character');
+      } else {
+        state.error('Illegal escape character');
+      }
+      state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
     }
-    state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
-    state.restoreErrorState($0);
     return null;
   }
 
@@ -526,128 +532,141 @@ class JsonParser {
   ///   }
   /// ```
   Result<num>? parseNumber(State state) {
-    final $0 = state.setErrorState();
-    final $1 = state.setFarthestPosition();
-    final $2 = state.position;
-    final start = state.position;
-    var flag = true;
-    final $3 = state.peek();
-    // '-'
-    if ($3 == 45) {
-      state.position += 1;
-    }
-    var $4 = false;
+    Result<num>? $0;
+    final $1 = state.farthestPosition;
+    state.farthestPosition = state.position;
     $l:
     {
-      final $5 = state.peek();
-      // '0'
-      if ($5 == 48) {
+      final $2 = state.position;
+      final start = state.position;
+      var flag = true;
+      final $3 = state.peek();
+      // '-'
+      if ($3 == 45) {
         state.position += 1;
-        $4 = true;
-        break $l;
       }
-      final $6 = $5 >= 49 && $5 <= 57;
-      if ($6) {
-        state.position += 1;
-        while (true) {
-          final $7 = state.peek();
-          final $8 = $7 >= 48 && $7 <= 57;
-          if ($8) {
-            state.position += 1;
-            continue;
-          }
-          break;
-        }
-        $4 = true;
-        break $l;
-      }
-    }
-    if ($4) {
+      var $4 = false;
       $l1:
       {
-        final $9 = state.setErrorState();
-        final $10 = state.setFarthestPosition();
-        final $11 = state.position;
-        final $12 = state.peek();
-        // '.'
-        if ($12 == 46) {
+        final $5 = state.peek();
+        // '0'
+        if ($5 == 48) {
           state.position += 1;
-          var $13 = false;
+          $4 = true;
+          break $l1;
+        }
+        final $6 = $5 >= 49 && $5 <= 57;
+        if ($6) {
+          state.position += 1;
           while (true) {
-            final $14 = state.peek();
-            final $15 = $14 >= 48 && $14 <= 57;
-            if ($15) {
+            final $7 = state.peek();
+            final $8 = $7 >= 48 && $7 <= 57;
+            if ($8) {
               state.position += 1;
-              $13 = true;
               continue;
             }
             break;
           }
-          if ($13) {
-            flag = false;
-            state.farthestPosition < $10 ? state.farthestPosition = $10 : null;
-            state.restoreErrorState($9);
-            break $l1;
-          } else {
-            state.backtrack($11);
-          }
+          $4 = true;
+          break $l1;
         }
-        state.errorIncorrect('Fractional part is missing a number');
-        state.farthestPosition < $10 ? state.farthestPosition = $10 : null;
-        state.restoreErrorState($9);
       }
-      $l2:
-      {
-        final $16 = state.setErrorState();
-        final $17 = state.setFarthestPosition();
-        final $18 = state.position;
-        final $19 = state.peek();
-        final $20 = $19 == 69 || $19 == 101;
-        if ($20) {
-          state.position += 1;
-          final $21 = state.peek();
-          final $22 = $21 == 43 || $21 == 45;
-          if ($22) {
+      if ($4) {
+        var $9 = false;
+        final $10 = state.farthestPosition;
+        state.farthestPosition = state.position;
+        $l2:
+        {
+          final $11 = state.position;
+          final $12 = state.peek();
+          // '.'
+          if ($12 == 46) {
             state.position += 1;
-          }
-          var $23 = false;
-          while (true) {
-            final $24 = state.peek();
-            final $25 = $24 >= 48 && $24 <= 57;
-            if ($25) {
-              state.position += 1;
-              $23 = true;
-              continue;
+            var $13 = false;
+            while (true) {
+              final $14 = state.peek();
+              final $15 = $14 >= 48 && $14 <= 57;
+              if ($15) {
+                state.position += 1;
+                $13 = true;
+                continue;
+              }
+              break;
             }
-            break;
-          }
-          if ($23) {
-            flag = false;
-            state.farthestPosition < $17 ? state.farthestPosition = $17 : null;
-            state.restoreErrorState($16);
-            break $l2;
-          } else {
-            state.backtrack($18);
+            if ($13) {
+              flag = false;
+              $9 = true;
+              break $l2;
+            } else {
+              state.backtrack($11);
+            }
           }
         }
-        state.errorIncorrect('Exponent part is missing a number');
-        state.farthestPosition < $17 ? state.farthestPosition = $17 : null;
-        state.restoreErrorState($16);
+        if ($9) {
+          state.farthestPosition < $10 ? state.farthestPosition = $10 : null;
+        } else {
+          state.errorIncorrect('Fractional part is missing a number');
+          state.farthestPosition < $10 ? state.farthestPosition = $10 : null;
+        }
+        var $16 = false;
+        final $17 = state.farthestPosition;
+        state.farthestPosition = state.position;
+        $l3:
+        {
+          final $18 = state.position;
+          final $19 = state.peek();
+          final $20 = $19 == 69 || $19 == 101;
+          if ($20) {
+            state.position += 1;
+            final $21 = state.peek();
+            final $22 = $21 == 43 || $21 == 45;
+            if ($22) {
+              state.position += 1;
+            }
+            var $23 = false;
+            while (true) {
+              final $24 = state.peek();
+              final $25 = $24 >= 48 && $24 <= 57;
+              if ($25) {
+                state.position += 1;
+                $23 = true;
+                continue;
+              }
+              break;
+            }
+            if ($23) {
+              flag = false;
+              $16 = true;
+              break $l3;
+            } else {
+              state.backtrack($18);
+            }
+          }
+        }
+        if ($16) {
+          state.farthestPosition < $17 ? state.farthestPosition = $17 : null;
+        } else {
+          state.errorIncorrect('Exponent part is missing a number');
+          state.farthestPosition < $17 ? state.farthestPosition = $17 : null;
+        }
+        final $26 = state.substring(start, state.position);
+        final s = $26;
+        parseS(state);
+        final $27 = flag && s.length <= 18 ? int.parse(s) : num.parse(s);
+        $0 = Ok($27);
+        break $l;
+      } else {
+        state.backtrack($2);
       }
-      final $26 = state.substring(start, state.position);
-      final s = $26;
-      parseS(state);
-      final $27 = flag && s.length <= 18 ? int.parse(s) : num.parse(s);
-      state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
-      state.restoreErrorState($0);
-      return Ok($27);
-    } else {
-      state.backtrack($2);
     }
-    state.errorIncorrect('Unterminated number', true);
-    state.errorExpected('number');
-    state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
-    state.restoreErrorState($0);
+    if ($0 != null) {
+      state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
+      return $0;
+    } else {
+      state.errorIncorrect('Unterminated number', true);
+      state.errorExpected('number');
+      state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
+    }
     return null;
   }
 
@@ -1039,15 +1058,6 @@ class State {
       _errorState = -1;
     }
     return errorState;
-  }
-
-  /// Intended for internal use only.
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  int setFarthestPosition() {
-    final farthestPosition = this.farthestPosition;
-    this.farthestPosition = position;
-    return farthestPosition;
   }
 
   @pragma('vm:prefer-inline')

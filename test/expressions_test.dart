@@ -3843,19 +3843,19 @@ void main() {
       $r2,
       isNotNull,
       reason:
-          'a = [0-9]\nb = [0-9]\nc = [0-9]\n\$ = { a -48 + b - 48 + c - 48 }\n\'123\'\nresult != null\n',
+          'a = [0-9]\nb = [0-9]\nc = [0-9]\n\$ = { a - 48 + b - 48 + c - 48 }\n\'123\'\nresult != null\n',
     );
     expect(
       $s.position,
       3,
       reason:
-          'a = [0-9]\nb = [0-9]\nc = [0-9]\n\$ = { a -48 + b - 48 + c - 48 }\n\'123\'\nstate.position = 3\n',
+          'a = [0-9]\nb = [0-9]\nc = [0-9]\n\$ = { a - 48 + b - 48 + c - 48 }\n\'123\'\nstate.position = 3\n',
     );
     expect(
       $r2.$1,
       6,
       reason:
-          'a = [0-9]\nb = [0-9]\nc = [0-9]\n\$ = { a -48 + b - 48 + c - 48 }\n\'123\'\nresult.\$1 != 6\n',
+          'a = [0-9]\nb = [0-9]\nc = [0-9]\n\$ = { a - 48 + b - 48 + c - 48 }\n\'123\'\nresult.\$1 != 6\n',
     );
     final $s1 = State('123');
     final $r3 = $r1($s1) as dynamic;
@@ -3863,19 +3863,19 @@ void main() {
       $r3,
       isNotNull,
       reason:
-          'a = [0-9]\nb = [0-9]\nc = [0-9]\n\$ = { a -48 + b - 48 + c - 48 }\n\'123\'\nresult != null\n',
+          'a = [0-9]\nb = [0-9]\nc = [0-9]\n\$ = { a - 48 + b - 48 + c - 48 }\n\'123\'\nresult != null\n',
     );
     expect(
       $s1.position,
       3,
       reason:
-          'a = [0-9]\nb = [0-9]\nc = [0-9]\n\$ = { a -48 + b - 48 + c - 48 }\n\'123\'\nstate.position = 3\n',
+          'a = [0-9]\nb = [0-9]\nc = [0-9]\n\$ = { a - 48 + b - 48 + c - 48 }\n\'123\'\nstate.position = 3\n',
     );
     expect(
       $r3.$1,
       null,
       reason:
-          'a = [0-9]\nb = [0-9]\nc = [0-9]\n\$ = { a -48 + b - 48 + c - 48 }\n\'123\'\nresult.\$1 != null\n',
+          'a = [0-9]\nb = [0-9]\nc = [0-9]\n\$ = { a - 48 + b - 48 + c - 48 }\n\'123\'\nresult.\$1 != null\n',
     );
     final $s2 = State('12');
     final $r4 = $r($s2) as dynamic;
@@ -3883,32 +3883,32 @@ void main() {
       $r4,
       isNull,
       reason:
-          'a = [0-9]\nb = [0-9]\nc = [0-9]\n\$ = { a -48 + b - 48 + c - 48 }\n\'12\'\nresult == null\n',
+          'a = [0-9]\nb = [0-9]\nc = [0-9]\n\$ = { a - 48 + b - 48 + c - 48 }\n\'12\'\nresult == null\n',
     );
     expect(
       $s2.farthestPosition,
       2,
       reason:
-          'a = [0-9]\nb = [0-9]\nc = [0-9]\n\$ = { a -48 + b - 48 + c - 48 }\n\'12\'\nstate.farthestPosition = 2\n',
+          'a = [0-9]\nb = [0-9]\nc = [0-9]\n\$ = { a - 48 + b - 48 + c - 48 }\n\'12\'\nstate.farthestPosition = 2\n',
     );
     expect(
       $s2.position,
       0,
       reason:
-          'a = [0-9]\nb = [0-9]\nc = [0-9]\n\$ = { a -48 + b - 48 + c - 48 }\n\'12\'\nstate.position = 0\n',
+          'a = [0-9]\nb = [0-9]\nc = [0-9]\n\$ = { a - 48 + b - 48 + c - 48 }\n\'12\'\nstate.position = 0\n',
     );
     final $e = $s2.getErrors().map((e) => '$e').toList()..sort();
     expect(
       $e.length,
       1,
       reason:
-          'a = [0-9]\nb = [0-9]\nc = [0-9]\n\$ = { a -48 + b - 48 + c - 48 }\n\'12\'\nerror count\n',
+          'a = [0-9]\nb = [0-9]\nc = [0-9]\n\$ = { a - 48 + b - 48 + c - 48 }\n\'12\'\nerror count\n',
     );
     expect(
       $e,
       ['(end: 2, message: Unexpected input data, start: 2)'],
       reason:
-          'a = [0-9]\nb = [0-9]\nc = [0-9]\n\$ = { a -48 + b - 48 + c - 48 }\n\'12\'\nerrors\n',
+          'a = [0-9]\nb = [0-9]\nc = [0-9]\n\$ = { a - 48 + b - 48 + c - 48 }\n\'12\'\nerrors\n',
     );
     final $s3 = State('12');
     final $r5 = $r1($s3) as dynamic;
@@ -3916,32 +3916,32 @@ void main() {
       $r5,
       isNull,
       reason:
-          'a = [0-9]\nb = [0-9]\nc = [0-9]\n\$ = { a -48 + b - 48 + c - 48 }\n\'12\'\nresult == null\n',
+          'a = [0-9]\nb = [0-9]\nc = [0-9]\n\$ = { a - 48 + b - 48 + c - 48 }\n\'12\'\nresult == null\n',
     );
     expect(
       $s3.farthestPosition,
       2,
       reason:
-          'a = [0-9]\nb = [0-9]\nc = [0-9]\n\$ = { a -48 + b - 48 + c - 48 }\n\'12\'\nstate.farthestPosition = 2\n',
+          'a = [0-9]\nb = [0-9]\nc = [0-9]\n\$ = { a - 48 + b - 48 + c - 48 }\n\'12\'\nstate.farthestPosition = 2\n',
     );
     expect(
       $s3.position,
       0,
       reason:
-          'a = [0-9]\nb = [0-9]\nc = [0-9]\n\$ = { a -48 + b - 48 + c - 48 }\n\'12\'\nstate.position = 0\n',
+          'a = [0-9]\nb = [0-9]\nc = [0-9]\n\$ = { a - 48 + b - 48 + c - 48 }\n\'12\'\nstate.position = 0\n',
     );
     final $e1 = $s3.getErrors().map((e) => '$e').toList()..sort();
     expect(
       $e1.length,
       1,
       reason:
-          'a = [0-9]\nb = [0-9]\nc = [0-9]\n\$ = { a -48 + b - 48 + c - 48 }\n\'12\'\nerror count\n',
+          'a = [0-9]\nb = [0-9]\nc = [0-9]\n\$ = { a - 48 + b - 48 + c - 48 }\n\'12\'\nerror count\n',
     );
     expect(
       $e1,
       ['(end: 2, message: Unexpected input data, start: 2)'],
       reason:
-          'a = [0-9]\nb = [0-9]\nc = [0-9]\n\$ = { a -48 + b - 48 + c - 48 }\n\'12\'\nerrors\n',
+          'a = [0-9]\nb = [0-9]\nc = [0-9]\n\$ = { a - 48 + b - 48 + c - 48 }\n\'12\'\nerrors\n',
     );
     final $r6 = parser.parseSequence1;
     final $r7 = parser.parseSequenceVoid1;
@@ -8279,8 +8279,7 @@ class _TestParser {
     }
     state.predicate--;
     if ($1) {
-      final $3 = state.peek();
-      if ($3 == 97 && state.startsWith('ab')) {
+      if ($2 == 97 && state.startsWith('ab')) {
         state.position += 2;
         return const Ok('ab');
       } else {
@@ -8311,8 +8310,7 @@ class _TestParser {
     }
     state.predicate--;
     if ($1) {
-      final $3 = state.peek();
-      if ($3 == 97 && state.startsWith('ab')) {
+      if ($2 == 97 && state.startsWith('ab')) {
         state.position += 2;
         return Result.none;
       } else {
@@ -8765,22 +8763,18 @@ class _TestParser {
   /// ```
   Result<int?> parseOptional2(State state) {
     int? $0;
-    $l:
-    {
-      final $1 = state.position;
-      final $2 = state.peek();
-      // 'a'
-      if ($2 == 97) {
+    final $1 = state.position;
+    final $2 = state.peek();
+    // 'a'
+    if ($2 == 97) {
+      state.position += 1;
+      final $3 = state.peek();
+      // 'b'
+      if ($3 == 98) {
         state.position += 1;
-        final $3 = state.peek();
-        // 'b'
-        if ($3 == 98) {
-          state.position += 1;
-          $0 = 98;
-          break $l;
-        } else {
-          state.backtrack($1);
-        }
+        $0 = 98;
+      } else {
+        state.backtrack($1);
       }
     }
     return Ok($0);
@@ -8793,21 +8787,17 @@ class _TestParser {
   /// ;
   /// ```
   Result<void> parseOptionalVoid2(State state) {
-    $l:
-    {
-      final $0 = state.position;
-      final $1 = state.peek();
-      // 'a'
-      if ($1 == 97) {
+    final $0 = state.position;
+    final $1 = state.peek();
+    // 'a'
+    if ($1 == 97) {
+      state.position += 1;
+      final $2 = state.peek();
+      // 'b'
+      if ($2 == 98) {
         state.position += 1;
-        final $2 = state.peek();
-        // 'b'
-        if ($2 == 98) {
-          state.position += 1;
-          break $l;
-        } else {
-          state.backtrack($0);
-        }
+      } else {
+        state.backtrack($0);
       }
     }
     return Result.none;
@@ -8821,22 +8811,18 @@ class _TestParser {
   /// ```
   Result<int?> parseOptional3(State state) {
     int? $0;
-    $l:
-    {
-      final $1 = state.position;
-      final $2 = state.peek();
-      // 'a'
-      if ($2 == 97) {
+    final $1 = state.position;
+    final $2 = state.peek();
+    // 'a'
+    if ($2 == 97) {
+      state.position += 1;
+      final $3 = state.peek();
+      // 'b'
+      if ($3 == 98) {
         state.position += 1;
-        final $3 = state.peek();
-        // 'b'
-        if ($3 == 98) {
-          state.position += 1;
-          $0 = 97;
-          break $l;
-        } else {
-          state.backtrack($1);
-        }
+        $0 = 97;
+      } else {
+        state.backtrack($1);
       }
     }
     return Ok($0);
@@ -8849,21 +8835,17 @@ class _TestParser {
   /// ;
   /// ```
   Result<void> parseOptionalVoid3(State state) {
-    $l:
-    {
-      final $0 = state.position;
-      final $1 = state.peek();
-      // 'a'
-      if ($1 == 97) {
+    final $0 = state.position;
+    final $1 = state.peek();
+    // 'a'
+    if ($1 == 97) {
+      state.position += 1;
+      final $2 = state.peek();
+      // 'b'
+      if ($2 == 98) {
         state.position += 1;
-        final $2 = state.peek();
-        // 'b'
-        if ($2 == 98) {
-          state.position += 1;
-          break $l;
-        } else {
-          state.backtrack($0);
-        }
+      } else {
+        state.backtrack($0);
       }
     }
     return Result.none;
@@ -9017,7 +8999,7 @@ class _TestParser {
   ///   a = [0-9]
   ///   b = [0-9]
   ///   c = [0-9]
-  ///   $ = { a -48 + b - 48 + c - 48 }
+  ///   $ = { a - 48 + b - 48 + c - 48 }
   /// ;
   /// ```
   Result<int>? parseSequence0(State state) {
@@ -9037,7 +9019,7 @@ class _TestParser {
         if ($6) {
           state.position += 1;
           final c = $5;
-          final $7 = a -48 + b - 48 + c - 48;
+          final $7 = a - 48 + b - 48 + c - 48;
           return Ok($7);
         } else {
           state.backtrack($0);
@@ -9055,7 +9037,7 @@ class _TestParser {
   ///   a = [0-9]
   ///   b = [0-9]
   ///   c = [0-9]
-  ///   $ = { a -48 + b - 48 + c - 48 }
+  ///   $ = { a - 48 + b - 48 + c - 48 }
   /// ;
   /// ```
   Result<void>? parseSequenceVoid0(State state) {
@@ -9075,7 +9057,7 @@ class _TestParser {
         if ($6) {
           state.position += 1;
           final c = $5;
-          final $7 = a -48 + b - 48 + c - 48;
+          final $7 = a - 48 + b - 48 + c - 48;
           return Result.none;
         } else {
           state.backtrack($0);
@@ -9103,38 +9085,45 @@ class _TestParser {
   /// ;
   /// ```
   Result<String>? parseSequence1(State state) {
-    final $0 = state.setErrorState();
-    final $1 = state.setFarthestPosition();
-    final $2 = state.position;
-    final $3 = state.peek();
-    // 'a'
-    if ($3 == 97) {
-      state.position += 1;
-      final $4 = state.peek();
-      // 'b'
-      if ($4 == 98) {
+    Result<String>? $0;
+    final $1 = state.farthestPosition;
+    state.farthestPosition = state.position;
+    $l:
+    {
+      final $2 = state.position;
+      final $3 = state.peek();
+      // 'a'
+      if ($3 == 97) {
         state.position += 1;
-        final $5 = state.peek();
-        // 'c'
-        if ($5 == 99) {
+        final $4 = state.peek();
+        // 'b'
+        if ($4 == 98) {
           state.position += 1;
-          const $6 = 'abc';
-          state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
-          state.restoreErrorState($0);
-          return const Ok($6);
+          final $5 = state.peek();
+          // 'c'
+          if ($5 == 99) {
+            state.position += 1;
+            const $6 = 'abc';
+            $0 = const Ok($6);
+            break $l;
+          } else {
+            state.backtrack($2);
+          }
         } else {
           state.backtrack($2);
         }
-      } else {
-        state.backtrack($2);
       }
     }
-    state.errorExpected('abc');
-    state.errorIncorrect('Full', true);
-    state.errorIncorrect('End', false);
-    state.errorIncorrect('Start', null);
-    state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
-    state.restoreErrorState($0);
+    if ($0 != null) {
+      state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
+      return $0;
+    } else {
+      state.errorExpected('abc');
+      state.errorIncorrect('Full', true);
+      state.errorIncorrect('End', false);
+      state.errorIncorrect('Start', null);
+      state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
+    }
     return null;
   }
 
@@ -9154,38 +9143,45 @@ class _TestParser {
   /// ;
   /// ```
   Result<void>? parseSequenceVoid1(State state) {
-    final $0 = state.setErrorState();
-    final $1 = state.setFarthestPosition();
-    final $2 = state.position;
-    final $3 = state.peek();
-    // 'a'
-    if ($3 == 97) {
-      state.position += 1;
-      final $4 = state.peek();
-      // 'b'
-      if ($4 == 98) {
+    var $0 = false;
+    final $1 = state.farthestPosition;
+    state.farthestPosition = state.position;
+    $l:
+    {
+      final $2 = state.position;
+      final $3 = state.peek();
+      // 'a'
+      if ($3 == 97) {
         state.position += 1;
-        final $5 = state.peek();
-        // 'c'
-        if ($5 == 99) {
+        final $4 = state.peek();
+        // 'b'
+        if ($4 == 98) {
           state.position += 1;
-          const $6 = 'abc';
-          state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
-          state.restoreErrorState($0);
-          return Result.none;
+          final $5 = state.peek();
+          // 'c'
+          if ($5 == 99) {
+            state.position += 1;
+            const $6 = 'abc';
+            $0 = true;
+            break $l;
+          } else {
+            state.backtrack($2);
+          }
         } else {
           state.backtrack($2);
         }
-      } else {
-        state.backtrack($2);
       }
     }
-    state.errorExpected('abc');
-    state.errorIncorrect('Full', true);
-    state.errorIncorrect('End', false);
-    state.errorIncorrect('Start', null);
-    state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
-    state.restoreErrorState($0);
+    if ($0) {
+      state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
+      return Result.none;
+    } else {
+      state.errorExpected('abc');
+      state.errorIncorrect('Full', true);
+      state.errorIncorrect('End', false);
+      state.errorIncorrect('Start', null);
+      state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
+    }
     return null;
   }
 
@@ -10440,15 +10436,6 @@ class State {
       _errorState = -1;
     }
     return errorState;
-  }
-
-  /// Intended for internal use only.
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  int setFarthestPosition() {
-    final farthestPosition = this.farthestPosition;
-    this.farthestPosition = position;
-    return farthestPosition;
   }
 
   @pragma('vm:prefer-inline')

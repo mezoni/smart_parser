@@ -35,7 +35,6 @@ class ExpressionAnalyzer implements Visitor<void> {
   void visitAction(ActionExpression node) {
     _setIsAlwaysSuccessful(node, true);
     _setCanChangePosition(node, false);
-    _setHasSideEffects(node, false);
     _setIsSingleExitPoint(node, true);
   }
 
@@ -46,7 +45,6 @@ class ExpressionAnalyzer implements Visitor<void> {
     _setIsAlwaysSuccessful(node, child.isAlwaysSuccessful);
     _setCanChangePosition(node, false);
     _setIsVoid(child, true);
-    _setHasSideEffects(node, child.hasSideEffects);
     _setIsSingleExitPoint(node, child.isSingleExitPoint);
   }
 
@@ -54,7 +52,6 @@ class ExpressionAnalyzer implements Visitor<void> {
   void visitAnyCharacter(AnyCharacterExpression node) {
     _setIsAlwaysSuccessful(node, false);
     _setCanChangePosition(node, true);
-    _setHasSideEffects(node, false);
     _setIsSingleExitPoint(node, true);
   }
 
@@ -65,7 +62,6 @@ class ExpressionAnalyzer implements Visitor<void> {
     _setIsAlwaysSuccessful(node, child.isAlwaysSuccessful);
     _setCanChangePosition(node, child.canChangePosition);
     _setIsVoid(child, true);
-    _setHasSideEffects(node, child.hasSideEffects);
     _setIsSingleExitPoint(node, child.isSingleExitPoint);
   }
 
@@ -73,7 +69,6 @@ class ExpressionAnalyzer implements Visitor<void> {
   void visitCharacterClass(CharacterClassExpression node) {
     _setIsAlwaysSuccessful(node, false);
     _setCanChangePosition(node, true);
-    _setHasSideEffects(node, false);
     _setIsSingleExitPoint(node, true);
   }
 
@@ -84,7 +79,6 @@ class ExpressionAnalyzer implements Visitor<void> {
     _setIsAlwaysSuccessful(node, child.isAlwaysSuccessful);
     _setCanChangePosition(node, child.canChangePosition);
     _setIsVoid(child, node.isVoid);
-    _setHasSideEffects(node, child.hasSideEffects);
     _setIsSingleExitPoint(node, child.isSingleExitPoint);
   }
 
@@ -93,7 +87,6 @@ class ExpressionAnalyzer implements Visitor<void> {
     final text = node.text;
     _setIsAlwaysSuccessful(node, text.isEmpty);
     _setCanChangePosition(node, text.isNotEmpty);
-    _setHasSideEffects(node, false);
     _setIsSingleExitPoint(node, true);
   }
 
@@ -104,7 +97,6 @@ class ExpressionAnalyzer implements Visitor<void> {
     _setIsAlwaysSuccessful(node, false);
     _setCanChangePosition(node, false);
     _setIsVoid(child, true);
-    _setHasSideEffects(node, false);
     _setIsSingleExitPoint(node, true);
   }
 
@@ -116,7 +108,6 @@ class ExpressionAnalyzer implements Visitor<void> {
     _setCanChangePosition(node, child.canChangePosition);
     _checkInfiniteLoop(node);
     _setIsVoid(child, node.isVoid);
-    _setHasSideEffects(node, false);
     _setIsSingleExitPoint(node, true);
   }
 
@@ -127,7 +118,6 @@ class ExpressionAnalyzer implements Visitor<void> {
     _setIsAlwaysSuccessful(node, true);
     _setCanChangePosition(node, child.canChangePosition);
     _setIsVoid(child, node.isVoid);
-    _setHasSideEffects(node, false);
     _setIsSingleExitPoint(node, true);
   }
 
@@ -141,7 +131,6 @@ class ExpressionAnalyzer implements Visitor<void> {
 
     _setIsAlwaysSuccessful(node, children.any((e) => e.isAlwaysSuccessful));
     _setCanChangePosition(node, children.any((e) => e.canChangePosition));
-    _setHasSideEffects(node, children.any((e) => e.hasSideEffects));
     if (children.length == 1) {
       final child = children.first;
       _setIsSingleExitPoint(node, child.isSingleExitPoint);
@@ -154,7 +143,6 @@ class ExpressionAnalyzer implements Visitor<void> {
   void visitPosition(PositionExpression node) {
     _setIsAlwaysSuccessful(node, true);
     _setCanChangePosition(node, true);
-    _setHasSideEffects(node, false);
     _setIsSingleExitPoint(node, true);
   }
 
@@ -162,7 +150,6 @@ class ExpressionAnalyzer implements Visitor<void> {
   void visitPredicate(PredicateExpression node) {
     _setIsAlwaysSuccessful(node, false);
     _setCanChangePosition(node, false);
-    _setHasSideEffects(node, false);
     _setIsSingleExitPoint(node, true);
   }
 
@@ -179,7 +166,6 @@ class ExpressionAnalyzer implements Visitor<void> {
       _setCanChangePosition(node, expression.canChangePosition);
     }
 
-    _setHasSideEffects(node, false);
     _setIsSingleExitPoint(node, true);
   }
 
@@ -199,11 +185,6 @@ class ExpressionAnalyzer implements Visitor<void> {
       }
     }
 
-    final hasSideEffects =
-        children.any((e) => e.hasSideEffects) ||
-        children.where((e) => e.canChangePosition).length > 1 ||
-        node.errorHandler != null;
-    _setHasSideEffects(node, hasSideEffects);
     final lastChild = children.last;
     _setIsSingleExitPoint(node, lastChild.isSingleExitPoint);
   }
@@ -212,7 +193,6 @@ class ExpressionAnalyzer implements Visitor<void> {
   void visitValue(ValueExpression node) {
     _setIsAlwaysSuccessful(node, true);
     _setCanChangePosition(node, false);
-    _setHasSideEffects(node, false);
     _setIsSingleExitPoint(node, true);
   }
 
@@ -229,7 +209,6 @@ class ExpressionAnalyzer implements Visitor<void> {
     );
     _setCanChangePosition(node, child.canChangePosition);
     _setIsVoid(child, node.isVoid);
-    _setHasSideEffects(node, false);
     _setIsSingleExitPoint(node, true);
     _checkInfiniteLoop(node);
   }
@@ -241,7 +220,6 @@ class ExpressionAnalyzer implements Visitor<void> {
     _setIsAlwaysSuccessful(node, true);
     _setCanChangePosition(node, child.canChangePosition);
     _setIsVoid(child, node.isVoid);
-    _setHasSideEffects(node, false);
     _setIsSingleExitPoint(node, true);
     _checkInfiniteLoop(node);
   }
@@ -261,13 +239,6 @@ Block expression source: ${child.sourceCode}''');
     if (node.canChangePosition != canChangePosition) {
       _hasChanges = true;
       node.canChangePosition = canChangePosition;
-    }
-  }
-
-  void _setHasSideEffects(Expression node, bool hasSideEffects) {
-    if (node.hasSideEffects != hasSideEffects) {
-      _hasChanges = true;
-      node.hasSideEffects = hasSideEffects;
     }
   }
 

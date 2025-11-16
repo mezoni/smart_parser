@@ -2,7 +2,7 @@
 
 This software is a library that generates source code of recursive descent parsers based on a grammar consisting of the parsing expressions and native Dart language source code
 
-Version: 1.0.0-beta.4
+Version: 1.0.0-beta.5
 
 [![Pub Package](https://img.shields.io/pub/v/smart_parser.svg)](https://pub.dev/packages/smart_parser)
 [![GitHub Issues](https://img.shields.io/github/issues/mezoni/smart_parser.svg)](https://github.com/mezoni/smart_parser/issues)
@@ -418,19 +418,28 @@ Example of an error handler.
 ///   }
 /// ```
 Result<Expression>? parseExpression(State state) {
-  final $0 = state.setErrorState();
-  final $1 = state.farthestPosition;
+  Result<Expression>? $0;
+  final $1 = state.setErrorState();
+  final $2 = state.farthestPosition;
   state.farthestPosition = state.position;
-  final $2 = parseAdditional(state);
-  if ($2 != null) {
-    state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
-    state.restoreErrorState($0);
-    return $2;
+  $l:
+  {
+    final $3 = parseAdditional(state);
+    if ($3 != null) {
+      $0 = $3;
+      break $l;
+    }
   }
-  state.removeRecentErrors();
-  state.errorExpected('expression');
-  state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
-  state.restoreErrorState($0);
+  if ($0 != null) {
+    state.farthestPosition < $2 ? state.farthestPosition = $2 : null;
+    state.restoreErrorState($1);
+    return $0;
+  } else {
+    state.removeRecentErrors();
+    state.errorExpected('expression');
+    state.farthestPosition < $2 ? state.farthestPosition = $2 : null;
+    state.restoreErrorState($1);
+  }
   return null;
 }
 ```
@@ -461,32 +470,39 @@ Example of  `state.errorIncorrect()` procedure.
 ///   }
 /// ```
 Result<int>? parseHexValue(State state) {
-  final $0 = state.setErrorState();
-  final $1 = state.setFarthestPosition();
-  final $2 = state.position;
-  var $3 = 0;
-  while ($3 < 4) {
-    final $4 = parseHex(state);
-    if ($4 != null) {
-      $3++;
-      continue;
+  Result<int>? $0;
+  final $1 = state.farthestPosition;
+  state.farthestPosition = state.position;
+  $l:
+  {
+    final $2 = state.position;
+    var $3 = 0;
+    while ($3 < 4) {
+      final $4 = parseHex(state);
+      if ($4 != null) {
+        $3++;
+        continue;
+      }
+      break;
     }
-    break;
+    if ($3 >= 4) {
+      final $5 = state.substring($2, state.position);
+      final n = $5;
+      final $6 = int.parse(n, radix: 16);
+      $0 = Ok($6);
+      break $l;
+    } else {
+      state.backtrack($2);
+    }
   }
-  if ($3 >= 4) {
-    final $5 = state.substring($2, state.position);
-    final n = $5;
-    final $6 = int.parse(n, radix: 16);
+  if ($0 != null) {
     state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
-    state.restoreErrorState($0);
-    return Ok($6);
+    return $0;
   } else {
-    state.backtrack($2);
+    state.errorExpected('hex number');
+    state.errorIncorrect('Invalid four-digit number', true);
+    state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
   }
-  state.errorExpected('hex number');
-  state.errorIncorrect('Invalid four-digit number', true);
-  state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
-  state.restoreErrorState($0);
   return null;
 }
 ```

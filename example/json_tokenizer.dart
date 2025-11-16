@@ -209,35 +209,42 @@ class JsonTokenizer {
   ///   }
   /// ```
   Result<String>? parseHex(State state) {
-    final $0 = state.setErrorState();
-    final $1 = state.setFarthestPosition();
-    final $2 = state.position;
-    var $3 = 0;
-    while ($3 < 4) {
-      final $4 = state.peek();
-      final $5 = $4 <= 70 ? $4 >= 65 || $4 >= 48 && $4 <= 57 : $4 >= 97 && $4 <= 102;
-      if ($5) {
-        state.position += 1;
-        $3++;
-        continue;
+    Result<String>? $0;
+    final $1 = state.farthestPosition;
+    state.farthestPosition = state.position;
+    $l:
+    {
+      final $2 = state.position;
+      var $3 = 0;
+      while ($3 < 4) {
+        final $4 = state.peek();
+        final $5 = $4 <= 70 ? $4 >= 65 || $4 >= 48 && $4 <= 57 : $4 >= 97 && $4 <= 102;
+        if ($5) {
+          state.position += 1;
+          $3++;
+          continue;
+        }
+        break;
       }
-      break;
+      if ($3 >= 4) {
+        final $6 = state.substring($2, state.position);
+        final s = $6;
+        final $7 = String.fromCharCode(int.parse(s, radix: 16));
+        $0 = Ok($7);
+        break $l;
+      } else {
+        state.backtrack($2);
+      }
     }
-    if ($3 >= 4) {
-      final $6 = state.substring($2, state.position);
-      final s = $6;
-      final $7 = String.fromCharCode(int.parse(s, radix: 16));
+    if ($0 != null) {
       state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
-      state.restoreErrorState($0);
-      return Ok($7);
+      return $0;
     } else {
-      state.backtrack($2);
+      state.errorExpected('4 hexadecimal digit number');
+      state.errorIncorrect('Expected hexadecimal digit', false);
+      state.errorIncorrect('Incorrect 4 hexadecimal digit number', true);
+      state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
     }
-    state.errorExpected('4 hexadecimal digit number');
-    state.errorIncorrect('Expected hexadecimal digit', false);
-    state.errorIncorrect('Incorrect 4 hexadecimal digit number', true);
-    state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
-    state.restoreErrorState($0);
     return null;
   }
 
@@ -272,77 +279,76 @@ class JsonTokenizer {
   ///   ~ { state.error('Illegal escape character'); }
   /// ```
   Result<String>? parseEscapeC(State state) {
-    final $0 = state.setErrorState();
+    Result<String>? $0;
     final $1 = state.farthestPosition;
     state.farthestPosition = state.position;
-    final $2 = state.peek();
-    // '"'
-    if ($2 == 34) {
-      state.position += 1;
-      const $3 = '"';
-      state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
-      state.restoreErrorState($0);
-      return const Ok($3);
+    $l:
+    {
+      final $2 = state.peek();
+      // '"'
+      if ($2 == 34) {
+        state.position += 1;
+        const $3 = '"';
+        $0 = const Ok($3);
+        break $l;
+      }
+      // '\\'
+      if ($2 == 92) {
+        state.position += 1;
+        const $4 = '\\';
+        $0 = const Ok($4);
+        break $l;
+      }
+      // '/'
+      if ($2 == 47) {
+        state.position += 1;
+        const $5 = '/';
+        $0 = const Ok($5);
+        break $l;
+      }
+      // 'b'
+      if ($2 == 98) {
+        state.position += 1;
+        const $6 = '\b';
+        $0 = const Ok($6);
+        break $l;
+      }
+      // 'f'
+      if ($2 == 102) {
+        state.position += 1;
+        const $7 = '\f';
+        $0 = const Ok($7);
+        break $l;
+      }
+      // 'n'
+      if ($2 == 110) {
+        state.position += 1;
+        const $8 = '\n';
+        $0 = const Ok($8);
+        break $l;
+      }
+      // 'r'
+      if ($2 == 114) {
+        state.position += 1;
+        const $9 = '\r';
+        $0 = const Ok($9);
+        break $l;
+      }
+      // 't'
+      if ($2 == 116) {
+        state.position += 1;
+        const $10 = '\t';
+        $0 = const Ok($10);
+        break $l;
+      }
     }
-    // '\\'
-    if ($2 == 92) {
-      state.position += 1;
-      const $4 = '\\';
+    if ($0 != null) {
       state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
-      state.restoreErrorState($0);
-      return const Ok($4);
-    }
-    // '/'
-    if ($2 == 47) {
-      state.position += 1;
-      const $5 = '/';
+      return $0;
+    } else {
+      state.error('Illegal escape character');
       state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
-      state.restoreErrorState($0);
-      return const Ok($5);
     }
-    // 'b'
-    if ($2 == 98) {
-      state.position += 1;
-      const $6 = '\b';
-      state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
-      state.restoreErrorState($0);
-      return const Ok($6);
-    }
-    // 'f'
-    if ($2 == 102) {
-      state.position += 1;
-      const $7 = '\f';
-      state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
-      state.restoreErrorState($0);
-      return const Ok($7);
-    }
-    // 'n'
-    if ($2 == 110) {
-      state.position += 1;
-      const $8 = '\n';
-      state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
-      state.restoreErrorState($0);
-      return const Ok($8);
-    }
-    // 'r'
-    if ($2 == 114) {
-      state.position += 1;
-      const $9 = '\r';
-      state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
-      state.restoreErrorState($0);
-      return const Ok($9);
-    }
-    // 't'
-    if ($2 == 116) {
-      state.position += 1;
-      const $10 = '\t';
-      state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
-      state.restoreErrorState($0);
-      return const Ok($10);
-    }
-    state.error('Illegal escape character');
-    state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
-    state.restoreErrorState($0);
     return null;
   }
 
@@ -494,10 +500,11 @@ class JsonTokenizer {
       }
     }
     if ($2) {
+      var $7 = false;
+      final $8 = state.farthestPosition;
+      state.farthestPosition = state.position;
       $l1:
       {
-        final $7 = state.setErrorState();
-        final $8 = state.setFarthestPosition();
         final $9 = state.position;
         final $10 = state.peek();
         // '.'
@@ -516,21 +523,24 @@ class JsonTokenizer {
           }
           if ($11) {
             flag = false;
-            state.farthestPosition < $8 ? state.farthestPosition = $8 : null;
-            state.restoreErrorState($7);
+            $7 = true;
             break $l1;
           } else {
             state.backtrack($9);
           }
         }
+      }
+      if ($7) {
+        state.farthestPosition < $8 ? state.farthestPosition = $8 : null;
+      } else {
         state.errorIncorrect('Unterminated fractional number');
         state.farthestPosition < $8 ? state.farthestPosition = $8 : null;
-        state.restoreErrorState($7);
       }
+      var $14 = false;
+      final $15 = state.farthestPosition;
+      state.farthestPosition = state.position;
       $l2:
       {
-        final $14 = state.setErrorState();
-        final $15 = state.setFarthestPosition();
         final $16 = state.position;
         final $17 = state.peek();
         final $18 = $17 == 69 || $17 == 101;
@@ -554,16 +564,18 @@ class JsonTokenizer {
           }
           if ($21) {
             flag = false;
-            state.farthestPosition < $15 ? state.farthestPosition = $15 : null;
-            state.restoreErrorState($14);
+            $14 = true;
             break $l2;
           } else {
             state.backtrack($16);
           }
         }
+      }
+      if ($14) {
+        state.farthestPosition < $15 ? state.farthestPosition = $15 : null;
+      } else {
         state.errorIncorrect('Exponent part is missing a number');
         state.farthestPosition < $15 ? state.farthestPosition = $15 : null;
-        state.restoreErrorState($14);
       }
       final $24 = state.substring(start, state.position);
       final s = $24;
@@ -898,15 +910,6 @@ class State {
       _errorState = -1;
     }
     return errorState;
-  }
-
-  /// Intended for internal use only.
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  int setFarthestPosition() {
-    final farthestPosition = this.farthestPosition;
-    this.farthestPosition = position;
-    return farthestPosition;
   }
 
   @pragma('vm:prefer-inline')

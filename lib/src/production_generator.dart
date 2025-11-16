@@ -26,21 +26,22 @@ class ProductionGenerator {
 
     final start = expressionGenerator.generate(expression);
     final isAlwaysSuccessful = expression.isAlwaysSuccessful;
-    start.onPreprocess.listen((code) {
+    start.onPreprocess((code) {
       cache.data = {};
-      start.onAccept.listen((event) {
-        final code = event.output;
-        final result = event.result;
-        if (isVoid) {
-          code.stmt('return Result.none');
-        } else {
-          code.stmt('return $result');
-        }
-      });
+    });
+
+    start.onAccept((event) {
+      final code = event.output;
+      final result = event.result;
+      if (isVoid) {
+        code.stmt('return Result.none');
+      } else {
+        code.stmt('return $result');
+      }
     });
 
     if (!isAlwaysSuccessful) {
-      start.onPostprocess.listen((code) {
+      start.onPostprocess((code) {
         code.stmt('return null');
       });
     }

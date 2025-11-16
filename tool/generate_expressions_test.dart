@@ -782,7 +782,7 @@ Test _testSequence() {
 a = [0-9]
 b = [0-9]
 c = [0-9]
-$ = { a -48 + b - 48 + c - 48 }''');
+$ = { a - 48 + b - 48 + c - 48 }''');
     {
       production.addSuccess('123', 3, '6');
       production.addFailure('12', 2, [_errorUnexpectedData(2, 2)]);

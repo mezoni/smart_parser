@@ -1,6 +1,7 @@
-## 1.0.0-beta.5
+## 1.0.0
 
 - A minor improvement has been made to the grammar file `example/json_parser.grammar`.
+- Improved quality of generated code
 
 ## 1.0.0-beta.4
 

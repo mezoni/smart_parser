@@ -58,8 +58,6 @@ abstract class Expression {
 
   bool canChangePosition = true;
 
-  bool hasSideEffects = true;
-
   bool isAlwaysSuccessful = false;
 
   bool isSingleExitPoint = false;

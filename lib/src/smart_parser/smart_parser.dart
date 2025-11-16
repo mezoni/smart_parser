@@ -210,21 +210,28 @@ class SmartParser {
   ///   ~ { state.errorExpected('expression'); }
   /// ```
   Result<Expression>? parseExpression(State state) {
-    final $0 = state.setErrorState();
-    final $1 = state.setFarthestPosition();
-    final pos = state.position;
-    final $2 = parseOrderedChoice(state);
-    if ($2 != null) {
-      final e = $2.$1;
-      e.sourceCode = state.substring(pos, state.position).trimRight();
-      final $3 = e;
-      state.updateFarthestPosition($1);
-      state.restoreErrorState($0);
-      return Ok($3);
+    Result<Expression>? $0;
+    final $1 = state.farthestPosition;
+    state.farthestPosition = state.position;
+    $l:
+    {
+      final pos = state.position;
+      final $2 = parseOrderedChoice(state);
+      if ($2 != null) {
+        final e = $2.$1;
+        e.sourceCode = state.substring(pos, state.position).trimRight();
+        final $3 = e;
+        $0 = Ok($3);
+        break $l;
+      }
     }
-    state.errorExpected('expression');
-    state.updateFarthestPosition($1);
-    state.restoreErrorState($0);
+    if ($0 != null) {
+      state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
+      return $0;
+    } else {
+      state.errorExpected('expression');
+      state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
+    }
     return null;
   }
 
@@ -338,24 +345,20 @@ class SmartParser {
     if ($0.isNotEmpty) {
       final n = $0;
       String? $3;
-      $l:
-      {
-        final $4 = state.position;
-        final $5 = state.peek();
-        // '~'
-        if ($5 == 126) {
-          state.position += 1;
-          parseS(state);
-          final $6 = parseBlock(state);
-          if ($6 != null) {
-            $3 = $6.$1;
-            break $l;
-          } else {
-            state.backtrack($4);
-          }
+      final $4 = state.position;
+      final $5 = state.peek();
+      // '~'
+      if ($5 == 126) {
+        state.position += 1;
+        parseS(state);
+        final $6 = parseBlock(state);
+        if ($6 != null) {
+          $3 = $6.$1;
         } else {
-          state.errorExpected('~');
+          state.backtrack($4);
         }
+      } else {
+        state.errorExpected('~');
       }
       final h = $3;
       final $7 = SequenceExpression(errorHandler: h, expressions: n);
@@ -610,59 +613,59 @@ class SmartParser {
   ///   ~ { state.errorExpected('expression'); }
   /// ```
   Result<Expression>? parsePrimary(State state) {
-    final $0 = state.setErrorState();
-    final $1 = state.setFarthestPosition();
-    final $2 = parseSymbol(state);
-    if ($2 != null) {
-      state.updateFarthestPosition($1);
-      state.restoreErrorState($0);
-      return $2;
+    Result<Expression>? $0;
+    final $1 = state.farthestPosition;
+    state.farthestPosition = state.position;
+    $l:
+    {
+      final $2 = parseSymbol(state);
+      if ($2 != null) {
+        $0 = $2;
+        break $l;
+      }
+      final $3 = parseCharacterClass(state);
+      if ($3 != null) {
+        $0 = $3;
+        break $l;
+      }
+      final $4 = parseLiteral(state);
+      if ($4 != null) {
+        $0 = $4;
+        break $l;
+      }
+      final $5 = parseGroup(state);
+      if ($5 != null) {
+        $0 = $5;
+        break $l;
+      }
+      final $6 = parseWhile(state);
+      if ($6 != null) {
+        $0 = $6;
+        break $l;
+      }
+      final $7 = parseAnyCharacter(state);
+      if ($7 != null) {
+        $0 = $7;
+        break $l;
+      }
+      final $8 = parseCapture(state);
+      if ($8 != null) {
+        $0 = $8;
+        break $l;
+      }
+      final $9 = parsePosition(state);
+      if ($9 != null) {
+        $0 = $9;
+        break $l;
+      }
     }
-    final $3 = parseCharacterClass(state);
-    if ($3 != null) {
-      state.updateFarthestPosition($1);
-      state.restoreErrorState($0);
-      return $3;
+    if ($0 != null) {
+      state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
+      return $0;
+    } else {
+      state.errorExpected('expression');
+      state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
     }
-    final $4 = parseLiteral(state);
-    if ($4 != null) {
-      state.updateFarthestPosition($1);
-      state.restoreErrorState($0);
-      return $4;
-    }
-    final $5 = parseGroup(state);
-    if ($5 != null) {
-      state.updateFarthestPosition($1);
-      state.restoreErrorState($0);
-      return $5;
-    }
-    final $6 = parseWhile(state);
-    if ($6 != null) {
-      state.updateFarthestPosition($1);
-      state.restoreErrorState($0);
-      return $6;
-    }
-    final $7 = parseAnyCharacter(state);
-    if ($7 != null) {
-      state.updateFarthestPosition($1);
-      state.restoreErrorState($0);
-      return $7;
-    }
-    final $8 = parseCapture(state);
-    if ($8 != null) {
-      state.updateFarthestPosition($1);
-      state.restoreErrorState($0);
-      return $8;
-    }
-    final $9 = parsePosition(state);
-    if ($9 != null) {
-      state.updateFarthestPosition($1);
-      state.restoreErrorState($0);
-      return $9;
-    }
-    state.errorExpected('expression');
-    state.updateFarthestPosition($1);
-    state.restoreErrorState($0);
     return null;
   }
 
@@ -1086,25 +1089,21 @@ class SmartParser {
       final m = $0.$1;
       parseS(state);
       int? $1;
-      $l:
-      {
-        final $2 = state.position;
-        final $3 = state.peek();
-        // ','
-        if ($3 == 44) {
-          state.position += 1;
+      final $2 = state.position;
+      final $3 = state.peek();
+      // ','
+      if ($3 == 44) {
+        state.position += 1;
+        parseS(state);
+        final $4 = parseDecValue1(state);
+        if ($4 != null) {
           parseS(state);
-          final $4 = parseDecValue1(state);
-          if ($4 != null) {
-            parseS(state);
-            $1 = $4.$1;
-            break $l;
-          } else {
-            state.backtrack($2);
-          }
+          $1 = $4.$1;
         } else {
-          state.errorExpected(',');
+          state.backtrack($2);
         }
+      } else {
+        state.errorExpected(',');
       }
       final n = $1;
       final $5 = (m, n);
@@ -1128,55 +1127,61 @@ class SmartParser {
   ///   ~ { state.errorExpected('type'); }
   /// ```
   Result<String>? parseType(State state) {
-    final $0 = state.setErrorState();
-    final $1 = state.setFarthestPosition();
-    final $2 = state.position;
-    final $3 = state.peek();
-    // '`'
-    if ($3 == 96) {
-      state.position += 1;
-      final $4 = state.position;
-      while (true) {
-        final $5 = state.position;
-        state.predicate++;
-        var $6 = true;
-        final $7 = state.peek();
-        // '`'
-        if ($7 == 96) {
-          state.position += 1;
-          $6 = false;
-          state.backtrack($5);
-        }
-        state.predicate--;
-        if ($6) {
-          final $8 = state.peek();
-          final $9 = $8 <= 60 ? $8 >= 60 || $8 <= 41 ? $8 >= 40 || $8 == 32 || $8 == 36 : $8 == 44 || $8 >= 48 && $8 <= 58 : $8 <= 95 ? $8 >= 95 || $8 <= 63 ? $8 >= 62 : $8 >= 65 && $8 <= 90 : $8 <= 123 ? $8 >= 97 : $8 == 125;
-          if ($9) {
-            state.position += 1;
-            continue;
-          }
-        }
-        break;
-      }
-      final $10 = state.substring($4, state.position);
-      final $11 = state.peek();
+    Result<String>? $0;
+    final $1 = state.farthestPosition;
+    state.farthestPosition = state.position;
+    $l:
+    {
+      final $2 = state.position;
+      final $3 = state.peek();
       // '`'
-      if ($11 == 96) {
+      if ($3 == 96) {
         state.position += 1;
-        parseS(state);
-        state.updateFarthestPosition($1);
-        state.restoreErrorState($0);
-        return Ok($10);
+        final $4 = state.position;
+        while (true) {
+          final $5 = state.position;
+          state.predicate++;
+          var $6 = true;
+          final $7 = state.peek();
+          // '`'
+          if ($7 == 96) {
+            state.position += 1;
+            $6 = false;
+            state.backtrack($5);
+          }
+          state.predicate--;
+          if ($6) {
+            final $8 = $7 <= 60 ? $7 >= 60 || $7 <= 41 ? $7 >= 40 || $7 == 32 || $7 == 36 : $7 == 44 || $7 >= 48 && $7 <= 58 : $7 <= 95 ? $7 >= 95 || $7 <= 63 ? $7 >= 62 : $7 >= 65 && $7 <= 90 : $7 <= 123 ? $7 >= 97 : $7 == 125;
+            if ($8) {
+              state.position += 1;
+              continue;
+            }
+          }
+          break;
+        }
+        final $9 = state.substring($4, state.position);
+        final $10 = state.peek();
+        // '`'
+        if ($10 == 96) {
+          state.position += 1;
+          parseS(state);
+          $0 = Ok($9);
+          break $l;
+        } else {
+          state.errorExpected('`');
+          state.backtrack($2);
+        }
       } else {
         state.errorExpected('`');
-        state.backtrack($2);
       }
-    } else {
-      state.errorExpected('`');
     }
-    state.errorExpected('type');
-    state.updateFarthestPosition($1);
-    state.restoreErrorState($0);
+    if ($0 != null) {
+      state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
+      return $0;
+    } else {
+      state.errorExpected('type');
+      state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
+    }
     return null;
   }
 
@@ -1359,106 +1364,114 @@ class SmartParser {
     // '\\'
     if ($1 == 92) {
       state.position += 1;
-      final $2 = state.setErrorState();
-      final $3 = state.setFarthestPosition();
-      final $4 = state.position;
-      final $5 = state.peek();
-      // 'u'
-      if ($5 == 117) {
-        state.position += 1;
-        final $6 = state.peek();
-        // '{'
-        if ($6 == 123) {
+      Result<String>? $2;
+      final $3 = state.farthestPosition;
+      state.farthestPosition = state.position;
+      $l:
+      {
+        final $4 = state.position;
+        final $5 = state.peek();
+        // 'u'
+        if ($5 == 117) {
           state.position += 1;
-          final $7 = parseHexValue(state);
-          if ($7 != null) {
-            final v = $7.$1;
-            final $8 = state.peek();
-            // '}'
-            if ($8 == 125) {
-              state.position += 1;
-              final $9 = String.fromCharCode(v);
-              state.updateFarthestPosition($3);
-              state.restoreErrorState($2);
-              return Ok($9);
+          final $6 = state.peek();
+          // '{'
+          if ($6 == 123) {
+            state.position += 1;
+            final $7 = parseHexValue(state);
+            if ($7 != null) {
+              final v = $7.$1;
+              final $8 = state.peek();
+              // '}'
+              if ($8 == 125) {
+                state.position += 1;
+                final $9 = String.fromCharCode(v);
+                $2 = Ok($9);
+                break $l;
+              } else {
+                state.backtrack($4);
+              }
             } else {
               state.backtrack($4);
             }
           } else {
             state.backtrack($4);
           }
-        } else {
-          state.backtrack($4);
         }
       }
-      state.errorIncorrect('Unterminated Unicode escape sequence');
-      state.updateFarthestPosition($3);
-      state.restoreErrorState($2);
-      // 'a'
-      if ($5 == 97) {
-        state.position += 1;
-        const $10 = '\u0007';
-        return const Ok($10);
+      if ($2 != null) {
+        state.farthestPosition < $3 ? state.farthestPosition = $3 : null;
+        return $2;
+      } else {
+        state.errorIncorrect('Unterminated Unicode escape sequence');
+        state.farthestPosition < $3 ? state.farthestPosition = $3 : null;
       }
-      // 'b'
-      if ($5 == 98) {
+      final $10 = state.peek();
+      // 'a'
+      if ($10 == 97) {
         state.position += 1;
-        const $11 = '\b';
+        const $11 = '\u0007';
         return const Ok($11);
       }
-      // 'e'
-      if ($5 == 101) {
+      // 'b'
+      if ($10 == 98) {
         state.position += 1;
-        const $12 = '\u001B';
+        const $12 = '\b';
         return const Ok($12);
       }
-      // 'f'
-      if ($5 == 102) {
+      // 'e'
+      if ($10 == 101) {
         state.position += 1;
-        const $13 = '\f';
+        const $13 = '\u001B';
         return const Ok($13);
       }
-      // 'n'
-      if ($5 == 110) {
+      // 'f'
+      if ($10 == 102) {
         state.position += 1;
-        const $14 = '\n';
+        const $14 = '\f';
         return const Ok($14);
       }
-      // 'r'
-      if ($5 == 114) {
+      // 'n'
+      if ($10 == 110) {
         state.position += 1;
-        const $15 = '\r';
+        const $15 = '\n';
         return const Ok($15);
       }
-      // 't'
-      if ($5 == 116) {
+      // 'r'
+      if ($10 == 114) {
         state.position += 1;
-        const $16 = '\t';
+        const $16 = '\r';
         return const Ok($16);
       }
-      // 'v'
-      if ($5 == 118) {
+      // 't'
+      if ($10 == 116) {
         state.position += 1;
-        const $17 = '\v';
+        const $17 = '\t';
         return const Ok($17);
       }
-      // '\\'
-      if ($5 == 92) {
+      // 'v'
+      if ($10 == 118) {
         state.position += 1;
-        const $18 = '\\';
+        const $18 = '\v';
         return const Ok($18);
       }
-      // '"'
-      if ($5 == 34) {
+      // '\\'
+      if ($10 == 92) {
         state.position += 1;
-        const $19 = '"';
+        const $19 = '\\';
         return const Ok($19);
       }
-      // '\''
-      if ($5 == 39) {
+      // '"'
+      if ($10 == 34) {
         state.position += 1;
-        const $20 = '\'';
+        const $20 = '"';
         return const Ok($20);
+      }
+      // '\''
+      if ($10 == 39) {
+        state.position += 1;
+        const $21 = '\'';
+        return const Ok($21);
       }
       state.backtrack($0);
     }
@@ -1539,136 +1552,143 @@ class SmartParser {
     }
     state.predicate--;
     if ($1) {
-      final $3 = state.peek();
-      final $4 = !($3 <= 93 ? $3 >= 91 || $3 >= 0 && $3 <= 31 : $3 == 123 || $3 == 125) && !($3 < 0);
-      if ($4) {
-        state.position += $3 > 0xffff ? 2 : 1;
-        return Ok($3);
+      final $3 = !($2 <= 93 ? $2 >= 91 || $2 >= 0 && $2 <= 31 : $2 == 123 || $2 == 125) && !($2 < 0);
+      if ($3) {
+        state.position += $2 > 0xffff ? 2 : 1;
+        return Ok($2);
       }
     }
-    final $5 = state.peek();
+    final $4 = state.peek();
     // '\\'
-    if ($5 == 92) {
+    if ($4 == 92) {
       state.position += 1;
-      final $6 = state.setErrorState();
-      final $7 = state.setFarthestPosition();
-      final $8 = state.position;
-      final $9 = state.peek();
-      // 'u'
-      if ($9 == 117) {
-        state.position += 1;
-        final $10 = state.peek();
-        // '{'
-        if ($10 == 123) {
+      Result<int>? $5;
+      final $6 = state.farthestPosition;
+      state.farthestPosition = state.position;
+      $l:
+      {
+        final $7 = state.position;
+        final $8 = state.peek();
+        // 'u'
+        if ($8 == 117) {
           state.position += 1;
-          final $11 = parseHexValue(state);
-          if ($11 != null) {
-            final $12 = state.peek();
-            // '}'
-            if ($12 == 125) {
-              state.position += 1;
-              state.updateFarthestPosition($7);
-              state.restoreErrorState($6);
-              return $11;
+          final $9 = state.peek();
+          // '{'
+          if ($9 == 123) {
+            state.position += 1;
+            final $10 = parseHexValue(state);
+            if ($10 != null) {
+              final $11 = state.peek();
+              // '}'
+              if ($11 == 125) {
+                state.position += 1;
+                $5 = $10;
+                break $l;
+              } else {
+                state.backtrack($7);
+              }
             } else {
-              state.backtrack($8);
+              state.backtrack($7);
             }
           } else {
-            state.backtrack($8);
+            state.backtrack($7);
           }
-        } else {
-          state.backtrack($8);
         }
       }
-      state.errorIncorrect('Unterminated Unicode escape sequence');
-      state.updateFarthestPosition($7);
-      state.restoreErrorState($6);
+      if ($5 != null) {
+        state.farthestPosition < $6 ? state.farthestPosition = $6 : null;
+        return $5;
+      } else {
+        state.errorIncorrect('Unterminated Unicode escape sequence');
+        state.farthestPosition < $6 ? state.farthestPosition = $6 : null;
+      }
+      final $12 = state.peek();
       // 'a'
-      if ($9 == 97) {
+      if ($12 == 97) {
         state.position += 1;
         const $13 = 0x07;
         return const Ok($13);
       }
       // 'b'
-      if ($9 == 98) {
+      if ($12 == 98) {
         state.position += 1;
         const $14 = 0x08;
         return const Ok($14);
       }
       // 'e'
-      if ($9 == 101) {
+      if ($12 == 101) {
         state.position += 1;
         const $15 = 0x1B;
         return const Ok($15);
       }
       // 'f'
-      if ($9 == 102) {
+      if ($12 == 102) {
         state.position += 1;
         const $16 = 0x0C;
         return const Ok($16);
       }
       // 'n'
-      if ($9 == 110) {
+      if ($12 == 110) {
         state.position += 1;
         const $17 = 0x0A;
         return const Ok($17);
       }
       // 'r'
-      if ($9 == 114) {
+      if ($12 == 114) {
         state.position += 1;
         const $18 = 0x0D;
         return const Ok($18);
       }
       // 't'
-      if ($9 == 116) {
+      if ($12 == 116) {
         state.position += 1;
         const $19 = 0x09;
         return const Ok($19);
       }
       // 'v'
-      if ($9 == 118) {
+      if ($12 == 118) {
         state.position += 1;
         const $20 = 0x0B;
         return const Ok($20);
       }
       // '-'
-      if ($9 == 45) {
+      if ($12 == 45) {
         state.position += 1;
         const $21 = 0x2D;
         return const Ok($21);
       }
       // '['
-      if ($9 == 91) {
+      if ($12 == 91) {
         state.position += 1;
         const $22 = 0x5B;
         return const Ok($22);
       }
       // '\\'
-      if ($9 == 92) {
+      if ($12 == 92) {
         state.position += 1;
         const $23 = 0x5C;
         return const Ok($23);
       }
       // ']'
-      if ($9 == 93) {
+      if ($12 == 93) {
         state.position += 1;
         const $24 = 0x5D;
         return const Ok($24);
       }
       // '^'
-      if ($9 == 94) {
+      if ($12 == 94) {
         state.position += 1;
         const $25 = 0x5E;
         return const Ok($25);
       }
       // '{'
-      if ($9 == 123) {
+      if ($12 == 123) {
         state.position += 1;
         const $26 = 0x7B;
         return const Ok($26);
       }
       // '}'
-      if ($9 == 125) {
+      if ($12 == 125) {
         state.position += 1;
         const $27 = 0x7D;
         return const Ok($27);
@@ -1687,31 +1707,38 @@ class SmartParser {
   ///   ~ { state.errorExpected('number'); }
   /// ```
   Result<int>? parseDecValue(State state) {
-    final $0 = state.setErrorState();
-    final $1 = state.setFarthestPosition();
-    final $2 = state.position;
-    var $3 = false;
-    while (true) {
-      final $4 = state.peek();
-      final $5 = $4 >= 48 && $4 <= 57;
-      if ($5) {
-        state.position += 1;
-        $3 = true;
-        continue;
+    Result<int>? $0;
+    final $1 = state.farthestPosition;
+    state.farthestPosition = state.position;
+    $l:
+    {
+      final $2 = state.position;
+      var $3 = false;
+      while (true) {
+        final $4 = state.peek();
+        final $5 = $4 >= 48 && $4 <= 57;
+        if ($5) {
+          state.position += 1;
+          $3 = true;
+          continue;
+        }
+        break;
       }
-      break;
+      if ($3) {
+        final $6 = state.substring($2, state.position);
+        final n = $6;
+        final $7 = int.parse(n);
+        $0 = Ok($7);
+        break $l;
+      }
     }
-    if ($3) {
-      final $6 = state.substring($2, state.position);
-      final n = $6;
-      final $7 = int.parse(n);
-      state.updateFarthestPosition($1);
-      state.restoreErrorState($0);
-      return Ok($7);
+    if ($0 != null) {
+      state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
+      return $0;
+    } else {
+      state.errorExpected('number');
+      state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
     }
-    state.errorExpected('number');
-    state.updateFarthestPosition($1);
-    state.restoreErrorState($0);
     return null;
   }
 
@@ -1724,32 +1751,39 @@ class SmartParser {
   ///   ~ { state.errorExpected('number'); }
   /// ```
   Result<int>? parseDecValue1(State state) {
-    final $0 = state.setErrorState();
-    final $1 = state.setFarthestPosition();
-    final $2 = state.position;
-    final $3 = state.peek();
-    final $4 = $3 >= 49 && $3 <= 57;
-    if ($4) {
-      state.position += 1;
-      while (true) {
-        final $5 = state.peek();
-        final $6 = $5 >= 48 && $5 <= 57;
-        if ($6) {
-          state.position += 1;
-          continue;
+    Result<int>? $0;
+    final $1 = state.farthestPosition;
+    state.farthestPosition = state.position;
+    $l:
+    {
+      final $2 = state.position;
+      final $3 = state.peek();
+      final $4 = $3 >= 49 && $3 <= 57;
+      if ($4) {
+        state.position += 1;
+        while (true) {
+          final $5 = state.peek();
+          final $6 = $5 >= 48 && $5 <= 57;
+          if ($6) {
+            state.position += 1;
+            continue;
+          }
+          break;
         }
-        break;
+        final $7 = state.substring($2, state.position);
+        final n = $7;
+        final $8 = int.parse(n);
+        $0 = Ok($8);
+        break $l;
       }
-      final $7 = state.substring($2, state.position);
-      final n = $7;
-      final $8 = int.parse(n);
-      state.updateFarthestPosition($1);
-      state.restoreErrorState($0);
-      return Ok($8);
     }
-    state.errorExpected('number');
-    state.updateFarthestPosition($1);
-    state.restoreErrorState($0);
+    if ($0 != null) {
+      state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
+      return $0;
+    } else {
+      state.errorExpected('number');
+      state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
+    }
     return null;
   }
 
@@ -1762,31 +1796,38 @@ class SmartParser {
   ///   ~ { state.errorExpected('hexadecimal number'); }
   /// ```
   Result<int>? parseHexValue(State state) {
-    final $0 = state.setErrorState();
-    final $1 = state.setFarthestPosition();
-    final $2 = state.position;
-    var $3 = false;
-    while (true) {
-      final $4 = state.peek();
-      final $5 = $4 <= 70 ? $4 >= 65 || $4 >= 48 && $4 <= 57 : $4 >= 97 && $4 <= 102;
-      if ($5) {
-        state.position += 1;
-        $3 = true;
-        continue;
+    Result<int>? $0;
+    final $1 = state.farthestPosition;
+    state.farthestPosition = state.position;
+    $l:
+    {
+      final $2 = state.position;
+      var $3 = false;
+      while (true) {
+        final $4 = state.peek();
+        final $5 = $4 <= 70 ? $4 >= 65 || $4 >= 48 && $4 <= 57 : $4 >= 97 && $4 <= 102;
+        if ($5) {
+          state.position += 1;
+          $3 = true;
+          continue;
+        }
+        break;
       }
-      break;
+      if ($3) {
+        final $6 = state.substring($2, state.position);
+        final n = $6;
+        final $7 = int.parse(n, radix: 16);
+        $0 = Ok($7);
+        break $l;
+      }
     }
-    if ($3) {
-      final $6 = state.substring($2, state.position);
-      final n = $6;
-      final $7 = int.parse(n, radix: 16);
-      state.updateFarthestPosition($1);
-      state.restoreErrorState($0);
-      return Ok($7);
+    if ($0 != null) {
+      state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
+      return $0;
+    } else {
+      state.errorExpected('hexadecimal number');
+      state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
     }
-    state.errorExpected('hexadecimal number');
-    state.updateFarthestPosition($1);
-    state.restoreErrorState($0);
     return null;
   }
 
@@ -1818,33 +1859,38 @@ class SmartParser {
   ///   ~ { state.errorExpected('range'); }
   /// ```
   Result<(int, int)>? parseRange(State state) {
-    final $0 = state.setErrorState();
-    final $1 = state.setFarthestPosition();
-    final $2 = state.position;
-    final $3 = state.peek();
-    // '{'
-    if ($3 == 123) {
-      state.position += 1;
-      final $4 = parseHexValue(state);
-      if ($4 != null) {
-        final s = $4.$1;
-        final $5 = state.peek();
-        // '-'
-        if ($5 == 45) {
-          state.position += 1;
-          final $6 = parseHexValue(state);
-          if ($6 != null) {
-            final e = $6.$1;
-            final $7 = state.peek();
-            // '}'
-            if ($7 == 125) {
-              state.position += 1;
-              final $8 = (s, e);
-              state.updateFarthestPosition($1);
-              state.restoreErrorState($0);
-              return Ok($8);
+    Result<(int, int)>? $0;
+    final $1 = state.farthestPosition;
+    state.farthestPosition = state.position;
+    $l:
+    {
+      final $2 = state.position;
+      final $3 = state.peek();
+      // '{'
+      if ($3 == 123) {
+        state.position += 1;
+        final $4 = parseHexValue(state);
+        if ($4 != null) {
+          final s = $4.$1;
+          final $5 = state.peek();
+          // '-'
+          if ($5 == 45) {
+            state.position += 1;
+            final $6 = parseHexValue(state);
+            if ($6 != null) {
+              final e = $6.$1;
+              final $7 = state.peek();
+              // '}'
+              if ($7 == 125) {
+                state.position += 1;
+                final $8 = (s, e);
+                $0 = Ok($8);
+                break $l;
+              } else {
+                state.errorExpected('}');
+                state.backtrack($2);
+              }
             } else {
-              state.errorExpected('}');
               state.backtrack($2);
             }
           } else {
@@ -1853,64 +1899,63 @@ class SmartParser {
         } else {
           state.backtrack($2);
         }
-      } else {
-        state.backtrack($2);
       }
-    }
-    // '{'
-    if ($3 == 123) {
-      state.position += 1;
-      final $9 = parseHexValue(state);
-      if ($9 != null) {
-        final n = $9.$1;
-        final $10 = state.peek();
-        // '}'
-        if ($10 == 125) {
-          state.position += 1;
-          final $11 = (n, n);
-          state.updateFarthestPosition($1);
-          state.restoreErrorState($0);
-          return Ok($11);
-        } else {
-          state.errorExpected('}');
-          state.backtrack($2);
-        }
-      } else {
-        state.backtrack($2);
-      }
-    }
-    final $12 = parseRangeChar(state);
-    if ($12 != null) {
-      final s = $12.$1;
-      final $13 = state.peek();
-      // '-'
-      if ($13 == 45) {
+      // '{'
+      if ($3 == 123) {
         state.position += 1;
-        final $14 = parseRangeChar(state);
-        if ($14 != null) {
-          final e = $14.$1;
-          final $15 = (s, e);
-          state.updateFarthestPosition($1);
-          state.restoreErrorState($0);
-          return Ok($15);
+        final $9 = parseHexValue(state);
+        if ($9 != null) {
+          final n = $9.$1;
+          final $10 = state.peek();
+          // '}'
+          if ($10 == 125) {
+            state.position += 1;
+            final $11 = (n, n);
+            $0 = Ok($11);
+            break $l;
+          } else {
+            state.errorExpected('}');
+            state.backtrack($2);
+          }
         } else {
           state.backtrack($2);
         }
-      } else {
-        state.backtrack($2);
+      }
+      final $12 = parseRangeChar(state);
+      if ($12 != null) {
+        final s = $12.$1;
+        final $13 = state.peek();
+        // '-'
+        if ($13 == 45) {
+          state.position += 1;
+          final $14 = parseRangeChar(state);
+          if ($14 != null) {
+            final e = $14.$1;
+            final $15 = (s, e);
+            $0 = Ok($15);
+            break $l;
+          } else {
+            state.backtrack($2);
+          }
+        } else {
+          state.backtrack($2);
+        }
+      }
+      final $16 = parseRangeChar(state);
+      if ($16 != null) {
+        final n = $16.$1;
+        final $17 = (n, n);
+        $0 = Ok($17);
+        break $l;
       }
     }
-    final $16 = parseRangeChar(state);
-    if ($16 != null) {
-      final n = $16.$1;
-      final $17 = (n, n);
-      state.updateFarthestPosition($1);
-      state.restoreErrorState($0);
-      return Ok($17);
+    if ($0 != null) {
+      state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
+      return $0;
+    } else {
+      state.errorExpected('range');
+      state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
     }
-    state.errorExpected('range');
-    state.updateFarthestPosition($1);
-    state.restoreErrorState($0);
     return null;
   }
 
@@ -2014,31 +2059,38 @@ class SmartParser {
   ///   ~ { state.errorExpected('variable name'); }
   /// ```
   Result<String>? parseVariableName(State state) {
-    final $0 = state.setErrorState();
-    final $1 = state.setFarthestPosition();
-    final $2 = state.position;
-    final $3 = state.peek();
-    final $4 = $3 >= 97 && $3 <= 122;
-    if ($4) {
-      state.position += 1;
-      while (true) {
-        final $5 = state.peek();
-        final $6 = $5 <= 90 ? $5 >= 65 || $5 >= 48 && $5 <= 57 : $5 == 95 || $5 >= 97 && $5 <= 122;
-        if ($6) {
-          state.position += 1;
-          continue;
+    Result<String>? $0;
+    final $1 = state.farthestPosition;
+    state.farthestPosition = state.position;
+    $l:
+    {
+      final $2 = state.position;
+      final $3 = state.peek();
+      final $4 = $3 >= 97 && $3 <= 122;
+      if ($4) {
+        state.position += 1;
+        while (true) {
+          final $5 = state.peek();
+          final $6 = $5 <= 90 ? $5 >= 65 || $5 >= 48 && $5 <= 57 : $5 == 95 || $5 >= 97 && $5 <= 122;
+          if ($6) {
+            state.position += 1;
+            continue;
+          }
+          break;
         }
-        break;
+        final $7 = state.substring($2, state.position);
+        parseS(state);
+        $0 = Ok($7);
+        break $l;
       }
-      final $7 = state.substring($2, state.position);
-      parseS(state);
-      state.updateFarthestPosition($1);
-      state.restoreErrorState($0);
-      return Ok($7);
     }
-    state.errorExpected('variable name');
-    state.updateFarthestPosition($1);
-    state.restoreErrorState($0);
+    if ($0 != null) {
+      state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
+      return $0;
+    } else {
+      state.errorExpected('variable name');
+      state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
+    }
     return null;
   }
 
@@ -2051,31 +2103,38 @@ class SmartParser {
   ///   ~ { state.errorExpected('production name'); }
   /// ```
   Result<String>? parseProductionName(State state) {
-    final $0 = state.setErrorState();
-    final $1 = state.setFarthestPosition();
-    final $2 = state.position;
-    final $3 = state.peek();
-    final $4 = $3 >= 65 && $3 <= 90;
-    if ($4) {
-      state.position += 1;
-      while (true) {
-        final $5 = state.peek();
-        final $6 = $5 <= 90 ? $5 >= 65 || $5 >= 48 && $5 <= 57 : $5 == 95 || $5 >= 97 && $5 <= 122;
-        if ($6) {
-          state.position += 1;
-          continue;
+    Result<String>? $0;
+    final $1 = state.farthestPosition;
+    state.farthestPosition = state.position;
+    $l:
+    {
+      final $2 = state.position;
+      final $3 = state.peek();
+      final $4 = $3 >= 65 && $3 <= 90;
+      if ($4) {
+        state.position += 1;
+        while (true) {
+          final $5 = state.peek();
+          final $6 = $5 <= 90 ? $5 >= 65 || $5 >= 48 && $5 <= 57 : $5 == 95 || $5 >= 97 && $5 <= 122;
+          if ($6) {
+            state.position += 1;
+            continue;
+          }
+          break;
         }
-        break;
+        final $7 = state.substring($2, state.position);
+        parseS(state);
+        $0 = Ok($7);
+        break $l;
       }
-      final $7 = state.substring($2, state.position);
-      parseS(state);
-      state.updateFarthestPosition($1);
-      state.restoreErrorState($0);
-      return Ok($7);
     }
-    state.errorExpected('production name');
-    state.updateFarthestPosition($1);
-    state.restoreErrorState($0);
+    if ($0 != null) {
+      state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
+      return $0;
+    } else {
+      state.errorExpected('production name');
+      state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
+    }
     return null;
   }
 
@@ -2495,15 +2554,6 @@ class State {
     return errorState;
   }
 
-  /// Intended for internal use only.
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  int setFarthestPosition() {
-    final farthestPosition = this.farthestPosition;
-    this.farthestPosition = position;
-    return farthestPosition;
-  }
-
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   @pragma('vm:unsafe:no-interrupts')
@@ -2555,14 +2605,5 @@ class State {
     var line = substring(position, position + rest);
     line = line.replaceAll('\n', r'\n');
     return '|$position|$line';
-  }
-
-  /// Intended for internal use only.
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  void updateFarthestPosition(int farthestPosition) {
-    if (this.farthestPosition < farthestPosition) {
-      this.farthestPosition = farthestPosition;
-    }
   }
 }
