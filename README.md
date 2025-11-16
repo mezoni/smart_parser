@@ -139,7 +139,7 @@ Result<List<int>>? parseAB(State state) {
 
 ## Practical use
 
-The grammar is simple and intuitive. Understanding the the grammar should not be difficult.  
+The grammar is simple and intuitive. Understanding the grammar should not be difficult.  
 The quality of the generated code is quite acceptable.  
 The performance of the generated parsers is quite good.  
 All of the above allows this software to be used for the implementation of practical applications, including the tokenizers and real-time parsers (such as `JSON`, `CSV`, `XML` and others).  
@@ -640,20 +640,19 @@ Example with single branch.
 /// ```
 Result<String>? parseAndPredicate(State state) {
   final $0 = state.position;
-  final $1 = state.position;
-  final $2 = state.peek();
-  final $3 = $2 <= 90 ? $2 >= 65 : $2 >= 97 && $2 <= 122;
-  if ($3) {
+  final $1 = state.peek();
+  final $2 = $1 <= 90 ? $1 >= 65 : $1 >= 97 && $1 <= 122;
+  if ($2) {
     state.position += 1;
-    final $4 = state.substring($1, state.position);
+    final $3 = state.substring($0, state.position);
     state.predicate++;
-    final $5 = state.position;
-    final $6 = state.peek();
-    if ($6 == 61 && state.startsWith('=>')) {
+    final $4 = state.position;
+    final $5 = state.peek();
+    if ($5 == 61 && state.startsWith('=>')) {
       state.position += 2;
-      state.backtrack($5);
+      state.backtrack($4);
       state.predicate--;
-      return Ok($4);
+      return Ok($3);
     } else {
       state.predicate--;
       state.backtrack($0);
@@ -2128,26 +2127,25 @@ For the case when the result value is important.
 /// ```
 Result<String>? parseFor(State state) {
   final $0 = state.position;
-  final $1 = state.position;
-  final $2 = state.peek();
-  final $3 = $2 == 70 || $2 == 102;
-  if ($3) {
+  final $1 = state.peek();
+  final $2 = $1 == 70 || $1 == 102;
+  if ($2) {
     state.position += 1;
-    final $4 = state.peek();
-    final $5 = $4 == 79 || $4 == 111;
-    if ($5) {
+    final $3 = state.peek();
+    final $4 = $3 == 79 || $3 == 111;
+    if ($4) {
       state.position += 1;
-      final $6 = state.peek();
-      final $7 = $6 == 82 || $6 == 114;
-      if ($7) {
+      final $5 = state.peek();
+      final $6 = $5 == 82 || $5 == 114;
+      if ($6) {
         state.position += 1;
-        final $8 = state.substring($0, state.position);
-        return Ok($8);
+        final $7 = state.substring($0, state.position);
+        return Ok($7);
       } else {
-        state.backtrack($1);
+        state.backtrack($0);
       }
     } else {
-      state.backtrack($1);
+      state.backtrack($0);
     }
   }
   return null;

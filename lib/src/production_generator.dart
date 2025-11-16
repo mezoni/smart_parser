@@ -27,7 +27,8 @@ class ProductionGenerator {
     final start = expressionGenerator.generate(expression);
     final isAlwaysSuccessful = expression.isAlwaysSuccessful;
     start.onPreprocess((code) {
-      cache.data = {};
+      // TODO
+      //cache.clear();
     });
 
     start.onAccept((event) {

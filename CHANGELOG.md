@@ -1,3 +1,7 @@
+## 1.0.1
+
+- Fixed a minor bug with the use of the reused value cache at the beginning of production parsing.
+
 ## 1.0.0
 
 - A minor improvement has been made to the grammar file `example/json_parser.grammar`.

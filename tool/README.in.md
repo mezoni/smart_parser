@@ -60,7 +60,7 @@ END
 
 ## Practical use
 
-The grammar is simple and intuitive. Understanding the the grammar should not be difficult.  
+The grammar is simple and intuitive. Understanding the grammar should not be difficult.  
 The quality of the generated code is quite acceptable.  
 The performance of the generated parsers is quite good.  
 All of the above allows this software to be used for the implementation of practical applications, including the tokenizers and real-time parsers (such as `JSON`, `CSV`, `XML` and others).  
