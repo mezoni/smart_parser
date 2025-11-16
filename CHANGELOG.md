@@ -1,6 +1,7 @@
 ## 1.0.1
 
 - Fixed a minor bug with the use of the reused value cache at the beginning of production parsing.
+- Added the `final` type modifier to semantic value variable declarations when the type value is specified explicitly. According to this principle, all variables assigned during declaration must be immutable.
 
 ## 1.0.0
 

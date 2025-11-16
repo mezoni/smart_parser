@@ -1,5 +1,3 @@
-//ignore_for_file: prefer_conditional_assignment, prefer_final_locals
-
 import 'package:source_span/source_span.dart';
 
 import '../expressions.dart';
@@ -336,7 +334,7 @@ class SmartParser {
       if ($1 != null) {
         final e = $1.$1;
         e.sourceCode = state.substring(pos, state.position).trimRight();
-        Expression $2 = e;
+        final Expression $2 = e;
         $0.add($2);
         continue;
       }

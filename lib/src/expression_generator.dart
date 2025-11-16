@@ -755,6 +755,12 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
         }
 
         type ??= 'final';
+        if (!isConst) {
+          if (!type.startsWith('final')) {
+            type = 'final $type';
+          }
+        }
+
         final value = _allocate();
         code.declare(type, value, source.trim());
         final result = isConst ? 'const Ok($value)' : 'Ok($value)';
