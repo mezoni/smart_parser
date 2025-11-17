@@ -36,6 +36,7 @@ class ExpressionAnalyzer implements Visitor<void> {
     _setIsAlwaysSuccessful(node, true);
     _setCanChangePosition(node, false);
     _setIsSingleExitPoint(node, true);
+    _setIsSingleFailurePoint(node, true);
   }
 
   @override
@@ -46,6 +47,7 @@ class ExpressionAnalyzer implements Visitor<void> {
     _setCanChangePosition(node, false);
     _setIsVoid(child, true);
     _setIsSingleExitPoint(node, child.isSingleExitPoint);
+    _setIsSingleFailurePoint(node, child.isSingleFailurePoint);
   }
 
   @override
@@ -53,6 +55,7 @@ class ExpressionAnalyzer implements Visitor<void> {
     _setIsAlwaysSuccessful(node, false);
     _setCanChangePosition(node, true);
     _setIsSingleExitPoint(node, true);
+    _setIsSingleFailurePoint(node, true);
   }
 
   @override
@@ -63,6 +66,7 @@ class ExpressionAnalyzer implements Visitor<void> {
     _setCanChangePosition(node, child.canChangePosition);
     _setIsVoid(child, true);
     _setIsSingleExitPoint(node, child.isSingleExitPoint);
+    _setIsSingleFailurePoint(node, child.isSingleFailurePoint);
   }
 
   @override
@@ -70,6 +74,7 @@ class ExpressionAnalyzer implements Visitor<void> {
     _setIsAlwaysSuccessful(node, false);
     _setCanChangePosition(node, true);
     _setIsSingleExitPoint(node, true);
+    _setIsSingleFailurePoint(node, true);
   }
 
   @override
@@ -80,6 +85,7 @@ class ExpressionAnalyzer implements Visitor<void> {
     _setCanChangePosition(node, child.canChangePosition);
     _setIsVoid(child, node.isVoid);
     _setIsSingleExitPoint(node, child.isSingleExitPoint);
+    _setIsSingleFailurePoint(node, child.isSingleFailurePoint);
   }
 
   @override
@@ -88,6 +94,7 @@ class ExpressionAnalyzer implements Visitor<void> {
     _setIsAlwaysSuccessful(node, text.isEmpty);
     _setCanChangePosition(node, text.isNotEmpty);
     _setIsSingleExitPoint(node, true);
+    _setIsSingleFailurePoint(node, true);
   }
 
   @override
@@ -98,6 +105,7 @@ class ExpressionAnalyzer implements Visitor<void> {
     _setCanChangePosition(node, false);
     _setIsVoid(child, true);
     _setIsSingleExitPoint(node, true);
+    _setIsSingleFailurePoint(node, true);
   }
 
   @override
@@ -109,6 +117,7 @@ class ExpressionAnalyzer implements Visitor<void> {
     _checkInfiniteLoop(node);
     _setIsVoid(child, node.isVoid);
     _setIsSingleExitPoint(node, true);
+    _setIsSingleFailurePoint(node, true);
   }
 
   @override
@@ -119,6 +128,7 @@ class ExpressionAnalyzer implements Visitor<void> {
     _setCanChangePosition(node, child.canChangePosition);
     _setIsVoid(child, node.isVoid);
     _setIsSingleExitPoint(node, true);
+    _setIsSingleFailurePoint(node, true);
   }
 
   @override
@@ -134,8 +144,10 @@ class ExpressionAnalyzer implements Visitor<void> {
     if (children.length == 1) {
       final child = children.first;
       _setIsSingleExitPoint(node, child.isSingleExitPoint);
+      _setIsSingleFailurePoint(node, child.isSingleFailurePoint);
     } else {
       _setIsSingleExitPoint(node, false);
+      _setIsSingleFailurePoint(node, false);
     }
   }
 
@@ -144,6 +156,7 @@ class ExpressionAnalyzer implements Visitor<void> {
     _setIsAlwaysSuccessful(node, true);
     _setCanChangePosition(node, true);
     _setIsSingleExitPoint(node, true);
+    _setIsSingleFailurePoint(node, true);
   }
 
   @override
@@ -151,6 +164,7 @@ class ExpressionAnalyzer implements Visitor<void> {
     _setIsAlwaysSuccessful(node, false);
     _setCanChangePosition(node, false);
     _setIsSingleExitPoint(node, true);
+    _setIsSingleFailurePoint(node, true);
   }
 
   @override
@@ -167,6 +181,7 @@ class ExpressionAnalyzer implements Visitor<void> {
     }
 
     _setIsSingleExitPoint(node, true);
+    _setIsSingleFailurePoint(node, true);
   }
 
   @override
@@ -179,10 +194,14 @@ class ExpressionAnalyzer implements Visitor<void> {
     if (children.length == 1) {
       final child = children.first;
       _setIsVoid(child, node.isVoid);
+      _setIsSingleFailurePoint(node, child.isSingleFailurePoint);
     } else {
       for (final child in children) {
         _setIsVoid(child, true);
       }
+
+      // TODO: Improve `_setIsSingleFailurePoint(node, false)`
+      _setIsSingleFailurePoint(node, false);
     }
 
     final lastChild = children.last;
@@ -194,6 +213,7 @@ class ExpressionAnalyzer implements Visitor<void> {
     _setIsAlwaysSuccessful(node, true);
     _setCanChangePosition(node, false);
     _setIsSingleExitPoint(node, true);
+    _setIsSingleFailurePoint(node, true);
   }
 
   @override
@@ -210,6 +230,7 @@ class ExpressionAnalyzer implements Visitor<void> {
     _setCanChangePosition(node, child.canChangePosition);
     _setIsVoid(child, node.isVoid);
     _setIsSingleExitPoint(node, true);
+    _setIsSingleFailurePoint(node, true);
     _checkInfiniteLoop(node);
   }
 
@@ -222,6 +243,7 @@ class ExpressionAnalyzer implements Visitor<void> {
     _setIsVoid(child, node.isVoid);
     _setIsSingleExitPoint(node, true);
     _checkInfiniteLoop(node);
+    _setIsSingleFailurePoint(node, true);
   }
 
   void _checkInfiniteLoop(SingleExpression node) {
@@ -253,6 +275,13 @@ Block expression source: ${child.sourceCode}''');
     if (node.isSingleExitPoint != isSingleExitPoint) {
       _hasChanges = true;
       node.isSingleExitPoint = isSingleExitPoint;
+    }
+  }
+
+  void _setIsSingleFailurePoint(Expression node, bool isSingleFailurePoint) {
+    if (node.isSingleFailurePoint != isSingleFailurePoint) {
+      _hasChanges = true;
+      node.isSingleFailurePoint = isSingleFailurePoint;
     }
   }
 

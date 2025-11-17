@@ -62,6 +62,8 @@ abstract class Expression {
 
   bool isSingleExitPoint = false;
 
+  bool isSingleFailurePoint = false;
+
   bool isVoid = false;
 
   String? semanticValue;

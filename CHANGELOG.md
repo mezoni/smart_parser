@@ -1,3 +1,9 @@
+## 1.0.3
+
+- Minor changes have been made to the `tool\README.in.md` file.
+- Minor improvements have been made to the `ExpressionAnalyzer`.
+- Minor improvement to the code generated for error handling.
+
 ## 1.0.2
 
 - Minor changes have been made to the `tool\README.in.md` file.

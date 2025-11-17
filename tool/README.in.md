@@ -303,8 +303,8 @@ START
   >
   $ = { int.parse(n, radix: 16) }
   ~ {
-    state.errorExpected('hex number');
     state.errorIncorrect('Invalid four-digit number', true);
+    state.errorExpected('hex number');
   }
 END
 ```
@@ -386,7 +386,7 @@ END
 
 ## Expression `AndPredicate`
 
-The `AndPredicate` expression `&e` invokes the sub-expression `e`, and then succeeds if `e` succeeds and fails if `e` fails, but in either case never consumes any input.
+The `AndPredicate` expression `& e` invokes the sub-expression `e`, and then succeeds if `e` succeeds and fails if `e` fails, but in either case never consumes any input.
 
 Example with single branch.
 
@@ -394,7 +394,7 @@ Example with single branch.
 START
 `String` AndPredicate =>
   $ = <[a-zA-Z]>
-  &"=>"
+  & "=>"
 END
 ```
 
@@ -590,7 +590,7 @@ END
 
 ## Expression `NotPredicate`
 
-The `NotPredicate` expression `!e` invokes the sub-expression `e`, and then succeeds if `e` fails and fails if `e` succeeds, but in either case never consumes any input.
+The `NotPredicate` expression `! e` invokes the sub-expression `e`, and then succeeds if `e` fails and fails if `e` succeeds, but in either case never consumes any input.
 
 Example with a child expression with single branch.
 
@@ -880,9 +880,9 @@ END
 
 ## Expression `Predicate`
 
-The `Predicate` expression `&{}` invokes the action `{}`, and then succeeds if the action code evaluates to `true`, and fails otherwise, without consuming any input.
+The `Predicate` expression `& { }` invokes the action `{ }`, and then succeeds if the action code evaluates to `true`, and fails otherwise, without consuming any input.
 
-The `Predicate` expression `!{}` invokes the action `{}`, and then succeeds if the action code evaluates to `false`, and fails otherwise, without consuming any input.
+The `Predicate` expression `! { }` invokes the action `{ }`, and then succeeds if the action code evaluates to `false`, and fails otherwise, without consuming any input.
 
 Example of positive predicate.
 
@@ -1033,6 +1033,36 @@ END
 
 The value `$` is the resulting semantic value. This value is not accessible by name; therefore, it is only available for assignment.  
 This value is used exclusively when assigning a result value if the `Sequence` expression.  
+
+In certain cases, it may be useful to specify the type of semantic value.  
+For example, if the value is a constant or if it is necessary for the code generator to automatically infer the type of the parent expression.
+
+Example with constant value.
+
+```dart
+START
+`String` For =>
+  [fF][oO][rR]
+  $ = `const` { 'FOR' }
+  ~ { state.errorExpected('FOR'); }
+END
+```
+
+Example with explicit specifications the value type.
+
+```dart
+START
+`Expression` Primary =>
+  # ...
+  n = (
+    { final pos = state.position; }
+    e = SequenceElement
+    { e.sourceCode = state.substring(pos, state.position).trimRight(); }
+    $ = `Expression` { e }
+  )+
+  # ...
+END
+```
 
 ## Parsing case-insensitive data
 

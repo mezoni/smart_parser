@@ -622,7 +622,7 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
       var combine = true;
       if (children.length == 1) {
         final child = children.first;
-        if (child.isSingleExitPoint) {
+        if (child.isSingleFailurePoint) {
           combine = false;
         }
       }

@@ -2,7 +2,7 @@
 
 This software is a library that generates source code of recursive descent parsers based on a grammar consisting of the parsing expressions and native Dart language source code
 
-Version: 1.0.1
+Version: 1.0.2
 
 [![Pub Package](https://img.shields.io/pub/v/smart_parser.svg)](https://pub.dev/packages/smart_parser)
 [![GitHub Issues](https://img.shields.io/github/issues/mezoni/smart_parser.svg)](https://github.com/mezoni/smart_parser/issues)
@@ -580,28 +580,35 @@ Dart code:
 ///   ~ { state.errorExpected('FOR'); }
 /// ```
 Result<String>? parseFor(State state) {
-  final $0 = state.position;
-  final $1 = state.peek();
-  final $2 = $1 == 70 || $1 == 102;
-  if ($2) {
-    state.position += 1;
-    final $3 = state.peek();
-    final $4 = $3 == 79 || $3 == 111;
-    if ($4) {
+  Result<String>? $0;
+  $l:
+  {
+    final $1 = state.position;
+    final $2 = state.peek();
+    final $3 = $2 == 70 || $2 == 102;
+    if ($3) {
       state.position += 1;
-      final $5 = state.peek();
-      final $6 = $5 == 82 || $5 == 114;
-      if ($6) {
+      final $4 = state.peek();
+      final $5 = $4 == 79 || $4 == 111;
+      if ($5) {
         state.position += 1;
-        final $7 = state.substring($0, state.position);
-        return Ok($7);
+        final $6 = state.peek();
+        final $7 = $6 == 82 || $6 == 114;
+        if ($7) {
+          state.position += 1;
+          final $8 = state.substring($1, state.position);
+          $0 = Ok($8);
+          break $l;
+        } else {
+          state.backtrack($1);
+        }
       } else {
-        state.backtrack($0);
+        state.backtrack($1);
       }
-    } else {
-      state.backtrack($0);
-      state.errorExpected('FOR');
     }
+  }
+  if ($0 != null) {
+    return $0;
   } else {
     state.errorExpected('FOR');
   }
@@ -707,8 +714,8 @@ Grammar code:
   >
   $ = { int.parse(n, radix: 16) }
   ~ {
-    state.errorExpected('hex number');
     state.errorIncorrect('Invalid four-digit number', true);
+    state.errorExpected('hex number');
   }
 ```
 
@@ -725,8 +732,8 @@ Dart code:
 ///   >
 ///   $ = { int.parse(n, radix: 16) }
 ///   ~ {
-///     state.errorExpected('hex number');
 ///     state.errorIncorrect('Invalid four-digit number', true);
+///     state.errorExpected('hex number');
 ///   }
 /// ```
 Result<int>? parseHexValue(State state) {
@@ -759,8 +766,8 @@ Result<int>? parseHexValue(State state) {
     state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
     return $0;
   } else {
-    state.errorExpected('hex number');
     state.errorIncorrect('Invalid four-digit number', true);
+    state.errorExpected('hex number');
     state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
   }
   return null;
@@ -923,7 +930,7 @@ Result<void>? parseEof(State state) {
 
 ## Expression `AndPredicate`
 
-The `AndPredicate` expression `&e` invokes the sub-expression `e`, and then succeeds if `e` succeeds and fails if `e` fails, but in either case never consumes any input.
+The `AndPredicate` expression `& e` invokes the sub-expression `e`, and then succeeds if `e` succeeds and fails if `e` fails, but in either case never consumes any input.
 
 Example with single branch.
 
@@ -932,7 +939,7 @@ Grammar code:
 ```txt
 `String` AndPredicate =>
   $ = <[a-zA-Z]>
-  &"=>"
+  & "=>"
 ```
 
 Dart code:
@@ -942,7 +949,7 @@ Dart code:
 /// ```txt
 /// `String` AndPredicate =>
 ///   $ = <[a-zA-Z]>
-///   &"=>"
+///   & "=>"
 /// ```
 Result<String>? parseAndPredicate(State state) {
   final $0 = state.position;
@@ -1534,7 +1541,7 @@ Result<void> parseEmptyString(State state) {
 
 ## Expression `NotPredicate`
 
-The `NotPredicate` expression `!e` invokes the sub-expression `e`, and then succeeds if `e` fails and fails if `e` succeeds, but in either case never consumes any input.
+The `NotPredicate` expression `! e` invokes the sub-expression `e`, and then succeeds if `e` fails and fails if `e` succeeds, but in either case never consumes any input.
 
 Example with a child expression with single branch.
 
@@ -2509,9 +2516,9 @@ Result<void>? parseSkipDigits(State state) {
 
 ## Expression `Predicate`
 
-The `Predicate` expression `&{}` invokes the action `{}`, and then succeeds if the action code evaluates to `true`, and fails otherwise, without consuming any input.
+The `Predicate` expression `& { }` invokes the action `{ }`, and then succeeds if the action code evaluates to `true`, and fails otherwise, without consuming any input.
 
-The `Predicate` expression `!{}` invokes the action `{}`, and then succeeds if the action code evaluates to `false`, and fails otherwise, without consuming any input.
+The `Predicate` expression `! { }` invokes the action `{ }`, and then succeeds if the action code evaluates to `false`, and fails otherwise, without consuming any input.
 
 Example of positive predicate.
 
@@ -2981,6 +2988,120 @@ Result<Sting>? parseDigit(State state) {
 The value `$` is the resulting semantic value. This value is not accessible by name; therefore, it is only available for assignment.  
 This value is used exclusively when assigning a result value if the `Sequence` expression.  
 
+In certain cases, it may be useful to specify the type of semantic value.  
+For example, if the value is a constant or if it is necessary for the code generator to automatically infer the type of the parent expression.
+
+Example with constant value.
+
+Grammar code:
+
+```txt
+`String` For =>
+  [fF][oO][rR]
+  $ = `const` { 'FOR' }
+  ~ { state.errorExpected('FOR'); }
+```
+
+Dart code:
+
+```dart
+/// [String] **For**
+/// ```txt
+/// `String` For =>
+///   [fF][oO][rR]
+///   $ = `const` { 'FOR' }
+///   ~ { state.errorExpected('FOR'); }
+/// ```
+Result<String>? parseFor(State state) {
+  Result<String>? $0;
+  $l:
+  {
+    final $1 = state.position;
+    final $2 = state.peek();
+    final $3 = $2 == 70 || $2 == 102;
+    if ($3) {
+      state.position += 1;
+      final $4 = state.peek();
+      final $5 = $4 == 79 || $4 == 111;
+      if ($5) {
+        state.position += 1;
+        final $6 = state.peek();
+        final $7 = $6 == 82 || $6 == 114;
+        if ($7) {
+          state.position += 1;
+          const $8 = 'FOR';
+          $0 = const Ok($8);
+          break $l;
+        } else {
+          state.backtrack($1);
+        }
+      } else {
+        state.backtrack($1);
+      }
+    }
+  }
+  if ($0 != null) {
+    return $0;
+  } else {
+    state.errorExpected('FOR');
+  }
+  return null;
+}
+```
+
+Example with explicit specifications the value type.
+
+Grammar code:
+
+```txt
+`Expression` Primary =>
+  # ...
+  n = (
+    { final pos = state.position; }
+    e = SequenceElement
+    { e.sourceCode = state.substring(pos, state.position).trimRight(); }
+    $ = `Expression` { e }
+  )+
+  # ...
+```
+
+Dart code:
+
+```dart
+/// [Expression] **Primary**
+/// ```txt
+/// `Expression` Primary =>
+///   # ...
+///   n = (
+///     { final pos = state.position; }
+///     e = SequenceElement
+///     { e.sourceCode = state.substring(pos, state.position).trimRight(); }
+///     $ = `Expression` { e }
+///   )+
+///   # ...
+/// ```
+Result<Expression>? parsePrimary(State state) {
+  final $0 = <Expression>[];
+  while (true) {
+    final pos = state.position;
+    final $1 = parseSequenceElement(state);
+    if ($1 != null) {
+      final e = $1.$1;
+      e.sourceCode = state.substring(pos, state.position).trimRight();
+      final Expression $2 = e;
+      $0.add($2);
+      continue;
+    }
+    break;
+  }
+  if ($0.isNotEmpty) {
+    final n = $0;
+    return Ok($0);
+  }
+  return null;
+}
+```
+
 ## Parsing case-insensitive data
 
 There are no special features for parsing case-insensitive data.  
@@ -3007,27 +3128,34 @@ Dart code:
 ///   ~ { state.errorExpected('FOR'); }
 /// ```
 Result<void>? parseFor(State state) {
-  final $0 = state.position;
-  final $1 = state.peek();
-  final $2 = $1 == 70 || $1 == 102;
-  if ($2) {
-    state.position += 1;
-    final $3 = state.peek();
-    final $4 = $3 == 79 || $3 == 111;
-    if ($4) {
+  var $0 = false;
+  $l:
+  {
+    final $1 = state.position;
+    final $2 = state.peek();
+    final $3 = $2 == 70 || $2 == 102;
+    if ($3) {
       state.position += 1;
-      final $5 = state.peek();
-      final $6 = $5 == 82 || $5 == 114;
-      if ($6) {
+      final $4 = state.peek();
+      final $5 = $4 == 79 || $4 == 111;
+      if ($5) {
         state.position += 1;
-        return Result.none;
+        final $6 = state.peek();
+        final $7 = $6 == 82 || $6 == 114;
+        if ($7) {
+          state.position += 1;
+          $0 = true;
+          break $l;
+        } else {
+          state.backtrack($1);
+        }
       } else {
-        state.backtrack($0);
+        state.backtrack($1);
       }
-    } else {
-      state.backtrack($0);
-      state.errorExpected('FOR');
     }
+  }
+  if ($0) {
+    return Result.none;
   } else {
     state.errorExpected('FOR');
   }
@@ -3113,28 +3241,35 @@ Dart code:
 ///   ~ { state.errorExpected('FOR'); }
 /// ```
 Result<String>? parseFor(State state) {
-  final $0 = state.position;
-  final $1 = state.peek();
-  final $2 = $1 == 70 || $1 == 102;
-  if ($2) {
-    state.position += 1;
-    final $3 = state.peek();
-    final $4 = $3 == 79 || $3 == 111;
-    if ($4) {
+  Result<String>? $0;
+  $l:
+  {
+    final $1 = state.position;
+    final $2 = state.peek();
+    final $3 = $2 == 70 || $2 == 102;
+    if ($3) {
       state.position += 1;
-      final $5 = state.peek();
-      final $6 = $5 == 82 || $5 == 114;
-      if ($6) {
+      final $4 = state.peek();
+      final $5 = $4 == 79 || $4 == 111;
+      if ($5) {
         state.position += 1;
-        final $7 = state.substring($0, state.position);
-        return Ok($7);
+        final $6 = state.peek();
+        final $7 = $6 == 82 || $6 == 114;
+        if ($7) {
+          state.position += 1;
+          final $8 = state.substring($1, state.position);
+          $0 = Ok($8);
+          break $l;
+        } else {
+          state.backtrack($1);
+        }
       } else {
-        state.backtrack($0);
+        state.backtrack($1);
       }
-    } else {
-      state.backtrack($0);
-      state.errorExpected('FOR');
     }
+  }
+  if ($0 != null) {
+    return $0;
   } else {
     state.errorExpected('FOR');
   }
