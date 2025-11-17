@@ -1,4 +1,4 @@
-# smart_parser
+# Smart parser
 
 This software is a library that generates source code of recursive descent parsers based on a grammar consisting of the parsing expressions and native Dart language source code
 
@@ -9,6 +9,34 @@ Version: 1.0.1
 [![GitHub Forks](https://img.shields.io/github/forks/mezoni/smart_parser.svg)](https://github.com/mezoni/smart_parser/forks)
 [![GitHub Stars](https://img.shields.io/github/stars/mezoni/v.svg)](https://github.com/mezoni/smart_parser/stargazers)
 [![GitHub License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://raw.githubusercontent.com/mezoni/smart_parser/main/LICENSE)
+
+- [Smart parser](#smart-parser)
+  - [About this software](#about-this-software)
+  - [Practical use](#practical-use)
+  - [Grammar](#grammar)
+  - [Generating the parser source code](#generating-the-parser-source-code)
+  - [Error handling system](#error-handling-system)
+  - [Expressions](#expressions)
+  - [Expression `AnyCharacter`](#expression-anycharacter)
+  - [Expression `AndPredicate`](#expression-andpredicate)
+  - [Expression `CharacterClass`](#expression-characterclass)
+  - [Expression `Group`](#expression-group)
+  - [Expression `Literal`](#expression-literal)
+  - [Expression `NotPredicate`](#expression-notpredicate)
+  - [Expression `OneOrMore`](#expression-oneormore)
+  - [Expression `Optional`](#expression-optional)
+  - [Expression `OrderedChoice`](#expression-orderedchoice)
+  - [Expression `Sequence`](#expression-sequence)
+  - [Expression `ZeroOrMore`](#expression-zeroormore)
+  - [Expression `Action`](#expression-action)
+  - [Expression `Capture`](#expression-capture)
+  - [Expression `Predicate`](#expression-predicate)
+  - [Meta expression `@position`](#meta-expression-position)
+  - [Meta expression `@while`](#meta-expression-while)
+  - [Semantic values](#semantic-values)
+  - [Parsing case-insensitive data](#parsing-case-insensitive-data)
+  - [Parsing data from files](#parsing-data-from-files)
+  - [Examples of generated errors](#examples-of-generated-errors)
 
 ## About this software
 
@@ -778,11 +806,11 @@ The following forms of character specifiers are supported:
 
 - Single character in natural form, eg. `[a]`
 - Multiple character ranges in natural form, eg. `[a-z]`, `[0-9]`
-- Single character in hexadecimal form, eg. `[\u{20}]`
-- Multiple character ranges in hexadecimal form, eg. `[\u{30}-\u{39}]`
+- Single character in hexadecimal form, eg. `[{20}]`, `[\u{20}]`
+- Multiple character ranges in hexadecimal form, eg. `[{30-39}]`, `[\u{30}-\u{39}]`
 - C-escape sequences, eg. `[\n\r\t]`
-- Escaping special characters: `\\`, `^`, `-`, `[`, `]`, eg. `[\^]`, `[\]]`
-- Matching characters with negation in all available forms, eg. `[^a-z]`, `[^\u{20}]`
+- Escaping special characters: `\`, `^`, `-`, `[`, `]`, `{`, `}` eg. `[\^]`, `[\]]`
+- Matching characters with negation in all available forms, eg. `[^a-z]`, `[^{30-39}]`
 
 Examples of single character.
 
@@ -820,7 +848,7 @@ Result<void>? parseA(State state) {
 }
 ```
 
-Examples of character range.
+Example of character range.
 
 ```dart
 /// [int] **Digits**
@@ -839,7 +867,7 @@ Result<int>? parseDigits(State state) {
 }
 ```
 
-Examples of negated character range.
+Example of negated character range.
 
 ```dart
 /// [int] **NotDigits**
@@ -858,7 +886,7 @@ Result<int>? parseNotDigits(State state) {
 }
 ```
 
-Examples of negated character ranges.
+Example of negated character ranges.
 
 ```dart
 /// [int] **NotDigitsNotLetters**
@@ -877,7 +905,45 @@ Result<int>? parseNotDigitsNotLetters(State state) {
 }
 ```
 
-Examples of hexadecimal value.
+Example of hexadecimal value.
+
+```dart
+/// [int] **Space**
+/// ```txt
+/// `int` Space =>
+///   [{20}]
+/// ```
+Result<int>? parseSpace(State state) {
+  final $0 = state.peek();
+  // ' '
+  if ($0 == 32) {
+    state.position += 1;
+    return const Ok(32);
+  }
+  return null;
+}
+```
+
+Example of hexadecimal range.
+
+```dart
+/// [int] **Digits**
+/// ```txt
+/// `int` Digits =>
+///   [{30-39}]
+/// ```
+Result<int>? parseDigits(State state) {
+  final $0 = state.peek();
+  final $1 = $0 >= 48 && $0 <= 57;
+  if ($1) {
+    state.position += 1;
+    return Ok($0);
+  }
+  return null;
+}
+```
+
+Example of Unicode code point.
 
 ```dart
 /// [int] **Space**
@@ -896,20 +962,37 @@ Result<int>? parseSpace(State state) {
 }
 ```
 
-Examples of hexadecimal range.
+Examples of escaping special characters.
 
 ```dart
-/// [int] **Digits**
+/// [int] **Space**
 /// ```txt
-/// `int` Digits =>
-///   [\u{30}-\u{39}]
+/// `int` Space =>
+///   [\^]
 /// ```
-Result<int>? parseDigits(State state) {
+Result<int>? parseSpace(State state) {
   final $0 = state.peek();
-  final $1 = $0 >= 48 && $0 <= 57;
-  if ($1) {
+  // '^'
+  if ($0 == 94) {
     state.position += 1;
-    return Ok($0);
+    return const Ok(94);
+  }
+  return null;
+}
+```
+
+```dart
+/// [int] **Space**
+/// ```txt
+/// `int` Space =>
+///   [\{]
+/// ```
+Result<int>? parseSpace(State state) {
+  final $0 = state.peek();
+  // '{'
+  if ($0 == 123) {
+    state.position += 1;
+    return const Ok(123);
   }
   return null;
 }

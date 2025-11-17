@@ -1,4 +1,4 @@
-# {{name}}
+# Smart parser
 
 {{description}}
 
@@ -9,6 +9,34 @@ Version: {{version}}
 [![GitHub Forks](https://img.shields.io/github/forks/mezoni/smart_parser.svg)](https://github.com/mezoni/smart_parser/forks)
 [![GitHub Stars](https://img.shields.io/github/stars/mezoni/v.svg)](https://github.com/mezoni/smart_parser/stargazers)
 [![GitHub License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://raw.githubusercontent.com/mezoni/smart_parser/main/LICENSE)
+
+- [Smart parser](#smart-parser)
+  - [About this software](#about-this-software)
+  - [Practical use](#practical-use)
+  - [Grammar](#grammar)
+  - [Generating the parser source code](#generating-the-parser-source-code)
+  - [Error handling system](#error-handling-system)
+  - [Expressions](#expressions)
+  - [Expression `AnyCharacter`](#expression-anycharacter)
+  - [Expression `AndPredicate`](#expression-andpredicate)
+  - [Expression `CharacterClass`](#expression-characterclass)
+  - [Expression `Group`](#expression-group)
+  - [Expression `Literal`](#expression-literal)
+  - [Expression `NotPredicate`](#expression-notpredicate)
+  - [Expression `OneOrMore`](#expression-oneormore)
+  - [Expression `Optional`](#expression-optional)
+  - [Expression `OrderedChoice`](#expression-orderedchoice)
+  - [Expression `Sequence`](#expression-sequence)
+  - [Expression `ZeroOrMore`](#expression-zeroormore)
+  - [Expression `Action`](#expression-action)
+  - [Expression `Capture`](#expression-capture)
+  - [Expression `Predicate`](#expression-predicate)
+  - [Meta expression `@position`](#meta-expression-position)
+  - [Meta expression `@while`](#meta-expression-while)
+  - [Semantic values](#semantic-values)
+  - [Parsing case-insensitive data](#parsing-case-insensitive-data)
+  - [Parsing data from files](#parsing-data-from-files)
+  - [Examples of generated errors](#examples-of-generated-errors)
 
 ## About this software
 
@@ -379,11 +407,11 @@ The following forms of character specifiers are supported:
 
 - Single character in natural form, eg. `[a]`
 - Multiple character ranges in natural form, eg. `[a-z]`, `[0-9]`
-- Single character in hexadecimal form, eg. `[\u{20}]`
-- Multiple character ranges in hexadecimal form, eg. `[\u{30}-\u{39}]`
+- Single character in hexadecimal form, eg. `[{20}]`, `[\u{20}]`
+- Multiple character ranges in hexadecimal form, eg. `[{30-39}]`, `[\u{30}-\u{39}]`
 - C-escape sequences, eg. `[\n\r\t]`
-- Escaping special characters: `\\`, `^`, `-`, `[`, `]`, eg. `[\^]`, `[\]]`
-- Matching characters with negation in all available forms, eg. `[^a-z]`, `[^\u{20}]`
+- Escaping special characters: `\`, `^`, `-`, `[`, `]`, `{`, `}` eg. `[\^]`, `[\]]`
+- Matching characters with negation in all available forms, eg. `[^a-z]`, `[^{30-39}]`
 
 Examples of single character.
 
@@ -401,7 +429,7 @@ START
 END
 ```
 
-Examples of character range.
+Example of character range.
 
 ```dart
 START
@@ -410,7 +438,7 @@ START
 END
 ```
 
-Examples of negated character range.
+Example of negated character range.
 
 ```dart
 START
@@ -419,7 +447,7 @@ START
 END
 ```
 
-Examples of negated character ranges.
+Example of negated character ranges.
 
 ```dart
 START
@@ -428,7 +456,25 @@ START
 END
 ```
 
-Examples of hexadecimal value.
+Example of hexadecimal value.
+
+```dart
+START
+`int` Space =>
+  [{20}]
+END
+```
+
+Example of hexadecimal range.
+
+```dart
+START
+`int` Digits =>
+  [{30-39}]
+END
+```
+
+Example of Unicode code point.
 
 ```dart
 START
@@ -437,12 +483,19 @@ START
 END
 ```
 
-Examples of hexadecimal range.
+Examples of escaping special characters.
 
 ```dart
 START
-`int` Digits =>
-  [\u{30}-\u{39}]
+`int` Space =>
+  [\^]
+END
+```
+
+```dart
+START
+`int` Space =>
+  [\{]
 END
 ```
 

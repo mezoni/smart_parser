@@ -1,3 +1,7 @@
+## 1.0.2
+
+- Minor changes have been made to the `tool\README.in.md` file.
+
 ## 1.0.1
 
 - Fixed a minor bug with the use of the reused value cache at the beginning of production parsing.
