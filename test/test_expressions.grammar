@@ -459,6 +459,42 @@
   }
 ;
 
+`String` Sequence2 =>
+  (
+    'bar'
+    /
+    'baz'
+  )
+  ~ {
+    state.removeRecentErrors();
+    state.errorExpected('foo');
+  }
+;
+
+
+`void` SequenceVoid2 =>
+  (
+    'bar'
+    /
+    'baz'
+  )
+  ~ {
+    state.removeRecentErrors();
+    state.errorExpected('foo');
+  }
+;
+
+`String` Sequence3 =>
+  "foo"
+  ~ { state.errorExpected('foo'); }
+;
+
+
+`void` SequenceVoid3 =>
+  "foo"
+  ~ { state.errorExpected('foo'); }
+;
+
 `List<int>` While0 =>
   @while (0) {
     [a]

@@ -448,15 +448,7 @@ Example of incorrect usage.
 ///   ~ { _handle_errors(state); }
 /// ```
 Result<Expression>? parseExpression(State state) {
-  Result<Expression>? $0;
-  $l:
-  {
-    final $1 = parseAdditional(state);
-    if ($1 != null) {
-      $0 = $1;
-      break $l;
-    }
-  }
+  final $0 = parseAdditional(state);
   if ($0 != null) {
     return $0;
   } else {
@@ -476,35 +468,28 @@ Examples of correct usage.
 ///   ~ { state.errorExpected('FOR'); }
 /// ```
 Result<String>? parseFor(State state) {
-  Result<String>? $0;
-  $l:
-  {
-    final $1 = state.position;
-    final $2 = state.peek();
-    final $3 = $2 == 70 || $2 == 102;
-    if ($3) {
+  final $0 = state.position;
+  final $1 = state.peek();
+  final $2 = $1 == 70 || $1 == 102;
+  if ($2) {
+    state.position += 1;
+    final $3 = state.peek();
+    final $4 = $3 == 79 || $3 == 111;
+    if ($4) {
       state.position += 1;
-      final $4 = state.peek();
-      final $5 = $4 == 79 || $4 == 111;
-      if ($5) {
+      final $5 = state.peek();
+      final $6 = $5 == 82 || $5 == 114;
+      if ($6) {
         state.position += 1;
-        final $6 = state.peek();
-        final $7 = $6 == 82 || $6 == 114;
-        if ($7) {
-          state.position += 1;
-          final $8 = state.substring($1, state.position);
-          $0 = Ok($8);
-          break $l;
-        } else {
-          state.backtrack($1);
-        }
+        final $7 = state.substring($0, state.position);
+        return Ok($7);
       } else {
-        state.backtrack($1);
+        state.backtrack($0);
       }
+    } else {
+      state.backtrack($0);
+      state.errorExpected('FOR');
     }
-  }
-  if ($0 != null) {
-    return $0;
   } else {
     state.errorExpected('FOR');
   }
@@ -523,23 +508,15 @@ Result<String>? parseFor(State state) {
 ///   }
 /// ```
 Result<Expression>? parseExpression(State state) {
-  Result<Expression>? $0;
-  final $1 = state.setErrorState();
-  $l:
-  {
-    final $2 = parseAdditional(state);
-    if ($2 != null) {
-      $0 = $2;
-      break $l;
-    }
-  }
-  if ($0 != null) {
-    state.restoreErrorState($1);
-    return $0;
+  final $0 = state.setErrorState();
+  final $1 = parseAdditional(state);
+  if ($1 != null) {
+    state.restoreErrorState($0);
+    return $1;
   } else {
     state.removeRecentErrors();
     state.errorExpected('expression');
-    state.restoreErrorState($1);
+    state.restoreErrorState($0);
   }
   return null;
 }
@@ -556,24 +533,16 @@ Result<Expression>? parseExpression(State state) {
 ///   }
 /// ```
 Result<num>? parseNumber(State state) {
-  Result<num>? $0;
-  final $1 = state.farthestPosition;
+  final $0 = state.farthestPosition;
   state.farthestPosition = state.position;
-  $l:
-  {
-    final $2 = parseNumberRaw(state);
-    if ($2 != null) {
-      $0 = $2;
-      break $l;
-    }
-  }
-  if ($0 != null) {
-    state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
-    return $0;
+  final $1 = parseNumberRaw(state);
+  if ($1 != null) {
+    state.farthestPosition < $0 ? state.farthestPosition = $0 : null;
+    return $1;
   } else {
     state.errorIncorrect('Unterminated number');
     state.errorExpected('number');
-    state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
+    state.farthestPosition < $0 ? state.farthestPosition = $0 : null;
   }
   return null;
 }
@@ -1157,6 +1126,27 @@ Result<void>? parseFor(State state) {
     return Result.none;
   } else {
     state.errorExpected('for');
+  }
+  return null;
+}
+```
+
+The expanded form is very similar to this expression, but nevertheless they are not the same.
+
+```dart
+/// [String] **For**
+/// ```txt
+/// `String` For =>
+///   "for"
+///   ~ { state.errorExpected('foo'); }
+/// ```
+Result<String>? parseFor(State state) {
+  final $0 = state.peek();
+  if ($0 == 102 && state.startsWith('for')) {
+    state.position += 3;
+    return const Ok('for');
+  } else {
+    state.errorExpected('foo');
   }
   return null;
 }
@@ -2240,7 +2230,11 @@ This value is used exclusively when assigning a result value if the `Sequence` e
 
 ## Parsing case-insensitive data
 
-For the case when the result value is not important.
+There are no special features for parsing case-insensitive data.  
+Parsing such data is only possible character by character.  
+Below are examples of how this can be implemented.
+
+Example for a case when the result value is not important.
 
 ```dart
 /// [void] **For**
@@ -2250,34 +2244,27 @@ For the case when the result value is not important.
 ///   ~ { state.errorExpected('FOR'); }
 /// ```
 Result<void>? parseFor(State state) {
-  var $0 = false;
-  $l:
-  {
-    final $1 = state.position;
-    final $2 = state.peek();
-    final $3 = $2 == 70 || $2 == 102;
-    if ($3) {
+  final $0 = state.position;
+  final $1 = state.peek();
+  final $2 = $1 == 70 || $1 == 102;
+  if ($2) {
+    state.position += 1;
+    final $3 = state.peek();
+    final $4 = $3 == 79 || $3 == 111;
+    if ($4) {
       state.position += 1;
-      final $4 = state.peek();
-      final $5 = $4 == 79 || $4 == 111;
-      if ($5) {
+      final $5 = state.peek();
+      final $6 = $5 == 82 || $5 == 114;
+      if ($6) {
         state.position += 1;
-        final $6 = state.peek();
-        final $7 = $6 == 82 || $6 == 114;
-        if ($7) {
-          state.position += 1;
-          $0 = true;
-          break $l;
-        } else {
-          state.backtrack($1);
-        }
+        return Result.none;
       } else {
-        state.backtrack($1);
+        state.backtrack($0);
       }
+    } else {
+      state.backtrack($0);
+      state.errorExpected('FOR');
     }
-  }
-  if ($0) {
-    return Result.none;
   } else {
     state.errorExpected('FOR');
   }
@@ -2285,7 +2272,7 @@ Result<void>? parseFor(State state) {
 }
 ```
 
-For the case when the result value is not very important.
+Example for a case when the result value is not very important.
 
 ```dart
 /// [String] **For**
@@ -2332,7 +2319,7 @@ Result<String>? parseFor(State state) {
 }
 ```
 
-For the case when the result value is important.
+Example for a case when the result value is important.
 
 ```dart
 /// [String] **For**
@@ -2342,35 +2329,28 @@ For the case when the result value is important.
 ///   ~ { state.errorExpected('FOR'); }
 /// ```
 Result<String>? parseFor(State state) {
-  Result<String>? $0;
-  $l:
-  {
-    final $1 = state.position;
-    final $2 = state.peek();
-    final $3 = $2 == 70 || $2 == 102;
-    if ($3) {
+  final $0 = state.position;
+  final $1 = state.peek();
+  final $2 = $1 == 70 || $1 == 102;
+  if ($2) {
+    state.position += 1;
+    final $3 = state.peek();
+    final $4 = $3 == 79 || $3 == 111;
+    if ($4) {
       state.position += 1;
-      final $4 = state.peek();
-      final $5 = $4 == 79 || $4 == 111;
-      if ($5) {
+      final $5 = state.peek();
+      final $6 = $5 == 82 || $5 == 114;
+      if ($6) {
         state.position += 1;
-        final $6 = state.peek();
-        final $7 = $6 == 82 || $6 == 114;
-        if ($7) {
-          state.position += 1;
-          final $8 = state.substring($1, state.position);
-          $0 = Ok($8);
-          break $l;
-        } else {
-          state.backtrack($1);
-        }
+        final $7 = state.substring($0, state.position);
+        return Ok($7);
       } else {
-        state.backtrack($1);
+        state.backtrack($0);
       }
+    } else {
+      state.backtrack($0);
+      state.errorExpected('FOR');
     }
-  }
-  if ($0 != null) {
-    return $0;
   } else {
     state.errorExpected('FOR');
   }

@@ -569,6 +569,16 @@ START
 END
 ```
 
+The expanded form is very similar to this expression, but nevertheless they are not the same.
+
+```dart
+START
+`String` For =>
+  "for"
+  ~ { state.errorExpected('foo'); }
+END
+```
+
 Example of parsing an empty string.
 
 ```dart
@@ -1026,7 +1036,11 @@ This value is used exclusively when assigning a result value if the `Sequence` e
 
 ## Parsing case-insensitive data
 
-For the case when the result value is not important.
+There are no special features for parsing case-insensitive data.  
+Parsing such data is only possible character by character.  
+Below are examples of how this can be implemented.
+
+Example for a case when the result value is not important.
 
 ```dart
 START
@@ -1036,7 +1050,7 @@ START
 END
 ```
 
-For the case when the result value is not very important.
+Example for a case when the result value is not very important.
 
 ```dart
 START
@@ -1047,7 +1061,7 @@ START
 END
 ```
 
-For the case when the result value is important.
+Example for a case when the result value is important.
 
 ```dart
 START

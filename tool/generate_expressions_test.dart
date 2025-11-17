@@ -819,6 +819,44 @@ $ = `const` { 'abc' }
     }
   }
 
+  {
+    final production = test.addProduction('String', r'''
+(
+  'bar'
+  /
+  'baz'
+)
+~ {
+  state.removeRecentErrors();
+  state.errorExpected('foo');
+}''');
+    {
+      production.addSuccess('bar', 3, escapeString('bar'));
+      production.addSuccess('baz', 3, escapeString('baz'));
+      production.addFailure('', 0, [
+        _errorExpected(0, ['foo']),
+      ]);
+      production.addFailure('abc', 0, [
+        _errorExpected(0, ['foo']),
+      ]);
+    }
+  }
+
+  {
+    final production = test.addProduction('String', r'''
+"foo"
+~ { state.errorExpected('foo'); }''');
+    {
+      production.addSuccess('foo', 3, escapeString('foo'));
+      production.addFailure('', 0, [
+        _errorExpected(0, ['foo']),
+      ]);
+      production.addFailure('abc', 0, [
+        _errorExpected(0, ['foo']),
+      ]);
+    }
+  }
+
   return test;
 }
 

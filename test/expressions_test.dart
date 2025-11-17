@@ -4199,6 +4199,384 @@ void main() {
       reason:
           '[a]\n[b]\n[c]\n\$ = `const` { \'abc\' }\n~ {\n  state.errorExpected(\'abc\');\n  state.errorIncorrect(\'Full\', true);\n  state.errorIncorrect(\'End\', false);\n  state.errorIncorrect(\'Start\', null);\n}\n\'ab\'\nerrors\n',
     );
+    final $r16 = parser.parseSequence2;
+    final $r17 = parser.parseSequenceVoid2;
+    final $s12 = State('bar');
+    final $r18 = $r16($s12) as dynamic;
+    expect(
+      $r18,
+      isNotNull,
+      reason:
+          '(\n  \'bar\'\n  /\n  \'baz\'\n)\n~ {\n  state.removeRecentErrors();\n  state.errorExpected(\'foo\');\n}\n\'bar\'\nresult != null\n',
+    );
+    expect(
+      $s12.position,
+      3,
+      reason:
+          '(\n  \'bar\'\n  /\n  \'baz\'\n)\n~ {\n  state.removeRecentErrors();\n  state.errorExpected(\'foo\');\n}\n\'bar\'\nstate.position = 3\n',
+    );
+    expect(
+      $r18.$1,
+      'bar',
+      reason:
+          '(\n  \'bar\'\n  /\n  \'baz\'\n)\n~ {\n  state.removeRecentErrors();\n  state.errorExpected(\'foo\');\n}\n\'bar\'\nresult.\$1 != \'bar\'\n',
+    );
+    final $s13 = State('bar');
+    final $r19 = $r17($s13) as dynamic;
+    expect(
+      $r19,
+      isNotNull,
+      reason:
+          '(\n  \'bar\'\n  /\n  \'baz\'\n)\n~ {\n  state.removeRecentErrors();\n  state.errorExpected(\'foo\');\n}\n\'bar\'\nresult != null\n',
+    );
+    expect(
+      $s13.position,
+      3,
+      reason:
+          '(\n  \'bar\'\n  /\n  \'baz\'\n)\n~ {\n  state.removeRecentErrors();\n  state.errorExpected(\'foo\');\n}\n\'bar\'\nstate.position = 3\n',
+    );
+    expect(
+      $r19.$1,
+      null,
+      reason:
+          '(\n  \'bar\'\n  /\n  \'baz\'\n)\n~ {\n  state.removeRecentErrors();\n  state.errorExpected(\'foo\');\n}\n\'bar\'\nresult.\$1 != null\n',
+    );
+    final $s14 = State('baz');
+    final $r20 = $r16($s14) as dynamic;
+    expect(
+      $r20,
+      isNotNull,
+      reason:
+          '(\n  \'bar\'\n  /\n  \'baz\'\n)\n~ {\n  state.removeRecentErrors();\n  state.errorExpected(\'foo\');\n}\n\'baz\'\nresult != null\n',
+    );
+    expect(
+      $s14.position,
+      3,
+      reason:
+          '(\n  \'bar\'\n  /\n  \'baz\'\n)\n~ {\n  state.removeRecentErrors();\n  state.errorExpected(\'foo\');\n}\n\'baz\'\nstate.position = 3\n',
+    );
+    expect(
+      $r20.$1,
+      'baz',
+      reason:
+          '(\n  \'bar\'\n  /\n  \'baz\'\n)\n~ {\n  state.removeRecentErrors();\n  state.errorExpected(\'foo\');\n}\n\'baz\'\nresult.\$1 != \'baz\'\n',
+    );
+    final $s15 = State('baz');
+    final $r21 = $r17($s15) as dynamic;
+    expect(
+      $r21,
+      isNotNull,
+      reason:
+          '(\n  \'bar\'\n  /\n  \'baz\'\n)\n~ {\n  state.removeRecentErrors();\n  state.errorExpected(\'foo\');\n}\n\'baz\'\nresult != null\n',
+    );
+    expect(
+      $s15.position,
+      3,
+      reason:
+          '(\n  \'bar\'\n  /\n  \'baz\'\n)\n~ {\n  state.removeRecentErrors();\n  state.errorExpected(\'foo\');\n}\n\'baz\'\nstate.position = 3\n',
+    );
+    expect(
+      $r21.$1,
+      null,
+      reason:
+          '(\n  \'bar\'\n  /\n  \'baz\'\n)\n~ {\n  state.removeRecentErrors();\n  state.errorExpected(\'foo\');\n}\n\'baz\'\nresult.\$1 != null\n',
+    );
+    final $s16 = State('');
+    final $r22 = $r16($s16) as dynamic;
+    expect(
+      $r22,
+      isNull,
+      reason:
+          '(\n  \'bar\'\n  /\n  \'baz\'\n)\n~ {\n  state.removeRecentErrors();\n  state.errorExpected(\'foo\');\n}\n\'\'\nresult == null\n',
+    );
+    expect(
+      $s16.farthestPosition,
+      0,
+      reason:
+          '(\n  \'bar\'\n  /\n  \'baz\'\n)\n~ {\n  state.removeRecentErrors();\n  state.errorExpected(\'foo\');\n}\n\'\'\nstate.farthestPosition = 0\n',
+    );
+    expect(
+      $s16.position,
+      0,
+      reason:
+          '(\n  \'bar\'\n  /\n  \'baz\'\n)\n~ {\n  state.removeRecentErrors();\n  state.errorExpected(\'foo\');\n}\n\'\'\nstate.position = 0\n',
+    );
+    final $e8 = $s16.getErrors().map((e) => '$e').toList()..sort();
+    expect(
+      $e8.length,
+      1,
+      reason:
+          '(\n  \'bar\'\n  /\n  \'baz\'\n)\n~ {\n  state.removeRecentErrors();\n  state.errorExpected(\'foo\');\n}\n\'\'\nerror count\n',
+    );
+    expect(
+      $e8,
+      ['(end: 0, message: Expected: \'foo\', start: 0)'],
+      reason:
+          '(\n  \'bar\'\n  /\n  \'baz\'\n)\n~ {\n  state.removeRecentErrors();\n  state.errorExpected(\'foo\');\n}\n\'\'\nerrors\n',
+    );
+    final $s17 = State('');
+    final $r23 = $r17($s17) as dynamic;
+    expect(
+      $r23,
+      isNull,
+      reason:
+          '(\n  \'bar\'\n  /\n  \'baz\'\n)\n~ {\n  state.removeRecentErrors();\n  state.errorExpected(\'foo\');\n}\n\'\'\nresult == null\n',
+    );
+    expect(
+      $s17.farthestPosition,
+      0,
+      reason:
+          '(\n  \'bar\'\n  /\n  \'baz\'\n)\n~ {\n  state.removeRecentErrors();\n  state.errorExpected(\'foo\');\n}\n\'\'\nstate.farthestPosition = 0\n',
+    );
+    expect(
+      $s17.position,
+      0,
+      reason:
+          '(\n  \'bar\'\n  /\n  \'baz\'\n)\n~ {\n  state.removeRecentErrors();\n  state.errorExpected(\'foo\');\n}\n\'\'\nstate.position = 0\n',
+    );
+    final $e9 = $s17.getErrors().map((e) => '$e').toList()..sort();
+    expect(
+      $e9.length,
+      1,
+      reason:
+          '(\n  \'bar\'\n  /\n  \'baz\'\n)\n~ {\n  state.removeRecentErrors();\n  state.errorExpected(\'foo\');\n}\n\'\'\nerror count\n',
+    );
+    expect(
+      $e9,
+      ['(end: 0, message: Expected: \'foo\', start: 0)'],
+      reason:
+          '(\n  \'bar\'\n  /\n  \'baz\'\n)\n~ {\n  state.removeRecentErrors();\n  state.errorExpected(\'foo\');\n}\n\'\'\nerrors\n',
+    );
+    final $s18 = State('abc');
+    final $r24 = $r16($s18) as dynamic;
+    expect(
+      $r24,
+      isNull,
+      reason:
+          '(\n  \'bar\'\n  /\n  \'baz\'\n)\n~ {\n  state.removeRecentErrors();\n  state.errorExpected(\'foo\');\n}\n\'abc\'\nresult == null\n',
+    );
+    expect(
+      $s18.farthestPosition,
+      0,
+      reason:
+          '(\n  \'bar\'\n  /\n  \'baz\'\n)\n~ {\n  state.removeRecentErrors();\n  state.errorExpected(\'foo\');\n}\n\'abc\'\nstate.farthestPosition = 0\n',
+    );
+    expect(
+      $s18.position,
+      0,
+      reason:
+          '(\n  \'bar\'\n  /\n  \'baz\'\n)\n~ {\n  state.removeRecentErrors();\n  state.errorExpected(\'foo\');\n}\n\'abc\'\nstate.position = 0\n',
+    );
+    final $e10 = $s18.getErrors().map((e) => '$e').toList()..sort();
+    expect(
+      $e10.length,
+      1,
+      reason:
+          '(\n  \'bar\'\n  /\n  \'baz\'\n)\n~ {\n  state.removeRecentErrors();\n  state.errorExpected(\'foo\');\n}\n\'abc\'\nerror count\n',
+    );
+    expect(
+      $e10,
+      ['(end: 0, message: Expected: \'foo\', start: 0)'],
+      reason:
+          '(\n  \'bar\'\n  /\n  \'baz\'\n)\n~ {\n  state.removeRecentErrors();\n  state.errorExpected(\'foo\');\n}\n\'abc\'\nerrors\n',
+    );
+    final $s19 = State('abc');
+    final $r25 = $r17($s19) as dynamic;
+    expect(
+      $r25,
+      isNull,
+      reason:
+          '(\n  \'bar\'\n  /\n  \'baz\'\n)\n~ {\n  state.removeRecentErrors();\n  state.errorExpected(\'foo\');\n}\n\'abc\'\nresult == null\n',
+    );
+    expect(
+      $s19.farthestPosition,
+      0,
+      reason:
+          '(\n  \'bar\'\n  /\n  \'baz\'\n)\n~ {\n  state.removeRecentErrors();\n  state.errorExpected(\'foo\');\n}\n\'abc\'\nstate.farthestPosition = 0\n',
+    );
+    expect(
+      $s19.position,
+      0,
+      reason:
+          '(\n  \'bar\'\n  /\n  \'baz\'\n)\n~ {\n  state.removeRecentErrors();\n  state.errorExpected(\'foo\');\n}\n\'abc\'\nstate.position = 0\n',
+    );
+    final $e11 = $s19.getErrors().map((e) => '$e').toList()..sort();
+    expect(
+      $e11.length,
+      1,
+      reason:
+          '(\n  \'bar\'\n  /\n  \'baz\'\n)\n~ {\n  state.removeRecentErrors();\n  state.errorExpected(\'foo\');\n}\n\'abc\'\nerror count\n',
+    );
+    expect(
+      $e11,
+      ['(end: 0, message: Expected: \'foo\', start: 0)'],
+      reason:
+          '(\n  \'bar\'\n  /\n  \'baz\'\n)\n~ {\n  state.removeRecentErrors();\n  state.errorExpected(\'foo\');\n}\n\'abc\'\nerrors\n',
+    );
+    final $r26 = parser.parseSequence3;
+    final $r27 = parser.parseSequenceVoid3;
+    final $s20 = State('foo');
+    final $r28 = $r26($s20) as dynamic;
+    expect(
+      $r28,
+      isNotNull,
+      reason:
+          '"foo"\n~ { state.errorExpected(\'foo\'); }\n\'foo\'\nresult != null\n',
+    );
+    expect(
+      $s20.position,
+      3,
+      reason:
+          '"foo"\n~ { state.errorExpected(\'foo\'); }\n\'foo\'\nstate.position = 3\n',
+    );
+    expect(
+      $r28.$1,
+      'foo',
+      reason:
+          '"foo"\n~ { state.errorExpected(\'foo\'); }\n\'foo\'\nresult.\$1 != \'foo\'\n',
+    );
+    final $s21 = State('foo');
+    final $r29 = $r27($s21) as dynamic;
+    expect(
+      $r29,
+      isNotNull,
+      reason:
+          '"foo"\n~ { state.errorExpected(\'foo\'); }\n\'foo\'\nresult != null\n',
+    );
+    expect(
+      $s21.position,
+      3,
+      reason:
+          '"foo"\n~ { state.errorExpected(\'foo\'); }\n\'foo\'\nstate.position = 3\n',
+    );
+    expect(
+      $r29.$1,
+      null,
+      reason:
+          '"foo"\n~ { state.errorExpected(\'foo\'); }\n\'foo\'\nresult.\$1 != null\n',
+    );
+    final $s22 = State('');
+    final $r30 = $r26($s22) as dynamic;
+    expect(
+      $r30,
+      isNull,
+      reason:
+          '"foo"\n~ { state.errorExpected(\'foo\'); }\n\'\'\nresult == null\n',
+    );
+    expect(
+      $s22.farthestPosition,
+      0,
+      reason:
+          '"foo"\n~ { state.errorExpected(\'foo\'); }\n\'\'\nstate.farthestPosition = 0\n',
+    );
+    expect(
+      $s22.position,
+      0,
+      reason:
+          '"foo"\n~ { state.errorExpected(\'foo\'); }\n\'\'\nstate.position = 0\n',
+    );
+    final $e12 = $s22.getErrors().map((e) => '$e').toList()..sort();
+    expect(
+      $e12.length,
+      1,
+      reason: '"foo"\n~ { state.errorExpected(\'foo\'); }\n\'\'\nerror count\n',
+    );
+    expect($e12, [
+      '(end: 0, message: Expected: \'foo\', start: 0)',
+    ], reason: '"foo"\n~ { state.errorExpected(\'foo\'); }\n\'\'\nerrors\n');
+    final $s23 = State('');
+    final $r31 = $r27($s23) as dynamic;
+    expect(
+      $r31,
+      isNull,
+      reason:
+          '"foo"\n~ { state.errorExpected(\'foo\'); }\n\'\'\nresult == null\n',
+    );
+    expect(
+      $s23.farthestPosition,
+      0,
+      reason:
+          '"foo"\n~ { state.errorExpected(\'foo\'); }\n\'\'\nstate.farthestPosition = 0\n',
+    );
+    expect(
+      $s23.position,
+      0,
+      reason:
+          '"foo"\n~ { state.errorExpected(\'foo\'); }\n\'\'\nstate.position = 0\n',
+    );
+    final $e13 = $s23.getErrors().map((e) => '$e').toList()..sort();
+    expect(
+      $e13.length,
+      1,
+      reason: '"foo"\n~ { state.errorExpected(\'foo\'); }\n\'\'\nerror count\n',
+    );
+    expect($e13, [
+      '(end: 0, message: Expected: \'foo\', start: 0)',
+    ], reason: '"foo"\n~ { state.errorExpected(\'foo\'); }\n\'\'\nerrors\n');
+    final $s24 = State('abc');
+    final $r32 = $r26($s24) as dynamic;
+    expect(
+      $r32,
+      isNull,
+      reason:
+          '"foo"\n~ { state.errorExpected(\'foo\'); }\n\'abc\'\nresult == null\n',
+    );
+    expect(
+      $s24.farthestPosition,
+      0,
+      reason:
+          '"foo"\n~ { state.errorExpected(\'foo\'); }\n\'abc\'\nstate.farthestPosition = 0\n',
+    );
+    expect(
+      $s24.position,
+      0,
+      reason:
+          '"foo"\n~ { state.errorExpected(\'foo\'); }\n\'abc\'\nstate.position = 0\n',
+    );
+    final $e14 = $s24.getErrors().map((e) => '$e').toList()..sort();
+    expect(
+      $e14.length,
+      1,
+      reason:
+          '"foo"\n~ { state.errorExpected(\'foo\'); }\n\'abc\'\nerror count\n',
+    );
+    expect(
+      $e14,
+      ['(end: 0, message: Expected: \'foo\', start: 0)'],
+      reason: '"foo"\n~ { state.errorExpected(\'foo\'); }\n\'abc\'\nerrors\n',
+    );
+    final $s25 = State('abc');
+    final $r33 = $r27($s25) as dynamic;
+    expect(
+      $r33,
+      isNull,
+      reason:
+          '"foo"\n~ { state.errorExpected(\'foo\'); }\n\'abc\'\nresult == null\n',
+    );
+    expect(
+      $s25.farthestPosition,
+      0,
+      reason:
+          '"foo"\n~ { state.errorExpected(\'foo\'); }\n\'abc\'\nstate.farthestPosition = 0\n',
+    );
+    expect(
+      $s25.position,
+      0,
+      reason:
+          '"foo"\n~ { state.errorExpected(\'foo\'); }\n\'abc\'\nstate.position = 0\n',
+    );
+    final $e15 = $s25.getErrors().map((e) => '$e').toList()..sort();
+    expect(
+      $e15.length,
+      1,
+      reason:
+          '"foo"\n~ { state.errorExpected(\'foo\'); }\n\'abc\'\nerror count\n',
+    );
+    expect(
+      $e15,
+      ['(end: 0, message: Expected: \'foo\', start: 0)'],
+      reason: '"foo"\n~ { state.errorExpected(\'foo\'); }\n\'abc\'\nerrors\n',
+    );
   });
 
   test('While', () {
@@ -9181,6 +9559,134 @@ class _TestParser {
       state.errorIncorrect('End', false);
       state.errorIncorrect('Start', null);
       state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
+    }
+    return null;
+  }
+
+  /// [String] **Sequence2**
+  /// ```txt
+  /// `String` Sequence2 =>
+  ///   (
+  ///     'bar'
+  ///     /
+  ///     'baz'
+  ///   )
+  ///   ~ {
+  ///     state.removeRecentErrors();
+  ///     state.errorExpected('foo');
+  ///   }
+  /// ;
+  /// ```
+  Result<String>? parseSequence2(State state) {
+    Result<String>? $0;
+    final $1 = state.setErrorState();
+    $l:
+    {
+      final $2 = state.peek();
+      if ($2 == 98 && state.startsWith('bar')) {
+        state.position += 3;
+        $0 = const Ok('bar');
+        break $l;
+      } else {
+        state.errorExpected('bar');
+      }
+      if ($2 == 98 && state.startsWith('baz')) {
+        state.position += 3;
+        $0 = const Ok('baz');
+        break $l;
+      } else {
+        state.errorExpected('baz');
+      }
+    }
+    if ($0 != null) {
+      state.restoreErrorState($1);
+      return $0;
+    } else {
+      state.removeRecentErrors();
+      state.errorExpected('foo');
+      state.restoreErrorState($1);
+    }
+    return null;
+  }
+
+  /// [void] **SequenceVoid2**
+  /// ```txt
+  /// `void` SequenceVoid2 =>
+  ///   (
+  ///     'bar'
+  ///     /
+  ///     'baz'
+  ///   )
+  ///   ~ {
+  ///     state.removeRecentErrors();
+  ///     state.errorExpected('foo');
+  ///   }
+  /// ;
+  /// ```
+  Result<void>? parseSequenceVoid2(State state) {
+    var $0 = false;
+    final $1 = state.setErrorState();
+    $l:
+    {
+      final $2 = state.peek();
+      if ($2 == 98 && state.startsWith('bar')) {
+        state.position += 3;
+        $0 = true;
+        break $l;
+      } else {
+        state.errorExpected('bar');
+      }
+      if ($2 == 98 && state.startsWith('baz')) {
+        state.position += 3;
+        $0 = true;
+        break $l;
+      } else {
+        state.errorExpected('baz');
+      }
+    }
+    if ($0) {
+      state.restoreErrorState($1);
+      return Result.none;
+    } else {
+      state.removeRecentErrors();
+      state.errorExpected('foo');
+      state.restoreErrorState($1);
+    }
+    return null;
+  }
+
+  /// [String] **Sequence3**
+  /// ```txt
+  /// `String` Sequence3 =>
+  ///   "foo"
+  ///   ~ { state.errorExpected('foo'); }
+  /// ;
+  /// ```
+  Result<String>? parseSequence3(State state) {
+    final $0 = state.peek();
+    if ($0 == 102 && state.startsWith('foo')) {
+      state.position += 3;
+      return const Ok('foo');
+    } else {
+      state.errorExpected('foo');
+    }
+    return null;
+  }
+
+  /// [void] **SequenceVoid3**
+  /// ```txt
+  /// `void` SequenceVoid3 =>
+  ///   "foo"
+  ///   ~ { state.errorExpected('foo'); }
+  /// ;
+  /// ```
+  Result<void>? parseSequenceVoid3(State state) {
+    final $0 = state.peek();
+    if ($0 == 102 && state.startsWith('foo')) {
+      state.position += 3;
+      return Result.none;
+    } else {
+      state.errorExpected('foo');
     }
     return null;
   }

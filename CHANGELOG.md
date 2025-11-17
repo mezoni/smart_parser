@@ -1,6 +1,7 @@
 ## 1.0.2
 
 - Minor changes have been made to the `tool\README.in.md` file.
+- Minor improvement (in speed and size) to the code generated for error handling.
 
 ## 1.0.1
 

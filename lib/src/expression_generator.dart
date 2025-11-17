@@ -619,8 +619,18 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
         useFarthestPosition = true;
       }
 
-      // TODO: Error handling needs to be improved (reduced in size, increased in speed).
-      state = _combine(state, type, isVoid);
+      var combine = true;
+      if (children.length == 1) {
+        final child = children.first;
+        if (child.isSingleExitPoint) {
+          combine = false;
+        }
+      }
+
+      if (combine) {
+        state = _combine(state, type, isVoid);
+      }
+
       var errorState = _invalid;
       var farthestPosition = _invalid;
       state.onPreprocess((code) {
