@@ -2,6 +2,7 @@
 
 - Minor changes have been made to the `tool\README.in.md` file.
 - Minor improvement (in speed and size) to the code generated for error handling.
+- The algorithm for generating the `README.md` file has been changed.
 
 ## 1.0.1
 

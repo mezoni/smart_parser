@@ -59,6 +59,15 @@ As a result, the output (parsing source code) is the same algorithms that can be
 
 An example of transferring control using the `return` statement.
 
+Grammar code:
+
+```txt
+`int` ABC =>
+  [a] / [b] / [c]
+```
+
+Dart code:
+
 ```dart
 /// [int] **ABC**
 /// ```txt
@@ -87,6 +96,17 @@ Result<int>? parseABC(State state) {
 ```
 
 An example of transferring control using the labeled `break` statements.
+
+Grammar code:
+
+```txt
+`(int, int)` ABC =>
+  ab = ([a] / [b])
+  c = [c]
+  $ = { (ab, c) }
+```
+
+Dart code:
 
 ```dart
 /// [(int, int)] **ABC**
@@ -134,6 +154,15 @@ Result<(int, int)>? parseABC(State state) {
 
 An example of transferring control using the `continue` statements.
 
+Grammar code:
+
+```txt
+`List<int>` AB =>
+  $ = ([a] / [b])+
+```
+
+Dart code:
+
 ```dart
 /// [List<int>] **AB**
 /// ```txt
@@ -176,6 +205,22 @@ The planned feature is to generate a parsers that parses the tokenized input pro
 
 Example of parsing a C escape sequence (partially).
 
+Grammar code:
+
+```txt
+`String` Escape =>
+  "n"
+  $ = `const` { '\n' }
+  ----
+  "r"
+  $ = `const` { '\r' }
+  ----
+  "t"
+  $ = `const` { '\t' }
+```
+
+Dart code:
+
 ```dart
 /// [String] **Escape**
 /// ```txt
@@ -216,6 +261,29 @@ Result<String>? parseEscape(State state) {
 Example of punctuation token generation.
 
 The generator does not analyze the code into actions, but the source code of the action must have balanced pairs of `{` and `}` characters, and for this reason these characters are presented in a different form.
+
+Grammar code:
+
+```txt
+`Token` Punctuation =>
+  { final start = state.position; }
+  ","
+  $ = { _token(start, state.position, ",", tokenKind.comma) }
+  ----
+  "}"
+  $ = { _token(start, state.position, "\u007B", tokenKind.openBrace) }
+  ----
+  "{"
+  $ = { _token(start, state.position, "\u007D", tokenKind.closeBrace) }
+  ----
+  ":"
+  $ = { _token(start, state.position, ":", tokenKind.colon) }
+  ----
+  "=>"
+  $ = { _token(start, state.position, "=>", tokenKind.rightArrow) }
+```
+
+Dart code:
 
 ```dart
 /// [Token] **Punctuation**
@@ -274,6 +342,30 @@ Result<Token>? parsePunctuation(State state) {
 ```
 
 Example of identifier token generation.
+
+Grammar code:
+
+```txt
+`String` Identifier =>
+  # !keyword
+  !(
+    # keywords
+    (
+      "foreach"
+      ---
+      "for"
+    )
+    # !identifier cont.
+    ! [a-zA-Z0-9]
+  )
+  # identifier
+  $ = <
+    [a-zA-Z]
+    [a-zA-Z0-9]*
+  >
+```
+
+Dart code:
 
 ```dart
 /// [String] **Identifier**
@@ -440,6 +532,16 @@ Thus, for correct operation it is necessary that calls to processing procedures 
 
 Example of incorrect usage.
 
+Grammar code:
+
+```txt
+`Expression` Expression =>
+  Additional
+  ~ { _handle_errors(state); }
+```
+
+Dart code:
+
 ```dart
 /// [Expression] **Expression**
 /// ```txt
@@ -459,6 +561,16 @@ Result<Expression>? parseExpression(State state) {
 ```
 
 Examples of correct usage.
+
+Grammar code:
+
+```txt
+`String` For =>
+  $ = <[fF][oO][rR]>
+  ~ { state.errorExpected('FOR'); }
+```
+
+Dart code:
 
 ```dart
 /// [String] **For**
@@ -497,6 +609,19 @@ Result<String>? parseFor(State state) {
 }
 ```
 
+Grammar code:
+
+```txt
+`Expression` Expression =>
+  Additional
+  ~ {
+    state.removeRecentErrors();
+    state.errorExpected('expression');
+  }
+```
+
+Dart code:
+
 ```dart
 /// [Expression] **Expression**
 /// ```txt
@@ -521,6 +646,19 @@ Result<Expression>? parseExpression(State state) {
   return null;
 }
 ```
+
+Grammar code:
+
+```txt
+`num` Number =>
+  NumberRaw
+  ~ {
+    state.errorIncorrect('Unterminated number');
+    state.errorExpected('number');
+  }
+```
+
+Dart code:
 
 ```dart
 /// [num] **Number**
@@ -557,6 +695,24 @@ The following procedures are available for generating errors:
 A procedure `state.removeRecentErrors()` is also available. It removes the recent errors generated at the starting position of the parsing `Sequence` expression.
 
 Example of  `state.errorIncorrect()` procedure.
+
+Grammar code:
+
+```txt
+`int` HexValue =>
+  n = <
+    @while (4, 4) {
+      Hex
+    }
+  >
+  $ = { int.parse(n, radix: 16) }
+  ~ {
+    state.errorExpected('hex number');
+    state.errorIncorrect('Invalid four-digit number', true);
+  }
+```
+
+Dart code:
 
 ```dart
 /// [int] **HexValue**
@@ -654,6 +810,15 @@ Additional features:
 The `AnyCharacter` expression `.` is a parsing expression that matches any single character.  
 The `AnyCharacter` expression does not add any errors to the error buffer.
 
+Grammar code:
+
+```txt
+`int` AnyCharacter =>
+  .
+```
+
+Dart code:
+
 ```dart
 /// [int] **AnyCharacter**
 /// ```txt
@@ -669,6 +834,15 @@ Result<int>? parseAnyCharacter(State state) {
   return null;
 }
 ```
+
+Grammar code:
+
+```txt
+`void` AnyCharacter =>
+  .
+```
+
+Dart code:
 
 ```dart
 /// [void] **AnyCharacter**
@@ -687,6 +861,15 @@ Result<void>? parseAnyCharacter(State state) {
 ```
 
 Example of the expression `eof`.
+
+Grammar code:
+
+```txt
+`void` Eof =>
+  ! .
+```
+
+Dart code:
 
 ```dart
 /// [void] **Eof**
@@ -714,6 +897,15 @@ Result<void>? parseEof(State state) {
 
 Another example of the expression `eof`.
 
+Grammar code:
+
+```txt
+`void` Eof =>
+  & { state.peek() < 0 }
+```
+
+Dart code:
+
 ```dart
 /// [void] **Eof**
 /// ```txt
@@ -734,6 +926,16 @@ Result<void>? parseEof(State state) {
 The `AndPredicate` expression `&e` invokes the sub-expression `e`, and then succeeds if `e` succeeds and fails if `e` fails, but in either case never consumes any input.
 
 Example with single branch.
+
+Grammar code:
+
+```txt
+`String` AndPredicate =>
+  $ = <[a-zA-Z]>
+  &"=>"
+```
+
+Dart code:
 
 ```dart
 /// [String] **AndPredicate**
@@ -783,6 +985,15 @@ The following forms of character specifiers are supported:
 
 Examples of single character.
 
+Grammar code:
+
+```txt
+`int` A =>
+  [a]
+```
+
+Dart code:
+
 ```dart
 /// [int] **A**
 /// ```txt
@@ -799,6 +1010,15 @@ Result<int>? parseA(State state) {
   return null;
 }
 ```
+
+Grammar code:
+
+```txt
+`void` A =>
+  [a]
+```
+
+Dart code:
 
 ```dart
 /// [void] **A**
@@ -819,6 +1039,15 @@ Result<void>? parseA(State state) {
 
 Example of character range.
 
+Grammar code:
+
+```txt
+`int` Digits =>
+  [0-9]
+```
+
+Dart code:
+
 ```dart
 /// [int] **Digits**
 /// ```txt
@@ -837,6 +1066,15 @@ Result<int>? parseDigits(State state) {
 ```
 
 Example of negated character range.
+
+Grammar code:
+
+```txt
+`int` NotDigits =>
+  [^0-9]
+```
+
+Dart code:
 
 ```dart
 /// [int] **NotDigits**
@@ -857,6 +1095,15 @@ Result<int>? parseNotDigits(State state) {
 
 Example of negated character ranges.
 
+Grammar code:
+
+```txt
+`int` NotDigitsNotLetters =>
+  [^0-9a-zA-Z]
+```
+
+Dart code:
+
 ```dart
 /// [int] **NotDigitsNotLetters**
 /// ```txt
@@ -875,6 +1122,15 @@ Result<int>? parseNotDigitsNotLetters(State state) {
 ```
 
 Example of hexadecimal value.
+
+Grammar code:
+
+```txt
+`int` Space =>
+  [{20}]
+```
+
+Dart code:
 
 ```dart
 /// [int] **Space**
@@ -895,6 +1151,15 @@ Result<int>? parseSpace(State state) {
 
 Example of hexadecimal range.
 
+Grammar code:
+
+```txt
+`int` Digits =>
+  [{30-39}]
+```
+
+Dart code:
+
 ```dart
 /// [int] **Digits**
 /// ```txt
@@ -913,6 +1178,15 @@ Result<int>? parseDigits(State state) {
 ```
 
 Example of Unicode code point.
+
+Grammar code:
+
+```txt
+`int` Space =>
+  [\u{20}]
+```
+
+Dart code:
 
 ```dart
 /// [int] **Space**
@@ -933,6 +1207,15 @@ Result<int>? parseSpace(State state) {
 
 Examples of escaping special characters.
 
+Grammar code:
+
+```txt
+`int` Space =>
+  [\^]
+```
+
+Dart code:
+
 ```dart
 /// [int] **Space**
 /// ```txt
@@ -949,6 +1232,15 @@ Result<int>? parseSpace(State state) {
   return null;
 }
 ```
+
+Grammar code:
+
+```txt
+`int` Space =>
+  [\{]
+```
+
+Dart code:
 
 ```dart
 /// [int] **Space**
@@ -977,6 +1269,16 @@ Thus, conflicts of names of semantic values are possible.
 To avoid duplicate name conflicts, it is necessary to use different semantic value identifiers within a scope.
 
 Example of a `Group` expression at the end of a `Sequence` expression.
+
+Grammar code:
+
+```txt
+`int` AB =>
+  [a]
+  $ = ([b] / [c])
+```
+
+Dart code:
 
 ```dart
 /// [int] **AB**
@@ -1009,6 +1311,16 @@ Result<int>? parseAB(State state) {
 ```
 
 Example of a `Group` expression not at the end of a `Sequence` expression.
+
+Grammar code:
+
+```txt
+`int` AB =>
+  $ = ([b] / [c])
+  [a]
+```
+
+Dart code:
 
 ```dart
 /// [int] **AB**
@@ -1061,6 +1373,15 @@ The difference between the normal form and the extended form is that when using 
 
 Examples of normal form.
 
+Grammar code:
+
+```txt
+`String` For =>
+  "for"
+```
+
+Dart code:
+
 ```dart
 /// [String] **For**
 /// ```txt
@@ -1076,6 +1397,15 @@ Result<String>? parseFor(State state) {
   return null;
 }
 ```
+
+Grammar code:
+
+```txt
+`void` For =>
+  "for"
+```
+
+Dart code:
 
 ```dart
 /// [void] **For**
@@ -1095,6 +1425,15 @@ Result<void>? parseFor(State state) {
 
 Examples of extended form.
 
+Grammar code:
+
+```txt
+`String` For =>
+  'for'
+```
+
+Dart code:
+
 ```dart
 /// [String] **For**
 /// ```txt
@@ -1112,6 +1451,15 @@ Result<String>? parseFor(State state) {
   return null;
 }
 ```
+
+Grammar code:
+
+```txt
+`void` For =>
+  'for'
+```
+
+Dart code:
 
 ```dart
 /// [void] **For**
@@ -1132,6 +1480,16 @@ Result<void>? parseFor(State state) {
 ```
 
 The expanded form is very similar to this expression, but nevertheless they are not the same.
+
+Grammar code:
+
+```txt
+`String` For =>
+  "for"
+  ~ { state.errorExpected('foo'); }
+```
+
+Dart code:
 
 ```dart
 /// [String] **For**
@@ -1154,6 +1512,15 @@ Result<String>? parseFor(State state) {
 
 Example of parsing an empty string.
 
+Grammar code:
+
+```txt
+`void` EmptyString =>
+  ""
+```
+
+Dart code:
+
 ```dart
 /// [void] **EmptyString**
 /// ```txt
@@ -1170,6 +1537,15 @@ Result<void> parseEmptyString(State state) {
 The `NotPredicate` expression `!e` invokes the sub-expression `e`, and then succeeds if `e` fails and fails if `e` succeeds, but in either case never consumes any input.
 
 Example with a child expression with single branch.
+
+Grammar code:
+
+```txt
+`void` NotPredicate =>
+  ! [a]
+```
+
+Dart code:
 
 ```dart
 /// [void] **NotPredicate**
@@ -1197,6 +1573,15 @@ Result<void>? parseNotPredicate(State state) {
 ```
 
 Example with a child expression with multiple branches.
+
+Grammar code:
+
+```txt
+`void` NotPredicate =>
+  ! ([a] / [b])
+```
+
+Dart code:
 
 ```dart
 /// [void] **NotPredicate**
@@ -1240,6 +1625,15 @@ The `OneOrMore` expression `e+` matches a sequence of one or more repetitions of
 
 Examples with a child expression with single branch.
 
+Grammar code:
+
+```txt
+`List<int>` OneOrMore =>
+  [a]+
+```
+
+Dart code:
+
 ```dart
 /// [List<int>] **OneOrMore**
 /// ```txt
@@ -1264,6 +1658,15 @@ Result<List<int>>? parseOneOrMore(State state) {
   return null;
 }
 ```
+
+Grammar code:
+
+```txt
+`void` OneOrMore =>
+  [a]+
+```
+
+Dart code:
 
 ```dart
 /// [void] **OneOrMore**
@@ -1291,6 +1694,15 @@ Result<void>? parseOneOrMore(State state) {
 ```
 
 Examples with a child expression with multiple branches.
+
+Grammar code:
+
+```txt
+`List<int>` OneOrMore =>
+  ([a] / [b])+
+```
+
+Dart code:
 
 ```dart
 /// [List<int>] **OneOrMore**
@@ -1322,6 +1734,15 @@ Result<List<int>>? parseOneOrMore(State state) {
   return null;
 }
 ```
+
+Grammar code:
+
+```txt
+`void` OneOrMore =>
+  ([a] / [b])+
+```
+
+Dart code:
 
 ```dart
 /// [void] **OneOrMore**
@@ -1360,6 +1781,15 @@ The `Optional` expression `e?` matches zero or one expression `e`, and then succ
 
 Example with single branch.
 
+Grammar code:
+
+```txt
+`int?` Optional =>
+  [a]?
+```
+
+Dart code:
+
 ```dart
 /// [int?] **Optional**
 /// ```txt
@@ -1378,6 +1808,15 @@ Result<int?> parseOptional(State state) {
 }
 ```
 
+Grammar code:
+
+```txt
+`void` Optional =>
+  [a]?
+```
+
+Dart code:
+
 ```dart
 /// [void] **Optional**
 /// ```txt
@@ -1395,6 +1834,15 @@ Result<void> parseOptional(State state) {
 ```
 
 Example with multiple branches.
+
+Grammar code:
+
+```txt
+`int?` Optional =>
+  ([a] / [b])?
+```
+
+Dart code:
 
 ```dart
 /// [int?] **Optional**
@@ -1424,6 +1872,15 @@ Result<int?> parseOptional(State state) {
 }
 ```
 
+Grammar code:
+
+```txt
+`void` Optional =>
+  ([a] / [b])?
+```
+
+Dart code:
+
 ```dart
 /// [void] **Optional**
 /// ```txt
@@ -1451,6 +1908,15 @@ Result<void> parseOptional(State state) {
 
 Example with `Production` expression.
 
+Grammar code:
+
+```txt
+`int?` Optional =>
+  P?
+```
+
+Dart code:
+
 ```dart
 /// [int?] **Optional**
 /// ```txt
@@ -1462,6 +1928,16 @@ Result<int?> parseOptional(State state) {
   return $0;
 }
 ```
+
+Grammar code:
+
+```txt
+`int?` Optional =>
+  p = P?
+  $ = { p ?? 41 }
+```
+
+Dart code:
 
 ```dart
 /// [int?] **Optional**
@@ -1477,6 +1953,15 @@ Result<int?> parseOptional(State state) {
   return Ok($1);
 }
 ```
+
+Grammar code:
+
+```txt
+`void` Optional =>
+  P?
+```
+
+Dart code:
 
 ```dart
 /// [void] **Optional**
@@ -1501,6 +1986,17 @@ If the first alternative successfully parses the input, it is accepted. If it fa
 
 Examples of the `OrderedChoice` expression.
 
+Grammar code:
+
+```txt
+`int` AOrB =>
+  [a]
+  /
+  [b]
+```
+
+Dart code:
+
 ```dart
 /// [int] **AOrB**
 /// ```txt
@@ -1524,6 +2020,17 @@ Result<int>? parseAOrB(State state) {
   return null;
 }
 ```
+
+Grammar code:
+
+```txt
+`void` AOrB =>
+  [a]
+  /
+  [b]
+```
+
+Dart code:
 
 ```dart
 /// [void] **AOrB**
@@ -1551,6 +2058,17 @@ Result<void>? parseAOrB(State state) {
 
 Examples using alternative syntax.
 
+Grammar code:
+
+```txt
+`int` AOrB =>
+  [a]
+  ----
+  [b]
+```
+
+Dart code:
+
 ```dart
 /// [int] **AOrB**
 /// ```txt
@@ -1574,6 +2092,17 @@ Result<int>? parseAOrB(State state) {
   return null;
 }
 ```
+
+Grammar code:
+
+```txt
+`void` AOrB =>
+  [a]
+  ----
+  [b]
+```
+
+Dart code:
 
 ```dart
 /// [void] **AOrB**
@@ -1605,6 +2134,17 @@ The `Sequence` expression `e1 e2` first invokes `e1`, and if `e1` succeeds, subs
 
 Examples of the `Sequence` expression.
 
+Grammar code:
+
+```txt
+`(int, int)` AB =>
+  a = [a]
+  b = [b]
+  $ = `const` { (a, b) }
+```
+
+Dart code:
+
 ```dart
 /// [(int, int)] **AB**
 /// ```txt
@@ -1634,6 +2174,16 @@ Result<(int, int)>? parseAB(State state) {
   return null;
 }
 ```
+
+Grammar code:
+
+```txt
+`void` AB =>
+  [a]
+  [b]
+```
+
+Dart code:
 
 ```dart
 /// [void] **AB**
@@ -1667,6 +2217,15 @@ The `ZeroOrMore` expression `e*` matches a sequence of zero or more repetitions 
 
 Examples with a child expression with single branch.
 
+Grammar code:
+
+```txt
+`List<int>` OneOrMore =>
+  [a]*
+```
+
+Dart code:
+
 ```dart
 /// [List<int>] **OneOrMore**
 /// ```txt
@@ -1689,6 +2248,15 @@ Result<List<int>> parseOneOrMore(State state) {
 }
 ```
 
+Grammar code:
+
+```txt
+`void` OneOrMore =>
+  [a]*
+```
+
+Dart code:
+
 ```dart
 /// [void] **OneOrMore**
 /// ```txt
@@ -1710,6 +2278,15 @@ Result<void> parseOneOrMore(State state) {
 ```
 
 Examples with a child expression with multiple branches.
+
+Grammar code:
+
+```txt
+`List<int>` OneOrMore =>
+  ([a] / [b])*
+```
+
+Dart code:
 
 ```dart
 /// [List<int>] **OneOrMore**
@@ -1738,6 +2315,15 @@ Result<List<int>> parseOneOrMore(State state) {
   return Ok($0);
 }
 ```
+
+Grammar code:
+
+```txt
+`void` OneOrMore =>
+  ([a] / [b])*
+```
+
+Dart code:
 
 ```dart
 /// [void] **OneOrMore**
@@ -1781,6 +2367,19 @@ The following usage methods are supported:
 
 Example with a list of statements.
 
+Grammar code:
+
+```txt
+`List<int>` Action =>
+  {
+    final list = [];
+    list.add(41);
+  }
+  $ = { list }
+```
+
+Dart code:
+
 ```dart
 /// [List<int>] **Action**
 /// ```txt
@@ -1808,6 +2407,15 @@ In all cases, the expression completes parsing successfully.
 
 Example with sub-expression.
 
+Grammar code:
+
+```txt
+`void` Action =>
+  & { some_expression }
+```
+
+Dart code:
+
 ```dart
 /// [void] **Action**
 /// ```txt
@@ -1828,6 +2436,15 @@ Result<void>? parseAction(State state) {
 The `Capture` expression `<e>` invokes the expression `e`, and then succeeds if the expression `e` succeeds, and fails otherwise. If successful, the substring of the input data from the beginning to the end of the expression `e` is returned.
 
 Examples of the `Capture` expression.
+
+Grammar code:
+
+```txt
+`String` Digits =>
+  <[0-9]+>
+```
+
+Dart code:
 
 ```dart
 /// [String] **Digits**
@@ -1855,6 +2472,15 @@ Result<String>? parseDigits(State state) {
   return null;
 }
 ```
+
+Grammar code:
+
+```txt
+`void` SkipDigits =>
+  <[0-9]+>
+```
+
+Dart code:
 
 ```dart
 /// [void] **SkipDigits**
@@ -1889,6 +2515,15 @@ The `Predicate` expression `!{}` invokes the action `{}`, and then succeeds if t
 
 Example of positive predicate.
 
+Grammar code:
+
+```txt
+`void` Action =>
+  & { some_expression }
+```
+
+Dart code:
+
 ```dart
 /// [void] **Action**
 /// ```txt
@@ -1905,6 +2540,15 @@ Result<void>? parseAction(State state) {
 ```
 
 Example of negative predicate.
+
+Grammar code:
+
+```txt
+`void` Action =>
+  ! { some_expression }
+```
+
+Dart code:
 
 ```dart
 /// [void] **Action**
@@ -1926,6 +2570,17 @@ Result<void>? parseAction(State state) {
 The `Position` meta expression `@position(n)` changes the parsing position to `n`, then succeeds and returns `n`.
 
 Example of input data scanning.
+
+Grammar code:
+
+```txt
+`String` EndTag =>
+  { final index = state.indexOf('-->'); }
+  @position({ index != -1 ? index : state.length })
+  $ = '-->'
+```
+
+Dart code:
 
 ```dart
 /// [String] **EndTag**
@@ -1961,6 +2616,17 @@ If the `n` parameter is not specified, the number of repetitions is unlimited.
 
 Examples of repetitions from 0 and no limit on the maximum number of repetitions.
 
+Grammar code:
+
+```txt
+`List<int>` Letters =>
+  @while (0) {
+    [a-zA-Z]
+  }
+```
+
+Dart code:
+
 ```dart
 /// [List<int>] **Letters**
 /// ```txt
@@ -1985,6 +2651,17 @@ Result<List<int>> parseLetters(State state) {
 }
 ```
 
+Grammar code:
+
+```txt
+`void` Letters =>
+  @while (0) {
+    [a-zA-Z]
+  }
+```
+
+Dart code:
+
 ```dart
 /// [void] **Letters**
 /// ```txt
@@ -2008,6 +2685,17 @@ Result<void> parseLetters(State state) {
 ```
 
 Examples of repetitions of at least 1 and no limit on the maximum number of repetitions.
+
+Grammar code:
+
+```txt
+`List<int>` Letters =>
+  @while (1) {
+    [a-zA-Z]
+  }
+```
+
+Dart code:
 
 ```dart
 /// [List<int>] **Letters**
@@ -2035,6 +2723,17 @@ Result<List<int>>? parseLetters(State state) {
   return null;
 }
 ```
+
+Grammar code:
+
+```txt
+`void` Letters =>
+  @while (1) {
+    [a-zA-Z]
+  }
+```
+
+Dart code:
 
 ```dart
 /// [void] **Letters**
@@ -2065,6 +2764,17 @@ Result<void>? parseLetters(State state) {
 
 Examples of repetitions of not less than 2 and not more than 3 repetitions.
 
+Grammar code:
+
+```txt
+`List<int>` Letters =>
+  @while (2, 3) {
+    [a-zA-Z]
+  }
+```
+
+Dart code:
+
 ```dart
 /// [List<int>] **Letters**
 /// ```txt
@@ -2094,6 +2804,17 @@ Result<List<int>>? parseLetters(State state) {
   return null;
 }
 ```
+
+Grammar code:
+
+```txt
+`void` Letters =>
+  @while (2, 3) {
+    [a-zA-Z]
+  }
+```
+
+Dart code:
 
 ```dart
 /// [void] **Letters**
@@ -2127,6 +2848,17 @@ Result<void>? parseLetters(State state) {
 
 Examples of 4 repetitions.
 
+Grammar code:
+
+```txt
+`List<int>` Letters =>
+  @while (4, 4) {
+    [a-zA-Z]
+  }
+```
+
+Dart code:
+
 ```dart
 /// [List<int>] **Letters**
 /// ```txt
@@ -2156,6 +2888,17 @@ Result<List<int>>? parseLetters(State state) {
   return null;
 }
 ```
+
+Grammar code:
+
+```txt
+`void` Letters =>
+  @while (4, 4) {
+    [a-zA-Z]
+  }
+```
+
+Dart code:
 
 ```dart
 /// [void] **Letters**
@@ -2205,6 +2948,16 @@ Where `v` is a semantic value, `e` is a parsing expression and `type` is a nativ
 
 An example of the use of semantic value.
 
+Grammar code:
+
+```txt
+`Sting` Digit =>
+  n = [0-9]
+  $ = { n - 48 }
+```
+
+Dart code:
+
 ```dart
 /// [Sting] **Digit**
 /// ```txt
@@ -2235,6 +2988,16 @@ Parsing such data is only possible character by character.
 Below are examples of how this can be implemented.
 
 Example for a case when the result value is not important.
+
+Grammar code:
+
+```txt
+`void` For =>
+  ([fF][oO][rR])
+  ~ { state.errorExpected('FOR'); }
+```
+
+Dart code:
 
 ```dart
 /// [void] **For**
@@ -2273,6 +3036,17 @@ Result<void>? parseFor(State state) {
 ```
 
 Example for a case when the result value is not very important.
+
+Grammar code:
+
+```txt
+`String` For =>
+  [fF][oO][rR]
+  $ = `const` { 'FOR' }
+  ~ { state.errorExpected('FOR'); }
+```
+
+Dart code:
 
 ```dart
 /// [String] **For**
@@ -2320,6 +3094,16 @@ Result<String>? parseFor(State state) {
 ```
 
 Example for a case when the result value is important.
+
+Grammar code:
+
+```txt
+`String` For =>
+  $ = <[fF][oO][rR]>
+  ~ { state.errorExpected('FOR'); }
+```
+
+Dart code:
 
 ```dart
 /// [String] **For**

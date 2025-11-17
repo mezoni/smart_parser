@@ -23,11 +23,25 @@ void main(List<String> args) {
     final productionCode = productionGenerator.generate();
     final from =
         '''
+```dart
 START
 $source
-END''';
+END
+```''';
 
-    final replace = productionCode;
+    final replace =
+        '''
+Grammar code:
+
+```txt
+$source
+```
+
+Dart code:
+
+```dart
+$productionCode
+```''';
     input = input.replaceAll(from, replace);
   }
 
