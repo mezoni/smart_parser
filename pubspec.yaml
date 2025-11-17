@@ -1,6 +1,6 @@
 name: smart_parser
 description: This software is a library that generates source code of recursive descent parsers based on a grammar consisting of the parsing expressions and native Dart language source code
-version: 1.0.2
+version: 1.0.3
 homepage: https://github.com/mezoni/smart_parser
 topics:
   - parser-generator
