@@ -62,6 +62,7 @@ class JsonParser {
     if ($0 != null) {
       final v = $0.$1;
       final l = [v];
+      // (0)
       while (true) {
         final $1 = state.position;
         final $2 = state.peek();
@@ -177,6 +178,7 @@ class JsonParser {
       final v = $0.$1;
       final m = <String, Object?>{};
       m[v.key] = v.value;
+      // (0)
       while (true) {
         final $1 = state.position;
         final $2 = state.peek();
@@ -253,41 +255,33 @@ class JsonParser {
   ///   }
   /// ```
   Result<String>? parseHex(State state) {
-    Result<String>? $0;
-    final $1 = state.farthestPosition;
-    state.farthestPosition = state.position;
-    $l:
-    {
-      final $2 = state.position;
-      var $3 = 0;
-      while ($3 < 4) {
-        final $4 = state.peek();
-        final $5 = $4 <= 70 ? $4 >= 65 || $4 >= 48 && $4 <= 57 : $4 >= 97 && $4 <= 102;
-        if ($5) {
-          state.position += 1;
-          $3++;
-          continue;
-        }
-        break;
+    final $0 = state.beginErrorHandling();
+    final $1 = state.position;
+    var $2 = 0;
+    // (4, 4)
+    while ($2 < 4) {
+      final $3 = state.peek();
+      // [a-fA-F0-9]
+      final $4 = $3 <= 70 ? $3 >= 65 || $3 >= 48 && $3 <= 57 : $3 >= 97 && $3 <= 102;
+      if ($4) {
+        state.position += 1;
+        $2++;
+        continue;
       }
-      if ($3 >= 4) {
-        final $6 = state.substring($2, state.position);
-        final s = $6;
-        final $7 = String.fromCharCode(int.parse(s, radix: 16));
-        $0 = Ok($7);
-        break $l;
-      } else {
-        state.backtrack($2);
-      }
+      break;
     }
-    if ($0 != null) {
-      state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
-      return $0;
+    if ($2 >= 4) {
+      final $5 = state.substring($1, state.position);
+      final s = $5;
+      final $6 = String.fromCharCode(int.parse(s, radix: 16));
+      state.endErrorHandling($0);
+      return Ok($6);
     } else {
+      state.backtrack($1);
       state.errorIncorrect('Expected hexadecimal digit', false);
       state.errorIncorrect('Unterminated 4 hexadecimal digit number', true);
       state.errorExpected('4 hexadecimal digit number');
-      state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
+      state.endErrorHandling($0);
     }
     return null;
   }
@@ -330,61 +324,60 @@ class JsonParser {
   /// ```
   Result<String>? parseEscapeC(State state) {
     Result<String>? $0;
-    final $1 = state.farthestPosition;
-    state.farthestPosition = state.position;
+    final $1 = state.beginErrorHandling();
     $l:
     {
       final $2 = state.peek();
-      // '"'
+      // ["]
       if ($2 == 34) {
         state.position += 1;
         const $3 = '"';
         $0 = const Ok($3);
         break $l;
       }
-      // '\\'
+      // [\\]
       if ($2 == 92) {
         state.position += 1;
         const $4 = '\\';
         $0 = const Ok($4);
         break $l;
       }
-      // '/'
+      // [/]
       if ($2 == 47) {
         state.position += 1;
         const $5 = '/';
         $0 = const Ok($5);
         break $l;
       }
-      // 'b'
+      // [b]
       if ($2 == 98) {
         state.position += 1;
         const $6 = '\b';
         $0 = const Ok($6);
         break $l;
       }
-      // 'f'
+      // [f]
       if ($2 == 102) {
         state.position += 1;
         const $7 = '\f';
         $0 = const Ok($7);
         break $l;
       }
-      // 'n'
+      // [n]
       if ($2 == 110) {
         state.position += 1;
         const $8 = '\n';
         $0 = const Ok($8);
         break $l;
       }
-      // 'r'
+      // [r]
       if ($2 == 114) {
         state.position += 1;
         const $9 = '\r';
         $0 = const Ok($9);
         break $l;
       }
-      // 't'
+      // [t]
       if ($2 == 116) {
         state.position += 1;
         const $10 = '\t';
@@ -393,7 +386,7 @@ class JsonParser {
       }
     }
     if ($0 != null) {
-      state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
+      state.endErrorHandling($1);
       return $0;
     } else {
       if (state.position == state.length) {
@@ -401,7 +394,7 @@ class JsonParser {
       } else {
         state.error('Illegal escape character');
       }
-      state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
+      state.endErrorHandling($1);
     }
     return null;
   }
@@ -417,7 +410,7 @@ class JsonParser {
   Result<String>? parseEscaped(State state) {
     final $0 = state.position;
     final $1 = state.peek();
-    // 'u'
+    // [u]
     if ($1 == 117) {
       state.position += 1;
       final $2 = parseHex(state);
@@ -455,11 +448,14 @@ class JsonParser {
       state.position += 1;
       parseS(state);
       final $2 = <String>[];
+      // (0)
       while (true) {
         final $3 = state.position;
         var $4 = false;
+        // (1)
         while (true) {
           final $5 = state.peek();
+          // [^{0-1f}"\\]
           final $6 = !($5 <= 34 ? $5 >= 34 || $5 >= 0 && $5 <= 31 : $5 == 92) && !($5 < 0);
           if ($6) {
             state.position += $5 > 0xffff ? 2 : 1;
@@ -474,7 +470,7 @@ class JsonParser {
           continue;
         }
         final $8 = state.peek();
-        // '\\'
+        // [\\]
         if ($8 == 92) {
           state.position += 1;
           final $9 = parseEscaped(state);
@@ -533,15 +529,14 @@ class JsonParser {
   /// ```
   Result<num>? parseNumber(State state) {
     Result<num>? $0;
-    final $1 = state.farthestPosition;
-    state.farthestPosition = state.position;
+    final $1 = state.beginErrorHandling();
     $l:
     {
       final $2 = state.position;
       final start = state.position;
       var flag = true;
       final $3 = state.peek();
-      // '-'
+      // [\-]
       if ($3 == 45) {
         state.position += 1;
       }
@@ -549,17 +544,20 @@ class JsonParser {
       $l1:
       {
         final $5 = state.peek();
-        // '0'
+        // [0]
         if ($5 == 48) {
           state.position += 1;
           $4 = true;
           break $l1;
         }
+        // [1-9]
         final $6 = $5 >= 49 && $5 <= 57;
         if ($6) {
           state.position += 1;
+          // (0)
           while (true) {
             final $7 = state.peek();
+            // [0-9]
             final $8 = $7 >= 48 && $7 <= 57;
             if ($8) {
               state.position += 1;
@@ -573,18 +571,19 @@ class JsonParser {
       }
       if ($4) {
         var $9 = false;
-        final $10 = state.farthestPosition;
-        state.farthestPosition = state.position;
+        final $10 = state.beginErrorHandling();
         $l2:
         {
           final $11 = state.position;
           final $12 = state.peek();
-          // '.'
+          // [.]
           if ($12 == 46) {
             state.position += 1;
             var $13 = false;
+            // (1)
             while (true) {
               final $14 = state.peek();
+              // [0-9]
               final $15 = $14 >= 48 && $14 <= 57;
               if ($15) {
                 state.position += 1;
@@ -603,29 +602,32 @@ class JsonParser {
           }
         }
         if ($9) {
-          state.farthestPosition < $10 ? state.farthestPosition = $10 : null;
+          state.endErrorHandling($10);
         } else {
           state.errorIncorrect('Fractional part is missing a number');
-          state.farthestPosition < $10 ? state.farthestPosition = $10 : null;
+          state.endErrorHandling($10);
         }
         var $16 = false;
-        final $17 = state.farthestPosition;
-        state.farthestPosition = state.position;
+        final $17 = state.beginErrorHandling();
         $l3:
         {
           final $18 = state.position;
           final $19 = state.peek();
+          // [eE]
           final $20 = $19 == 69 || $19 == 101;
           if ($20) {
             state.position += 1;
             final $21 = state.peek();
+            // [\-+]
             final $22 = $21 == 43 || $21 == 45;
             if ($22) {
               state.position += 1;
             }
             var $23 = false;
+            // (1)
             while (true) {
               final $24 = state.peek();
+              // [0-9]
               final $25 = $24 >= 48 && $24 <= 57;
               if ($25) {
                 state.position += 1;
@@ -644,10 +646,10 @@ class JsonParser {
           }
         }
         if ($16) {
-          state.farthestPosition < $17 ? state.farthestPosition = $17 : null;
+          state.endErrorHandling($17);
         } else {
           state.errorIncorrect('Exponent part is missing a number');
-          state.farthestPosition < $17 ? state.farthestPosition = $17 : null;
+          state.endErrorHandling($17);
         }
         final $26 = state.substring(start, state.position);
         final s = $26;
@@ -660,12 +662,12 @@ class JsonParser {
       }
     }
     if ($0 != null) {
-      state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
+      state.endErrorHandling($1);
       return $0;
     } else {
       state.errorIncorrect('Unterminated number', true);
       state.errorExpected('number');
-      state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
+      state.endErrorHandling($1);
     }
     return null;
   }
@@ -741,8 +743,10 @@ class JsonParser {
   ///     [\n\r\t ]*
   /// ```
   Result<void> parseS(State state) {
+    // (0)
     while (true) {
       final $0 = state.peek();
+      // [\n\r\t ]
       final $1 = $0 <= 13 ? $0 >= 13 || $0 >= 9 && $0 <= 10 : $0 == 32;
       if ($1) {
         state.position += 1;
@@ -837,11 +841,29 @@ class State {
     this.position = position;
   }
 
+  /// Intended for internal use only.
+  /// @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int beginErrorHandling() {
+    final farthestPosition = this.farthestPosition;
+    this.farthestPosition = position;
+    return farthestPosition;
+  }
+
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   /// Returns the size (as the length of the equivalent string) of the character
   /// [char].
   int charSize(int char) => char > 0xffff ? 2 : 1;
+
+  /// Intended for internal use only.
+  /// @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  void endErrorHandling(int farthestPosition) {
+    if (this.farthestPosition < farthestPosition) {
+      this.farthestPosition = farthestPosition;
+    }
+  }
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')

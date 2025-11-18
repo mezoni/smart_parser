@@ -75,16 +75,16 @@ String _errorUnexpectedData(int start, int end) {
         final productionSource = production.source;
         final productionName = '$testName$index';
         final productionNameVoid = '${testName}Void$index';
-        grammar.addBlock(begin: '`$type` $productionName =>', end: ';')((code) {
+        grammar.addBlock(begin: '`$type` $productionName =>', end: '')((code) {
           for (final line in const LineSplitter().convert(productionSource)) {
             code.writeln(line);
           }
-        });
-        grammar.writeln();
 
-        grammar.writeln();
+          grammar.writeln();
+        });
+
         if (type != 'void') {
-          grammar.addBlock(begin: '`void` $productionNameVoid =>', end: ';')((
+          grammar.addBlock(begin: '`void` $productionNameVoid =>', end: '')((
             code,
           ) {
             for (final line in const LineSplitter().convert(productionSource)) {
@@ -106,8 +106,7 @@ String _errorUnexpectedData(int start, int end) {
           return escapeString('''
 $productionSource
 $text
-$info
-''');
+$info''');
         }
 
         for (final success in production.successes) {
@@ -211,14 +210,6 @@ $info
 
 Test _testAction() {
   final test = Test('Action', 'Action');
-  {
-    final production = test.addProduction('int', r'$ = `const` { 41 }');
-    {
-      production.addSuccess('a', 0, '41');
-      production.addSuccess('', 0, '41');
-    }
-  }
-
   {
     final production = test.addProduction('int', r'$ = `const` { 41 }');
     {

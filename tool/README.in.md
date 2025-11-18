@@ -904,7 +904,7 @@ END
 
 ## Meta expression `@position`
 
-The `Position` meta expression `@position(n)` changes the parsing position to `n`, then succeeds and returns `n`.
+The `Position` meta expression `@position(n)` changes the parsing position to `n`, then succeeds and does not return any value.
 
 Example of input data scanning.
 

@@ -81,11 +81,29 @@ class State {
     this.position = position;
   }
 
+  /// Intended for internal use only.
+  /// @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int beginErrorHandling() {
+    final farthestPosition = this.farthestPosition;
+    this.farthestPosition = position;
+    return farthestPosition;
+  }
+
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   /// Returns the size (as the length of the equivalent string) of the character
   /// [char].
   int charSize(int char) => char > 0xffff ? 2 : 1;
+
+  /// Intended for internal use only.
+  /// @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  void endErrorHandling(int farthestPosition) {
+    if (this.farthestPosition < farthestPosition) {
+      this.farthestPosition = farthestPosition;
+    }
+  }
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')

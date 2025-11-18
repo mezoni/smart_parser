@@ -100,6 +100,7 @@ class JsonTokenizer {
   /// ```
   Result<List<Token>> parseTokens(State state) {
     final $0 = <Token>[];
+    // (0)
     while (true) {
       final $1 = state.position;
       parseS(state);
@@ -209,41 +210,33 @@ class JsonTokenizer {
   ///   }
   /// ```
   Result<String>? parseHex(State state) {
-    Result<String>? $0;
-    final $1 = state.farthestPosition;
-    state.farthestPosition = state.position;
-    $l:
-    {
-      final $2 = state.position;
-      var $3 = 0;
-      while ($3 < 4) {
-        final $4 = state.peek();
-        final $5 = $4 <= 70 ? $4 >= 65 || $4 >= 48 && $4 <= 57 : $4 >= 97 && $4 <= 102;
-        if ($5) {
-          state.position += 1;
-          $3++;
-          continue;
-        }
-        break;
+    final $0 = state.beginErrorHandling();
+    final $1 = state.position;
+    var $2 = 0;
+    // (4, 4)
+    while ($2 < 4) {
+      final $3 = state.peek();
+      // [a-fA-F0-9]
+      final $4 = $3 <= 70 ? $3 >= 65 || $3 >= 48 && $3 <= 57 : $3 >= 97 && $3 <= 102;
+      if ($4) {
+        state.position += 1;
+        $2++;
+        continue;
       }
-      if ($3 >= 4) {
-        final $6 = state.substring($2, state.position);
-        final s = $6;
-        final $7 = String.fromCharCode(int.parse(s, radix: 16));
-        $0 = Ok($7);
-        break $l;
-      } else {
-        state.backtrack($2);
-      }
+      break;
     }
-    if ($0 != null) {
-      state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
-      return $0;
+    if ($2 >= 4) {
+      final $5 = state.substring($1, state.position);
+      final s = $5;
+      final $6 = String.fromCharCode(int.parse(s, radix: 16));
+      state.endErrorHandling($0);
+      return Ok($6);
     } else {
+      state.backtrack($1);
       state.errorExpected('4 hexadecimal digit number');
       state.errorIncorrect('Expected hexadecimal digit', false);
       state.errorIncorrect('Incorrect 4 hexadecimal digit number', true);
-      state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
+      state.endErrorHandling($0);
     }
     return null;
   }
@@ -280,61 +273,60 @@ class JsonTokenizer {
   /// ```
   Result<String>? parseEscapeC(State state) {
     Result<String>? $0;
-    final $1 = state.farthestPosition;
-    state.farthestPosition = state.position;
+    final $1 = state.beginErrorHandling();
     $l:
     {
       final $2 = state.peek();
-      // '"'
+      // ["]
       if ($2 == 34) {
         state.position += 1;
         const $3 = '"';
         $0 = const Ok($3);
         break $l;
       }
-      // '\\'
+      // [\\]
       if ($2 == 92) {
         state.position += 1;
         const $4 = '\\';
         $0 = const Ok($4);
         break $l;
       }
-      // '/'
+      // [/]
       if ($2 == 47) {
         state.position += 1;
         const $5 = '/';
         $0 = const Ok($5);
         break $l;
       }
-      // 'b'
+      // [b]
       if ($2 == 98) {
         state.position += 1;
         const $6 = '\b';
         $0 = const Ok($6);
         break $l;
       }
-      // 'f'
+      // [f]
       if ($2 == 102) {
         state.position += 1;
         const $7 = '\f';
         $0 = const Ok($7);
         break $l;
       }
-      // 'n'
+      // [n]
       if ($2 == 110) {
         state.position += 1;
         const $8 = '\n';
         $0 = const Ok($8);
         break $l;
       }
-      // 'r'
+      // [r]
       if ($2 == 114) {
         state.position += 1;
         const $9 = '\r';
         $0 = const Ok($9);
         break $l;
       }
-      // 't'
+      // [t]
       if ($2 == 116) {
         state.position += 1;
         const $10 = '\t';
@@ -343,11 +335,11 @@ class JsonTokenizer {
       }
     }
     if ($0 != null) {
-      state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
+      state.endErrorHandling($1);
       return $0;
     } else {
       state.error('Illegal escape character');
-      state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
+      state.endErrorHandling($1);
     }
     return null;
   }
@@ -366,12 +358,12 @@ class JsonTokenizer {
   Result<String>? parseEscaped(State state) {
     final $0 = state.position;
     final $1 = state.peek();
-    // '\\'
+    // [\\]
     if ($1 == 92) {
       state.position += 1;
       final $2 = state.position;
       final $3 = state.peek();
-      // 'u'
+      // [u]
       if ($3 == 117) {
         state.position += 1;
         final $4 = parseHex(state);
@@ -404,11 +396,14 @@ class JsonTokenizer {
   Result<String>? parseString(State state) {
     final $0 = state.position;
     final $1 = <String>[];
+    // (0)
     while (true) {
       final $2 = state.position;
       var $3 = false;
+      // (1)
       while (true) {
         final $4 = state.peek();
+        // [^{0-1f}"\\]
         final $5 = !($4 <= 34 ? $4 >= 34 || $4 >= 0 && $4 <= 31 : $4 == 92) && !($4 < 0);
         if ($5) {
           state.position += $4 > 0xffff ? 2 : 1;
@@ -469,7 +464,7 @@ class JsonTokenizer {
     final start = state.position;
     var flag = true;
     final $1 = state.peek();
-    // '-'
+    // [\-]
     if ($1 == 45) {
       state.position += 1;
     }
@@ -477,17 +472,20 @@ class JsonTokenizer {
     $l:
     {
       final $3 = state.peek();
-      // '0'
+      // [0]
       if ($3 == 48) {
         state.position += 1;
         $2 = true;
         break $l;
       }
+      // [1-9]
       final $4 = $3 >= 49 && $3 <= 57;
       if ($4) {
         state.position += 1;
+        // (0)
         while (true) {
           final $5 = state.peek();
+          // [0-9]
           final $6 = $5 >= 48 && $5 <= 57;
           if ($6) {
             state.position += 1;
@@ -501,18 +499,19 @@ class JsonTokenizer {
     }
     if ($2) {
       var $7 = false;
-      final $8 = state.farthestPosition;
-      state.farthestPosition = state.position;
+      final $8 = state.beginErrorHandling();
       $l1:
       {
         final $9 = state.position;
         final $10 = state.peek();
-        // '.'
+        // [.]
         if ($10 == 46) {
           state.position += 1;
           var $11 = false;
+          // (1)
           while (true) {
             final $12 = state.peek();
+            // [0-9]
             final $13 = $12 >= 48 && $12 <= 57;
             if ($13) {
               state.position += 1;
@@ -531,29 +530,32 @@ class JsonTokenizer {
         }
       }
       if ($7) {
-        state.farthestPosition < $8 ? state.farthestPosition = $8 : null;
+        state.endErrorHandling($8);
       } else {
         state.errorIncorrect('Unterminated fractional number');
-        state.farthestPosition < $8 ? state.farthestPosition = $8 : null;
+        state.endErrorHandling($8);
       }
       var $14 = false;
-      final $15 = state.farthestPosition;
-      state.farthestPosition = state.position;
+      final $15 = state.beginErrorHandling();
       $l2:
       {
         final $16 = state.position;
         final $17 = state.peek();
+        // [eE]
         final $18 = $17 == 69 || $17 == 101;
         if ($18) {
           state.position += 1;
           final $19 = state.peek();
+          // [\-+]
           final $20 = $19 == 43 || $19 == 45;
           if ($20) {
             state.position += 1;
           }
           var $21 = false;
+          // (1)
           while (true) {
             final $22 = state.peek();
+            // [0-9]
             final $23 = $22 >= 48 && $22 <= 57;
             if ($23) {
               state.position += 1;
@@ -572,10 +574,10 @@ class JsonTokenizer {
         }
       }
       if ($14) {
-        state.farthestPosition < $15 ? state.farthestPosition = $15 : null;
+        state.endErrorHandling($15);
       } else {
         state.errorIncorrect('Exponent part is missing a number');
-        state.farthestPosition < $15 ? state.farthestPosition = $15 : null;
+        state.endErrorHandling($15);
       }
       final $24 = state.substring(start, state.position);
       final s = $24;
@@ -593,8 +595,10 @@ class JsonTokenizer {
   ///   [\n\r\t ]*
   /// ```
   Result<void> parseS(State state) {
+    // (0)
     while (true) {
       final $0 = state.peek();
+      // [\n\r\t ]
       final $1 = $0 <= 13 ? $0 >= 13 || $0 >= 9 && $0 <= 10 : $0 == 32;
       if ($1) {
         state.position += 1;
@@ -689,11 +693,29 @@ class State {
     this.position = position;
   }
 
+  /// Intended for internal use only.
+  /// @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int beginErrorHandling() {
+    final farthestPosition = this.farthestPosition;
+    this.farthestPosition = position;
+    return farthestPosition;
+  }
+
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   /// Returns the size (as the length of the equivalent string) of the character
   /// [char].
   int charSize(int char) => char > 0xffff ? 2 : 1;
+
+  /// Intended for internal use only.
+  /// @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  void endErrorHandling(int farthestPosition) {
+    if (this.farthestPosition < farthestPosition) {
+      this.farthestPosition = farthestPosition;
+    }
+  }
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')

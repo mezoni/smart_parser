@@ -60,9 +60,9 @@ abstract class Expression {
 
   bool isAlwaysSuccessful = false;
 
-  bool isSingleExitPoint = false;
+  int numberOfAcceptancePoints = 1;
 
-  bool isSingleFailurePoint = false;
+  int numberOfRejectionPoints = 1;
 
   bool isVoid = false;
 

@@ -76,17 +76,17 @@ Dart code:
 /// ```
 Result<int>? parseABC(State state) {
   final $0 = state.peek();
-  // 'a'
+  // [a]
   if ($0 == 97) {
     state.position += 1;
     return const Ok(97);
   }
-  // 'b'
+  // [b]
   if ($0 == 98) {
     state.position += 1;
     return const Ok(98);
   }
-  // 'c'
+  // [c]
   if ($0 == 99) {
     state.position += 1;
     return const Ok(99);
@@ -122,13 +122,13 @@ Result<(int, int)>? parseABC(State state) {
   $l:
   {
     final $2 = state.peek();
-    // 'a'
+    // [a]
     if ($2 == 97) {
       state.position += 1;
       $1 = const Ok(97);
       break $l;
     }
-    // 'b'
+    // [b]
     if ($2 == 98) {
       state.position += 1;
       $1 = const Ok(98);
@@ -138,7 +138,7 @@ Result<(int, int)>? parseABC(State state) {
   if ($1 != null) {
     final ab = $1.$1;
     final $3 = state.peek();
-    // 'c'
+    // [c]
     if ($3 == 99) {
       state.position += 1;
       const c = 99;
@@ -171,15 +171,16 @@ Dart code:
 /// ```
 Result<List<int>>? parseAB(State state) {
   final $0 = <int>[];
+  // (1)
   while (true) {
     final $1 = state.peek();
-    // 'a'
+    // [a]
     if ($1 == 97) {
       state.position += 1;
       $0.add(97);
       continue;
     }
-    // 'b'
+    // [b]
     if ($1 == 98) {
       state.position += 1;
       $0.add(98);
@@ -412,6 +413,7 @@ Result<String>? parseIdentifier(State state) {
     state.predicate++;
     var $5 = true;
     final $6 = state.peek();
+    // [a-zA-Z0-9]
     final $7 = $6 <= 90 ? $6 >= 65 || $6 >= 48 && $6 <= 57 : $6 >= 97 && $6 <= 122;
     if ($7) {
       state.position += 1;
@@ -429,11 +431,14 @@ Result<String>? parseIdentifier(State state) {
   state.predicate--;
   if ($1) {
     final $8 = state.peek();
+    // [a-zA-Z]
     final $9 = $8 <= 90 ? $8 >= 65 : $8 >= 97 && $8 <= 122;
     if ($9) {
       state.position += 1;
+      // (0)
       while (true) {
         final $10 = state.peek();
+        // [a-zA-Z0-9]
         final $11 = $10 <= 90 ? $10 >= 65 || $10 >= 48 && $10 <= 57 : $10 >= 97 && $10 <= 122;
         if ($11) {
           state.position += 1;
@@ -585,14 +590,17 @@ Result<String>? parseFor(State state) {
   {
     final $1 = state.position;
     final $2 = state.peek();
+    // [fF]
     final $3 = $2 == 70 || $2 == 102;
     if ($3) {
       state.position += 1;
       final $4 = state.peek();
+      // [oO]
       final $5 = $4 == 79 || $4 == 111;
       if ($5) {
         state.position += 1;
         final $6 = state.peek();
+        // [rR]
         final $7 = $6 == 82 || $6 == 114;
         if ($7) {
           state.position += 1;
@@ -678,16 +686,15 @@ Dart code:
 ///   }
 /// ```
 Result<num>? parseNumber(State state) {
-  final $0 = state.farthestPosition;
-  state.farthestPosition = state.position;
+  final $0 = state.beginErrorHandling();
   final $1 = parseNumberRaw(state);
   if ($1 != null) {
-    state.farthestPosition < $0 ? state.farthestPosition = $0 : null;
+    state.endErrorHandling($0);
     return $1;
   } else {
     state.errorIncorrect('Unterminated number');
     state.errorExpected('number');
-    state.farthestPosition < $0 ? state.farthestPosition = $0 : null;
+    state.endErrorHandling($0);
   }
   return null;
 }
@@ -737,38 +744,29 @@ Dart code:
 ///   }
 /// ```
 Result<int>? parseHexValue(State state) {
-  Result<int>? $0;
-  final $1 = state.farthestPosition;
-  state.farthestPosition = state.position;
-  $l:
-  {
-    final $2 = state.position;
-    var $3 = 0;
-    while ($3 < 4) {
-      final $4 = parseHex(state);
-      if ($4 != null) {
-        $3++;
-        continue;
-      }
-      break;
+  final $0 = state.beginErrorHandling();
+  final $1 = state.position;
+  var $2 = 0;
+  // (4, 4)
+  while ($2 < 4) {
+    final $3 = parseHex(state);
+    if ($3 != null) {
+      $2++;
+      continue;
     }
-    if ($3 >= 4) {
-      final $5 = state.substring($2, state.position);
-      final n = $5;
-      final $6 = int.parse(n, radix: 16);
-      $0 = Ok($6);
-      break $l;
-    } else {
-      state.backtrack($2);
-    }
+    break;
   }
-  if ($0 != null) {
-    state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
-    return $0;
+  if ($2 >= 4) {
+    final $4 = state.substring($1, state.position);
+    final n = $4;
+    final $5 = int.parse(n, radix: 16);
+    state.endErrorHandling($0);
+    return Ok($5);
   } else {
+    state.backtrack($1);
     state.errorIncorrect('Invalid four-digit number', true);
     state.errorExpected('hex number');
-    state.farthestPosition < $1 ? state.farthestPosition = $1 : null;
+    state.endErrorHandling($0);
   }
   return null;
 }
@@ -954,6 +952,7 @@ Dart code:
 Result<String>? parseAndPredicate(State state) {
   final $0 = state.position;
   final $1 = state.peek();
+  // [a-zA-Z]
   final $2 = $1 <= 90 ? $1 >= 65 : $1 >= 97 && $1 <= 122;
   if ($2) {
     state.position += 1;
@@ -1009,7 +1008,7 @@ Dart code:
 /// ```
 Result<int>? parseA(State state) {
   final $0 = state.peek();
-  // 'a'
+  // [a]
   if ($0 == 97) {
     state.position += 1;
     return const Ok(97);
@@ -1035,7 +1034,7 @@ Dart code:
 /// ```
 Result<void>? parseA(State state) {
   final $0 = state.peek();
-  // 'a'
+  // [a]
   if ($0 == 97) {
     state.position += 1;
     return Result.none;
@@ -1063,6 +1062,7 @@ Dart code:
 /// ```
 Result<int>? parseDigits(State state) {
   final $0 = state.peek();
+  // [0-9]
   final $1 = $0 >= 48 && $0 <= 57;
   if ($1) {
     state.position += 1;
@@ -1091,6 +1091,7 @@ Dart code:
 /// ```
 Result<int>? parseNotDigits(State state) {
   final $0 = state.peek();
+  // [^0-9]
   final $1 = !($0 >= 48 && $0 <= 57) && !($0 < 0);
   if ($1) {
     state.position += $0 > 0xffff ? 2 : 1;
@@ -1119,6 +1120,7 @@ Dart code:
 /// ```
 Result<int>? parseNotDigitsNotLetters(State state) {
   final $0 = state.peek();
+  // [^0-9a-zA-Z]
   final $1 = !($0 <= 90 ? $0 >= 65 || $0 >= 48 && $0 <= 57 : $0 >= 97 && $0 <= 122) && !($0 < 0);
   if ($1) {
     state.position += $0 > 0xffff ? 2 : 1;
@@ -1147,7 +1149,7 @@ Dart code:
 /// ```
 Result<int>? parseSpace(State state) {
   final $0 = state.peek();
-  // ' '
+  // [ ]
   if ($0 == 32) {
     state.position += 1;
     return const Ok(32);
@@ -1175,6 +1177,7 @@ Dart code:
 /// ```
 Result<int>? parseDigits(State state) {
   final $0 = state.peek();
+  // [0-9]
   final $1 = $0 >= 48 && $0 <= 57;
   if ($1) {
     state.position += 1;
@@ -1203,7 +1206,7 @@ Dart code:
 /// ```
 Result<int>? parseSpace(State state) {
   final $0 = state.peek();
-  // ' '
+  // [ ]
   if ($0 == 32) {
     state.position += 1;
     return const Ok(32);
@@ -1231,7 +1234,7 @@ Dart code:
 /// ```
 Result<int>? parseSpace(State state) {
   final $0 = state.peek();
-  // '^'
+  // [\^]
   if ($0 == 94) {
     state.position += 1;
     return const Ok(94);
@@ -1257,7 +1260,7 @@ Dart code:
 /// ```
 Result<int>? parseSpace(State state) {
   final $0 = state.peek();
-  // '{'
+  // [\{]
   if ($0 == 123) {
     state.position += 1;
     return const Ok(123);
@@ -1297,16 +1300,16 @@ Dart code:
 Result<int>? parseAB(State state) {
   final $0 = state.position;
   final $1 = state.peek();
-  // 'a'
+  // [a]
   if ($1 == 97) {
     state.position += 1;
     final $2 = state.peek();
-    // 'b'
+    // [b]
     if ($2 == 98) {
       state.position += 1;
       return const Ok(98);
     }
-    // 'c'
+    // [c]
     if ($2 == 99) {
       state.position += 1;
       return const Ok(99);
@@ -1342,13 +1345,13 @@ Result<int>? parseAB(State state) {
   $l:
   {
     final $2 = state.peek();
-    // 'b'
+    // [b]
     if ($2 == 98) {
       state.position += 1;
       $1 = const Ok(98);
       break $l;
     }
-    // 'c'
+    // [c]
     if ($2 == 99) {
       state.position += 1;
       $1 = const Ok(99);
@@ -1357,7 +1360,7 @@ Result<int>? parseAB(State state) {
   }
   if ($1 != null) {
     final $3 = state.peek();
-    // 'a'
+    // [a]
     if ($3 == 97) {
       state.position += 1;
       return $1;
@@ -1565,7 +1568,7 @@ Result<void>? parseNotPredicate(State state) {
   state.predicate++;
   var $1 = true;
   final $2 = state.peek();
-  // 'a'
+  // [a]
   if ($2 == 97) {
     state.position += 1;
     $1 = false;
@@ -1603,14 +1606,14 @@ Result<void>? parseNotPredicate(State state) {
   $l:
   {
     final $2 = state.peek();
-    // 'a'
+    // [a]
     if ($2 == 97) {
       state.position += 1;
       $1 = false;
       state.backtrack($0);
       break $l;
     }
-    // 'b'
+    // [b]
     if ($2 == 98) {
       state.position += 1;
       $1 = false;
@@ -1649,9 +1652,10 @@ Dart code:
 /// ```
 Result<List<int>>? parseOneOrMore(State state) {
   final $0 = <int>[];
+  // (1)
   while (true) {
     final $1 = state.peek();
-    // 'a'
+    // [a]
     if ($1 == 97) {
       state.position += 1;
       $0.add(97);
@@ -1683,9 +1687,10 @@ Dart code:
 /// ```
 Result<void>? parseOneOrMore(State state) {
   var $0 = false;
+  // (1)
   while (true) {
     final $1 = state.peek();
-    // 'a'
+    // [a]
     if ($1 == 97) {
       state.position += 1;
       $0 = true;
@@ -1719,15 +1724,16 @@ Dart code:
 /// ```
 Result<List<int>>? parseOneOrMore(State state) {
   final $0 = <int>[];
+  // (1)
   while (true) {
     final $1 = state.peek();
-    // 'a'
+    // [a]
     if ($1 == 97) {
       state.position += 1;
       $0.add(97);
       continue;
     }
-    // 'b'
+    // [b]
     if ($1 == 98) {
       state.position += 1;
       $0.add(98);
@@ -1759,15 +1765,16 @@ Dart code:
 /// ```
 Result<void>? parseOneOrMore(State state) {
   var $0 = false;
+  // (1)
   while (true) {
     final $1 = state.peek();
-    // 'a'
+    // [a]
     if ($1 == 97) {
       state.position += 1;
       $0 = true;
       continue;
     }
-    // 'b'
+    // [b]
     if ($1 == 98) {
       state.position += 1;
       $0 = true;
@@ -1806,7 +1813,7 @@ Dart code:
 Result<int?> parseOptional(State state) {
   int? $0;
   final $1 = state.peek();
-  // 'a'
+  // [a]
   if ($1 == 97) {
     state.position += 1;
     $0 = 97;
@@ -1832,7 +1839,7 @@ Dart code:
 /// ```
 Result<void> parseOptional(State state) {
   final $0 = state.peek();
-  // 'a'
+  // [a]
   if ($0 == 97) {
     state.position += 1;
   }
@@ -1862,13 +1869,13 @@ Result<int?> parseOptional(State state) {
   $l:
   {
     final $1 = state.peek();
-    // 'a'
+    // [a]
     if ($1 == 97) {
       state.position += 1;
       $0 = 97;
       break $l;
     }
-    // 'b'
+    // [b]
     if ($1 == 98) {
       state.position += 1;
       $0 = 98;
@@ -1898,12 +1905,12 @@ Result<void> parseOptional(State state) {
   $l:
   {
     final $0 = state.peek();
-    // 'a'
+    // [a]
     if ($0 == 97) {
       state.position += 1;
       break $l;
     }
-    // 'b'
+    // [b]
     if ($0 == 98) {
       state.position += 1;
       break $l;
@@ -2014,12 +2021,12 @@ Dart code:
 /// ```
 Result<int>? parseAOrB(State state) {
   final $0 = state.peek();
-  // 'a'
+  // [a]
   if ($0 == 97) {
     state.position += 1;
     return const Ok(97);
   }
-  // 'b'
+  // [b]
   if ($0 == 98) {
     state.position += 1;
     return const Ok(98);
@@ -2049,12 +2056,12 @@ Dart code:
 /// ```
 Result<void>? parseAOrB(State state) {
   final $0 = state.peek();
-  // 'a'
+  // [a]
   if ($0 == 97) {
     state.position += 1;
     return Result.none;
   }
-  // 'b'
+  // [b]
   if ($0 == 98) {
     state.position += 1;
     return Result.none;
@@ -2086,12 +2093,12 @@ Dart code:
 /// ```
 Result<int>? parseAOrB(State state) {
   final $0 = state.peek();
-  // 'a'
+  // [a]
   if ($0 == 97) {
     state.position += 1;
     return const Ok(97);
   }
-  // 'b'
+  // [b]
   if ($0 == 98) {
     state.position += 1;
     return const Ok(98);
@@ -2121,12 +2128,12 @@ Dart code:
 /// ```
 Result<void>? parseAOrB(State state) {
   final $0 = state.peek();
-  // 'a'
+  // [a]
   if ($0 == 97) {
     state.position += 1;
     return Result.none;
   }
-  // 'b'
+  // [b]
   if ($0 == 98) {
     state.position += 1;
     return Result.none;
@@ -2163,12 +2170,12 @@ Dart code:
 Result<(int, int)>? parseAB(State state) {
   final $0 = state.position;
   final $1 = state.peek();
-  // 'a'
+  // [a]
   if ($1 == 97) {
     state.position += 1;
     const a = 97;
     final $2 = state.peek();
-    // 'b'
+    // [b]
     if ($2 == 98) {
       state.position += 1;
       const b = 98;
@@ -2202,11 +2209,11 @@ Dart code:
 Result<void>? parseAB(State state) {
   final $0 = state.position;
   final $1 = state.peek();
-  // 'a'
+  // [a]
   if ($1 == 97) {
     state.position += 1;
     final $2 = state.peek();
-    // 'b'
+    // [b]
     if ($2 == 98) {
       state.position += 1;
       return Result.none;
@@ -2241,9 +2248,10 @@ Dart code:
 /// ```
 Result<List<int>> parseOneOrMore(State state) {
   final $0 = <int>[];
+  // (0)
   while (true) {
     final $1 = state.peek();
-    // 'a'
+    // [a]
     if ($1 == 97) {
       state.position += 1;
       $0.add(97);
@@ -2271,9 +2279,10 @@ Dart code:
 ///   [a]*
 /// ```
 Result<void> parseOneOrMore(State state) {
+  // (0)
   while (true) {
     final $0 = state.peek();
-    // 'a'
+    // [a]
     if ($0 == 97) {
       state.position += 1;
       continue;
@@ -2303,15 +2312,16 @@ Dart code:
 /// ```
 Result<List<int>> parseOneOrMore(State state) {
   final $0 = <int>[];
+  // (0)
   while (true) {
     final $1 = state.peek();
-    // 'a'
+    // [a]
     if ($1 == 97) {
       state.position += 1;
       $0.add(97);
       continue;
     }
-    // 'b'
+    // [b]
     if ($1 == 98) {
       state.position += 1;
       $0.add(98);
@@ -2339,14 +2349,15 @@ Dart code:
 ///   ([a] / [b])*
 /// ```
 Result<void> parseOneOrMore(State state) {
+  // (0)
   while (true) {
     final $0 = state.peek();
-    // 'a'
+    // [a]
     if ($0 == 97) {
       state.position += 1;
       continue;
     }
-    // 'b'
+    // [b]
     if ($0 == 98) {
       state.position += 1;
       continue;
@@ -2462,8 +2473,10 @@ Dart code:
 Result<String>? parseDigits(State state) {
   final $0 = state.position;
   var $1 = false;
+  // (1)
   while (true) {
     final $2 = state.peek();
+    // [0-9]
     final $3 = $2 >= 48 && $2 <= 57;
     if ($3) {
       state.position += 1;
@@ -2497,8 +2510,10 @@ Dart code:
 /// ```
 Result<void>? parseSkipDigits(State state) {
   var $0 = false;
+  // (1)
   while (true) {
     final $1 = state.peek();
+    // [0-9]
     final $2 = $1 >= 48 && $1 <= 57;
     if ($2) {
       state.position += 1;
@@ -2574,7 +2589,7 @@ Result<void>? parseAction(State state) {
 
 ## Meta expression `@position`
 
-The `Position` meta expression `@position(n)` changes the parsing position to `n`, then succeeds and returns `n`.
+The `Position` meta expression `@position(n)` changes the parsing position to `n`, then succeeds and does not return any value.
 
 Example of input data scanning.
 
@@ -2644,8 +2659,10 @@ Dart code:
 /// ```
 Result<List<int>> parseLetters(State state) {
   final $0 = <int>[];
+  // (0)
   while (true) {
     final $1 = state.peek();
+    // [a-zA-Z]
     final $2 = $1 <= 90 ? $1 >= 65 : $1 >= 97 && $1 <= 122;
     if ($2) {
       state.position += 1;
@@ -2678,8 +2695,10 @@ Dart code:
 ///   }
 /// ```
 Result<void> parseLetters(State state) {
+  // (0)
   while (true) {
     final $0 = state.peek();
+    // [a-zA-Z]
     final $1 = $0 <= 90 ? $0 >= 65 : $0 >= 97 && $0 <= 122;
     if ($1) {
       state.position += 1;
@@ -2714,8 +2733,10 @@ Dart code:
 /// ```
 Result<List<int>>? parseLetters(State state) {
   final $0 = <int>[];
+  // (1)
   while (true) {
     final $1 = state.peek();
+    // [a-zA-Z]
     final $2 = $1 <= 90 ? $1 >= 65 : $1 >= 97 && $1 <= 122;
     if ($2) {
       state.position += 1;
@@ -2752,8 +2773,10 @@ Dart code:
 /// ```
 Result<void>? parseLetters(State state) {
   var $0 = false;
+  // (1)
   while (true) {
     final $1 = state.peek();
+    // [a-zA-Z]
     final $2 = $1 <= 90 ? $1 >= 65 : $1 >= 97 && $1 <= 122;
     if ($2) {
       state.position += 1;
@@ -2793,8 +2816,10 @@ Dart code:
 Result<List<int>>? parseLetters(State state) {
   final $0 = state.position;
   final $1 = <int>[];
+  // (2, 3)
   while ($1.length < 3) {
     final $2 = state.peek();
+    // [a-zA-Z]
     final $3 = $2 <= 90 ? $2 >= 65 : $2 >= 97 && $2 <= 122;
     if ($3) {
       state.position += 1;
@@ -2834,8 +2859,10 @@ Dart code:
 Result<void>? parseLetters(State state) {
   final $0 = state.position;
   var $1 = 0;
+  // (2, 3)
   while ($1 < 3) {
     final $2 = state.peek();
+    // [a-zA-Z]
     final $3 = $2 <= 90 ? $2 >= 65 : $2 >= 97 && $2 <= 122;
     if ($3) {
       state.position += 1;
@@ -2877,8 +2904,10 @@ Dart code:
 Result<List<int>>? parseLetters(State state) {
   final $0 = state.position;
   final $1 = <int>[];
+  // (4, 4)
   while ($1.length < 4) {
     final $2 = state.peek();
+    // [a-zA-Z]
     final $3 = $2 <= 90 ? $2 >= 65 : $2 >= 97 && $2 <= 122;
     if ($3) {
       state.position += 1;
@@ -2918,8 +2947,10 @@ Dart code:
 Result<void>? parseLetters(State state) {
   final $0 = state.position;
   var $1 = 0;
+  // (4, 4)
   while ($1 < 4) {
     final $2 = state.peek();
+    // [a-zA-Z]
     final $3 = $2 <= 90 ? $2 >= 65 : $2 >= 97 && $2 <= 122;
     if ($3) {
       state.position += 1;
@@ -2974,6 +3005,7 @@ Dart code:
 /// ```
 Result<Sting>? parseDigit(State state) {
   final $0 = state.peek();
+  // [0-9]
   final $1 = $0 >= 48 && $0 <= 57;
   if ($1) {
     state.position += 1;
@@ -3018,14 +3050,17 @@ Result<String>? parseFor(State state) {
   {
     final $1 = state.position;
     final $2 = state.peek();
+    // [fF]
     final $3 = $2 == 70 || $2 == 102;
     if ($3) {
       state.position += 1;
       final $4 = state.peek();
+      // [oO]
       final $5 = $4 == 79 || $4 == 111;
       if ($5) {
         state.position += 1;
         final $6 = state.peek();
+        // [rR]
         final $7 = $6 == 82 || $6 == 114;
         if ($7) {
           state.position += 1;
@@ -3082,6 +3117,7 @@ Dart code:
 /// ```
 Result<Expression>? parsePrimary(State state) {
   final $0 = <Expression>[];
+  // (1)
   while (true) {
     final pos = state.position;
     final $1 = parseSequenceElement(state);
@@ -3133,14 +3169,17 @@ Result<void>? parseFor(State state) {
   {
     final $1 = state.position;
     final $2 = state.peek();
+    // [fF]
     final $3 = $2 == 70 || $2 == 102;
     if ($3) {
       state.position += 1;
       final $4 = state.peek();
+      // [oO]
       final $5 = $4 == 79 || $4 == 111;
       if ($5) {
         state.position += 1;
         final $6 = state.peek();
+        // [rR]
         final $7 = $6 == 82 || $6 == 114;
         if ($7) {
           state.position += 1;
@@ -3190,14 +3229,17 @@ Result<String>? parseFor(State state) {
   {
     final $1 = state.position;
     final $2 = state.peek();
+    // [fF]
     final $3 = $2 == 70 || $2 == 102;
     if ($3) {
       state.position += 1;
       final $4 = state.peek();
+      // [oO]
       final $5 = $4 == 79 || $4 == 111;
       if ($5) {
         state.position += 1;
         final $6 = state.peek();
+        // [rR]
         final $7 = $6 == 82 || $6 == 114;
         if ($7) {
           state.position += 1;
@@ -3246,14 +3288,17 @@ Result<String>? parseFor(State state) {
   {
     final $1 = state.position;
     final $2 = state.peek();
+    // [fF]
     final $3 = $2 == 70 || $2 == 102;
     if ($3) {
       state.position += 1;
       final $4 = state.peek();
+      // [oO]
       final $5 = $4 == 79 || $4 == 111;
       if ($5) {
         state.position += 1;
         final $6 = state.peek();
+        // [rR]
         final $7 = $6 == 82 || $6 == 114;
         if ($7) {
           state.position += 1;

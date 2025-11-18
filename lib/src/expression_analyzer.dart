@@ -35,8 +35,8 @@ class ExpressionAnalyzer implements Visitor<void> {
   void visitAction(ActionExpression node) {
     _setIsAlwaysSuccessful(node, true);
     _setCanChangePosition(node, false);
-    _setIsSingleExitPoint(node, true);
-    _setIsSingleFailurePoint(node, true);
+    _setNumberOfAcceptancePoints(node, 1);
+    _setNumberOfRejectionPoints(node, 0);
   }
 
   @override
@@ -46,16 +46,16 @@ class ExpressionAnalyzer implements Visitor<void> {
     _setIsAlwaysSuccessful(node, child.isAlwaysSuccessful);
     _setCanChangePosition(node, false);
     _setIsVoid(child, true);
-    _setIsSingleExitPoint(node, child.isSingleExitPoint);
-    _setIsSingleFailurePoint(node, child.isSingleFailurePoint);
+    _setNumberOfAcceptancePoints(node, child.numberOfAcceptancePoints);
+    _setNumberOfRejectionPoints(node, child.numberOfRejectionPoints);
   }
 
   @override
   void visitAnyCharacter(AnyCharacterExpression node) {
     _setIsAlwaysSuccessful(node, false);
     _setCanChangePosition(node, true);
-    _setIsSingleExitPoint(node, true);
-    _setIsSingleFailurePoint(node, true);
+    _setNumberOfAcceptancePoints(node, 1);
+    _setNumberOfRejectionPoints(node, 1);
   }
 
   @override
@@ -65,16 +65,16 @@ class ExpressionAnalyzer implements Visitor<void> {
     _setIsAlwaysSuccessful(node, child.isAlwaysSuccessful);
     _setCanChangePosition(node, child.canChangePosition);
     _setIsVoid(child, true);
-    _setIsSingleExitPoint(node, child.isSingleExitPoint);
-    _setIsSingleFailurePoint(node, child.isSingleFailurePoint);
+    _setNumberOfAcceptancePoints(node, child.numberOfAcceptancePoints);
+    _setNumberOfRejectionPoints(node, child.numberOfRejectionPoints);
   }
 
   @override
   void visitCharacterClass(CharacterClassExpression node) {
     _setIsAlwaysSuccessful(node, false);
     _setCanChangePosition(node, true);
-    _setIsSingleExitPoint(node, true);
-    _setIsSingleFailurePoint(node, true);
+    _setNumberOfAcceptancePoints(node, 1);
+    _setNumberOfRejectionPoints(node, 1);
   }
 
   @override
@@ -84,8 +84,8 @@ class ExpressionAnalyzer implements Visitor<void> {
     _setIsAlwaysSuccessful(node, child.isAlwaysSuccessful);
     _setCanChangePosition(node, child.canChangePosition);
     _setIsVoid(child, node.isVoid);
-    _setIsSingleExitPoint(node, child.isSingleExitPoint);
-    _setIsSingleFailurePoint(node, child.isSingleFailurePoint);
+    _setNumberOfAcceptancePoints(node, child.numberOfAcceptancePoints);
+    _setNumberOfRejectionPoints(node, child.numberOfRejectionPoints);
   }
 
   @override
@@ -93,8 +93,8 @@ class ExpressionAnalyzer implements Visitor<void> {
     final text = node.text;
     _setIsAlwaysSuccessful(node, text.isEmpty);
     _setCanChangePosition(node, text.isNotEmpty);
-    _setIsSingleExitPoint(node, true);
-    _setIsSingleFailurePoint(node, true);
+    _setNumberOfAcceptancePoints(node, 1);
+    _setNumberOfRejectionPoints(node, text.isEmpty ? 0 : 1);
   }
 
   @override
@@ -104,8 +104,8 @@ class ExpressionAnalyzer implements Visitor<void> {
     _setIsAlwaysSuccessful(node, false);
     _setCanChangePosition(node, false);
     _setIsVoid(child, true);
-    _setIsSingleExitPoint(node, true);
-    _setIsSingleFailurePoint(node, true);
+    _setNumberOfAcceptancePoints(node, 1);
+    _setNumberOfRejectionPoints(node, 1);
   }
 
   @override
@@ -116,8 +116,8 @@ class ExpressionAnalyzer implements Visitor<void> {
     _setCanChangePosition(node, child.canChangePosition);
     _checkInfiniteLoop(node);
     _setIsVoid(child, node.isVoid);
-    _setIsSingleExitPoint(node, true);
-    _setIsSingleFailurePoint(node, true);
+    _setNumberOfAcceptancePoints(node, 1);
+    _setNumberOfRejectionPoints(node, 1);
   }
 
   @override
@@ -127,44 +127,42 @@ class ExpressionAnalyzer implements Visitor<void> {
     _setIsAlwaysSuccessful(node, true);
     _setCanChangePosition(node, child.canChangePosition);
     _setIsVoid(child, node.isVoid);
-    _setIsSingleExitPoint(node, true);
-    _setIsSingleFailurePoint(node, true);
+    _setNumberOfAcceptancePoints(node, 1);
+    _setNumberOfRejectionPoints(node, 0);
   }
 
   @override
   void visitOrderedChoice(OrderedChoiceExpression node) {
     final children = node.expressions;
+    var numberOfAcceptancePoints = 0;
+    var numberOfRejectionPoints = 0;
     for (final child in children) {
       _setIsVoid(child, node.isVoid);
       child.accept(this);
+      numberOfAcceptancePoints += child.numberOfAcceptancePoints;
+      numberOfRejectionPoints += child.numberOfRejectionPoints;
     }
 
     _setIsAlwaysSuccessful(node, children.any((e) => e.isAlwaysSuccessful));
     _setCanChangePosition(node, children.any((e) => e.canChangePosition));
-    if (children.length == 1) {
-      final child = children.first;
-      _setIsSingleExitPoint(node, child.isSingleExitPoint);
-      _setIsSingleFailurePoint(node, child.isSingleFailurePoint);
-    } else {
-      _setIsSingleExitPoint(node, false);
-      _setIsSingleFailurePoint(node, false);
-    }
+    _setNumberOfAcceptancePoints(node, numberOfAcceptancePoints);
+    _setNumberOfRejectionPoints(node, numberOfRejectionPoints);
   }
 
   @override
   void visitPosition(PositionExpression node) {
     _setIsAlwaysSuccessful(node, true);
     _setCanChangePosition(node, true);
-    _setIsSingleExitPoint(node, true);
-    _setIsSingleFailurePoint(node, true);
+    _setNumberOfAcceptancePoints(node, 1);
+    _setNumberOfRejectionPoints(node, 0);
   }
 
   @override
   void visitPredicate(PredicateExpression node) {
     _setIsAlwaysSuccessful(node, false);
     _setCanChangePosition(node, false);
-    _setIsSingleExitPoint(node, true);
-    _setIsSingleFailurePoint(node, true);
+    _setNumberOfAcceptancePoints(node, 1);
+    _setNumberOfRejectionPoints(node, 1);
   }
 
   @override
@@ -180,8 +178,8 @@ class ExpressionAnalyzer implements Visitor<void> {
       _setCanChangePosition(node, expression.canChangePosition);
     }
 
-    _setIsSingleExitPoint(node, true);
-    _setIsSingleFailurePoint(node, true);
+    _setNumberOfAcceptancePoints(node, 1);
+    _setNumberOfRejectionPoints(node, node.isAlwaysSuccessful ? 0 : 1);
   }
 
   @override
@@ -191,29 +189,28 @@ class ExpressionAnalyzer implements Visitor<void> {
     final isNotAlwaysSuccessful = children.any((e) => !e.isAlwaysSuccessful);
     _setIsAlwaysSuccessful(node, !isNotAlwaysSuccessful);
     _setCanChangePosition(node, children.any((e) => e.canChangePosition));
+    var numberOfRejectionPoints = 0;
     if (children.length == 1) {
       final child = children.first;
       _setIsVoid(child, node.isVoid);
-      _setIsSingleFailurePoint(node, child.isSingleFailurePoint);
+      numberOfRejectionPoints = child.numberOfRejectionPoints;
     } else {
       for (final child in children) {
         _setIsVoid(child, true);
+        numberOfRejectionPoints += child.numberOfRejectionPoints;
       }
-
-      // TODO: Improve `_setIsSingleFailurePoint(node, false)`
-      _setIsSingleFailurePoint(node, false);
     }
 
-    final lastChild = children.last;
-    _setIsSingleExitPoint(node, lastChild.isSingleExitPoint);
+    _setNumberOfAcceptancePoints(node, 1);
+    _setNumberOfRejectionPoints(node, numberOfRejectionPoints);
   }
 
   @override
   void visitValue(ValueExpression node) {
     _setIsAlwaysSuccessful(node, true);
     _setCanChangePosition(node, false);
-    _setIsSingleExitPoint(node, true);
-    _setIsSingleFailurePoint(node, true);
+    _setNumberOfAcceptancePoints(node, 1);
+    _setNumberOfRejectionPoints(node, 0);
   }
 
   @override
@@ -229,8 +226,9 @@ class ExpressionAnalyzer implements Visitor<void> {
     );
     _setCanChangePosition(node, child.canChangePosition);
     _setIsVoid(child, node.isVoid);
-    _setIsSingleExitPoint(node, true);
-    _setIsSingleFailurePoint(node, true);
+    _setNumberOfAcceptancePoints(node, 1);
+    _setNumberOfRejectionPoints(node, min == 0 ? 0 : 1);
+
     _checkInfiniteLoop(node);
   }
 
@@ -241,9 +239,10 @@ class ExpressionAnalyzer implements Visitor<void> {
     _setIsAlwaysSuccessful(node, true);
     _setCanChangePosition(node, child.canChangePosition);
     _setIsVoid(child, node.isVoid);
-    _setIsSingleExitPoint(node, true);
+    _setNumberOfAcceptancePoints(node, 1);
+    _setNumberOfRejectionPoints(node, 0);
+
     _checkInfiniteLoop(node);
-    _setIsSingleFailurePoint(node, true);
   }
 
   void _checkInfiniteLoop(SingleExpression node) {
@@ -271,26 +270,32 @@ Block expression source: ${child.sourceCode}''');
     }
   }
 
-  void _setIsSingleExitPoint(Expression node, bool isSingleExitPoint) {
-    if (node.isSingleExitPoint != isSingleExitPoint) {
-      _hasChanges = true;
-      node.isSingleExitPoint = isSingleExitPoint;
-    }
-  }
-
-  void _setIsSingleFailurePoint(Expression node, bool isSingleFailurePoint) {
-    if (node.isSingleFailurePoint != isSingleFailurePoint) {
-      _hasChanges = true;
-      node.isSingleFailurePoint = isSingleFailurePoint;
-    }
-  }
-
   void _setIsVoid(Expression node, bool isVoid) {
     final semanticValue = node.semanticValue;
     isVoid = isVoid && semanticValue == null;
     if (node.isVoid != isVoid) {
       _hasChanges = true;
       node.isVoid = isVoid;
+    }
+  }
+
+  void _setNumberOfAcceptancePoints(
+    Expression node,
+    int numberOfAcceptancePoints,
+  ) {
+    if (node.numberOfAcceptancePoints != numberOfAcceptancePoints) {
+      _hasChanges = true;
+      node.numberOfAcceptancePoints = numberOfAcceptancePoints;
+    }
+  }
+
+  void _setNumberOfRejectionPoints(
+    Expression node,
+    int numberOfRejectionPoints,
+  ) {
+    if (node.numberOfRejectionPoints != numberOfRejectionPoints) {
+      _hasChanges = true;
+      node.numberOfRejectionPoints = numberOfRejectionPoints;
     }
   }
 }

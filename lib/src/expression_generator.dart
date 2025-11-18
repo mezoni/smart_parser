@@ -5,6 +5,7 @@ import 'allocator.dart';
 import 'code_builder.dart';
 import 'expressions.dart';
 import 'helper.dart';
+import 'printer.dart';
 import 'range_generator.dart';
 import 'state_machine.dart';
 
@@ -170,12 +171,13 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
       final ch = _getCh(code);
       cache.clear();
       final (predicate, char) = _getPredicateAndChar(ch, ranges, negate);
+      const printer = Printer();
+      final printed = node.accept(printer);
       if (char != null) {
         final value = '$char';
         final result = 'const Ok($value)';
         final charSize = _charSize(value, [(char, char)], false);
-        final escaped = escapeString(String.fromCharCode(char));
-        code.writeln('// $escaped');
+        code.writeln('// $printed');
         final isTrue = '$ch == $char';
         final isFalse = '$ch != $char';
         final handler = code.ifElse(isTrue, isFalse);
@@ -196,6 +198,7 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
         final result = 'Ok($value)';
         final isSuccess = _allocate();
         final charSize = _charSize(value, ranges, negate);
+        code.writeln('// $printed');
         code.declare('final', isSuccess, predicate);
         final isTrue = isSuccess;
         final isFalse = '!$isSuccess';
@@ -301,8 +304,7 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
   ExpressionState visitNotPredicate(NotPredicateExpression node) {
     final child = node.expression;
     final canChangePosition = child.canChangePosition;
-    final isSingleExitPoint = child.isSingleExitPoint;
-    final combine = !isSingleExitPoint;
+    final combine = child.numberOfAcceptancePoints > 1;
     final usePosition = canChangePosition;
     final start = _newState();
     final state0 = _buildExpression(child);
@@ -361,10 +363,9 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
   @override
   ExpressionState visitOptional(OptionalExpression node) {
     final child = node.expression;
-    final isSingleExitPoint = child.isSingleExitPoint;
     final isVoid = node.isVoid;
     final isProduction = child is ProductionExpression;
-    final combine = !isSingleExitPoint;
+    final combine = child.numberOfAcceptancePoints > 1;
     final hasResultVariable = !isVoid && !isProduction;
     final start = _newState();
     final state0 = _buildExpression(child);
@@ -610,23 +611,16 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
       packed = errorHandler.replaceAll('\n', '');
       packed = errorHandler.replaceAll('\r', '');
       packed = errorHandler.replaceAll('\t', '');
-      var useFarthestPosition = false;
+      var useErrorHandler = false;
       if (packed.contains('state.error(')) {
-        useFarthestPosition = true;
+        useErrorHandler = true;
       }
 
       if (packed.contains('errorIncorrect')) {
-        useFarthestPosition = true;
+        useErrorHandler = true;
       }
 
-      var combine = true;
-      if (children.length == 1) {
-        final child = children.first;
-        if (child.isSingleFailurePoint) {
-          combine = false;
-        }
-      }
-
+      final combine = node.numberOfRejectionPoints > 1;
       if (combine) {
         state = _combine(state, type, isVoid);
       }
@@ -635,23 +629,20 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
       var farthestPosition = _invalid;
       state.onPreprocess((code) {
         errorState = _allocateIf(hasRemoveRecentErrors);
-        farthestPosition = _allocateIf(useFarthestPosition);
+        farthestPosition = _allocateIf(useErrorHandler);
         if (hasRemoveRecentErrors) {
           code.declare('final', errorState, 'state.setErrorState()');
         }
 
-        if (useFarthestPosition) {
-          code.declare('final', farthestPosition, 'state.farthestPosition');
-          code.assign('state.farthestPosition', 'state.position');
+        if (useErrorHandler) {
+          code.declare('final', farthestPosition, 'state.beginErrorHandling()');
         }
       });
 
       state.onAccept((event) {
         final code = event.output;
-        if (useFarthestPosition) {
-          code.stmt(
-            'state.farthestPosition < $farthestPosition ? state.farthestPosition = $farthestPosition : null',
-          );
+        if (useErrorHandler) {
+          code.stmt('state.endErrorHandling($farthestPosition)');
         }
 
         if (hasRemoveRecentErrors) {
@@ -661,10 +652,8 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
 
       state.onReject((code) {
         _writeBlock(code, errorHandler);
-        if (useFarthestPosition) {
-          code.stmt(
-            'state.farthestPosition < $farthestPosition ? state.farthestPosition = $farthestPosition : null',
-          );
+        if (useErrorHandler) {
+          code.stmt('state.endErrorHandling($farthestPosition)');
         }
 
         if (hasRemoveRecentErrors) {
@@ -682,18 +671,22 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
     }
 
     final statesThatRestorePosition = <ExpressionState>{};
+    final statesThatFails = <ExpressionState>{};
     ExpressionState? res;
     var positionChanged = false;
     final states = <ExpressionState>[];
     final start = _newState();
     for (var i = 0; i < children.length; i++) {
       final child = children[i];
-      final isSingleExitPoint = child.isSingleExitPoint;
-      final combine = !isSingleExitPoint && i != children.length - 1;
+      final combine =
+          child.numberOfAcceptancePoints > 1 && i != children.length - 1;
       final state = _buildExpression(child, combine: combine);
       states.add(state);
-      if (positionChanged && !child.isAlwaysSuccessful) {
-        statesThatRestorePosition.add(state);
+      if (!child.isAlwaysSuccessful) {
+        statesThatFails.add(state);
+        if (positionChanged) {
+          statesThatRestorePosition.add(state);
+        }
       }
 
       if (child.canChangePosition) {
@@ -742,6 +735,10 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
             if (statesThatRestorePosition.contains(state)) {
               code.stmt('state.backtrack($pos)');
             }
+
+            if (statesThatFails.contains(state)) {
+              start.reject(code);
+            }
           });
         } else {
           final next = states[i + 1];
@@ -754,7 +751,9 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
               code.stmt('state.backtrack($pos)');
             }
 
-            start.reject(code);
+            if (statesThatFails.contains(state)) {
+              start.reject(code);
+            }
           });
         }
       }
@@ -1108,6 +1107,8 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
           break;
       }
 
+      final q = max == null ? '($min)' : '($min, $max)';
+      code.writeln('// $q');
       code.while$(loopCondition, (code) {
         cache.clear();
         state0.build(code);

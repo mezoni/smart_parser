@@ -1,3 +1,9 @@
+## 1.0.4
+
+- Implemented a printer for expressions.
+- Minor improvements have been made to the `ExpressionAnalyzer`.
+- Minor improvement in code generated for the `Sequence` expression.
+
 ## 1.0.3
 
 - Minor changes have been made to the `tool\README.in.md` file.

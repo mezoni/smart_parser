@@ -43,6 +43,7 @@ class SmartParser {
     final $2 = parseMembers(state);
     final m = $2?.$1;
     final $3 = <Production>[];
+    // (1)
     while (true) {
       final $4 = parseProduction(state);
       if ($4 != null) {
@@ -174,7 +175,7 @@ class SmartParser {
           if ($4 != null) {
             final e = $4.$1;
             final $5 = state.peek();
-            // ';'
+            // [;]
             if ($5 == 59) {
               state.position += 1;
             }
@@ -208,21 +209,13 @@ class SmartParser {
   ///   ~ { state.errorExpected('expression'); }
   /// ```
   Result<Expression>? parseExpression(State state) {
-    Result<Expression>? $0;
-    $l:
-    {
-      final pos = state.position;
-      final $1 = parseOrderedChoice(state);
-      if ($1 != null) {
-        final e = $1.$1;
-        e.sourceCode = state.substring(pos, state.position).trimRight();
-        final $2 = e;
-        $0 = Ok($2);
-        break $l;
-      }
-    }
+    final pos = state.position;
+    final $0 = parseOrderedChoice(state);
     if ($0 != null) {
-      return $0;
+      final e = $0.$1;
+      e.sourceCode = state.substring(pos, state.position).trimRight();
+      final $1 = e;
+      return Ok($1);
     } else {
       state.errorExpected('expression');
     }
@@ -251,6 +244,7 @@ class SmartParser {
     if ($0 != null) {
       final n = $0.$1;
       final l = [n];
+      // (0)
       while (true) {
         final $1 = state.position;
         var $2 = false;
@@ -266,6 +260,7 @@ class SmartParser {
             state.errorExpected('/');
           }
           var $4 = false;
+          // (1)
           while (true) {
             final $5 = state.peek();
             // '-'
@@ -324,6 +319,7 @@ class SmartParser {
   Result<Expression>? parseSequence(State state) {
     final pos = state.position;
     final $0 = <Expression>[];
+    // (1)
     while (true) {
       final pos = state.position;
       final $1 = parseSequenceElement(state);
@@ -822,6 +818,7 @@ class SmartParser {
     }
     if ($1) {
       final $3 = <(int, int)>[];
+      // (1)
       while (true) {
         final $4 = state.position;
         state.predicate++;
@@ -1126,12 +1123,13 @@ class SmartParser {
       if ($2 == 96) {
         state.position += 1;
         final $3 = state.position;
+        // (0)
         while (true) {
           final $4 = state.position;
           state.predicate++;
           var $5 = true;
           final $6 = state.peek();
-          // '`'
+          // [`]
           if ($6 == 96) {
             state.position += 1;
             $5 = false;
@@ -1139,6 +1137,7 @@ class SmartParser {
           }
           state.predicate--;
           if ($5) {
+            // [a-zA-Z0-9_$<(\{,:\})>? ]
             final $7 = $6 <= 60 ? $6 >= 60 || $6 <= 41 ? $6 >= 40 || $6 == 32 || $6 == 36 : $6 == 44 || $6 >= 48 && $6 <= 58 : $6 <= 95 ? $6 >= 95 || $6 <= 63 ? $6 >= 62 : $6 >= 65 && $6 <= 90 : $6 <= 123 ? $6 >= 97 : $6 == 125;
             if ($7) {
               state.position += 1;
@@ -1191,11 +1190,14 @@ class SmartParser {
     if ($1 == 34) {
       state.position += 1;
       final $2 = <String>[];
+      // (0)
       while (true) {
         final $3 = state.position;
         var $4 = false;
+        // (1)
         while (true) {
           final $5 = state.peek();
+          // [ -!#-\[\]-{10ffff}]
           final $6 = $5 <= 91 ? $5 >= 35 || $5 >= 32 && $5 <= 33 : $5 >= 93 && $5 <= 1114111;
           if ($6) {
             state.position += $5 > 0xffff ? 2 : 1;
@@ -1254,11 +1256,14 @@ class SmartParser {
     if ($1 == 39) {
       state.position += 1;
       final $2 = <String>[];
+      // (0)
       while (true) {
         final $3 = state.position;
         var $4 = false;
+        // (1)
         while (true) {
           final $5 = state.peek();
+          // [ -&(-\[\]-{10ffff}]
           final $6 = $5 <= 91 ? $5 >= 40 || $5 >= 32 && $5 <= 38 : $5 >= 93 && $5 <= 1114111;
           if ($6) {
             state.position += $5 > 0xffff ? 2 : 1;
@@ -1351,8 +1356,7 @@ class SmartParser {
     if ($1 == 92) {
       state.position += 1;
       Result<String>? $2;
-      final $3 = state.farthestPosition;
-      state.farthestPosition = state.position;
+      final $3 = state.beginErrorHandling();
       $l:
       {
         final $4 = state.position;
@@ -1386,11 +1390,11 @@ class SmartParser {
         }
       }
       if ($2 != null) {
-        state.farthestPosition < $3 ? state.farthestPosition = $3 : null;
+        state.endErrorHandling($3);
         return $2;
       } else {
         state.errorIncorrect('Unterminated Unicode escape sequence');
-        state.farthestPosition < $3 ? state.farthestPosition = $3 : null;
+        state.endErrorHandling($3);
       }
       final $10 = state.peek();
       // 'a'
@@ -1538,6 +1542,7 @@ class SmartParser {
     }
     state.predicate--;
     if ($1) {
+      // [^{0-1f}\{\}\[\]\\]
       final $3 = !($2 <= 93 ? $2 >= 91 || $2 >= 0 && $2 <= 31 : $2 == 123 || $2 == 125) && !($2 < 0);
       if ($3) {
         state.position += $2 > 0xffff ? 2 : 1;
@@ -1549,8 +1554,7 @@ class SmartParser {
     if ($4 == 92) {
       state.position += 1;
       Result<int>? $5;
-      final $6 = state.farthestPosition;
-      state.farthestPosition = state.position;
+      final $6 = state.beginErrorHandling();
       $l:
       {
         final $7 = state.position;
@@ -1582,11 +1586,11 @@ class SmartParser {
         }
       }
       if ($5 != null) {
-        state.farthestPosition < $6 ? state.farthestPosition = $6 : null;
+        state.endErrorHandling($6);
         return $5;
       } else {
         state.errorIncorrect('Unterminated Unicode escape sequence');
-        state.farthestPosition < $6 ? state.farthestPosition = $6 : null;
+        state.endErrorHandling($6);
       }
       final $12 = state.peek();
       // 'a'
@@ -1693,31 +1697,25 @@ class SmartParser {
   ///   ~ { state.errorExpected('number'); }
   /// ```
   Result<int>? parseDecValue(State state) {
-    Result<int>? $0;
-    $l:
-    {
-      final $1 = state.position;
-      var $2 = false;
-      while (true) {
-        final $3 = state.peek();
-        final $4 = $3 >= 48 && $3 <= 57;
-        if ($4) {
-          state.position += 1;
-          $2 = true;
-          continue;
-        }
-        break;
+    final $0 = state.position;
+    var $1 = false;
+    // (1)
+    while (true) {
+      final $2 = state.peek();
+      // [0-9]
+      final $3 = $2 >= 48 && $2 <= 57;
+      if ($3) {
+        state.position += 1;
+        $1 = true;
+        continue;
       }
-      if ($2) {
-        final $5 = state.substring($1, state.position);
-        final n = $5;
-        final $6 = int.parse(n);
-        $0 = Ok($6);
-        break $l;
-      }
+      break;
     }
-    if ($0 != null) {
-      return $0;
+    if ($1) {
+      final $4 = state.substring($0, state.position);
+      final n = $4;
+      final $5 = int.parse(n);
+      return Ok($5);
     } else {
       state.errorExpected('number');
     }
@@ -1733,32 +1731,27 @@ class SmartParser {
   ///   ~ { state.errorExpected('number'); }
   /// ```
   Result<int>? parseDecValue1(State state) {
-    Result<int>? $0;
-    $l:
-    {
-      final $1 = state.position;
-      final $2 = state.peek();
-      final $3 = $2 >= 49 && $2 <= 57;
-      if ($3) {
-        state.position += 1;
-        while (true) {
-          final $4 = state.peek();
-          final $5 = $4 >= 48 && $4 <= 57;
-          if ($5) {
-            state.position += 1;
-            continue;
-          }
-          break;
+    final $0 = state.position;
+    final $1 = state.peek();
+    // [1-9]
+    final $2 = $1 >= 49 && $1 <= 57;
+    if ($2) {
+      state.position += 1;
+      // (0)
+      while (true) {
+        final $3 = state.peek();
+        // [0-9]
+        final $4 = $3 >= 48 && $3 <= 57;
+        if ($4) {
+          state.position += 1;
+          continue;
         }
-        final $6 = state.substring($1, state.position);
-        final n = $6;
-        final $7 = int.parse(n);
-        $0 = Ok($7);
-        break $l;
+        break;
       }
-    }
-    if ($0 != null) {
-      return $0;
+      final $5 = state.substring($0, state.position);
+      final n = $5;
+      final $6 = int.parse(n);
+      return Ok($6);
     } else {
       state.errorExpected('number');
     }
@@ -1774,31 +1767,25 @@ class SmartParser {
   ///   ~ { state.errorExpected('hexadecimal number'); }
   /// ```
   Result<int>? parseHexValue(State state) {
-    Result<int>? $0;
-    $l:
-    {
-      final $1 = state.position;
-      var $2 = false;
-      while (true) {
-        final $3 = state.peek();
-        final $4 = $3 <= 70 ? $3 >= 65 || $3 >= 48 && $3 <= 57 : $3 >= 97 && $3 <= 102;
-        if ($4) {
-          state.position += 1;
-          $2 = true;
-          continue;
-        }
-        break;
+    final $0 = state.position;
+    var $1 = false;
+    // (1)
+    while (true) {
+      final $2 = state.peek();
+      // [a-fA-F0-9]
+      final $3 = $2 <= 70 ? $2 >= 65 || $2 >= 48 && $2 <= 57 : $2 >= 97 && $2 <= 102;
+      if ($3) {
+        state.position += 1;
+        $1 = true;
+        continue;
       }
-      if ($2) {
-        final $5 = state.substring($1, state.position);
-        final n = $5;
-        final $6 = int.parse(n, radix: 16);
-        $0 = Ok($6);
-        break $l;
-      }
+      break;
     }
-    if ($0 != null) {
-      return $0;
+    if ($1) {
+      final $4 = state.substring($0, state.position);
+      final n = $4;
+      final $5 = int.parse(n, radix: 16);
+      return Ok($5);
     } else {
       state.errorExpected('hexadecimal number');
     }
@@ -1944,6 +1931,7 @@ class SmartParser {
     if ($1 == 123) {
       state.position += 1;
       final $2 = state.position;
+      // (0)
       while (true) {
         final $3 = parseBlockBody(state);
         if ($3 != null) {
@@ -1985,6 +1973,7 @@ class SmartParser {
     // '{'
     if ($1 == 123) {
       state.position += 1;
+      // (0)
       while (true) {
         final $2 = parseBlockBody(state);
         if ($2 != null) {
@@ -2029,31 +2018,26 @@ class SmartParser {
   ///   ~ { state.errorExpected('variable name'); }
   /// ```
   Result<String>? parseVariableName(State state) {
-    Result<String>? $0;
-    $l:
-    {
-      final $1 = state.position;
-      final $2 = state.peek();
-      final $3 = $2 >= 97 && $2 <= 122;
-      if ($3) {
-        state.position += 1;
-        while (true) {
-          final $4 = state.peek();
-          final $5 = $4 <= 90 ? $4 >= 65 || $4 >= 48 && $4 <= 57 : $4 == 95 || $4 >= 97 && $4 <= 122;
-          if ($5) {
-            state.position += 1;
-            continue;
-          }
-          break;
+    final $0 = state.position;
+    final $1 = state.peek();
+    // [a-z]
+    final $2 = $1 >= 97 && $1 <= 122;
+    if ($2) {
+      state.position += 1;
+      // (0)
+      while (true) {
+        final $3 = state.peek();
+        // [a-zA-Z0-9_]
+        final $4 = $3 <= 90 ? $3 >= 65 || $3 >= 48 && $3 <= 57 : $3 == 95 || $3 >= 97 && $3 <= 122;
+        if ($4) {
+          state.position += 1;
+          continue;
         }
-        final $6 = state.substring($1, state.position);
-        parseS(state);
-        $0 = Ok($6);
-        break $l;
+        break;
       }
-    }
-    if ($0 != null) {
-      return $0;
+      final $5 = state.substring($0, state.position);
+      parseS(state);
+      return Ok($5);
     } else {
       state.errorExpected('variable name');
     }
@@ -2069,31 +2053,26 @@ class SmartParser {
   ///   ~ { state.errorExpected('production name'); }
   /// ```
   Result<String>? parseProductionName(State state) {
-    Result<String>? $0;
-    $l:
-    {
-      final $1 = state.position;
-      final $2 = state.peek();
-      final $3 = $2 >= 65 && $2 <= 90;
-      if ($3) {
-        state.position += 1;
-        while (true) {
-          final $4 = state.peek();
-          final $5 = $4 <= 90 ? $4 >= 65 || $4 >= 48 && $4 <= 57 : $4 == 95 || $4 >= 97 && $4 <= 122;
-          if ($5) {
-            state.position += 1;
-            continue;
-          }
-          break;
+    final $0 = state.position;
+    final $1 = state.peek();
+    // [A-Z]
+    final $2 = $1 >= 65 && $1 <= 90;
+    if ($2) {
+      state.position += 1;
+      // (0)
+      while (true) {
+        final $3 = state.peek();
+        // [a-zA-Z0-9_]
+        final $4 = $3 <= 90 ? $3 >= 65 || $3 >= 48 && $3 <= 57 : $3 == 95 || $3 >= 97 && $3 <= 122;
+        if ($4) {
+          state.position += 1;
+          continue;
         }
-        final $6 = state.substring($1, state.position);
-        parseS(state);
-        $0 = Ok($6);
-        break $l;
+        break;
       }
-    }
-    if ($0 != null) {
-      return $0;
+      final $5 = state.substring($0, state.position);
+      parseS(state);
+      return Ok($5);
     } else {
       state.errorExpected('production name');
     }
@@ -2110,6 +2089,7 @@ class SmartParser {
   /// }
   /// ```
   Result<void> parseS(State state) {
+    // (0)
     while (true) {
       final $0 = parseSpace(state);
       if ($0 != null) {
@@ -2140,6 +2120,7 @@ class SmartParser {
     // '#'
     if ($0 == 35) {
       state.position += 1;
+      // (0)
       while (true) {
         final $1 = state.position;
         state.predicate++;
@@ -2175,6 +2156,7 @@ class SmartParser {
   /// ```
   Result<void>? parseSpace(State state) {
     final $0 = state.peek();
+    // [ \t]
     final $1 = $0 == 9 || $0 == 32;
     if ($1) {
       state.position += 1;
@@ -2201,6 +2183,7 @@ class SmartParser {
       state.position += 2;
       return Result.none;
     }
+    // [\n\r]
     final $1 = $0 == 10 || $0 == 13;
     if ($1) {
       state.position += 1;
@@ -2293,11 +2276,29 @@ class State {
     this.position = position;
   }
 
+  /// Intended for internal use only.
+  /// @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int beginErrorHandling() {
+    final farthestPosition = this.farthestPosition;
+    this.farthestPosition = position;
+    return farthestPosition;
+  }
+
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   /// Returns the size (as the length of the equivalent string) of the character
   /// [char].
   int charSize(int char) => char > 0xffff ? 2 : 1;
+
+  /// Intended for internal use only.
+  /// @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  void endErrorHandling(int farthestPosition) {
+    if (this.farthestPosition < farthestPosition) {
+      this.farthestPosition = farthestPosition;
+    }
+  }
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
