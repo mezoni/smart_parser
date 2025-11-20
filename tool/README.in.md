@@ -163,6 +163,36 @@ END
 In practice, this algorithm works quite quickly.  
 Although this is not the fastest parsing method in the world, but it is simple and understandable.
 
+An even faster way to parse identifiers.  
+If the identifier begins with a keyword, no re-parsing is performed.
+
+```dart
+START
+`String` Identifier =>
+  { var end = -1; }
+  !(
+    (
+      "foreach"
+      ----
+      "for"
+    )
+    ! @while (1) {
+      [a-zA-Z0-9]
+      { end = state.position; }
+    }
+  )
+  $ = <
+    (
+      & { end != -1 }
+      @position({ end })
+      ----
+      [a-zA-Z]
+      [a-zA-Z0-9]*
+    )
+  >
+END
+```
+
 ## Grammar
 
 Grammar declaration is made using sections, like sections for a preprocessor, but at the same time, it should be noted that preprocessing is not performed and grammar processing (parsing) occurs in one stage.

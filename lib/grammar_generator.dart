@@ -40,7 +40,13 @@ class GrammarGenerator {
       productionMap[name] = production;
     }
 
+    final processed = <String>{};
     for (final production in productions) {
+      final name = production.name;
+      if (!processed.add(name)) {
+        throw StateError('Duplicate production name: $name');
+      }
+
       final expression = production.expression;
       final type = production.type;
       ExpressionTypeResolver.assignType(expression, type);

@@ -34,7 +34,7 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
 
   static const _none = 'Result.none';
 
-  static const _null = 'Result.none.\$1';
+  static const _noneValue = 'Result.none.\$1';
 
   final Allocator allocator;
 
@@ -175,7 +175,7 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
       final printed = node.accept(printer);
       if (char != null) {
         final value = '$char';
-        final result = 'const Ok($value)';
+        final result = 'const Result($value)';
         final charSize = _charSize(value, [(char, char)], false);
         code.writeln('// $printed');
         final isTrue = '$ch == $char';
@@ -237,7 +237,7 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
     start.onProcess((code) {
       if (text.isEmpty) {
         final value = escaped;
-        final result = 'const Ok($escaped)';
+        final result = 'const Result($escaped)';
         const isTrue = 'true';
         const isFalse = 'false';
         final handler = code.ifElse(isTrue, isFalse);
@@ -263,8 +263,8 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
         final firstRune = runes.first;
         final c = _getCh(code);
         cache.clear();
-        final value = isVoid ? _null : escaped;
-        final result = isVoid ? _none : 'const Ok($escaped)';
+        final value = isVoid ? _noneValue : escaped;
+        final result = isVoid ? _none : 'const Result($escaped)';
         final length = _strlen(escaped, text);
         final test = runes.length == 1
             ? '$c == $firstRune'
@@ -304,7 +304,8 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
   ExpressionState visitNotPredicate(NotPredicateExpression node) {
     final child = node.expression;
     final canChangePosition = child.canChangePosition;
-    final combine = child.numberOfAcceptancePoints > 1;
+    final isComplete = node.isComplete;
+    final combine = !isComplete;
     final usePosition = canChangePosition;
     final start = _newState();
     final state0 = _buildExpression(child);
@@ -365,8 +366,8 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
     final child = node.expression;
     final isVoid = node.isVoid;
     final isProduction = child is ProductionExpression;
-    final combine = child.numberOfAcceptancePoints > 1;
-    final hasResultVariable = !isVoid && !isProduction;
+    final combine = child.acceptancePoints > 1;
+    final hasVariable = !isVoid && !isProduction;
     final start = _newState();
     final state0 = _buildExpression(child);
     var variable = _invalid;
@@ -374,14 +375,14 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
     start.onPreprocess((code) {
       variable = _allocateIf(!isVoid);
       label = _allocateIf(combine, 'l');
-      if (hasResultVariable) {
+      if (hasVariable) {
         final type = getNullableType(node.type);
         code.declare(type, variable);
       }
 
       state0.onAccept((event) {
         final code = event.output;
-        if (hasResultVariable) {
+        if (hasVariable) {
           code.assign(variable, event.value);
         }
 
@@ -396,6 +397,7 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
         cache.clone();
         code.writeln('$label:');
         code.group(state0.build);
+        code.writeln('// $label:');
       } else {
         if (child case final ProductionExpression child) {
           final name = child.name;
@@ -604,13 +606,12 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
         return state;
       }
 
-      final type = node.type;
       final isVoid = node.isVoid;
       final hasRemoveRecentErrors = errorHandler.contains('removeRecentErrors');
       var packed = errorHandler.replaceAll(' ', '');
-      packed = errorHandler.replaceAll('\n', '');
-      packed = errorHandler.replaceAll('\r', '');
-      packed = errorHandler.replaceAll('\t', '');
+      packed = packed.replaceAll('\n', '');
+      packed = packed.replaceAll('\r', '');
+      packed = packed.replaceAll('\t', '');
       var useErrorHandler = false;
       if (packed.contains('state.error(')) {
         useErrorHandler = true;
@@ -620,9 +621,9 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
         useErrorHandler = true;
       }
 
-      final combine = node.numberOfRejectionPoints > 1;
+      final combine = node.rejectionPoints > 1;
       if (combine) {
-        state = _combine(state, type, isVoid);
+        state = _combine(state, isVoid, node);
       }
 
       var errorState = _invalid;
@@ -671,19 +672,16 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
     }
 
     final statesThatRestorePosition = <ExpressionState>{};
-    final statesThatFails = <ExpressionState>{};
     ExpressionState? res;
     var positionChanged = false;
     final states = <ExpressionState>[];
     final start = _newState();
     for (var i = 0; i < children.length; i++) {
       final child = children[i];
-      final combine =
-          child.numberOfAcceptancePoints > 1 && i != children.length - 1;
+      final combine = i != children.length - 1;
       final state = _buildExpression(child, combine: combine);
       states.add(state);
       if (!child.isAlwaysSuccessful) {
-        statesThatFails.add(state);
         if (positionChanged) {
           statesThatRestorePosition.add(state);
         }
@@ -707,7 +705,7 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
       }
 
       var result = _none;
-      var value = _null;
+      var value = _noneValue;
       var isConst = true;
       if (res != null) {
         res.onAccept((event) {
@@ -735,10 +733,6 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
             if (statesThatRestorePosition.contains(state)) {
               code.stmt('state.backtrack($pos)');
             }
-
-            if (statesThatFails.contains(state)) {
-              start.reject(code);
-            }
           });
         } else {
           final next = states[i + 1];
@@ -750,10 +744,6 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
             if (statesThatRestorePosition.contains(state)) {
               code.stmt('state.backtrack($pos)');
             }
-
-            if (statesThatFails.contains(state)) {
-              start.reject(code);
-            }
           });
         }
       }
@@ -764,6 +754,7 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
       state.build(code);
     });
 
+    start.onPostprocess(start.reject);
     return handleErrors(start);
   }
 
@@ -794,7 +785,7 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
 
         final value = _allocate();
         code.declare(type, value, source.trim());
-        final result = isConst ? 'const Ok($value)' : 'Ok($value)';
+        final result = isConst ? 'const Result($value)' : 'Ok($value)';
         start.accept(
           AcceptEvent(
             output: code,
@@ -824,7 +815,12 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
 
   void _acceptVoid(Code output, ExpressionState state) {
     state.accept(
-      AcceptEvent(output: output, isConst: true, result: _none, value: _null),
+      AcceptEvent(
+        output: output,
+        isConst: true,
+        result: _none,
+        value: _noneValue,
+      ),
     );
   }
 
@@ -841,8 +837,7 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
     final isVoid = node.isVoid;
     var start = node.accept(this);
     if (combine) {
-      final type = node.type;
-      start = _combine(start, type, isVoid);
+      start = _combine(start, isVoid, node);
     }
 
     if (semanticValue != null && semanticValue != '\$') {
@@ -881,53 +876,109 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
     return '1';
   }
 
-  ExpressionState _combine(ExpressionState state, String type, bool isVoid) {
+  ExpressionState _combine(
+    ExpressionState state,
+    bool isVoid,
+    Expression node,
+  ) {
+    final acceptancePoints = node.acceptancePoints;
+    final rejectionPoints = node.rejectionPoints;
+    final isAlwaysSuccessful = node.isAlwaysSuccessful;
+    final isComplete = node.isComplete;
+    final type = node.type;
+    var needCombine = false;
+    if (!isComplete) {
+      needCombine = true;
+    }
+
+    if (acceptancePoints > 1) {
+      needCombine = true;
+    }
+
+    if (rejectionPoints > 1) {
+      needCombine = true;
+    }
+
+    if (!needCombine) {
+      return state;
+    }
+
     final start = _newState();
-    var label = _invalid;
-    var result = _invalid;
-    start.onPreprocess((code) {
-      label = _allocate('l');
-      result = _allocate();
-      if (isVoid) {
-        code.declare('var', result, 'false');
-      } else {
-        code.declare('Result<$type>?', result);
-      }
+    start.onProcess((code) {
+      final reject = _allocateIf(!isAlwaysSuccessful, 'l');
+      final accept = _allocate('l');
+      final variable = _allocateIf(!isVoid);
       state.onAccept((event) {
         final code = event.output;
-        if (isVoid) {
-          code.assign(result, 'true');
-        } else {
-          code.assign(result, event.result);
+        if (!isVoid) {
+          code.assign(variable, event.value);
         }
 
-        code.stmt('break $label');
+        code.stmt('break $accept');
       });
-    });
 
-    start.onProcess((code) {
-      cache.clone();
-      code.writeln('$label:');
-      code.group(state.build);
-      final isTrue = isVoid ? result : '$result != null';
-      final isFalse = isVoid ? '!$result' : '$result == null';
-      final handler = code.ifElse(isTrue, isFalse);
-      handler.ifBlock((code) {
+      if (isAlwaysSuccessful) {
         if (!isVoid) {
-          final value = '$result.\$1';
+          code.declare('final $type', variable);
+        }
+
+        code.writeln('$accept:');
+        code.group((code) {
+          cache.clone();
+          state.build(code);
+        });
+        code.writeln('// $accept:');
+
+        const isTrue = 'true';
+        const isFalse = 'false';
+        final handler = code.ifElse(isTrue, isFalse);
+        handler.ifBlock((code) {
+          final value = isVoid ? _noneValue : variable;
+          final result = isVoid ? _none : 'Ok($value)';
+          final isConst = isVoid;
           start.accept(
             AcceptEvent(
               output: code,
-              isConst: false,
+              isConst: isConst,
               result: result,
               value: value,
             ),
           );
-        } else {
-          _acceptVoid(code, start);
-        }
-      });
-      handler.elseBlock(start.reject);
+        });
+        handler.elseBlock(start.reject);
+      } else {
+        code.writeln('$reject:');
+        code.group((code) {
+          cache.clone();
+          if (!isVoid) {
+            code.declare('final $type', variable);
+          }
+
+          code.writeln('$accept:');
+          code.group((code) {
+            cache.clone();
+            state.build(code);
+            code.stmt('break $reject');
+          });
+          code.writeln('// $accept:');
+          final value = isVoid ? _noneValue : variable;
+          final result = isVoid ? _none : 'Ok($variable)';
+          final isConst = isVoid;
+          start.accept(
+            AcceptEvent(
+              output: code,
+              isConst: isConst,
+              result: result,
+              value: value,
+            ),
+          );
+        });
+        code.writeln('// $reject:');
+        const isTrue = 'true';
+        const isFalse = 'false';
+        final handler = code.ifElse(isTrue, isFalse);
+        handler.ifBlock(start.reject);
+      }
     });
 
     return start;
@@ -1148,7 +1199,7 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
 
       final isTrue = isSuccess;
       final isFalse = isTrue == 'true' ? 'false' : '!($isTrue)';
-      final value = isVoid ? _null : variable;
+      final value = isVoid ? _noneValue : variable;
       final result = isVoid ? _none : 'Ok($variable)';
       final handler = code.ifElse(isTrue, isFalse);
       handler.ifBlock((code) {

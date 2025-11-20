@@ -7248,6 +7248,286 @@ void main() {
       reason:
           '!(\n  (\n    "foreach"\n    ----\n    "for"\n  )\n  ! [a-zA-Z0-9]\n)\n\$ = <\n  [a-zA-Z]\n  [a-zA-Z0-9]*\n>\n\n\'foreach\'\nerrors',
     );
+    final $r12 = parser.parseIdentifier1;
+    final $r13 = parser.parseIdentifierVoid1;
+    final $s10 = State('fo');
+    final $r14 = $r12($s10) as dynamic;
+    expect(
+      $r14,
+      isNotNull,
+      reason:
+          '{ var end = -1; }\n!(\n  (\n    "foreach"\n    ----\n    "for"\n  )\n  ! @while (1) {\n    [a-zA-Z0-9]\n    { end = state.position; }\n  }\n)\n\$ = <\n  (\n    & { end != -1 }\n    @position({ end })\n    ----\n    [a-zA-Z]\n    [a-zA-Z0-9]*\n  )\n>\n\'fo\'\nresult != null',
+    );
+    expect(
+      $s10.position,
+      2,
+      reason:
+          '{ var end = -1; }\n!(\n  (\n    "foreach"\n    ----\n    "for"\n  )\n  ! @while (1) {\n    [a-zA-Z0-9]\n    { end = state.position; }\n  }\n)\n\$ = <\n  (\n    & { end != -1 }\n    @position({ end })\n    ----\n    [a-zA-Z]\n    [a-zA-Z0-9]*\n  )\n>\n\'fo\'\nstate.position = 2',
+    );
+    expect(
+      $r14.$1,
+      'fo',
+      reason:
+          '{ var end = -1; }\n!(\n  (\n    "foreach"\n    ----\n    "for"\n  )\n  ! @while (1) {\n    [a-zA-Z0-9]\n    { end = state.position; }\n  }\n)\n\$ = <\n  (\n    & { end != -1 }\n    @position({ end })\n    ----\n    [a-zA-Z]\n    [a-zA-Z0-9]*\n  )\n>\n\'fo\'\nresult.\$1 != \'fo\'',
+    );
+    final $s11 = State('fo');
+    final $r15 = $r13($s11) as dynamic;
+    expect(
+      $r15,
+      isNotNull,
+      reason:
+          '{ var end = -1; }\n!(\n  (\n    "foreach"\n    ----\n    "for"\n  )\n  ! @while (1) {\n    [a-zA-Z0-9]\n    { end = state.position; }\n  }\n)\n\$ = <\n  (\n    & { end != -1 }\n    @position({ end })\n    ----\n    [a-zA-Z]\n    [a-zA-Z0-9]*\n  )\n>\n\'fo\'\nresult != null',
+    );
+    expect(
+      $s11.position,
+      2,
+      reason:
+          '{ var end = -1; }\n!(\n  (\n    "foreach"\n    ----\n    "for"\n  )\n  ! @while (1) {\n    [a-zA-Z0-9]\n    { end = state.position; }\n  }\n)\n\$ = <\n  (\n    & { end != -1 }\n    @position({ end })\n    ----\n    [a-zA-Z]\n    [a-zA-Z0-9]*\n  )\n>\n\'fo\'\nstate.position = 2',
+    );
+    expect(
+      $r15.$1,
+      null,
+      reason:
+          '{ var end = -1; }\n!(\n  (\n    "foreach"\n    ----\n    "for"\n  )\n  ! @while (1) {\n    [a-zA-Z0-9]\n    { end = state.position; }\n  }\n)\n\$ = <\n  (\n    & { end != -1 }\n    @position({ end })\n    ----\n    [a-zA-Z]\n    [a-zA-Z0-9]*\n  )\n>\n\'fo\'\nresult.\$1 != null',
+    );
+    final $s12 = State('fort');
+    final $r16 = $r12($s12) as dynamic;
+    expect(
+      $r16,
+      isNotNull,
+      reason:
+          '{ var end = -1; }\n!(\n  (\n    "foreach"\n    ----\n    "for"\n  )\n  ! @while (1) {\n    [a-zA-Z0-9]\n    { end = state.position; }\n  }\n)\n\$ = <\n  (\n    & { end != -1 }\n    @position({ end })\n    ----\n    [a-zA-Z]\n    [a-zA-Z0-9]*\n  )\n>\n\'fort\'\nresult != null',
+    );
+    expect(
+      $s12.position,
+      4,
+      reason:
+          '{ var end = -1; }\n!(\n  (\n    "foreach"\n    ----\n    "for"\n  )\n  ! @while (1) {\n    [a-zA-Z0-9]\n    { end = state.position; }\n  }\n)\n\$ = <\n  (\n    & { end != -1 }\n    @position({ end })\n    ----\n    [a-zA-Z]\n    [a-zA-Z0-9]*\n  )\n>\n\'fort\'\nstate.position = 4',
+    );
+    expect(
+      $r16.$1,
+      'fort',
+      reason:
+          '{ var end = -1; }\n!(\n  (\n    "foreach"\n    ----\n    "for"\n  )\n  ! @while (1) {\n    [a-zA-Z0-9]\n    { end = state.position; }\n  }\n)\n\$ = <\n  (\n    & { end != -1 }\n    @position({ end })\n    ----\n    [a-zA-Z]\n    [a-zA-Z0-9]*\n  )\n>\n\'fort\'\nresult.\$1 != \'fort\'',
+    );
+    final $s13 = State('fort');
+    final $r17 = $r13($s13) as dynamic;
+    expect(
+      $r17,
+      isNotNull,
+      reason:
+          '{ var end = -1; }\n!(\n  (\n    "foreach"\n    ----\n    "for"\n  )\n  ! @while (1) {\n    [a-zA-Z0-9]\n    { end = state.position; }\n  }\n)\n\$ = <\n  (\n    & { end != -1 }\n    @position({ end })\n    ----\n    [a-zA-Z]\n    [a-zA-Z0-9]*\n  )\n>\n\'fort\'\nresult != null',
+    );
+    expect(
+      $s13.position,
+      4,
+      reason:
+          '{ var end = -1; }\n!(\n  (\n    "foreach"\n    ----\n    "for"\n  )\n  ! @while (1) {\n    [a-zA-Z0-9]\n    { end = state.position; }\n  }\n)\n\$ = <\n  (\n    & { end != -1 }\n    @position({ end })\n    ----\n    [a-zA-Z]\n    [a-zA-Z0-9]*\n  )\n>\n\'fort\'\nstate.position = 4',
+    );
+    expect(
+      $r17.$1,
+      null,
+      reason:
+          '{ var end = -1; }\n!(\n  (\n    "foreach"\n    ----\n    "for"\n  )\n  ! @while (1) {\n    [a-zA-Z0-9]\n    { end = state.position; }\n  }\n)\n\$ = <\n  (\n    & { end != -1 }\n    @position({ end })\n    ----\n    [a-zA-Z]\n    [a-zA-Z0-9]*\n  )\n>\n\'fort\'\nresult.\$1 != null',
+    );
+    final $s14 = State('');
+    final $r18 = $r12($s14) as dynamic;
+    expect(
+      $r18,
+      isNull,
+      reason:
+          '{ var end = -1; }\n!(\n  (\n    "foreach"\n    ----\n    "for"\n  )\n  ! @while (1) {\n    [a-zA-Z0-9]\n    { end = state.position; }\n  }\n)\n\$ = <\n  (\n    & { end != -1 }\n    @position({ end })\n    ----\n    [a-zA-Z]\n    [a-zA-Z0-9]*\n  )\n>\n\'\'\nresult == null',
+    );
+    expect(
+      $s14.farthestPosition,
+      0,
+      reason:
+          '{ var end = -1; }\n!(\n  (\n    "foreach"\n    ----\n    "for"\n  )\n  ! @while (1) {\n    [a-zA-Z0-9]\n    { end = state.position; }\n  }\n)\n\$ = <\n  (\n    & { end != -1 }\n    @position({ end })\n    ----\n    [a-zA-Z]\n    [a-zA-Z0-9]*\n  )\n>\n\'\'\nstate.farthestPosition = 0',
+    );
+    expect(
+      $s14.position,
+      0,
+      reason:
+          '{ var end = -1; }\n!(\n  (\n    "foreach"\n    ----\n    "for"\n  )\n  ! @while (1) {\n    [a-zA-Z0-9]\n    { end = state.position; }\n  }\n)\n\$ = <\n  (\n    & { end != -1 }\n    @position({ end })\n    ----\n    [a-zA-Z]\n    [a-zA-Z0-9]*\n  )\n>\n\'\'\nstate.position = 0',
+    );
+    final $e6 = $s14.getErrors().map((e) => '$e').toList()..sort();
+    expect(
+      $e6.length,
+      1,
+      reason:
+          '{ var end = -1; }\n!(\n  (\n    "foreach"\n    ----\n    "for"\n  )\n  ! @while (1) {\n    [a-zA-Z0-9]\n    { end = state.position; }\n  }\n)\n\$ = <\n  (\n    & { end != -1 }\n    @position({ end })\n    ----\n    [a-zA-Z]\n    [a-zA-Z0-9]*\n  )\n>\n\'\'\nerror count',
+    );
+    expect(
+      $e6,
+      ['(end: 0, message: Unexpected input data, start: 0)'],
+      reason:
+          '{ var end = -1; }\n!(\n  (\n    "foreach"\n    ----\n    "for"\n  )\n  ! @while (1) {\n    [a-zA-Z0-9]\n    { end = state.position; }\n  }\n)\n\$ = <\n  (\n    & { end != -1 }\n    @position({ end })\n    ----\n    [a-zA-Z]\n    [a-zA-Z0-9]*\n  )\n>\n\'\'\nerrors',
+    );
+    final $s15 = State('');
+    final $r19 = $r13($s15) as dynamic;
+    expect(
+      $r19,
+      isNull,
+      reason:
+          '{ var end = -1; }\n!(\n  (\n    "foreach"\n    ----\n    "for"\n  )\n  ! @while (1) {\n    [a-zA-Z0-9]\n    { end = state.position; }\n  }\n)\n\$ = <\n  (\n    & { end != -1 }\n    @position({ end })\n    ----\n    [a-zA-Z]\n    [a-zA-Z0-9]*\n  )\n>\n\'\'\nresult == null',
+    );
+    expect(
+      $s15.farthestPosition,
+      0,
+      reason:
+          '{ var end = -1; }\n!(\n  (\n    "foreach"\n    ----\n    "for"\n  )\n  ! @while (1) {\n    [a-zA-Z0-9]\n    { end = state.position; }\n  }\n)\n\$ = <\n  (\n    & { end != -1 }\n    @position({ end })\n    ----\n    [a-zA-Z]\n    [a-zA-Z0-9]*\n  )\n>\n\'\'\nstate.farthestPosition = 0',
+    );
+    expect(
+      $s15.position,
+      0,
+      reason:
+          '{ var end = -1; }\n!(\n  (\n    "foreach"\n    ----\n    "for"\n  )\n  ! @while (1) {\n    [a-zA-Z0-9]\n    { end = state.position; }\n  }\n)\n\$ = <\n  (\n    & { end != -1 }\n    @position({ end })\n    ----\n    [a-zA-Z]\n    [a-zA-Z0-9]*\n  )\n>\n\'\'\nstate.position = 0',
+    );
+    final $e7 = $s15.getErrors().map((e) => '$e').toList()..sort();
+    expect(
+      $e7.length,
+      1,
+      reason:
+          '{ var end = -1; }\n!(\n  (\n    "foreach"\n    ----\n    "for"\n  )\n  ! @while (1) {\n    [a-zA-Z0-9]\n    { end = state.position; }\n  }\n)\n\$ = <\n  (\n    & { end != -1 }\n    @position({ end })\n    ----\n    [a-zA-Z]\n    [a-zA-Z0-9]*\n  )\n>\n\'\'\nerror count',
+    );
+    expect(
+      $e7,
+      ['(end: 0, message: Unexpected input data, start: 0)'],
+      reason:
+          '{ var end = -1; }\n!(\n  (\n    "foreach"\n    ----\n    "for"\n  )\n  ! @while (1) {\n    [a-zA-Z0-9]\n    { end = state.position; }\n  }\n)\n\$ = <\n  (\n    & { end != -1 }\n    @position({ end })\n    ----\n    [a-zA-Z]\n    [a-zA-Z0-9]*\n  )\n>\n\'\'\nerrors',
+    );
+    final $s16 = State('for');
+    final $r20 = $r12($s16) as dynamic;
+    expect(
+      $r20,
+      isNull,
+      reason:
+          '{ var end = -1; }\n!(\n  (\n    "foreach"\n    ----\n    "for"\n  )\n  ! @while (1) {\n    [a-zA-Z0-9]\n    { end = state.position; }\n  }\n)\n\$ = <\n  (\n    & { end != -1 }\n    @position({ end })\n    ----\n    [a-zA-Z]\n    [a-zA-Z0-9]*\n  )\n>\n\'for\'\nresult == null',
+    );
+    expect(
+      $s16.farthestPosition,
+      0,
+      reason:
+          '{ var end = -1; }\n!(\n  (\n    "foreach"\n    ----\n    "for"\n  )\n  ! @while (1) {\n    [a-zA-Z0-9]\n    { end = state.position; }\n  }\n)\n\$ = <\n  (\n    & { end != -1 }\n    @position({ end })\n    ----\n    [a-zA-Z]\n    [a-zA-Z0-9]*\n  )\n>\n\'for\'\nstate.farthestPosition = 0',
+    );
+    expect(
+      $s16.position,
+      0,
+      reason:
+          '{ var end = -1; }\n!(\n  (\n    "foreach"\n    ----\n    "for"\n  )\n  ! @while (1) {\n    [a-zA-Z0-9]\n    { end = state.position; }\n  }\n)\n\$ = <\n  (\n    & { end != -1 }\n    @position({ end })\n    ----\n    [a-zA-Z]\n    [a-zA-Z0-9]*\n  )\n>\n\'for\'\nstate.position = 0',
+    );
+    final $e8 = $s16.getErrors().map((e) => '$e').toList()..sort();
+    expect(
+      $e8.length,
+      1,
+      reason:
+          '{ var end = -1; }\n!(\n  (\n    "foreach"\n    ----\n    "for"\n  )\n  ! @while (1) {\n    [a-zA-Z0-9]\n    { end = state.position; }\n  }\n)\n\$ = <\n  (\n    & { end != -1 }\n    @position({ end })\n    ----\n    [a-zA-Z]\n    [a-zA-Z0-9]*\n  )\n>\n\'for\'\nerror count',
+    );
+    expect(
+      $e8,
+      ['(end: 0, message: Unexpected input data, start: 0)'],
+      reason:
+          '{ var end = -1; }\n!(\n  (\n    "foreach"\n    ----\n    "for"\n  )\n  ! @while (1) {\n    [a-zA-Z0-9]\n    { end = state.position; }\n  }\n)\n\$ = <\n  (\n    & { end != -1 }\n    @position({ end })\n    ----\n    [a-zA-Z]\n    [a-zA-Z0-9]*\n  )\n>\n\'for\'\nerrors',
+    );
+    final $s17 = State('for');
+    final $r21 = $r13($s17) as dynamic;
+    expect(
+      $r21,
+      isNull,
+      reason:
+          '{ var end = -1; }\n!(\n  (\n    "foreach"\n    ----\n    "for"\n  )\n  ! @while (1) {\n    [a-zA-Z0-9]\n    { end = state.position; }\n  }\n)\n\$ = <\n  (\n    & { end != -1 }\n    @position({ end })\n    ----\n    [a-zA-Z]\n    [a-zA-Z0-9]*\n  )\n>\n\'for\'\nresult == null',
+    );
+    expect(
+      $s17.farthestPosition,
+      0,
+      reason:
+          '{ var end = -1; }\n!(\n  (\n    "foreach"\n    ----\n    "for"\n  )\n  ! @while (1) {\n    [a-zA-Z0-9]\n    { end = state.position; }\n  }\n)\n\$ = <\n  (\n    & { end != -1 }\n    @position({ end })\n    ----\n    [a-zA-Z]\n    [a-zA-Z0-9]*\n  )\n>\n\'for\'\nstate.farthestPosition = 0',
+    );
+    expect(
+      $s17.position,
+      0,
+      reason:
+          '{ var end = -1; }\n!(\n  (\n    "foreach"\n    ----\n    "for"\n  )\n  ! @while (1) {\n    [a-zA-Z0-9]\n    { end = state.position; }\n  }\n)\n\$ = <\n  (\n    & { end != -1 }\n    @position({ end })\n    ----\n    [a-zA-Z]\n    [a-zA-Z0-9]*\n  )\n>\n\'for\'\nstate.position = 0',
+    );
+    final $e9 = $s17.getErrors().map((e) => '$e').toList()..sort();
+    expect(
+      $e9.length,
+      1,
+      reason:
+          '{ var end = -1; }\n!(\n  (\n    "foreach"\n    ----\n    "for"\n  )\n  ! @while (1) {\n    [a-zA-Z0-9]\n    { end = state.position; }\n  }\n)\n\$ = <\n  (\n    & { end != -1 }\n    @position({ end })\n    ----\n    [a-zA-Z]\n    [a-zA-Z0-9]*\n  )\n>\n\'for\'\nerror count',
+    );
+    expect(
+      $e9,
+      ['(end: 0, message: Unexpected input data, start: 0)'],
+      reason:
+          '{ var end = -1; }\n!(\n  (\n    "foreach"\n    ----\n    "for"\n  )\n  ! @while (1) {\n    [a-zA-Z0-9]\n    { end = state.position; }\n  }\n)\n\$ = <\n  (\n    & { end != -1 }\n    @position({ end })\n    ----\n    [a-zA-Z]\n    [a-zA-Z0-9]*\n  )\n>\n\'for\'\nerrors',
+    );
+    final $s18 = State('foreach');
+    final $r22 = $r12($s18) as dynamic;
+    expect(
+      $r22,
+      isNull,
+      reason:
+          '{ var end = -1; }\n!(\n  (\n    "foreach"\n    ----\n    "for"\n  )\n  ! @while (1) {\n    [a-zA-Z0-9]\n    { end = state.position; }\n  }\n)\n\$ = <\n  (\n    & { end != -1 }\n    @position({ end })\n    ----\n    [a-zA-Z]\n    [a-zA-Z0-9]*\n  )\n>\n\'foreach\'\nresult == null',
+    );
+    expect(
+      $s18.farthestPosition,
+      0,
+      reason:
+          '{ var end = -1; }\n!(\n  (\n    "foreach"\n    ----\n    "for"\n  )\n  ! @while (1) {\n    [a-zA-Z0-9]\n    { end = state.position; }\n  }\n)\n\$ = <\n  (\n    & { end != -1 }\n    @position({ end })\n    ----\n    [a-zA-Z]\n    [a-zA-Z0-9]*\n  )\n>\n\'foreach\'\nstate.farthestPosition = 0',
+    );
+    expect(
+      $s18.position,
+      0,
+      reason:
+          '{ var end = -1; }\n!(\n  (\n    "foreach"\n    ----\n    "for"\n  )\n  ! @while (1) {\n    [a-zA-Z0-9]\n    { end = state.position; }\n  }\n)\n\$ = <\n  (\n    & { end != -1 }\n    @position({ end })\n    ----\n    [a-zA-Z]\n    [a-zA-Z0-9]*\n  )\n>\n\'foreach\'\nstate.position = 0',
+    );
+    final $e10 = $s18.getErrors().map((e) => '$e').toList()..sort();
+    expect(
+      $e10.length,
+      1,
+      reason:
+          '{ var end = -1; }\n!(\n  (\n    "foreach"\n    ----\n    "for"\n  )\n  ! @while (1) {\n    [a-zA-Z0-9]\n    { end = state.position; }\n  }\n)\n\$ = <\n  (\n    & { end != -1 }\n    @position({ end })\n    ----\n    [a-zA-Z]\n    [a-zA-Z0-9]*\n  )\n>\n\'foreach\'\nerror count',
+    );
+    expect(
+      $e10,
+      ['(end: 0, message: Unexpected input data, start: 0)'],
+      reason:
+          '{ var end = -1; }\n!(\n  (\n    "foreach"\n    ----\n    "for"\n  )\n  ! @while (1) {\n    [a-zA-Z0-9]\n    { end = state.position; }\n  }\n)\n\$ = <\n  (\n    & { end != -1 }\n    @position({ end })\n    ----\n    [a-zA-Z]\n    [a-zA-Z0-9]*\n  )\n>\n\'foreach\'\nerrors',
+    );
+    final $s19 = State('foreach');
+    final $r23 = $r13($s19) as dynamic;
+    expect(
+      $r23,
+      isNull,
+      reason:
+          '{ var end = -1; }\n!(\n  (\n    "foreach"\n    ----\n    "for"\n  )\n  ! @while (1) {\n    [a-zA-Z0-9]\n    { end = state.position; }\n  }\n)\n\$ = <\n  (\n    & { end != -1 }\n    @position({ end })\n    ----\n    [a-zA-Z]\n    [a-zA-Z0-9]*\n  )\n>\n\'foreach\'\nresult == null',
+    );
+    expect(
+      $s19.farthestPosition,
+      0,
+      reason:
+          '{ var end = -1; }\n!(\n  (\n    "foreach"\n    ----\n    "for"\n  )\n  ! @while (1) {\n    [a-zA-Z0-9]\n    { end = state.position; }\n  }\n)\n\$ = <\n  (\n    & { end != -1 }\n    @position({ end })\n    ----\n    [a-zA-Z]\n    [a-zA-Z0-9]*\n  )\n>\n\'foreach\'\nstate.farthestPosition = 0',
+    );
+    expect(
+      $s19.position,
+      0,
+      reason:
+          '{ var end = -1; }\n!(\n  (\n    "foreach"\n    ----\n    "for"\n  )\n  ! @while (1) {\n    [a-zA-Z0-9]\n    { end = state.position; }\n  }\n)\n\$ = <\n  (\n    & { end != -1 }\n    @position({ end })\n    ----\n    [a-zA-Z]\n    [a-zA-Z0-9]*\n  )\n>\n\'foreach\'\nstate.position = 0',
+    );
+    final $e11 = $s19.getErrors().map((e) => '$e').toList()..sort();
+    expect(
+      $e11.length,
+      1,
+      reason:
+          '{ var end = -1; }\n!(\n  (\n    "foreach"\n    ----\n    "for"\n  )\n  ! @while (1) {\n    [a-zA-Z0-9]\n    { end = state.position; }\n  }\n)\n\$ = <\n  (\n    & { end != -1 }\n    @position({ end })\n    ----\n    [a-zA-Z]\n    [a-zA-Z0-9]*\n  )\n>\n\'foreach\'\nerror count',
+    );
+    expect(
+      $e11,
+      ['(end: 0, message: Unexpected input data, start: 0)'],
+      reason:
+          '{ var end = -1; }\n!(\n  (\n    "foreach"\n    ----\n    "for"\n  )\n  ! @while (1) {\n    [a-zA-Z0-9]\n    { end = state.position; }\n  }\n)\n\$ = <\n  (\n    & { end != -1 }\n    @position({ end })\n    ----\n    [a-zA-Z]\n    [a-zA-Z0-9]*\n  )\n>\n\'foreach\'\nerrors',
+    );
   });
 }
 
@@ -7260,7 +7540,7 @@ class _TestParser {
   /// ```
   Result<int> parseAction0(State state) {
     const $0 = 41;
-    return const Ok($0);
+    return const Result($0);
   }
 
   /// [void] **ActionVoid0**
@@ -7280,7 +7560,7 @@ class _TestParser {
   /// ```
   Result<int> parseAction1(State state) {
     const int $0 = 41;
-    return const Ok($0);
+    return const Result($0);
   }
 
   /// [void] **ActionVoid1**
@@ -7302,7 +7582,7 @@ class _TestParser {
   Result<int> parseAction2(State state) {
     const x = 41;
     const $0 = x;
-    return const Ok($0);
+    return const Result($0);
   }
 
   /// [void] **ActionVoid2**
@@ -7334,7 +7614,7 @@ class _TestParser {
       final $2 = state.peek();
       if ($2 == 97 && state.startsWith('abcd')) {
         state.position += 4;
-        return const Ok('abcd');
+        return const Result('abcd');
       } else {
         state.errorExpected('abcd');
       }
@@ -7584,7 +7864,7 @@ class _TestParser {
     // [a]
     if ($0 == 97) {
       state.position += 1;
-      return const Ok(97);
+      return const Result(97);
     }
     return null;
   }
@@ -7774,7 +8054,7 @@ class _TestParser {
     // [\^]
     if ($0 == 94) {
       state.position += 1;
-      return const Ok(94);
+      return const Result(94);
     }
     return null;
   }
@@ -7804,7 +8084,7 @@ class _TestParser {
     // [\-]
     if ($0 == 45) {
       state.position += 1;
-      return const Ok(45);
+      return const Result(45);
     }
     return null;
   }
@@ -7834,7 +8114,7 @@ class _TestParser {
     // [ ]
     if ($0 == 32) {
       state.position += 1;
-      return const Ok(32);
+      return const Result(32);
     }
     return null;
   }
@@ -7896,7 +8176,7 @@ class _TestParser {
     // [{0}]
     if ($0 == 0) {
       state.position += 1;
-      return const Ok(0);
+      return const Result(0);
     }
     return null;
   }
@@ -8022,12 +8302,12 @@ class _TestParser {
     // [a]
     if ($0 == 97) {
       state.position += 1;
-      return const Ok(97);
+      return const Result(97);
     }
     // [z]
     if ($0 == 122) {
       state.position += 1;
-      return const Ok(122);
+      return const Result(122);
     }
     return null;
   }
@@ -8061,7 +8341,7 @@ class _TestParser {
     final $0 = state.peek();
     if ($0 == 97 && state.startsWith('abc')) {
       state.position += 3;
-      return const Ok('abc');
+      return const Result('abc');
     } else {
       state.errorExpected('abc');
     }
@@ -8093,7 +8373,7 @@ class _TestParser {
     final $0 = state.peek();
     if ($0 == 97 && state.startsWith('abc')) {
       state.position += 3;
-      return const Ok('abc');
+      return const Result('abc');
     }
     return null;
   }
@@ -8118,7 +8398,7 @@ class _TestParser {
   ///   ""
   /// ```
   Result<String> parseLiteral2(State state) {
-    return const Ok('');
+    return const Result('');
   }
 
   /// [void] **LiteralVoid2**
@@ -8137,7 +8417,7 @@ class _TestParser {
   /// ```
   Result<String> parseLiteral3(State state) {
     if (true) {
-      return const Ok('');
+      return const Result('');
     } else {
       state.errorExpected('');
     }
@@ -8165,7 +8445,7 @@ class _TestParser {
     final $0 = state.peek();
     if ($0 == 13 && state.startsWith('\r\n')) {
       state.position += 2;
-      return const Ok('\r\n');
+      return const Result('\r\n');
     }
     return null;
   }
@@ -8206,7 +8486,7 @@ class _TestParser {
     if ($1) {
       if ($2 == 97 && state.startsWith('ab')) {
         state.position += 2;
-        return const Ok('ab');
+        return const Result('ab');
       } else {
         state.errorExpected('ab');
       }
@@ -8268,7 +8548,7 @@ class _TestParser {
       }
       state.predicate--;
       if ($3) {
-        return const Ok('abc');
+        return const Result('abc');
       } else {
         state.backtrack($0);
       }
@@ -8476,6 +8756,7 @@ class _TestParser {
         break $l;
       }
     }
+    // $l:
     $1 = false;
     state.backtrack($0);
     state.predicate--;
@@ -8646,6 +8927,7 @@ class _TestParser {
         break $l;
       }
     }
+    // $l:
     return Ok($0);
   }
 
@@ -8669,6 +8951,7 @@ class _TestParser {
         break $l;
       }
     }
+    // $l:
     return Result.none;
   }
 
@@ -8786,11 +9069,12 @@ class _TestParser {
         break $l;
       }
     }
+    // $l:
     final $2 = state.peek();
     // [c]
     if ($2 == 99) {
       state.position += 1;
-      return const Ok(99);
+      return const Result(99);
     } else {
       state.backtrack($0);
     }
@@ -8819,6 +9103,7 @@ class _TestParser {
         break $l;
       }
     }
+    // $l:
     final $2 = state.peek();
     // [c]
     if ($2 == 99) {
@@ -8994,44 +9279,47 @@ class _TestParser {
   ///   }
   /// ```
   Result<String>? parseSequence1(State state) {
-    Result<String>? $0;
-    final $1 = state.beginErrorHandling();
+    final $0 = state.beginErrorHandling();
     $l:
     {
-      final $2 = state.position;
-      final $3 = state.peek();
-      // [a]
-      if ($3 == 97) {
-        state.position += 1;
-        final $4 = state.peek();
-        // [b]
-        if ($4 == 98) {
+      final String $1;
+      $l1:
+      {
+        final $2 = state.position;
+        final $3 = state.peek();
+        // [a]
+        if ($3 == 97) {
           state.position += 1;
-          final $5 = state.peek();
-          // [c]
-          if ($5 == 99) {
+          final $4 = state.peek();
+          // [b]
+          if ($4 == 98) {
             state.position += 1;
-            const $6 = 'abc';
-            $0 = const Ok($6);
-            break $l;
+            final $5 = state.peek();
+            // [c]
+            if ($5 == 99) {
+              state.position += 1;
+              const $6 = 'abc';
+              $1 = $6;
+              break $l1;
+            } else {
+              state.backtrack($2);
+            }
           } else {
             state.backtrack($2);
           }
-        } else {
-          state.backtrack($2);
         }
+        break $l;
       }
+      // $l1:
+      state.endErrorHandling($0);
+      return Ok($1);
     }
-    if ($0 != null) {
-      state.endErrorHandling($1);
-      return $0;
-    } else {
-      state.errorExpected('abc');
-      state.errorIncorrect('Full', true);
-      state.errorIncorrect('End', false);
-      state.errorIncorrect('Start', null);
-      state.endErrorHandling($1);
-    }
+    // $l:
+    state.errorExpected('abc');
+    state.errorIncorrect('Full', true);
+    state.errorIncorrect('End', false);
+    state.errorIncorrect('Start', null);
+    state.endErrorHandling($0);
     return null;
   }
 
@@ -9050,44 +9338,45 @@ class _TestParser {
   ///   }
   /// ```
   Result<void>? parseSequenceVoid1(State state) {
-    var $0 = false;
-    final $1 = state.beginErrorHandling();
+    final $0 = state.beginErrorHandling();
     $l:
     {
-      final $2 = state.position;
-      final $3 = state.peek();
-      // [a]
-      if ($3 == 97) {
-        state.position += 1;
-        final $4 = state.peek();
-        // [b]
-        if ($4 == 98) {
+      $l1:
+      {
+        final $1 = state.position;
+        final $2 = state.peek();
+        // [a]
+        if ($2 == 97) {
           state.position += 1;
-          final $5 = state.peek();
-          // [c]
-          if ($5 == 99) {
+          final $3 = state.peek();
+          // [b]
+          if ($3 == 98) {
             state.position += 1;
-            const $6 = 'abc';
-            $0 = true;
-            break $l;
+            final $4 = state.peek();
+            // [c]
+            if ($4 == 99) {
+              state.position += 1;
+              const $5 = 'abc';
+              break $l1;
+            } else {
+              state.backtrack($1);
+            }
           } else {
-            state.backtrack($2);
+            state.backtrack($1);
           }
-        } else {
-          state.backtrack($2);
         }
+        break $l;
       }
-    }
-    if ($0) {
-      state.endErrorHandling($1);
+      // $l1:
+      state.endErrorHandling($0);
       return Result.none;
-    } else {
-      state.errorExpected('abc');
-      state.errorIncorrect('Full', true);
-      state.errorIncorrect('End', false);
-      state.errorIncorrect('Start', null);
-      state.endErrorHandling($1);
     }
+    // $l:
+    state.errorExpected('abc');
+    state.errorIncorrect('Full', true);
+    state.errorIncorrect('End', false);
+    state.errorIncorrect('Start', null);
+    state.endErrorHandling($0);
     return null;
   }
 
@@ -9105,34 +9394,25 @@ class _TestParser {
   ///   }
   /// ```
   Result<String>? parseSequence2(State state) {
-    Result<String>? $0;
-    final $1 = state.setErrorState();
-    $l:
-    {
-      final $2 = state.peek();
-      if ($2 == 98 && state.startsWith('bar')) {
-        state.position += 3;
-        $0 = const Ok('bar');
-        break $l;
-      } else {
-        state.errorExpected('bar');
-      }
-      if ($2 == 98 && state.startsWith('baz')) {
-        state.position += 3;
-        $0 = const Ok('baz');
-        break $l;
-      } else {
-        state.errorExpected('baz');
-      }
-    }
-    if ($0 != null) {
-      state.restoreErrorState($1);
-      return $0;
+    final $0 = state.setErrorState();
+    final $1 = state.peek();
+    if ($1 == 98 && state.startsWith('bar')) {
+      state.position += 3;
+      state.restoreErrorState($0);
+      return const Result('bar');
     } else {
-      state.removeRecentErrors();
-      state.errorExpected('foo');
-      state.restoreErrorState($1);
+      state.errorExpected('bar');
     }
+    if ($1 == 98 && state.startsWith('baz')) {
+      state.position += 3;
+      state.restoreErrorState($0);
+      return const Result('baz');
+    } else {
+      state.errorExpected('baz');
+    }
+    state.removeRecentErrors();
+    state.errorExpected('foo');
+    state.restoreErrorState($0);
     return null;
   }
 
@@ -9150,34 +9430,25 @@ class _TestParser {
   ///   }
   /// ```
   Result<void>? parseSequenceVoid2(State state) {
-    var $0 = false;
-    final $1 = state.setErrorState();
-    $l:
-    {
-      final $2 = state.peek();
-      if ($2 == 98 && state.startsWith('bar')) {
-        state.position += 3;
-        $0 = true;
-        break $l;
-      } else {
-        state.errorExpected('bar');
-      }
-      if ($2 == 98 && state.startsWith('baz')) {
-        state.position += 3;
-        $0 = true;
-        break $l;
-      } else {
-        state.errorExpected('baz');
-      }
-    }
-    if ($0) {
-      state.restoreErrorState($1);
+    final $0 = state.setErrorState();
+    final $1 = state.peek();
+    if ($1 == 98 && state.startsWith('bar')) {
+      state.position += 3;
+      state.restoreErrorState($0);
       return Result.none;
     } else {
-      state.removeRecentErrors();
-      state.errorExpected('foo');
-      state.restoreErrorState($1);
+      state.errorExpected('bar');
     }
+    if ($1 == 98 && state.startsWith('baz')) {
+      state.position += 3;
+      state.restoreErrorState($0);
+      return Result.none;
+    } else {
+      state.errorExpected('baz');
+    }
+    state.removeRecentErrors();
+    state.errorExpected('foo');
+    state.restoreErrorState($0);
     return null;
   }
 
@@ -9191,7 +9462,7 @@ class _TestParser {
     final $0 = state.peek();
     if ($0 == 102 && state.startsWith('foo')) {
       state.position += 3;
-      return const Ok('foo');
+      return const Result('foo');
     } else {
       state.errorExpected('foo');
     }
@@ -9828,42 +10099,43 @@ class _TestParser {
   /// ```
   Result<List<int>>? parseWhile11(State state) {
     final $0 = state.position;
-    var $1 = false;
     $l:
     {
-      final $2 = state.peek();
-      // [a]
-      if ($2 == 97) {
-        state.position += 1;
-        $1 = true;
+      $l1:
+      {
+        final $1 = state.peek();
+        // [a]
+        if ($1 == 97) {
+          state.position += 1;
+          break $l1;
+        }
+        // [b]
+        if ($1 == 98) {
+          state.position += 1;
+          break $l1;
+        }
         break $l;
       }
-      // [b]
-      if ($2 == 98) {
-        state.position += 1;
-        $1 = true;
-        break $l;
-      }
-    }
-    if ($1) {
-      final $3 = <int>[];
+      // $l1:
+      final $2 = <int>[];
       // (1)
       while (true) {
-        final $4 = state.peek();
+        final $3 = state.peek();
         // [c]
-        if ($4 == 99) {
+        if ($3 == 99) {
           state.position += 1;
-          $3.add(99);
+          $2.add(99);
           continue;
         }
         break;
       }
-      if ($3.isNotEmpty) {
-        return Ok($3);
+      if ($2.isNotEmpty) {
+        return Ok($2);
       } else {
         state.backtrack($0);
       }
     }
+    // $l:
     return null;
   }
 
@@ -9877,42 +10149,43 @@ class _TestParser {
   /// ```
   Result<void>? parseWhileVoid11(State state) {
     final $0 = state.position;
-    var $1 = false;
     $l:
     {
-      final $2 = state.peek();
-      // [a]
-      if ($2 == 97) {
-        state.position += 1;
-        $1 = true;
+      $l1:
+      {
+        final $1 = state.peek();
+        // [a]
+        if ($1 == 97) {
+          state.position += 1;
+          break $l1;
+        }
+        // [b]
+        if ($1 == 98) {
+          state.position += 1;
+          break $l1;
+        }
         break $l;
       }
-      // [b]
-      if ($2 == 98) {
-        state.position += 1;
-        $1 = true;
-        break $l;
-      }
-    }
-    if ($1) {
-      final $3 = <int>[];
+      // $l1:
+      final $2 = <int>[];
       // (1)
       while (true) {
-        final $4 = state.peek();
+        final $3 = state.peek();
         // [c]
-        if ($4 == 99) {
+        if ($3 == 99) {
           state.position += 1;
-          $3.add(99);
+          $2.add(99);
           continue;
         }
         break;
       }
-      if ($3.isNotEmpty) {
+      if ($2.isNotEmpty) {
         return Result.none;
       } else {
         state.backtrack($0);
       }
     }
+    // $l:
     return null;
   }
 
@@ -10027,61 +10300,62 @@ class _TestParser {
     final $0 = state.position;
     state.predicate++;
     var $1 = true;
-    var $2 = false;
     $l:
     {
-      final $3 = state.peek();
-      if ($3 == 102 && state.startsWith('foreach')) {
-        state.position += 7;
-        $2 = true;
+      $l1:
+      {
+        final $2 = state.peek();
+        if ($2 == 102 && state.startsWith('foreach')) {
+          state.position += 7;
+          break $l1;
+        }
+        if ($2 == 102 && state.startsWith('for')) {
+          state.position += 3;
+          break $l1;
+        }
         break $l;
       }
-      if ($3 == 102 && state.startsWith('for')) {
-        state.position += 3;
-        $2 = true;
-        break $l;
-      }
-    }
-    if ($2) {
-      final $4 = state.position;
+      // $l1:
+      final $3 = state.position;
       state.predicate++;
-      var $5 = true;
-      final $6 = state.peek();
+      var $4 = true;
+      final $5 = state.peek();
       // [a-zA-Z0-9]
-      final $7 = $6 <= 90 ? $6 >= 65 || $6 >= 48 && $6 <= 57 : $6 >= 97 && $6 <= 122;
-      if ($7) {
+      final $6 = $5 <= 90 ? $5 >= 65 || $5 >= 48 && $5 <= 57 : $5 >= 97 && $5 <= 122;
+      if ($6) {
         state.position += 1;
-        $5 = false;
-        state.backtrack($4);
+        $4 = false;
+        state.backtrack($3);
       }
       state.predicate--;
-      if ($5) {
+      if ($4) {
         $1 = false;
         state.backtrack($0);
       } else {
         state.backtrack($0);
       }
     }
+    // $l:
     state.predicate--;
     if ($1) {
-      final $8 = state.peek();
+      final $7 = state.peek();
       // [a-zA-Z]
-      final $9 = $8 <= 90 ? $8 >= 65 : $8 >= 97 && $8 <= 122;
-      if ($9) {
+      final $8 = $7 <= 90 ? $7 >= 65 : $7 >= 97 && $7 <= 122;
+      if ($8) {
         state.position += 1;
         // (0)
         while (true) {
-          final $10 = state.peek();
+          final $9 = state.peek();
           // [a-zA-Z0-9]
-          final $11 = $10 <= 90 ? $10 >= 65 || $10 >= 48 && $10 <= 57 : $10 >= 97 && $10 <= 122;
-          if ($11) {
+          final $10 = $9 <= 90 ? $9 >= 65 || $9 >= 48 && $9 <= 57 : $9 >= 97 && $9 <= 122;
+          if ($10) {
             state.position += 1;
             continue;
           }
           break;
         }
-        final $12 = state.substring($0, state.position);
-        return Ok($12);
+        final $11 = state.substring($0, state.position);
+        return Ok($11);
       }
     }
     return null;
@@ -10107,60 +10381,275 @@ class _TestParser {
     final $0 = state.position;
     state.predicate++;
     var $1 = true;
-    var $2 = false;
     $l:
     {
-      final $3 = state.peek();
-      if ($3 == 102 && state.startsWith('foreach')) {
-        state.position += 7;
-        $2 = true;
+      $l1:
+      {
+        final $2 = state.peek();
+        if ($2 == 102 && state.startsWith('foreach')) {
+          state.position += 7;
+          break $l1;
+        }
+        if ($2 == 102 && state.startsWith('for')) {
+          state.position += 3;
+          break $l1;
+        }
         break $l;
       }
-      if ($3 == 102 && state.startsWith('for')) {
-        state.position += 3;
-        $2 = true;
-        break $l;
-      }
-    }
-    if ($2) {
-      final $4 = state.position;
+      // $l1:
+      final $3 = state.position;
       state.predicate++;
-      var $5 = true;
-      final $6 = state.peek();
+      var $4 = true;
+      final $5 = state.peek();
       // [a-zA-Z0-9]
-      final $7 = $6 <= 90 ? $6 >= 65 || $6 >= 48 && $6 <= 57 : $6 >= 97 && $6 <= 122;
-      if ($7) {
+      final $6 = $5 <= 90 ? $5 >= 65 || $5 >= 48 && $5 <= 57 : $5 >= 97 && $5 <= 122;
+      if ($6) {
         state.position += 1;
-        $5 = false;
-        state.backtrack($4);
+        $4 = false;
+        state.backtrack($3);
       }
       state.predicate--;
-      if ($5) {
+      if ($4) {
         $1 = false;
         state.backtrack($0);
       } else {
         state.backtrack($0);
       }
     }
+    // $l:
     state.predicate--;
     if ($1) {
-      final $8 = state.peek();
+      final $7 = state.peek();
       // [a-zA-Z]
-      final $9 = $8 <= 90 ? $8 >= 65 : $8 >= 97 && $8 <= 122;
-      if ($9) {
+      final $8 = $7 <= 90 ? $7 >= 65 : $7 >= 97 && $7 <= 122;
+      if ($8) {
         state.position += 1;
         // (0)
         while (true) {
-          final $10 = state.peek();
+          final $9 = state.peek();
           // [a-zA-Z0-9]
-          final $11 = $10 <= 90 ? $10 >= 65 || $10 >= 48 && $10 <= 57 : $10 >= 97 && $10 <= 122;
-          if ($11) {
+          final $10 = $9 <= 90 ? $9 >= 65 || $9 >= 48 && $9 <= 57 : $9 >= 97 && $9 <= 122;
+          if ($10) {
             state.position += 1;
             continue;
           }
           break;
         }
-        final $12 = state.substring($0, state.position);
+        final $11 = state.substring($0, state.position);
+        return Result.none;
+      }
+    }
+    return null;
+  }
+
+  /// [String] **Identifier1**
+  /// ```txt
+  /// `String` Identifier1 =>
+  ///   { var end = -1; }
+  ///   !(
+  ///     (
+  ///       "foreach"
+  ///       ----
+  ///       "for"
+  ///     )
+  ///     ! @while (1) {
+  ///       [a-zA-Z0-9]
+  ///       { end = state.position; }
+  ///     }
+  ///   )
+  ///   $ = <
+  ///     (
+  ///       & { end != -1 }
+  ///       @position({ end })
+  ///       ----
+  ///       [a-zA-Z]
+  ///       [a-zA-Z0-9]*
+  ///     )
+  ///   >
+  /// ```
+  Result<String>? parseIdentifier1(State state) {
+    var end = -1;
+    final $0 = state.position;
+    state.predicate++;
+    var $1 = true;
+    $l:
+    {
+      $l1:
+      {
+        final $2 = state.peek();
+        if ($2 == 102 && state.startsWith('foreach')) {
+          state.position += 7;
+          break $l1;
+        }
+        if ($2 == 102 && state.startsWith('for')) {
+          state.position += 3;
+          break $l1;
+        }
+        break $l;
+      }
+      // $l1:
+      final $3 = state.position;
+      state.predicate++;
+      var $4 = true;
+      var $5 = false;
+      // (1)
+      while (true) {
+        final $6 = state.peek();
+        // [a-zA-Z0-9]
+        final $7 = $6 <= 90 ? $6 >= 65 || $6 >= 48 && $6 <= 57 : $6 >= 97 && $6 <= 122;
+        if ($7) {
+          state.position += 1;
+          end = state.position;
+          $5 = true;
+          continue;
+        }
+        break;
+      }
+      if ($5) {
+        $4 = false;
+        state.backtrack($3);
+      }
+      state.predicate--;
+      if ($4) {
+        $1 = false;
+        state.backtrack($0);
+      } else {
+        state.backtrack($0);
+      }
+    }
+    // $l:
+    state.predicate--;
+    if ($1) {
+      final $8 = end != -1;
+      if ($8) {
+        state.position = end;
+        final $9 = state.substring($0, state.position);
+        return Ok($9);
+      }
+      final $10 = state.peek();
+      // [a-zA-Z]
+      final $11 = $10 <= 90 ? $10 >= 65 : $10 >= 97 && $10 <= 122;
+      if ($11) {
+        state.position += 1;
+        // (0)
+        while (true) {
+          final $12 = state.peek();
+          // [a-zA-Z0-9]
+          final $13 = $12 <= 90 ? $12 >= 65 || $12 >= 48 && $12 <= 57 : $12 >= 97 && $12 <= 122;
+          if ($13) {
+            state.position += 1;
+            continue;
+          }
+          break;
+        }
+        final $14 = state.substring($0, state.position);
+        return Ok($14);
+      }
+    }
+    return null;
+  }
+
+  /// [void] **IdentifierVoid1**
+  /// ```txt
+  /// `void` IdentifierVoid1 =>
+  ///   { var end = -1; }
+  ///   !(
+  ///     (
+  ///       "foreach"
+  ///       ----
+  ///       "for"
+  ///     )
+  ///     ! @while (1) {
+  ///       [a-zA-Z0-9]
+  ///       { end = state.position; }
+  ///     }
+  ///   )
+  ///   $ = <
+  ///     (
+  ///       & { end != -1 }
+  ///       @position({ end })
+  ///       ----
+  ///       [a-zA-Z]
+  ///       [a-zA-Z0-9]*
+  ///     )
+  ///   >
+  /// ```
+  Result<void>? parseIdentifierVoid1(State state) {
+    var end = -1;
+    final $0 = state.position;
+    state.predicate++;
+    var $1 = true;
+    $l:
+    {
+      $l1:
+      {
+        final $2 = state.peek();
+        if ($2 == 102 && state.startsWith('foreach')) {
+          state.position += 7;
+          break $l1;
+        }
+        if ($2 == 102 && state.startsWith('for')) {
+          state.position += 3;
+          break $l1;
+        }
+        break $l;
+      }
+      // $l1:
+      final $3 = state.position;
+      state.predicate++;
+      var $4 = true;
+      var $5 = false;
+      // (1)
+      while (true) {
+        final $6 = state.peek();
+        // [a-zA-Z0-9]
+        final $7 = $6 <= 90 ? $6 >= 65 || $6 >= 48 && $6 <= 57 : $6 >= 97 && $6 <= 122;
+        if ($7) {
+          state.position += 1;
+          end = state.position;
+          $5 = true;
+          continue;
+        }
+        break;
+      }
+      if ($5) {
+        $4 = false;
+        state.backtrack($3);
+      }
+      state.predicate--;
+      if ($4) {
+        $1 = false;
+        state.backtrack($0);
+      } else {
+        state.backtrack($0);
+      }
+    }
+    // $l:
+    state.predicate--;
+    if ($1) {
+      final $8 = end != -1;
+      if ($8) {
+        state.position = end;
+        final $9 = state.substring($0, state.position);
+        return Result.none;
+      }
+      final $10 = state.peek();
+      // [a-zA-Z]
+      final $11 = $10 <= 90 ? $10 >= 65 : $10 >= 97 && $10 <= 122;
+      if ($11) {
+        state.position += 1;
+        // (0)
+        while (true) {
+          final $12 = state.peek();
+          // [a-zA-Z0-9]
+          final $13 = $12 <= 90 ? $12 >= 65 || $12 >= 48 && $12 <= 57 : $12 >= 97 && $12 <= 122;
+          if ($13) {
+            state.position += 1;
+            continue;
+          }
+          break;
+        }
+        final $14 = state.substring($0, state.position);
         return Result.none;
       }
     }

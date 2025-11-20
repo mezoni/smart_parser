@@ -56,13 +56,15 @@ class CharacterClassExpression extends Expression {
 abstract class Expression {
   static const String defaultType = 'void';
 
+  int acceptancePoints = 1;
+
   bool canChangePosition = true;
 
   bool isAlwaysSuccessful = false;
 
-  int numberOfAcceptancePoints = 1;
+  bool isComplete = false;
 
-  int numberOfRejectionPoints = 1;
+  int rejectionPoints = 1;
 
   bool isVoid = false;
 

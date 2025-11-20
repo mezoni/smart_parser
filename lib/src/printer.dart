@@ -198,7 +198,13 @@ class Printer implements Visitor<String> {
   @override
   String visitValue(ValueExpression node) {
     final source = node.source;
-    return _action(source);
+    final valueType = node.valueType;
+    var code = _action(source);
+    if (valueType != null) {
+      code = '`$valueType` $code';
+    }
+
+    return code;
   }
 
   @override

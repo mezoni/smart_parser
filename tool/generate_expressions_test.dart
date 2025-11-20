@@ -516,6 +516,38 @@ $ = <
     }
   }
 
+  {
+    final production = test.addProduction('String', r'''
+{ var end = -1; }
+!(
+  (
+    "foreach"
+    ----
+    "for"
+  )
+  ! @while (1) {
+    [a-zA-Z0-9]
+    { end = state.position; }
+  }
+)
+$ = <
+  (
+    & { end != -1 }
+    @position({ end })
+    ----
+    [a-zA-Z]
+    [a-zA-Z0-9]*
+  )
+>''');
+    {
+      production.addSuccess('fo', 2, escapeString('fo'));
+      production.addSuccess('fort', 4, escapeString('fort'));
+      production.addFailure('', 0, [_errorUnexpectedData(0, 0)]);
+      production.addFailure('for', 0, [_errorUnexpectedData(0, 0)]);
+      production.addFailure('foreach', 0, [_errorUnexpectedData(0, 0)]);
+    }
+  }
+
   return test;
 }
 

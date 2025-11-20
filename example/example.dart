@@ -278,11 +278,11 @@ class JsonParser {
       return Ok($6);
     } else {
       state.backtrack($1);
-      state.errorIncorrect('Expected hexadecimal digit', false);
-      state.errorIncorrect('Unterminated 4 hexadecimal digit number', true);
-      state.errorExpected('4 hexadecimal digit number');
-      state.endErrorHandling($0);
     }
+    state.errorIncorrect('Expected hexadecimal digit', false);
+    state.errorIncorrect('Unterminated 4 hexadecimal digit number', true);
+    state.errorExpected('4 hexadecimal digit number');
+    state.endErrorHandling($0);
     return null;
   }
 
@@ -323,79 +323,70 @@ class JsonParser {
   ///   }
   /// ```
   Result<String>? parseEscapeC(State state) {
-    Result<String>? $0;
-    final $1 = state.beginErrorHandling();
-    $l:
-    {
-      final $2 = state.peek();
-      // ["]
-      if ($2 == 34) {
-        state.position += 1;
-        const $3 = '"';
-        $0 = const Ok($3);
-        break $l;
-      }
-      // [\\]
-      if ($2 == 92) {
-        state.position += 1;
-        const $4 = '\\';
-        $0 = const Ok($4);
-        break $l;
-      }
-      // [/]
-      if ($2 == 47) {
-        state.position += 1;
-        const $5 = '/';
-        $0 = const Ok($5);
-        break $l;
-      }
-      // [b]
-      if ($2 == 98) {
-        state.position += 1;
-        const $6 = '\b';
-        $0 = const Ok($6);
-        break $l;
-      }
-      // [f]
-      if ($2 == 102) {
-        state.position += 1;
-        const $7 = '\f';
-        $0 = const Ok($7);
-        break $l;
-      }
-      // [n]
-      if ($2 == 110) {
-        state.position += 1;
-        const $8 = '\n';
-        $0 = const Ok($8);
-        break $l;
-      }
-      // [r]
-      if ($2 == 114) {
-        state.position += 1;
-        const $9 = '\r';
-        $0 = const Ok($9);
-        break $l;
-      }
-      // [t]
-      if ($2 == 116) {
-        state.position += 1;
-        const $10 = '\t';
-        $0 = const Ok($10);
-        break $l;
-      }
+    final $0 = state.beginErrorHandling();
+    final $1 = state.peek();
+    // ["]
+    if ($1 == 34) {
+      state.position += 1;
+      const $2 = '"';
+      state.endErrorHandling($0);
+      return const Result($2);
     }
-    if ($0 != null) {
-      state.endErrorHandling($1);
-      return $0;
+    // [\\]
+    if ($1 == 92) {
+      state.position += 1;
+      const $3 = '\\';
+      state.endErrorHandling($0);
+      return const Result($3);
+    }
+    // [/]
+    if ($1 == 47) {
+      state.position += 1;
+      const $4 = '/';
+      state.endErrorHandling($0);
+      return const Result($4);
+    }
+    // [b]
+    if ($1 == 98) {
+      state.position += 1;
+      const $5 = '\b';
+      state.endErrorHandling($0);
+      return const Result($5);
+    }
+    // [f]
+    if ($1 == 102) {
+      state.position += 1;
+      const $6 = '\f';
+      state.endErrorHandling($0);
+      return const Result($6);
+    }
+    // [n]
+    if ($1 == 110) {
+      state.position += 1;
+      const $7 = '\n';
+      state.endErrorHandling($0);
+      return const Result($7);
+    }
+    // [r]
+    if ($1 == 114) {
+      state.position += 1;
+      const $8 = '\r';
+      state.endErrorHandling($0);
+      return const Result($8);
+    }
+    // [t]
+    if ($1 == 116) {
+      state.position += 1;
+      const $9 = '\t';
+      state.endErrorHandling($0);
+      return const Result($9);
+    }
+    if (state.position == state.length) {
+      state.errorExpected('escape character');
     } else {
-      if (state.position == state.length) {
-        state.errorExpected('escape character');
-      } else {
-        state.error('Illegal escape character');
-      }
-      state.endErrorHandling($1);
+      state.error('Illegal escape character');
     }
+    state.endErrorHandling($0);
     return null;
   }
 
@@ -528,147 +519,120 @@ class JsonParser {
   ///   }
   /// ```
   Result<num>? parseNumber(State state) {
-    Result<num>? $0;
+    final $0 = state.position;
     final $1 = state.beginErrorHandling();
+    final start = state.position;
+    var flag = true;
+    final $2 = state.peek();
+    // [\-]
+    if ($2 == 45) {
+      state.position += 1;
+    }
     $l:
     {
-      final $2 = state.position;
-      final start = state.position;
-      var flag = true;
-      final $3 = state.peek();
-      // [\-]
-      if ($3 == 45) {
-        state.position += 1;
-      }
-      var $4 = false;
       $l1:
       {
-        final $5 = state.peek();
+        final $3 = state.peek();
         // [0]
-        if ($5 == 48) {
+        if ($3 == 48) {
           state.position += 1;
-          $4 = true;
           break $l1;
         }
         // [1-9]
-        final $6 = $5 >= 49 && $5 <= 57;
-        if ($6) {
+        final $4 = $3 >= 49 && $3 <= 57;
+        if ($4) {
           state.position += 1;
           // (0)
           while (true) {
-            final $7 = state.peek();
+            final $5 = state.peek();
             // [0-9]
-            final $8 = $7 >= 48 && $7 <= 57;
-            if ($8) {
+            final $6 = $5 >= 48 && $5 <= 57;
+            if ($6) {
               state.position += 1;
               continue;
             }
             break;
           }
-          $4 = true;
           break $l1;
         }
-      }
-      if ($4) {
-        var $9 = false;
-        final $10 = state.beginErrorHandling();
-        $l2:
-        {
-          final $11 = state.position;
-          final $12 = state.peek();
-          // [.]
-          if ($12 == 46) {
-            state.position += 1;
-            var $13 = false;
-            // (1)
-            while (true) {
-              final $14 = state.peek();
-              // [0-9]
-              final $15 = $14 >= 48 && $14 <= 57;
-              if ($15) {
-                state.position += 1;
-                $13 = true;
-                continue;
-              }
-              break;
-            }
-            if ($13) {
-              flag = false;
-              $9 = true;
-              break $l2;
-            } else {
-              state.backtrack($11);
-            }
-          }
-        }
-        if ($9) {
-          state.endErrorHandling($10);
-        } else {
-          state.errorIncorrect('Fractional part is missing a number');
-          state.endErrorHandling($10);
-        }
-        var $16 = false;
-        final $17 = state.beginErrorHandling();
-        $l3:
-        {
-          final $18 = state.position;
-          final $19 = state.peek();
-          // [eE]
-          final $20 = $19 == 69 || $19 == 101;
-          if ($20) {
-            state.position += 1;
-            final $21 = state.peek();
-            // [\-+]
-            final $22 = $21 == 43 || $21 == 45;
-            if ($22) {
-              state.position += 1;
-            }
-            var $23 = false;
-            // (1)
-            while (true) {
-              final $24 = state.peek();
-              // [0-9]
-              final $25 = $24 >= 48 && $24 <= 57;
-              if ($25) {
-                state.position += 1;
-                $23 = true;
-                continue;
-              }
-              break;
-            }
-            if ($23) {
-              flag = false;
-              $16 = true;
-              break $l3;
-            } else {
-              state.backtrack($18);
-            }
-          }
-        }
-        if ($16) {
-          state.endErrorHandling($17);
-        } else {
-          state.errorIncorrect('Exponent part is missing a number');
-          state.endErrorHandling($17);
-        }
-        final $26 = state.substring(start, state.position);
-        final s = $26;
-        parseS(state);
-        final $27 = flag && s.length <= 18 ? int.parse(s) : num.parse(s);
-        $0 = Ok($27);
         break $l;
-      } else {
-        state.backtrack($2);
       }
-    }
-    if ($0 != null) {
+      // $l1:
+      final $7 = state.beginErrorHandling();
+      final $8 = state.position;
+      final $9 = state.peek();
+      // [.]
+      if ($9 == 46) {
+        state.position += 1;
+        var $10 = false;
+        // (1)
+        while (true) {
+          final $11 = state.peek();
+          // [0-9]
+          final $12 = $11 >= 48 && $11 <= 57;
+          if ($12) {
+            state.position += 1;
+            $10 = true;
+            continue;
+          }
+          break;
+        }
+        if ($10) {
+          flag = false;
+          state.endErrorHandling($7);
+        } else {
+          state.backtrack($8);
+        }
+      }
+      state.errorIncorrect('Fractional part is missing a number');
+      state.endErrorHandling($7);
+      final $13 = state.beginErrorHandling();
+      final $14 = state.position;
+      final $15 = state.peek();
+      // [eE]
+      final $16 = $15 == 69 || $15 == 101;
+      if ($16) {
+        state.position += 1;
+        final $17 = state.peek();
+        // [\-+]
+        final $18 = $17 == 43 || $17 == 45;
+        if ($18) {
+          state.position += 1;
+        }
+        var $19 = false;
+        // (1)
+        while (true) {
+          final $20 = state.peek();
+          // [0-9]
+          final $21 = $20 >= 48 && $20 <= 57;
+          if ($21) {
+            state.position += 1;
+            $19 = true;
+            continue;
+          }
+          break;
+        }
+        if ($19) {
+          flag = false;
+          state.endErrorHandling($13);
+        } else {
+          state.backtrack($14);
+        }
+      }
+      state.errorIncorrect('Exponent part is missing a number');
+      state.endErrorHandling($13);
+      final $22 = state.substring(start, state.position);
+      final s = $22;
+      parseS(state);
+      final $23 = flag && s.length <= 18 ? int.parse(s) : num.parse(s);
       state.endErrorHandling($1);
-      return $0;
-    } else {
-      state.errorIncorrect('Unterminated number', true);
-      state.errorExpected('number');
-      state.endErrorHandling($1);
+      return Ok($23);
     }
+    // $l:
+    state.backtrack($0);
+    state.errorIncorrect('Unterminated number', true);
+    state.errorExpected('number');
+    state.endErrorHandling($1);
     return null;
   }
 
@@ -698,7 +662,7 @@ class JsonParser {
       state.position += 4;
       parseS(state);
       const $1 = null;
-      return const Ok($1);
+      return const Result($1);
     } else {
       state.errorExpected('null');
     }
@@ -706,7 +670,7 @@ class JsonParser {
       state.position += 4;
       parseS(state);
       const $2 = true;
-      return const Ok($2);
+      return const Result($2);
     } else {
       state.errorExpected('true');
     }
@@ -714,7 +678,7 @@ class JsonParser {
       state.position += 5;
       parseS(state);
       const $3 = false;
-      return const Ok($3);
+      return const Result($3);
     } else {
       state.errorExpected('false');
     }

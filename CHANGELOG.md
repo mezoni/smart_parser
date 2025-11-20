@@ -1,3 +1,7 @@
+## 1.0.5
+
+- Minor improvements have been made to various generators.
+
 ## 1.0.4
 
 - Implemented a printer for expressions.

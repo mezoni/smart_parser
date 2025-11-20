@@ -2,7 +2,7 @@
 
 This software is a library that generates source code of recursive descent parsers based on a grammar consisting of the parsing expressions and native Dart language source code
 
-Version: 1.0.3
+Version: 1.0.5
 
 [![Pub Package](https://img.shields.io/pub/v/smart_parser.svg)](https://pub.dev/packages/smart_parser)
 [![GitHub Issues](https://img.shields.io/github/issues/mezoni/smart_parser.svg)](https://github.com/mezoni/smart_parser/issues)
@@ -79,17 +79,17 @@ Result<int>? parseABC(State state) {
   // [a]
   if ($0 == 97) {
     state.position += 1;
-    return const Ok(97);
+    return const Result(97);
   }
   // [b]
   if ($0 == 98) {
     state.position += 1;
-    return const Ok(98);
+    return const Result(98);
   }
   // [c]
   if ($0 == 99) {
     state.position += 1;
-    return const Ok(99);
+    return const Result(99);
   }
   return null;
 }
@@ -118,25 +118,28 @@ Dart code:
 /// ```
 Result<(int, int)>? parseABC(State state) {
   final $0 = state.position;
-  Result<int>? $1;
   $l:
   {
-    final $2 = state.peek();
-    // [a]
-    if ($2 == 97) {
-      state.position += 1;
-      $1 = const Ok(97);
+    final int $1;
+    $l1:
+    {
+      final $2 = state.peek();
+      // [a]
+      if ($2 == 97) {
+        state.position += 1;
+        $1 = 97;
+        break $l1;
+      }
+      // [b]
+      if ($2 == 98) {
+        state.position += 1;
+        $1 = 98;
+        break $l1;
+      }
       break $l;
     }
-    // [b]
-    if ($2 == 98) {
-      state.position += 1;
-      $1 = const Ok(98);
-      break $l;
-    }
-  }
-  if ($1 != null) {
-    final ab = $1.$1;
+    // $l1:
+    final ab = $1;
     final $3 = state.peek();
     // [c]
     if ($3 == 99) {
@@ -148,6 +151,7 @@ Result<(int, int)>? parseABC(State state) {
       state.backtrack($0);
     }
   }
+  // $l:
   return null;
 }
 ```
@@ -241,19 +245,19 @@ Result<String>? parseEscape(State state) {
   if ($0 == 110) {
     state.position += 1;
     const $1 = '\n';
-    return const Ok($1);
+    return const Result($1);
   }
   // 'r'
   if ($0 == 114) {
     state.position += 1;
     const $2 = '\r';
-    return const Ok($2);
+    return const Result($2);
   }
   // 't'
   if ($0 == 116) {
     state.position += 1;
     const $3 = '\t';
-    return const Ok($3);
+    return const Result($3);
   }
   return null;
 }
@@ -393,61 +397,62 @@ Result<String>? parseIdentifier(State state) {
   final $0 = state.position;
   state.predicate++;
   var $1 = true;
-  var $2 = false;
   $l:
   {
-    final $3 = state.peek();
-    if ($3 == 102 && state.startsWith('foreach')) {
-      state.position += 7;
-      $2 = true;
+    $l1:
+    {
+      final $2 = state.peek();
+      if ($2 == 102 && state.startsWith('foreach')) {
+        state.position += 7;
+        break $l1;
+      }
+      if ($2 == 102 && state.startsWith('for')) {
+        state.position += 3;
+        break $l1;
+      }
       break $l;
     }
-    if ($3 == 102 && state.startsWith('for')) {
-      state.position += 3;
-      $2 = true;
-      break $l;
-    }
-  }
-  if ($2) {
-    final $4 = state.position;
+    // $l1:
+    final $3 = state.position;
     state.predicate++;
-    var $5 = true;
-    final $6 = state.peek();
+    var $4 = true;
+    final $5 = state.peek();
     // [a-zA-Z0-9]
-    final $7 = $6 <= 90 ? $6 >= 65 || $6 >= 48 && $6 <= 57 : $6 >= 97 && $6 <= 122;
-    if ($7) {
+    final $6 = $5 <= 90 ? $5 >= 65 || $5 >= 48 && $5 <= 57 : $5 >= 97 && $5 <= 122;
+    if ($6) {
       state.position += 1;
-      $5 = false;
-      state.backtrack($4);
+      $4 = false;
+      state.backtrack($3);
     }
     state.predicate--;
-    if ($5) {
+    if ($4) {
       $1 = false;
       state.backtrack($0);
     } else {
       state.backtrack($0);
     }
   }
+  // $l:
   state.predicate--;
   if ($1) {
-    final $8 = state.peek();
+    final $7 = state.peek();
     // [a-zA-Z]
-    final $9 = $8 <= 90 ? $8 >= 65 : $8 >= 97 && $8 <= 122;
-    if ($9) {
+    final $8 = $7 <= 90 ? $7 >= 65 : $7 >= 97 && $7 <= 122;
+    if ($8) {
       state.position += 1;
       // (0)
       while (true) {
-        final $10 = state.peek();
+        final $9 = state.peek();
         // [a-zA-Z0-9]
-        final $11 = $10 <= 90 ? $10 >= 65 || $10 >= 48 && $10 <= 57 : $10 >= 97 && $10 <= 122;
-        if ($11) {
+        final $10 = $9 <= 90 ? $9 >= 65 || $9 >= 48 && $9 <= 57 : $9 >= 97 && $9 <= 122;
+        if ($10) {
           state.position += 1;
           continue;
         }
         break;
       }
-      final $12 = state.substring($0, state.position);
-      return Ok($12);
+      final $11 = state.substring($0, state.position);
+      return Ok($11);
     }
   }
   return null;
@@ -456,6 +461,147 @@ Result<String>? parseIdentifier(State state) {
 
 In practice, this algorithm works quite quickly.  
 Although this is not the fastest parsing method in the world, but it is simple and understandable.
+
+An even faster way to parse identifiers.  
+If the identifier begins with a keyword, no re-parsing is performed.
+
+Grammar code:
+
+```txt
+`String` Identifier =>
+  { var end = -1; }
+  !(
+    (
+      "foreach"
+      ----
+      "for"
+    )
+    ! @while (1) {
+      [a-zA-Z0-9]
+      { end = state.position; }
+    }
+  )
+  $ = <
+    (
+      & { end != -1 }
+      @position({ end })
+      ----
+      [a-zA-Z]
+      [a-zA-Z0-9]*
+    )
+  >
+```
+
+Dart code:
+
+```dart
+/// [String] **Identifier**
+/// ```txt
+/// `String` Identifier =>
+///   { var end = -1; }
+///   !(
+///     (
+///       "foreach"
+///       ----
+///       "for"
+///     )
+///     ! @while (1) {
+///       [a-zA-Z0-9]
+///       { end = state.position; }
+///     }
+///   )
+///   $ = <
+///     (
+///       & { end != -1 }
+///       @position({ end })
+///       ----
+///       [a-zA-Z]
+///       [a-zA-Z0-9]*
+///     )
+///   >
+/// ```
+Result<String>? parseIdentifier(State state) {
+  var end = -1;
+  final $0 = state.position;
+  state.predicate++;
+  var $1 = true;
+  $l:
+  {
+    $l1:
+    {
+      final $2 = state.peek();
+      if ($2 == 102 && state.startsWith('foreach')) {
+        state.position += 7;
+        break $l1;
+      }
+      if ($2 == 102 && state.startsWith('for')) {
+        state.position += 3;
+        break $l1;
+      }
+      break $l;
+    }
+    // $l1:
+    final $3 = state.position;
+    state.predicate++;
+    var $4 = true;
+    var $5 = false;
+    // (1)
+    while (true) {
+      final $6 = state.peek();
+      // [a-zA-Z0-9]
+      final $7 = $6 <= 90 ? $6 >= 65 || $6 >= 48 && $6 <= 57 : $6 >= 97 && $6 <= 122;
+      if ($7) {
+        state.position += 1;
+        end = state.position;
+        $5 = true;
+        continue;
+      }
+      break;
+    }
+    if ($5) {
+      $4 = false;
+      state.backtrack($3);
+    }
+    state.predicate--;
+    if ($4) {
+      $1 = false;
+      state.backtrack($0);
+    } else {
+      state.backtrack($0);
+    }
+  }
+  // $l:
+  state.predicate--;
+  if ($1) {
+    final $8 = end != -1;
+    if ($8) {
+      state.position = end;
+      final $9 = state.substring($0, state.position);
+      return Ok($9);
+    }
+    final $10 = state.peek();
+    // [a-zA-Z]
+    final $11 = $10 <= 90 ? $10 >= 65 : $10 >= 97 && $10 <= 122;
+    if ($11) {
+      state.position += 1;
+      // (0)
+      while (true) {
+        final $12 = state.peek();
+        // [a-zA-Z0-9]
+        final $13 = $12 <= 90 ? $12 >= 65 || $12 >= 48 && $12 <= 57 : $12 >= 97 && $12 <= 122;
+        if ($13) {
+          state.position += 1;
+          continue;
+        }
+        break;
+      }
+      final $14 = state.substring($0, state.position);
+      return Ok($14);
+    }
+  }
+  return null;
+}
+```
 
 ## Grammar
 
@@ -585,41 +731,32 @@ Dart code:
 ///   ~ { state.errorExpected('FOR'); }
 /// ```
 Result<String>? parseFor(State state) {
-  Result<String>? $0;
-  $l:
-  {
-    final $1 = state.position;
-    final $2 = state.peek();
-    // [fF]
-    final $3 = $2 == 70 || $2 == 102;
-    if ($3) {
+  final $0 = state.position;
+  final $1 = state.peek();
+  // [fF]
+  final $2 = $1 == 70 || $1 == 102;
+  if ($2) {
+    state.position += 1;
+    final $3 = state.peek();
+    // [oO]
+    final $4 = $3 == 79 || $3 == 111;
+    if ($4) {
       state.position += 1;
-      final $4 = state.peek();
-      // [oO]
-      final $5 = $4 == 79 || $4 == 111;
-      if ($5) {
+      final $5 = state.peek();
+      // [rR]
+      final $6 = $5 == 82 || $5 == 114;
+      if ($6) {
         state.position += 1;
-        final $6 = state.peek();
-        // [rR]
-        final $7 = $6 == 82 || $6 == 114;
-        if ($7) {
-          state.position += 1;
-          final $8 = state.substring($1, state.position);
-          $0 = Ok($8);
-          break $l;
-        } else {
-          state.backtrack($1);
-        }
+        final $7 = state.substring($0, state.position);
+        return Ok($7);
       } else {
-        state.backtrack($1);
+        state.backtrack($0);
       }
+    } else {
+      state.backtrack($0);
     }
   }
-  if ($0 != null) {
-    return $0;
-  } else {
-    state.errorExpected('FOR');
-  }
+  state.errorExpected('FOR');
   return null;
 }
 ```
@@ -764,10 +901,10 @@ Result<int>? parseHexValue(State state) {
     return Ok($5);
   } else {
     state.backtrack($1);
-    state.errorIncorrect('Invalid four-digit number', true);
-    state.errorExpected('hex number');
-    state.endErrorHandling($0);
   }
+  state.errorIncorrect('Invalid four-digit number', true);
+  state.errorExpected('hex number');
+  state.endErrorHandling($0);
   return null;
 }
 ```
@@ -1011,7 +1148,7 @@ Result<int>? parseA(State state) {
   // [a]
   if ($0 == 97) {
     state.position += 1;
-    return const Ok(97);
+    return const Result(97);
   }
   return null;
 }
@@ -1152,7 +1289,7 @@ Result<int>? parseSpace(State state) {
   // [ ]
   if ($0 == 32) {
     state.position += 1;
-    return const Ok(32);
+    return const Result(32);
   }
   return null;
 }
@@ -1209,7 +1346,7 @@ Result<int>? parseSpace(State state) {
   // [ ]
   if ($0 == 32) {
     state.position += 1;
-    return const Ok(32);
+    return const Result(32);
   }
   return null;
 }
@@ -1237,7 +1374,7 @@ Result<int>? parseSpace(State state) {
   // [\^]
   if ($0 == 94) {
     state.position += 1;
-    return const Ok(94);
+    return const Result(94);
   }
   return null;
 }
@@ -1263,7 +1400,7 @@ Result<int>? parseSpace(State state) {
   // [\{]
   if ($0 == 123) {
     state.position += 1;
-    return const Ok(123);
+    return const Result(123);
   }
   return null;
 }
@@ -1307,12 +1444,12 @@ Result<int>? parseAB(State state) {
     // [b]
     if ($2 == 98) {
       state.position += 1;
-      return const Ok(98);
+      return const Result(98);
     }
     // [c]
     if ($2 == 99) {
       state.position += 1;
-      return const Ok(99);
+      return const Result(99);
     }
     state.backtrack($0);
   }
@@ -1341,33 +1478,37 @@ Dart code:
 /// ```
 Result<int>? parseAB(State state) {
   final $0 = state.position;
-  Result<int>? $1;
   $l:
   {
-    final $2 = state.peek();
-    // [b]
-    if ($2 == 98) {
-      state.position += 1;
-      $1 = const Ok(98);
+    final int $1;
+    $l1:
+    {
+      final $2 = state.peek();
+      // [b]
+      if ($2 == 98) {
+        state.position += 1;
+        $1 = 98;
+        break $l1;
+      }
+      // [c]
+      if ($2 == 99) {
+        state.position += 1;
+        $1 = 99;
+        break $l1;
+      }
       break $l;
     }
-    // [c]
-    if ($2 == 99) {
-      state.position += 1;
-      $1 = const Ok(99);
-      break $l;
-    }
-  }
-  if ($1 != null) {
+    // $l1:
     final $3 = state.peek();
     // [a]
     if ($3 == 97) {
       state.position += 1;
-      return $1;
+      return Ok($1);
     } else {
       state.backtrack($0);
     }
   }
+  // $l:
   return null;
 }
 ```
@@ -1402,7 +1543,7 @@ Result<String>? parseFor(State state) {
   final $0 = state.peek();
   if ($0 == 102 && state.startsWith('for')) {
     state.position += 3;
-    return const Ok('for');
+    return const Result('for');
   }
   return null;
 }
@@ -1454,7 +1595,7 @@ Result<String>? parseFor(State state) {
   final $0 = state.peek();
   if ($0 == 102 && state.startsWith('for')) {
     state.position += 3;
-    return const Ok('for');
+    return const Result('for');
   } else {
     state.errorExpected('for');
   }
@@ -1512,7 +1653,7 @@ Result<String>? parseFor(State state) {
   final $0 = state.peek();
   if ($0 == 102 && state.startsWith('for')) {
     state.position += 3;
-    return const Ok('for');
+    return const Result('for');
   } else {
     state.errorExpected('foo');
   }
@@ -1603,23 +1744,18 @@ Result<void>? parseNotPredicate(State state) {
   final $0 = state.position;
   state.predicate++;
   var $1 = true;
-  $l:
-  {
-    final $2 = state.peek();
-    // [a]
-    if ($2 == 97) {
-      state.position += 1;
-      $1 = false;
-      state.backtrack($0);
-      break $l;
-    }
-    // [b]
-    if ($2 == 98) {
-      state.position += 1;
-      $1 = false;
-      state.backtrack($0);
-      break $l;
-    }
+  final $2 = state.peek();
+  // [a]
+  if ($2 == 97) {
+    state.position += 1;
+    $1 = false;
+    state.backtrack($0);
+  }
+  // [b]
+  if ($2 == 98) {
+    state.position += 1;
+    $1 = false;
+    state.backtrack($0);
   }
   state.predicate--;
   if ($1) {
@@ -1882,6 +2018,7 @@ Result<int?> parseOptional(State state) {
       break $l;
     }
   }
+  // $l:
   return Ok($0);
 }
 ```
@@ -1916,6 +2053,7 @@ Result<void> parseOptional(State state) {
       break $l;
     }
   }
+  // $l:
   return Result.none;
 }
 ```
@@ -2024,12 +2162,12 @@ Result<int>? parseAOrB(State state) {
   // [a]
   if ($0 == 97) {
     state.position += 1;
-    return const Ok(97);
+    return const Result(97);
   }
   // [b]
   if ($0 == 98) {
     state.position += 1;
-    return const Ok(98);
+    return const Result(98);
   }
   return null;
 }
@@ -2096,12 +2234,12 @@ Result<int>? parseAOrB(State state) {
   // [a]
   if ($0 == 97) {
     state.position += 1;
-    return const Ok(97);
+    return const Result(97);
   }
   // [b]
   if ($0 == 98) {
     state.position += 1;
-    return const Ok(98);
+    return const Result(98);
   }
   return null;
 }
@@ -2180,7 +2318,7 @@ Result<(int, int)>? parseAB(State state) {
       state.position += 1;
       const b = 98;
       const $3 = (a, b);
-      return const Ok($3);
+      return const Result($3);
     } else {
       state.backtrack($0);
     }
@@ -2619,7 +2757,7 @@ Result<String>? parseEndTag(State state) {
   final $1 = state.peek();
   if ($1 == 45 && state.startsWith('-->')) {
     state.position += 3;
-    return const Ok('-->');
+    return const Result('-->');
   } else {
     state.errorExpected('-->');
     state.backtrack($0);
@@ -3045,41 +3183,44 @@ Dart code:
 ///   ~ { state.errorExpected('FOR'); }
 /// ```
 Result<String>? parseFor(State state) {
-  Result<String>? $0;
   $l:
   {
-    final $1 = state.position;
-    final $2 = state.peek();
-    // [fF]
-    final $3 = $2 == 70 || $2 == 102;
-    if ($3) {
-      state.position += 1;
-      final $4 = state.peek();
-      // [oO]
-      final $5 = $4 == 79 || $4 == 111;
-      if ($5) {
+    final String $0;
+    $l1:
+    {
+      final $1 = state.position;
+      final $2 = state.peek();
+      // [fF]
+      final $3 = $2 == 70 || $2 == 102;
+      if ($3) {
         state.position += 1;
-        final $6 = state.peek();
-        // [rR]
-        final $7 = $6 == 82 || $6 == 114;
-        if ($7) {
+        final $4 = state.peek();
+        // [oO]
+        final $5 = $4 == 79 || $4 == 111;
+        if ($5) {
           state.position += 1;
-          const $8 = 'FOR';
-          $0 = const Ok($8);
-          break $l;
+          final $6 = state.peek();
+          // [rR]
+          final $7 = $6 == 82 || $6 == 114;
+          if ($7) {
+            state.position += 1;
+            const $8 = 'FOR';
+            $0 = $8;
+            break $l1;
+          } else {
+            state.backtrack($1);
+          }
         } else {
           state.backtrack($1);
         }
-      } else {
-        state.backtrack($1);
       }
+      break $l;
     }
+    // $l1:
+    return Ok($0);
   }
-  if ($0 != null) {
-    return $0;
-  } else {
-    state.errorExpected('FOR');
-  }
+  // $l:
+  state.errorExpected('FOR');
   return null;
 }
 ```
@@ -3164,40 +3305,31 @@ Dart code:
 ///   ~ { state.errorExpected('FOR'); }
 /// ```
 Result<void>? parseFor(State state) {
-  var $0 = false;
-  $l:
-  {
-    final $1 = state.position;
-    final $2 = state.peek();
-    // [fF]
-    final $3 = $2 == 70 || $2 == 102;
-    if ($3) {
+  final $0 = state.position;
+  final $1 = state.peek();
+  // [fF]
+  final $2 = $1 == 70 || $1 == 102;
+  if ($2) {
+    state.position += 1;
+    final $3 = state.peek();
+    // [oO]
+    final $4 = $3 == 79 || $3 == 111;
+    if ($4) {
       state.position += 1;
-      final $4 = state.peek();
-      // [oO]
-      final $5 = $4 == 79 || $4 == 111;
-      if ($5) {
+      final $5 = state.peek();
+      // [rR]
+      final $6 = $5 == 82 || $5 == 114;
+      if ($6) {
         state.position += 1;
-        final $6 = state.peek();
-        // [rR]
-        final $7 = $6 == 82 || $6 == 114;
-        if ($7) {
-          state.position += 1;
-          $0 = true;
-          break $l;
-        } else {
-          state.backtrack($1);
-        }
+        return Result.none;
       } else {
-        state.backtrack($1);
+        state.backtrack($0);
       }
+    } else {
+      state.backtrack($0);
     }
   }
-  if ($0) {
-    return Result.none;
-  } else {
-    state.errorExpected('FOR');
-  }
+  state.errorExpected('FOR');
   return null;
 }
 ```
@@ -3224,41 +3356,44 @@ Dart code:
 ///   ~ { state.errorExpected('FOR'); }
 /// ```
 Result<String>? parseFor(State state) {
-  Result<String>? $0;
   $l:
   {
-    final $1 = state.position;
-    final $2 = state.peek();
-    // [fF]
-    final $3 = $2 == 70 || $2 == 102;
-    if ($3) {
-      state.position += 1;
-      final $4 = state.peek();
-      // [oO]
-      final $5 = $4 == 79 || $4 == 111;
-      if ($5) {
+    final String $0;
+    $l1:
+    {
+      final $1 = state.position;
+      final $2 = state.peek();
+      // [fF]
+      final $3 = $2 == 70 || $2 == 102;
+      if ($3) {
         state.position += 1;
-        final $6 = state.peek();
-        // [rR]
-        final $7 = $6 == 82 || $6 == 114;
-        if ($7) {
+        final $4 = state.peek();
+        // [oO]
+        final $5 = $4 == 79 || $4 == 111;
+        if ($5) {
           state.position += 1;
-          const $8 = 'FOR';
-          $0 = const Ok($8);
-          break $l;
+          final $6 = state.peek();
+          // [rR]
+          final $7 = $6 == 82 || $6 == 114;
+          if ($7) {
+            state.position += 1;
+            const $8 = 'FOR';
+            $0 = $8;
+            break $l1;
+          } else {
+            state.backtrack($1);
+          }
         } else {
           state.backtrack($1);
         }
-      } else {
-        state.backtrack($1);
       }
+      break $l;
     }
+    // $l1:
+    return Ok($0);
   }
-  if ($0 != null) {
-    return $0;
-  } else {
-    state.errorExpected('FOR');
-  }
+  // $l:
+  state.errorExpected('FOR');
   return null;
 }
 ```
@@ -3283,41 +3418,32 @@ Dart code:
 ///   ~ { state.errorExpected('FOR'); }
 /// ```
 Result<String>? parseFor(State state) {
-  Result<String>? $0;
-  $l:
-  {
-    final $1 = state.position;
-    final $2 = state.peek();
-    // [fF]
-    final $3 = $2 == 70 || $2 == 102;
-    if ($3) {
+  final $0 = state.position;
+  final $1 = state.peek();
+  // [fF]
+  final $2 = $1 == 70 || $1 == 102;
+  if ($2) {
+    state.position += 1;
+    final $3 = state.peek();
+    // [oO]
+    final $4 = $3 == 79 || $3 == 111;
+    if ($4) {
       state.position += 1;
-      final $4 = state.peek();
-      // [oO]
-      final $5 = $4 == 79 || $4 == 111;
-      if ($5) {
+      final $5 = state.peek();
+      // [rR]
+      final $6 = $5 == 82 || $5 == 114;
+      if ($6) {
         state.position += 1;
-        final $6 = state.peek();
-        // [rR]
-        final $7 = $6 == 82 || $6 == 114;
-        if ($7) {
-          state.position += 1;
-          final $8 = state.substring($1, state.position);
-          $0 = Ok($8);
-          break $l;
-        } else {
-          state.backtrack($1);
-        }
+        final $7 = state.substring($0, state.position);
+        return Ok($7);
       } else {
-        state.backtrack($1);
+        state.backtrack($0);
       }
+    } else {
+      state.backtrack($0);
     }
   }
-  if ($0 != null) {
-    return $0;
-  } else {
-    state.errorExpected('FOR');
-  }
+  state.errorExpected('FOR');
   return null;
 }
 ```

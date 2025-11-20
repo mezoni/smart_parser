@@ -501,3 +501,49 @@
     [a-zA-Z]
     [a-zA-Z0-9]*
   >
+
+`String` Identifier1 =>
+  { var end = -1; }
+  !(
+    (
+      "foreach"
+      ----
+      "for"
+    )
+    ! @while (1) {
+      [a-zA-Z0-9]
+      { end = state.position; }
+    }
+  )
+  $ = <
+    (
+      & { end != -1 }
+      @position({ end })
+      ----
+      [a-zA-Z]
+      [a-zA-Z0-9]*
+    )
+  >
+
+`void` IdentifierVoid1 =>
+  { var end = -1; }
+  !(
+    (
+      "foreach"
+      ----
+      "for"
+    )
+    ! @while (1) {
+      [a-zA-Z0-9]
+      { end = state.position; }
+    }
+  )
+  $ = <
+    (
+      & { end != -1 }
+      @position({ end })
+      ----
+      [a-zA-Z]
+      [a-zA-Z0-9]*
+    )
+  >
