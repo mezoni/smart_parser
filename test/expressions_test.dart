@@ -7540,7 +7540,7 @@ class _TestParser {
   /// ```
   Result<int> parseAction0(State state) {
     const $0 = 41;
-    return const Result($0);
+    return const Ok($0);
   }
 
   /// [void] **ActionVoid0**
@@ -7560,7 +7560,7 @@ class _TestParser {
   /// ```
   Result<int> parseAction1(State state) {
     const int $0 = 41;
-    return const Result($0);
+    return const Ok($0);
   }
 
   /// [void] **ActionVoid1**
@@ -7582,7 +7582,7 @@ class _TestParser {
   Result<int> parseAction2(State state) {
     const x = 41;
     const $0 = x;
-    return const Result($0);
+    return const Ok($0);
   }
 
   /// [void] **ActionVoid2**
@@ -7614,7 +7614,7 @@ class _TestParser {
       final $2 = state.peek();
       if ($2 == 97 && state.startsWith('abcd')) {
         state.position += 4;
-        return const Result('abcd');
+        return const Ok('abcd');
       } else {
         state.errorExpected('abcd');
       }
@@ -7864,7 +7864,7 @@ class _TestParser {
     // [a]
     if ($0 == 97) {
       state.position += 1;
-      return const Result(97);
+      return const Ok(97);
     }
     return null;
   }
@@ -8054,7 +8054,7 @@ class _TestParser {
     // [\^]
     if ($0 == 94) {
       state.position += 1;
-      return const Result(94);
+      return const Ok(94);
     }
     return null;
   }
@@ -8084,7 +8084,7 @@ class _TestParser {
     // [\-]
     if ($0 == 45) {
       state.position += 1;
-      return const Result(45);
+      return const Ok(45);
     }
     return null;
   }
@@ -8114,7 +8114,7 @@ class _TestParser {
     // [ ]
     if ($0 == 32) {
       state.position += 1;
-      return const Result(32);
+      return const Ok(32);
     }
     return null;
   }
@@ -8176,7 +8176,7 @@ class _TestParser {
     // [{0}]
     if ($0 == 0) {
       state.position += 1;
-      return const Result(0);
+      return const Ok(0);
     }
     return null;
   }
@@ -8302,12 +8302,12 @@ class _TestParser {
     // [a]
     if ($0 == 97) {
       state.position += 1;
-      return const Result(97);
+      return const Ok(97);
     }
     // [z]
     if ($0 == 122) {
       state.position += 1;
-      return const Result(122);
+      return const Ok(122);
     }
     return null;
   }
@@ -8341,7 +8341,7 @@ class _TestParser {
     final $0 = state.peek();
     if ($0 == 97 && state.startsWith('abc')) {
       state.position += 3;
-      return const Result('abc');
+      return const Ok('abc');
     } else {
       state.errorExpected('abc');
     }
@@ -8373,7 +8373,7 @@ class _TestParser {
     final $0 = state.peek();
     if ($0 == 97 && state.startsWith('abc')) {
       state.position += 3;
-      return const Result('abc');
+      return const Ok('abc');
     }
     return null;
   }
@@ -8398,7 +8398,7 @@ class _TestParser {
   ///   ""
   /// ```
   Result<String> parseLiteral2(State state) {
-    return const Result('');
+    return const Ok('');
   }
 
   /// [void] **LiteralVoid2**
@@ -8417,7 +8417,7 @@ class _TestParser {
   /// ```
   Result<String> parseLiteral3(State state) {
     if (true) {
-      return const Result('');
+      return const Ok('');
     } else {
       state.errorExpected('');
     }
@@ -8445,7 +8445,7 @@ class _TestParser {
     final $0 = state.peek();
     if ($0 == 13 && state.startsWith('\r\n')) {
       state.position += 2;
-      return const Result('\r\n');
+      return const Ok('\r\n');
     }
     return null;
   }
@@ -8487,7 +8487,7 @@ class _TestParser {
       final $2 = state.peek();
       if ($2 == 97 && state.startsWith('ab')) {
         state.position += 2;
-        return const Result('ab');
+        return const Ok('ab');
       } else {
         state.errorExpected('ab');
       }
@@ -8554,7 +8554,7 @@ class _TestParser {
           state.errorExpected('=>');
         }
         state.predicate--;
-        return const Result('abc');
+        return const Ok('abc');
       }
       // $l:
       state.predicate--;
@@ -8716,8 +8716,8 @@ class _TestParser {
       } else {
         state.errorExpected('');
       }
-      // Not a well-formed 'NotPredicate' expression.
-      // The child expression 'LiteralExpression' always succeeds.
+      // Not a well-formed 'NotPredicateExpression' expression.
+      // The child expression always succeeds.
       state.predicate--;
       return Result.none;
     }
@@ -8743,8 +8743,8 @@ class _TestParser {
       }
       state.backtrack($0);
       break $l;
-      // Not a well-formed 'NotPredicate' expression.
-      // The child expression 'OptionalExpression' always succeeds.
+      // Not a well-formed 'NotPredicateExpression' expression.
+      // The child expression always succeeds.
       state.predicate--;
       return Result.none;
     }
@@ -8780,8 +8780,8 @@ class _TestParser {
       // $l1:
       state.backtrack($0);
       break $l;
-      // Not a well-formed 'NotPredicate' expression.
-      // The child expression 'OptionalExpression' always succeeds.
+      // Not a well-formed 'NotPredicateExpression' expression.
+      // The child expression always succeeds.
       state.predicate--;
       return Result.none;
     }
@@ -9098,7 +9098,7 @@ class _TestParser {
     // [c]
     if ($2 == 99) {
       state.position += 1;
-      return const Result(99);
+      return const Ok(99);
     } else {
       state.backtrack($0);
     }
@@ -9423,14 +9423,14 @@ class _TestParser {
     if ($1 == 98 && state.startsWith('bar')) {
       state.position += 3;
       state.restoreErrorState($0);
-      return const Result('bar');
+      return const Ok('bar');
     } else {
       state.errorExpected('bar');
     }
     if ($1 == 98 && state.startsWith('baz')) {
       state.position += 3;
       state.restoreErrorState($0);
-      return const Result('baz');
+      return const Ok('baz');
     } else {
       state.errorExpected('baz');
     }
@@ -9486,7 +9486,7 @@ class _TestParser {
     final $0 = state.peek();
     if ($0 == 102 && state.startsWith('foo')) {
       state.position += 3;
-      return const Result('foo');
+      return const Ok('foo');
     } else {
       state.errorExpected('foo');
     }

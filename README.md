@@ -79,17 +79,17 @@ Result<int>? parseABC(State state) {
   // [a]
   if ($0 == 97) {
     state.position += 1;
-    return const Result(97);
+    return const Ok(97);
   }
   // [b]
   if ($0 == 98) {
     state.position += 1;
-    return const Result(98);
+    return const Ok(98);
   }
   // [c]
   if ($0 == 99) {
     state.position += 1;
-    return const Result(99);
+    return const Ok(99);
   }
   return null;
 }
@@ -245,19 +245,19 @@ Result<String>? parseEscape(State state) {
   if ($0 == 110) {
     state.position += 1;
     const $1 = '\n';
-    return const Result($1);
+    return const Ok($1);
   }
   // 'r'
   if ($0 == 114) {
     state.position += 1;
     const $2 = '\r';
-    return const Result($2);
+    return const Ok($2);
   }
   // 't'
   if ($0 == 116) {
     state.position += 1;
     const $3 = '\t';
-    return const Result($3);
+    return const Ok($3);
   }
   return null;
 }
@@ -1156,7 +1156,7 @@ Result<int>? parseA(State state) {
   // [a]
   if ($0 == 97) {
     state.position += 1;
-    return const Result(97);
+    return const Ok(97);
   }
   return null;
 }
@@ -1297,7 +1297,7 @@ Result<int>? parseSpace(State state) {
   // [ ]
   if ($0 == 32) {
     state.position += 1;
-    return const Result(32);
+    return const Ok(32);
   }
   return null;
 }
@@ -1354,7 +1354,7 @@ Result<int>? parseSpace(State state) {
   // [ ]
   if ($0 == 32) {
     state.position += 1;
-    return const Result(32);
+    return const Ok(32);
   }
   return null;
 }
@@ -1382,7 +1382,7 @@ Result<int>? parseSpace(State state) {
   // [\^]
   if ($0 == 94) {
     state.position += 1;
-    return const Result(94);
+    return const Ok(94);
   }
   return null;
 }
@@ -1408,7 +1408,7 @@ Result<int>? parseSpace(State state) {
   // [\{]
   if ($0 == 123) {
     state.position += 1;
-    return const Result(123);
+    return const Ok(123);
   }
   return null;
 }
@@ -1452,12 +1452,12 @@ Result<int>? parseAB(State state) {
     // [b]
     if ($2 == 98) {
       state.position += 1;
-      return const Result(98);
+      return const Ok(98);
     }
     // [c]
     if ($2 == 99) {
       state.position += 1;
-      return const Result(99);
+      return const Ok(99);
     }
     state.backtrack($0);
   }
@@ -1551,7 +1551,7 @@ Result<String>? parseFor(State state) {
   final $0 = state.peek();
   if ($0 == 102 && state.startsWith('for')) {
     state.position += 3;
-    return const Result('for');
+    return const Ok('for');
   }
   return null;
 }
@@ -1603,7 +1603,7 @@ Result<String>? parseFor(State state) {
   final $0 = state.peek();
   if ($0 == 102 && state.startsWith('for')) {
     state.position += 3;
-    return const Result('for');
+    return const Ok('for');
   } else {
     state.errorExpected('for');
   }
@@ -1661,7 +1661,7 @@ Result<String>? parseFor(State state) {
   final $0 = state.peek();
   if ($0 == 102 && state.startsWith('for')) {
     state.position += 3;
-    return const Result('for');
+    return const Ok('for');
   } else {
     state.errorExpected('foo');
   }
@@ -2174,12 +2174,12 @@ Result<int>? parseAOrB(State state) {
   // [a]
   if ($0 == 97) {
     state.position += 1;
-    return const Result(97);
+    return const Ok(97);
   }
   // [b]
   if ($0 == 98) {
     state.position += 1;
-    return const Result(98);
+    return const Ok(98);
   }
   return null;
 }
@@ -2246,12 +2246,12 @@ Result<int>? parseAOrB(State state) {
   // [a]
   if ($0 == 97) {
     state.position += 1;
-    return const Result(97);
+    return const Ok(97);
   }
   // [b]
   if ($0 == 98) {
     state.position += 1;
-    return const Result(98);
+    return const Ok(98);
   }
   return null;
 }
@@ -2330,7 +2330,7 @@ Result<(int, int)>? parseAB(State state) {
       state.position += 1;
       const b = 98;
       const $3 = (a, b);
-      return const Result($3);
+      return const Ok($3);
     } else {
       state.backtrack($0);
     }
@@ -2769,7 +2769,7 @@ Result<String>? parseEndTag(State state) {
   final $1 = state.peek();
   if ($1 == 45 && state.startsWith('-->')) {
     state.position += 3;
-    return const Result('-->');
+    return const Ok('-->');
   } else {
     state.errorExpected('-->');
     state.backtrack($0);

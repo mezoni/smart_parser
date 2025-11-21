@@ -175,7 +175,7 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
       final printed = node.accept(printer);
       if (char != null) {
         final value = '$char';
-        final result = 'const Result($value)';
+        final result = 'const Ok($value)';
         final charSize = _charSize(value, [(char, char)], false);
         code.writeln('// $printed');
         final isTrue = '$ch == $char';
@@ -237,7 +237,7 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
     start.onProcess((code) {
       if (text.isEmpty) {
         final value = escaped;
-        final result = 'const Result($escaped)';
+        final result = 'const Ok($escaped)';
         const isTrue = 'true';
         const isFalse = 'false';
         final handler = code.ifElse(isTrue, isFalse);
@@ -264,7 +264,7 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
         final c = _getCh(code);
         cache.clear();
         final value = isVoid ? _noneValue : escaped;
-        final result = isVoid ? _none : 'const Result($escaped)';
+        final result = isVoid ? _none : 'const Ok($escaped)';
         final length = _strlen(escaped, text);
         final test = runes.length == 1
             ? '$c == $firstRune'
@@ -332,9 +332,10 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
         state0.build(code);
         cache.restore(data);
         if (isAlwaysSuccessful) {
-          code.writeln('// Not a well-formed \'NotPredicate\' expression.');
-          code.writeln(
-            '// The child expression \'${child.runtimeType}\' always succeeds.',
+          _writeInfoAboutMalformedExpression(
+            code,
+            node,
+            'The child expression always succeeds.',
           );
         }
 
@@ -345,64 +346,6 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
       code.stmt('state.predicate--');
       cache.restore(data);
       start.reject(code);
-    });
-
-    return start;
-  }
-
-  @override
-  ExpressionState visitNotPredicate__(NotPredicateExpression node) {
-    final child = node.expression;
-    final canChangePosition = child.canChangePosition;
-    final isComplete = node.isComplete;
-    final combine = !isComplete;
-    final usePosition = canChangePosition;
-    final start = _newState();
-    final state0 = _buildExpression(child);
-    var label = _invalid;
-    var isSuccess = _invalid;
-    start.onPreprocess((code) {
-      final pos = !usePosition ? _invalid : _getPosition(code);
-      code.stmt('state.predicate++');
-      cache.clone();
-      isSuccess = _allocate();
-      code.declare('var', isSuccess, 'true');
-      label = _allocateIf(combine, 'l');
-      state0.onAccept((event) {
-        final code = event.output;
-        code.assign(isSuccess, 'false');
-        if (usePosition) {
-          code.stmt('state.backtrack($pos)');
-        }
-
-        if (combine) {
-          code.stmt('break $label');
-        }
-      });
-    });
-
-    start.onProcess((code) {
-      final data = cache.data;
-      if (combine) {
-        code.writeln('$label:');
-        code.group((code) {
-          cache.clone();
-          state0.build(code);
-        });
-        code.writeln('// $label:');
-      } else {
-        state0.build(code);
-      }
-
-      final isTrue = isSuccess;
-      final isFalse = '!$isSuccess';
-      code.stmt('state.predicate--');
-      final handler = code.ifElse(isTrue, isFalse);
-      handler.ifBlock((code) {
-        cache.restore(data);
-        _acceptVoid(code, start);
-      });
-      handler.elseBlock(start.reject);
     });
 
     return start;
@@ -529,6 +472,17 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
     start.onProcess((code) {
       final data = cache.data;
       for (var i = 0; i < states.length; i++) {
+        if (i > 0) {
+          final previous = children[i - 1];
+          if (previous.isAlwaysSuccessful) {
+            _writeInfoAboutMalformedExpression(
+              code,
+              node,
+              'The previous child expression (#${i - 1}) always succeeds.',
+            );
+          }
+        }
+
         final state = states[i];
         cache.restore(data);
         state.build(code);
@@ -840,7 +794,7 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
 
         final value = _allocate();
         code.declare(type, value, source.trim());
-        final result = isConst ? 'const Result($value)' : 'Ok($value)';
+        final result = isConst ? 'const Ok($value)' : 'Ok($value)';
         start.accept(
           AcceptEvent(
             output: code,
@@ -1284,5 +1238,15 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
     for (final line in lines) {
       code.writeln(line.trimRight());
     }
+  }
+
+  void _writeInfoAboutMalformedExpression(
+    Code code,
+    Expression node,
+    String reason,
+  ) {
+    code.writeln('// Not a well-formed \'${node.runtimeType}\' expression.');
+    if (reason.isNotEmpty) {}
+    code.writeln('// $reason');
   }
 }

@@ -280,56 +280,56 @@ class JsonTokenizer {
       state.position += 1;
       const $2 = '"';
       state.endErrorHandling($0);
-      return const Result($2);
+      return const Ok($2);
     }
     // [\\]
     if ($1 == 92) {
       state.position += 1;
       const $3 = '\\';
       state.endErrorHandling($0);
-      return const Result($3);
+      return const Ok($3);
     }
     // [/]
     if ($1 == 47) {
       state.position += 1;
       const $4 = '/';
       state.endErrorHandling($0);
-      return const Result($4);
+      return const Ok($4);
     }
     // [b]
     if ($1 == 98) {
       state.position += 1;
       const $5 = '\b';
       state.endErrorHandling($0);
-      return const Result($5);
+      return const Ok($5);
     }
     // [f]
     if ($1 == 102) {
       state.position += 1;
       const $6 = '\f';
       state.endErrorHandling($0);
-      return const Result($6);
+      return const Ok($6);
     }
     // [n]
     if ($1 == 110) {
       state.position += 1;
       const $7 = '\n';
       state.endErrorHandling($0);
-      return const Result($7);
+      return const Ok($7);
     }
     // [r]
     if ($1 == 114) {
       state.position += 1;
       const $8 = '\r';
       state.endErrorHandling($0);
-      return const Result($8);
+      return const Ok($8);
     }
     // [t]
     if ($1 == 116) {
       state.position += 1;
       const $9 = '\t';
       state.endErrorHandling($0);
-      return const Result($9);
+      return const Ok($9);
     }
     state.error('Illegal escape character');
     state.endErrorHandling($0);
