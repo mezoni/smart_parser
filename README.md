@@ -396,65 +396,68 @@ Dart code:
 Result<String>? parseIdentifier(State state) {
   final $0 = state.position;
   state.predicate++;
-  var $1 = true;
   $l:
   {
     $l1:
     {
-      final $2 = state.peek();
-      if ($2 == 102 && state.startsWith('foreach')) {
-        state.position += 7;
+      $l2:
+      {
+        final $1 = state.peek();
+        if ($1 == 102 && state.startsWith('foreach')) {
+          state.position += 7;
+          break $l2;
+        }
+        if ($1 == 102 && state.startsWith('for')) {
+          state.position += 3;
+          break $l2;
+        }
         break $l1;
       }
-      if ($2 == 102 && state.startsWith('for')) {
-        state.position += 3;
-        break $l1;
+      // $l2:
+      final $2 = state.position;
+      state.predicate++;
+      $l3:
+      {
+        final $3 = state.peek();
+        // [a-zA-Z0-9]
+        final $4 = $3 <= 90 ? $3 >= 65 || $3 >= 48 && $3 <= 57 : $3 >= 97 && $3 <= 122;
+        if ($4) {
+          state.position += 1;
+          state.backtrack($2);
+          break $l3;
+        }
+        state.predicate--;
+        state.backtrack($0);
+        break $l;
       }
-      break $l;
+      // $l3:
+      state.predicate--;
+      state.backtrack($0);
     }
     // $l1:
-    final $3 = state.position;
-    state.predicate++;
-    var $4 = true;
-    final $5 = state.peek();
-    // [a-zA-Z0-9]
-    final $6 = $5 <= 90 ? $5 >= 65 || $5 >= 48 && $5 <= 57 : $5 >= 97 && $5 <= 122;
-    if ($6) {
-      state.position += 1;
-      $4 = false;
-      state.backtrack($3);
-    }
     state.predicate--;
-    if ($4) {
-      $1 = false;
-      state.backtrack($0);
-    } else {
-      state.backtrack($0);
-    }
-  }
-  // $l:
-  state.predicate--;
-  if ($1) {
-    final $7 = state.peek();
+    final $5 = state.peek();
     // [a-zA-Z]
-    final $8 = $7 <= 90 ? $7 >= 65 : $7 >= 97 && $7 <= 122;
-    if ($8) {
+    final $6 = $5 <= 90 ? $5 >= 65 : $5 >= 97 && $5 <= 122;
+    if ($6) {
       state.position += 1;
       // (0)
       while (true) {
-        final $9 = state.peek();
+        final $7 = state.peek();
         // [a-zA-Z0-9]
-        final $10 = $9 <= 90 ? $9 >= 65 || $9 >= 48 && $9 <= 57 : $9 >= 97 && $9 <= 122;
-        if ($10) {
+        final $8 = $7 <= 90 ? $7 >= 65 || $7 >= 48 && $7 <= 57 : $7 >= 97 && $7 <= 122;
+        if ($8) {
           state.position += 1;
           continue;
         }
         break;
       }
-      final $11 = state.substring($0, state.position);
-      return Ok($11);
+      final $9 = state.substring($0, state.position);
+      return Ok($9);
     }
   }
+  // $l:
+  state.predicate--;
   return null;
 }
 ```
@@ -524,81 +527,84 @@ Result<String>? parseIdentifier(State state) {
   var end = -1;
   final $0 = state.position;
   state.predicate++;
-  var $1 = true;
   $l:
   {
     $l1:
     {
-      final $2 = state.peek();
-      if ($2 == 102 && state.startsWith('foreach')) {
-        state.position += 7;
+      $l2:
+      {
+        final $1 = state.peek();
+        if ($1 == 102 && state.startsWith('foreach')) {
+          state.position += 7;
+          break $l2;
+        }
+        if ($1 == 102 && state.startsWith('for')) {
+          state.position += 3;
+          break $l2;
+        }
         break $l1;
       }
-      if ($2 == 102 && state.startsWith('for')) {
-        state.position += 3;
-        break $l1;
+      // $l2:
+      final $2 = state.position;
+      state.predicate++;
+      $l3:
+      {
+        var $3 = false;
+        // (1)
+        while (true) {
+          final $4 = state.peek();
+          // [a-zA-Z0-9]
+          final $5 = $4 <= 90 ? $4 >= 65 || $4 >= 48 && $4 <= 57 : $4 >= 97 && $4 <= 122;
+          if ($5) {
+            state.position += 1;
+            end = state.position;
+            $3 = true;
+            continue;
+          }
+          break;
+        }
+        if ($3) {
+          state.backtrack($2);
+          break $l3;
+        }
+        state.predicate--;
+        state.backtrack($0);
+        break $l;
       }
-      break $l;
+      // $l3:
+      state.predicate--;
+      state.backtrack($0);
     }
     // $l1:
-    final $3 = state.position;
-    state.predicate++;
-    var $4 = true;
-    var $5 = false;
-    // (1)
-    while (true) {
-      final $6 = state.peek();
-      // [a-zA-Z0-9]
-      final $7 = $6 <= 90 ? $6 >= 65 || $6 >= 48 && $6 <= 57 : $6 >= 97 && $6 <= 122;
-      if ($7) {
-        state.position += 1;
-        end = state.position;
-        $5 = true;
-        continue;
-      }
-      break;
-    }
-    if ($5) {
-      $4 = false;
-      state.backtrack($3);
-    }
     state.predicate--;
-    if ($4) {
-      $1 = false;
-      state.backtrack($0);
-    } else {
-      state.backtrack($0);
-    }
-  }
-  // $l:
-  state.predicate--;
-  if ($1) {
-    final $8 = end != -1;
-    if ($8) {
+    final $6 = end != -1;
+    if ($6) {
       state.position = end;
-      final $9 = state.substring($0, state.position);
-      return Ok($9);
+      final $7 = state.substring($0, state.position);
+      return Ok($7);
     }
-    final $10 = state.peek();
+    final $8 = state.peek();
     // [a-zA-Z]
-    final $11 = $10 <= 90 ? $10 >= 65 : $10 >= 97 && $10 <= 122;
-    if ($11) {
+    final $9 = $8 <= 90 ? $8 >= 65 : $8 >= 97 && $8 <= 122;
+    if ($9) {
       state.position += 1;
       // (0)
       while (true) {
-        final $12 = state.peek();
+        final $10 = state.peek();
         // [a-zA-Z0-9]
-        final $13 = $12 <= 90 ? $12 >= 65 || $12 >= 48 && $12 <= 57 : $12 >= 97 && $12 <= 122;
-        if ($13) {
+        final $11 = $10 <= 90 ? $10 >= 65 || $10 >= 48 && $10 <= 57 : $10 >= 97 && $10 <= 122;
+        if ($11) {
           state.position += 1;
           continue;
         }
         break;
       }
-      final $14 = state.substring($0, state.position);
-      return Ok($14);
+      final $12 = state.substring($0, state.position);
+      return Ok($12);
     }
   }
+  // $l:
+  state.predicate--;
   return null;
 }
 ```
@@ -1022,17 +1028,19 @@ Dart code:
 Result<void>? parseEof(State state) {
   final $0 = state.position;
   state.predicate++;
-  var $1 = true;
-  final $2 = state.peek();
-  if ($2 >= 0) {
-    state.position += $2 > 0xffff ? 2 : 1;
-    $1 = false;
-    state.backtrack($0);
-  }
-  state.predicate--;
-  if ($1) {
+  $l:
+  {
+    final $1 = state.peek();
+    if ($1 >= 0) {
+      state.position += $1 > 0xffff ? 2 : 1;
+      state.backtrack($0);
+      break $l;
+    }
+    state.predicate--;
     return Result.none;
   }
+  // $l:
+  state.predicate--;
   return null;
 }
 ```
@@ -1707,18 +1715,20 @@ Dart code:
 Result<void>? parseNotPredicate(State state) {
   final $0 = state.position;
   state.predicate++;
-  var $1 = true;
-  final $2 = state.peek();
-  // [a]
-  if ($2 == 97) {
-    state.position += 1;
-    $1 = false;
-    state.backtrack($0);
-  }
-  state.predicate--;
-  if ($1) {
+  $l:
+  {
+    final $1 = state.peek();
+    // [a]
+    if ($1 == 97) {
+      state.position += 1;
+      state.backtrack($0);
+      break $l;
+    }
+    state.predicate--;
     return Result.none;
   }
+  // $l:
+  state.predicate--;
   return null;
 }
 ```
@@ -1743,24 +1753,26 @@ Dart code:
 Result<void>? parseNotPredicate(State state) {
   final $0 = state.position;
   state.predicate++;
-  var $1 = true;
-  final $2 = state.peek();
-  // [a]
-  if ($2 == 97) {
-    state.position += 1;
-    $1 = false;
-    state.backtrack($0);
-  }
-  // [b]
-  if ($2 == 98) {
-    state.position += 1;
-    $1 = false;
-    state.backtrack($0);
-  }
-  state.predicate--;
-  if ($1) {
+  $l:
+  {
+    final $1 = state.peek();
+    // [a]
+    if ($1 == 97) {
+      state.position += 1;
+      state.backtrack($0);
+      break $l;
+    }
+    // [b]
+    if ($1 == 98) {
+      state.position += 1;
+      state.backtrack($0);
+      break $l;
+    }
+    state.predicate--;
     return Result.none;
   }
+  // $l:
+  state.predicate--;
   return null;
 }
 ```

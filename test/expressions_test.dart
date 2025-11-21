@@ -8473,17 +8473,18 @@ class _TestParser {
   Result<String>? parseNotPredicate0(State state) {
     final $0 = state.position;
     state.predicate++;
-    var $1 = true;
-    final $2 = state.peek();
-    if ($2 == 97 && state.startsWith('abc')) {
-      state.position += 3;
-      $1 = false;
-      state.backtrack($0);
-    } else {
-      state.errorExpected('abc');
-    }
-    state.predicate--;
-    if ($1) {
+    $l:
+    {
+      final $1 = state.peek();
+      if ($1 == 97 && state.startsWith('abc')) {
+        state.position += 3;
+        state.backtrack($0);
+        break $l;
+      } else {
+        state.errorExpected('abc');
+      }
+      state.predicate--;
+      final $2 = state.peek();
       if ($2 == 97 && state.startsWith('ab')) {
         state.position += 2;
         return const Result('ab');
@@ -8491,6 +8492,8 @@ class _TestParser {
         state.errorExpected('ab');
       }
     }
+    // $l:
+    state.predicate--;
     return null;
   }
 
@@ -8503,17 +8506,18 @@ class _TestParser {
   Result<void>? parseNotPredicateVoid0(State state) {
     final $0 = state.position;
     state.predicate++;
-    var $1 = true;
-    final $2 = state.peek();
-    if ($2 == 97 && state.startsWith('abc')) {
-      state.position += 3;
-      $1 = false;
-      state.backtrack($0);
-    } else {
-      state.errorExpected('abc');
-    }
-    state.predicate--;
-    if ($1) {
+    $l:
+    {
+      final $1 = state.peek();
+      if ($1 == 97 && state.startsWith('abc')) {
+        state.position += 3;
+        state.backtrack($0);
+        break $l;
+      } else {
+        state.errorExpected('abc');
+      }
+      state.predicate--;
+      final $2 = state.peek();
       if ($2 == 97 && state.startsWith('ab')) {
         state.position += 2;
         return Result.none;
@@ -8521,6 +8525,8 @@ class _TestParser {
         state.errorExpected('ab');
       }
     }
+    // $l:
+    state.predicate--;
     return null;
   }
 
@@ -8537,21 +8543,22 @@ class _TestParser {
       state.position += 3;
       final $2 = state.position;
       state.predicate++;
-      var $3 = true;
-      final $4 = state.peek();
-      if ($4 == 61 && state.startsWith('=>')) {
-        state.position += 2;
-        $3 = false;
-        state.backtrack($2);
-      } else {
-        state.errorExpected('=>');
-      }
-      state.predicate--;
-      if ($3) {
+      $l:
+      {
+        final $3 = state.peek();
+        if ($3 == 61 && state.startsWith('=>')) {
+          state.position += 2;
+          state.backtrack($2);
+          break $l;
+        } else {
+          state.errorExpected('=>');
+        }
+        state.predicate--;
         return const Result('abc');
-      } else {
-        state.backtrack($0);
       }
+      // $l:
+      state.predicate--;
+      state.backtrack($0);
     } else {
       state.errorExpected('abc');
     }
@@ -8571,21 +8578,22 @@ class _TestParser {
       state.position += 3;
       final $2 = state.position;
       state.predicate++;
-      var $3 = true;
-      final $4 = state.peek();
-      if ($4 == 61 && state.startsWith('=>')) {
-        state.position += 2;
-        $3 = false;
-        state.backtrack($2);
-      } else {
-        state.errorExpected('=>');
-      }
-      state.predicate--;
-      if ($3) {
+      $l:
+      {
+        final $3 = state.peek();
+        if ($3 == 61 && state.startsWith('=>')) {
+          state.position += 2;
+          state.backtrack($2);
+          break $l;
+        } else {
+          state.errorExpected('=>');
+        }
+        state.predicate--;
         return Result.none;
-      } else {
-        state.backtrack($0);
       }
+      // $l:
+      state.predicate--;
+      state.backtrack($0);
     } else {
       state.errorExpected('abc');
     }
@@ -8603,41 +8611,43 @@ class _TestParser {
   Result<List<int>>? parseNotPredicate2(State state) {
     final $0 = state.position;
     state.predicate++;
-    var $1 = true;
-    var $2 = 0;
-    // (2)
-    while (true) {
-      final $3 = state.peek();
-      // [a]
-      if ($3 == 97) {
-        state.position += 1;
-        $2++;
-        continue;
-      }
-      break;
-    }
-    if ($2 >= 2) {
-      $1 = false;
-      state.backtrack($0);
-    } else {
-      state.backtrack($0);
-    }
-    state.predicate--;
-    if ($1) {
-      final $4 = <int>[];
-      // (0)
+    $l:
+    {
+      var $1 = 0;
+      // (2)
       while (true) {
-        final $5 = state.peek();
+        final $2 = state.peek();
         // [a]
-        if ($5 == 97) {
+        if ($2 == 97) {
           state.position += 1;
-          $4.add(97);
+          $1++;
           continue;
         }
         break;
       }
-      return Ok($4);
+      if ($1 >= 2) {
+        state.backtrack($0);
+        break $l;
+      } else {
+        state.backtrack($0);
+      }
+      state.predicate--;
+      final $3 = <int>[];
+      // (0)
+      while (true) {
+        final $4 = state.peek();
+        // [a]
+        if ($4 == 97) {
+          state.position += 1;
+          $3.add(97);
+          continue;
+        }
+        break;
+      }
+      return Ok($3);
     }
+    // $l:
+    state.predicate--;
     return null;
   }
 
@@ -8652,41 +8662,43 @@ class _TestParser {
   Result<void>? parseNotPredicateVoid2(State state) {
     final $0 = state.position;
     state.predicate++;
-    var $1 = true;
-    var $2 = 0;
-    // (2)
-    while (true) {
-      final $3 = state.peek();
-      // [a]
-      if ($3 == 97) {
-        state.position += 1;
-        $2++;
-        continue;
+    $l:
+    {
+      var $1 = 0;
+      // (2)
+      while (true) {
+        final $2 = state.peek();
+        // [a]
+        if ($2 == 97) {
+          state.position += 1;
+          $1++;
+          continue;
+        }
+        break;
       }
-      break;
-    }
-    if ($2 >= 2) {
-      $1 = false;
-      state.backtrack($0);
-    } else {
-      state.backtrack($0);
-    }
-    state.predicate--;
-    if ($1) {
-      final $4 = <int>[];
+      if ($1 >= 2) {
+        state.backtrack($0);
+        break $l;
+      } else {
+        state.backtrack($0);
+      }
+      state.predicate--;
+      final $3 = <int>[];
       // (0)
       while (true) {
-        final $5 = state.peek();
+        final $4 = state.peek();
         // [a]
-        if ($5 == 97) {
+        if ($4 == 97) {
           state.position += 1;
-          $4.add(97);
+          $3.add(97);
           continue;
         }
         break;
       }
       return Result.none;
     }
+    // $l:
+    state.predicate--;
     return null;
   }
 
@@ -8697,16 +8709,20 @@ class _TestParser {
   /// ```
   Result<void>? parseNotPredicate3(State state) {
     state.predicate++;
-    var $0 = true;
-    if (true) {
-      $0 = false;
-    } else {
-      state.errorExpected('');
-    }
-    state.predicate--;
-    if ($0) {
+    $l:
+    {
+      if (true) {
+        break $l;
+      } else {
+        state.errorExpected('');
+      }
+      // Not a well-formed 'NotPredicate' expression.
+      // The child expression 'LiteralExpression' always succeeds.
+      state.predicate--;
       return Result.none;
     }
+    // $l:
+    state.predicate--;
     return null;
   }
 
@@ -8718,18 +8734,22 @@ class _TestParser {
   Result<void>? parseNotPredicate4(State state) {
     final $0 = state.position;
     state.predicate++;
-    var $1 = true;
-    final $2 = state.peek();
-    // [a]
-    if ($2 == 97) {
-      state.position += 1;
-    }
-    $1 = false;
-    state.backtrack($0);
-    state.predicate--;
-    if ($1) {
+    $l:
+    {
+      final $1 = state.peek();
+      // [a]
+      if ($1 == 97) {
+        state.position += 1;
+      }
+      state.backtrack($0);
+      break $l;
+      // Not a well-formed 'NotPredicate' expression.
+      // The child expression 'OptionalExpression' always succeeds.
+      state.predicate--;
       return Result.none;
     }
+    // $l:
+    state.predicate--;
     return null;
   }
 
@@ -8741,28 +8761,32 @@ class _TestParser {
   Result<void>? parseNotPredicate5(State state) {
     final $0 = state.position;
     state.predicate++;
-    var $1 = true;
     $l:
     {
-      final $2 = state.peek();
-      // [a]
-      if ($2 == 97) {
-        state.position += 1;
-        break $l;
+      $l1:
+      {
+        final $1 = state.peek();
+        // [a]
+        if ($1 == 97) {
+          state.position += 1;
+          break $l1;
+        }
+        // [z]
+        if ($1 == 122) {
+          state.position += 1;
+          break $l1;
+        }
       }
-      // [z]
-      if ($2 == 122) {
-        state.position += 1;
-        break $l;
-      }
-    }
-    // $l:
-    $1 = false;
-    state.backtrack($0);
-    state.predicate--;
-    if ($1) {
+      // $l1:
+      state.backtrack($0);
+      break $l;
+      // Not a well-formed 'NotPredicate' expression.
+      // The child expression 'OptionalExpression' always succeeds.
+      state.predicate--;
       return Result.none;
     }
+    // $l:
+    state.predicate--;
     return null;
   }
 
@@ -10299,65 +10323,68 @@ class _TestParser {
   Result<String>? parseIdentifier0(State state) {
     final $0 = state.position;
     state.predicate++;
-    var $1 = true;
     $l:
     {
       $l1:
       {
-        final $2 = state.peek();
-        if ($2 == 102 && state.startsWith('foreach')) {
-          state.position += 7;
+        $l2:
+        {
+          final $1 = state.peek();
+          if ($1 == 102 && state.startsWith('foreach')) {
+            state.position += 7;
+            break $l2;
+          }
+          if ($1 == 102 && state.startsWith('for')) {
+            state.position += 3;
+            break $l2;
+          }
           break $l1;
         }
-        if ($2 == 102 && state.startsWith('for')) {
-          state.position += 3;
-          break $l1;
+        // $l2:
+        final $2 = state.position;
+        state.predicate++;
+        $l3:
+        {
+          final $3 = state.peek();
+          // [a-zA-Z0-9]
+          final $4 = $3 <= 90 ? $3 >= 65 || $3 >= 48 && $3 <= 57 : $3 >= 97 && $3 <= 122;
+          if ($4) {
+            state.position += 1;
+            state.backtrack($2);
+            break $l3;
+          }
+          state.predicate--;
+          state.backtrack($0);
+          break $l;
         }
-        break $l;
+        // $l3:
+        state.predicate--;
+        state.backtrack($0);
       }
       // $l1:
-      final $3 = state.position;
-      state.predicate++;
-      var $4 = true;
-      final $5 = state.peek();
-      // [a-zA-Z0-9]
-      final $6 = $5 <= 90 ? $5 >= 65 || $5 >= 48 && $5 <= 57 : $5 >= 97 && $5 <= 122;
-      if ($6) {
-        state.position += 1;
-        $4 = false;
-        state.backtrack($3);
-      }
       state.predicate--;
-      if ($4) {
-        $1 = false;
-        state.backtrack($0);
-      } else {
-        state.backtrack($0);
-      }
-    }
-    // $l:
-    state.predicate--;
-    if ($1) {
-      final $7 = state.peek();
+      final $5 = state.peek();
       // [a-zA-Z]
-      final $8 = $7 <= 90 ? $7 >= 65 : $7 >= 97 && $7 <= 122;
-      if ($8) {
+      final $6 = $5 <= 90 ? $5 >= 65 : $5 >= 97 && $5 <= 122;
+      if ($6) {
         state.position += 1;
         // (0)
         while (true) {
-          final $9 = state.peek();
+          final $7 = state.peek();
           // [a-zA-Z0-9]
-          final $10 = $9 <= 90 ? $9 >= 65 || $9 >= 48 && $9 <= 57 : $9 >= 97 && $9 <= 122;
-          if ($10) {
+          final $8 = $7 <= 90 ? $7 >= 65 || $7 >= 48 && $7 <= 57 : $7 >= 97 && $7 <= 122;
+          if ($8) {
             state.position += 1;
             continue;
           }
           break;
         }
-        final $11 = state.substring($0, state.position);
-        return Ok($11);
+        final $9 = state.substring($0, state.position);
+        return Ok($9);
       }
     }
+    // $l:
+    state.predicate--;
     return null;
   }
 
@@ -10380,65 +10407,68 @@ class _TestParser {
   Result<void>? parseIdentifierVoid0(State state) {
     final $0 = state.position;
     state.predicate++;
-    var $1 = true;
     $l:
     {
       $l1:
       {
-        final $2 = state.peek();
-        if ($2 == 102 && state.startsWith('foreach')) {
-          state.position += 7;
+        $l2:
+        {
+          final $1 = state.peek();
+          if ($1 == 102 && state.startsWith('foreach')) {
+            state.position += 7;
+            break $l2;
+          }
+          if ($1 == 102 && state.startsWith('for')) {
+            state.position += 3;
+            break $l2;
+          }
           break $l1;
         }
-        if ($2 == 102 && state.startsWith('for')) {
-          state.position += 3;
-          break $l1;
+        // $l2:
+        final $2 = state.position;
+        state.predicate++;
+        $l3:
+        {
+          final $3 = state.peek();
+          // [a-zA-Z0-9]
+          final $4 = $3 <= 90 ? $3 >= 65 || $3 >= 48 && $3 <= 57 : $3 >= 97 && $3 <= 122;
+          if ($4) {
+            state.position += 1;
+            state.backtrack($2);
+            break $l3;
+          }
+          state.predicate--;
+          state.backtrack($0);
+          break $l;
         }
-        break $l;
+        // $l3:
+        state.predicate--;
+        state.backtrack($0);
       }
       // $l1:
-      final $3 = state.position;
-      state.predicate++;
-      var $4 = true;
-      final $5 = state.peek();
-      // [a-zA-Z0-9]
-      final $6 = $5 <= 90 ? $5 >= 65 || $5 >= 48 && $5 <= 57 : $5 >= 97 && $5 <= 122;
-      if ($6) {
-        state.position += 1;
-        $4 = false;
-        state.backtrack($3);
-      }
       state.predicate--;
-      if ($4) {
-        $1 = false;
-        state.backtrack($0);
-      } else {
-        state.backtrack($0);
-      }
-    }
-    // $l:
-    state.predicate--;
-    if ($1) {
-      final $7 = state.peek();
+      final $5 = state.peek();
       // [a-zA-Z]
-      final $8 = $7 <= 90 ? $7 >= 65 : $7 >= 97 && $7 <= 122;
-      if ($8) {
+      final $6 = $5 <= 90 ? $5 >= 65 : $5 >= 97 && $5 <= 122;
+      if ($6) {
         state.position += 1;
         // (0)
         while (true) {
-          final $9 = state.peek();
+          final $7 = state.peek();
           // [a-zA-Z0-9]
-          final $10 = $9 <= 90 ? $9 >= 65 || $9 >= 48 && $9 <= 57 : $9 >= 97 && $9 <= 122;
-          if ($10) {
+          final $8 = $7 <= 90 ? $7 >= 65 || $7 >= 48 && $7 <= 57 : $7 >= 97 && $7 <= 122;
+          if ($8) {
             state.position += 1;
             continue;
           }
           break;
         }
-        final $11 = state.substring($0, state.position);
+        final $9 = state.substring($0, state.position);
         return Result.none;
       }
     }
+    // $l:
+    state.predicate--;
     return null;
   }
 
@@ -10471,81 +10501,84 @@ class _TestParser {
     var end = -1;
     final $0 = state.position;
     state.predicate++;
-    var $1 = true;
     $l:
     {
       $l1:
       {
-        final $2 = state.peek();
-        if ($2 == 102 && state.startsWith('foreach')) {
-          state.position += 7;
+        $l2:
+        {
+          final $1 = state.peek();
+          if ($1 == 102 && state.startsWith('foreach')) {
+            state.position += 7;
+            break $l2;
+          }
+          if ($1 == 102 && state.startsWith('for')) {
+            state.position += 3;
+            break $l2;
+          }
           break $l1;
         }
-        if ($2 == 102 && state.startsWith('for')) {
-          state.position += 3;
-          break $l1;
+        // $l2:
+        final $2 = state.position;
+        state.predicate++;
+        $l3:
+        {
+          var $3 = false;
+          // (1)
+          while (true) {
+            final $4 = state.peek();
+            // [a-zA-Z0-9]
+            final $5 = $4 <= 90 ? $4 >= 65 || $4 >= 48 && $4 <= 57 : $4 >= 97 && $4 <= 122;
+            if ($5) {
+              state.position += 1;
+              end = state.position;
+              $3 = true;
+              continue;
+            }
+            break;
+          }
+          if ($3) {
+            state.backtrack($2);
+            break $l3;
+          }
+          state.predicate--;
+          state.backtrack($0);
+          break $l;
         }
-        break $l;
+        // $l3:
+        state.predicate--;
+        state.backtrack($0);
       }
       // $l1:
-      final $3 = state.position;
-      state.predicate++;
-      var $4 = true;
-      var $5 = false;
-      // (1)
-      while (true) {
-        final $6 = state.peek();
-        // [a-zA-Z0-9]
-        final $7 = $6 <= 90 ? $6 >= 65 || $6 >= 48 && $6 <= 57 : $6 >= 97 && $6 <= 122;
-        if ($7) {
-          state.position += 1;
-          end = state.position;
-          $5 = true;
-          continue;
-        }
-        break;
-      }
-      if ($5) {
-        $4 = false;
-        state.backtrack($3);
-      }
       state.predicate--;
-      if ($4) {
-        $1 = false;
-        state.backtrack($0);
-      } else {
-        state.backtrack($0);
-      }
-    }
-    // $l:
-    state.predicate--;
-    if ($1) {
-      final $8 = end != -1;
-      if ($8) {
+      final $6 = end != -1;
+      if ($6) {
         state.position = end;
-        final $9 = state.substring($0, state.position);
-        return Ok($9);
+        final $7 = state.substring($0, state.position);
+        return Ok($7);
       }
-      final $10 = state.peek();
+      final $8 = state.peek();
       // [a-zA-Z]
-      final $11 = $10 <= 90 ? $10 >= 65 : $10 >= 97 && $10 <= 122;
-      if ($11) {
+      final $9 = $8 <= 90 ? $8 >= 65 : $8 >= 97 && $8 <= 122;
+      if ($9) {
         state.position += 1;
         // (0)
         while (true) {
-          final $12 = state.peek();
+          final $10 = state.peek();
           // [a-zA-Z0-9]
-          final $13 = $12 <= 90 ? $12 >= 65 || $12 >= 48 && $12 <= 57 : $12 >= 97 && $12 <= 122;
-          if ($13) {
+          final $11 = $10 <= 90 ? $10 >= 65 || $10 >= 48 && $10 <= 57 : $10 >= 97 && $10 <= 122;
+          if ($11) {
             state.position += 1;
             continue;
           }
           break;
         }
-        final $14 = state.substring($0, state.position);
-        return Ok($14);
+        final $12 = state.substring($0, state.position);
+        return Ok($12);
       }
     }
+    // $l:
+    state.predicate--;
     return null;
   }
 
@@ -10578,81 +10611,84 @@ class _TestParser {
     var end = -1;
     final $0 = state.position;
     state.predicate++;
-    var $1 = true;
     $l:
     {
       $l1:
       {
-        final $2 = state.peek();
-        if ($2 == 102 && state.startsWith('foreach')) {
-          state.position += 7;
+        $l2:
+        {
+          final $1 = state.peek();
+          if ($1 == 102 && state.startsWith('foreach')) {
+            state.position += 7;
+            break $l2;
+          }
+          if ($1 == 102 && state.startsWith('for')) {
+            state.position += 3;
+            break $l2;
+          }
           break $l1;
         }
-        if ($2 == 102 && state.startsWith('for')) {
-          state.position += 3;
-          break $l1;
+        // $l2:
+        final $2 = state.position;
+        state.predicate++;
+        $l3:
+        {
+          var $3 = false;
+          // (1)
+          while (true) {
+            final $4 = state.peek();
+            // [a-zA-Z0-9]
+            final $5 = $4 <= 90 ? $4 >= 65 || $4 >= 48 && $4 <= 57 : $4 >= 97 && $4 <= 122;
+            if ($5) {
+              state.position += 1;
+              end = state.position;
+              $3 = true;
+              continue;
+            }
+            break;
+          }
+          if ($3) {
+            state.backtrack($2);
+            break $l3;
+          }
+          state.predicate--;
+          state.backtrack($0);
+          break $l;
         }
-        break $l;
+        // $l3:
+        state.predicate--;
+        state.backtrack($0);
       }
       // $l1:
-      final $3 = state.position;
-      state.predicate++;
-      var $4 = true;
-      var $5 = false;
-      // (1)
-      while (true) {
-        final $6 = state.peek();
-        // [a-zA-Z0-9]
-        final $7 = $6 <= 90 ? $6 >= 65 || $6 >= 48 && $6 <= 57 : $6 >= 97 && $6 <= 122;
-        if ($7) {
-          state.position += 1;
-          end = state.position;
-          $5 = true;
-          continue;
-        }
-        break;
-      }
-      if ($5) {
-        $4 = false;
-        state.backtrack($3);
-      }
       state.predicate--;
-      if ($4) {
-        $1 = false;
-        state.backtrack($0);
-      } else {
-        state.backtrack($0);
-      }
-    }
-    // $l:
-    state.predicate--;
-    if ($1) {
-      final $8 = end != -1;
-      if ($8) {
+      final $6 = end != -1;
+      if ($6) {
         state.position = end;
-        final $9 = state.substring($0, state.position);
+        final $7 = state.substring($0, state.position);
         return Result.none;
       }
-      final $10 = state.peek();
+      final $8 = state.peek();
       // [a-zA-Z]
-      final $11 = $10 <= 90 ? $10 >= 65 : $10 >= 97 && $10 <= 122;
-      if ($11) {
+      final $9 = $8 <= 90 ? $8 >= 65 : $8 >= 97 && $8 <= 122;
+      if ($9) {
         state.position += 1;
         // (0)
         while (true) {
-          final $12 = state.peek();
+          final $10 = state.peek();
           // [a-zA-Z0-9]
-          final $13 = $12 <= 90 ? $12 >= 65 || $12 >= 48 && $12 <= 57 : $12 >= 97 && $12 <= 122;
-          if ($13) {
+          final $11 = $10 <= 90 ? $10 >= 65 || $10 >= 48 && $10 <= 57 : $10 >= 97 && $10 <= 122;
+          if ($11) {
             state.position += 1;
             continue;
           }
           break;
         }
-        final $14 = state.substring($0, state.position);
+        final $12 = state.substring($0, state.position);
         return Result.none;
       }
     }
+    // $l:
+    state.predicate--;
     return null;
   }
 

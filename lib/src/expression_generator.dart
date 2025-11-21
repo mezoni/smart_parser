@@ -304,6 +304,56 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
   ExpressionState visitNotPredicate(NotPredicateExpression node) {
     final child = node.expression;
     final canChangePosition = child.canChangePosition;
+    final isAlwaysSuccessful = child.isAlwaysSuccessful;
+    final usePosition = canChangePosition;
+    final start = _newState();
+    final state0 = _buildExpression(child);
+    var label = _invalid;
+    start.onPreprocess((code) {
+      final pos = !usePosition ? _invalid : _getPosition(code);
+      code.stmt('state.predicate++');
+      cache.clone();
+      label = _allocate('l');
+      state0.onAccept((event) {
+        final code = event.output;
+        if (usePosition) {
+          code.stmt('state.backtrack($pos)');
+        }
+
+        code.stmt('break $label');
+      });
+    });
+
+    start.onProcess((code) {
+      final data = cache.data;
+      code.writeln('$label:');
+      code.group((code) {
+        cache.clone();
+        state0.build(code);
+        cache.restore(data);
+        if (isAlwaysSuccessful) {
+          code.writeln('// Not a well-formed \'NotPredicate\' expression.');
+          code.writeln(
+            '// The child expression \'${child.runtimeType}\' always succeeds.',
+          );
+        }
+
+        code.stmt('state.predicate--');
+        _acceptVoid(code, start);
+      });
+      code.writeln('// $label:');
+      code.stmt('state.predicate--');
+      cache.restore(data);
+      start.reject(code);
+    });
+
+    return start;
+  }
+
+  @override
+  ExpressionState visitNotPredicate__(NotPredicateExpression node) {
+    final child = node.expression;
+    final canChangePosition = child.canChangePosition;
     final isComplete = node.isComplete;
     final combine = !isComplete;
     final usePosition = canChangePosition;
@@ -334,9 +384,12 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
     start.onProcess((code) {
       final data = cache.data;
       if (combine) {
-        cache.clone();
         code.writeln('$label:');
-        code.group(state0.build);
+        code.group((code) {
+          cache.clone();
+          state0.build(code);
+        });
+        code.writeln('// $label:');
       } else {
         state0.build(code);
       }
@@ -394,9 +447,11 @@ class ExpressionGenerator implements Visitor<ExpressionState> {
 
     start.onProcess((code) {
       if (combine) {
-        cache.clone();
         code.writeln('$label:');
-        code.group(state0.build);
+        code.group((code) {
+          cache.clone();
+          state0.build(code);
+        });
         code.writeln('// $label:');
       } else {
         if (child case final ProductionExpression child) {

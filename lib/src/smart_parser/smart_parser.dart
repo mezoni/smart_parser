@@ -56,20 +56,21 @@ class SmartParser {
       final p = $3;
       final $5 = state.position;
       state.predicate++;
-      var $6 = true;
-      final $7 = state.peek();
-      if ($7 >= 0) {
-        state.position += $7 > 0xffff ? 2 : 1;
-        $6 = false;
-        state.backtrack($5);
+      $l:
+      {
+        final $6 = state.peek();
+        if ($6 >= 0) {
+          state.position += $6 > 0xffff ? 2 : 1;
+          state.backtrack($5);
+          break $l;
+        }
+        state.predicate--;
+        final $7 = Grammar(globals: g, members: m, productions: p);
+        return Ok($7);
       }
+      // $l:
       state.predicate--;
-      if ($6) {
-        final $8 = Grammar(globals: g, members: m, productions: p);
-        return Ok($8);
-      } else {
-        state.backtrack($0);
-      }
+      state.backtrack($0);
     } else {
       state.backtrack($0);
     }
@@ -813,35 +814,37 @@ class SmartParser {
       while (true) {
         final $3 = state.position;
         state.predicate++;
-        var $4 = true;
-        final $5 = state.peek();
-        // ']'
-        if ($5 == 93) {
-          state.position += 1;
-          $4 = false;
-          state.backtrack($3);
-        } else {
-          state.errorExpected(']');
-        }
-        state.predicate--;
-        if ($4) {
-          final $6 = parseRange(state);
-          if ($6 != null) {
-            $2.add($6.$1);
+        $l2:
+        {
+          final $4 = state.peek();
+          // ']'
+          if ($4 == 93) {
+            state.position += 1;
+            state.backtrack($3);
+            break $l2;
+          } else {
+            state.errorExpected(']');
+          }
+          state.predicate--;
+          final $5 = parseRange(state);
+          if ($5 != null) {
+            $2.add($5.$1);
             continue;
           }
         }
+        // $l2:
+        state.predicate--;
         break;
       }
       if ($2.isNotEmpty) {
         final r = $2;
-        final $7 = state.peek();
+        final $6 = state.peek();
         // ']'
-        if ($7 == 93) {
+        if ($6 == 93) {
           state.position += 1;
           parseS(state);
-          final $8 = CharacterClassExpression(ranges: r, negate: negate);
-          return Ok($8);
+          final $7 = CharacterClassExpression(ranges: r, negate: negate);
+          return Ok($7);
         } else {
           state.errorExpected(']');
           state.backtrack($0);
@@ -1121,16 +1124,17 @@ class SmartParser {
           while (true) {
             final $4 = state.position;
             state.predicate++;
-            var $5 = true;
-            final $6 = state.peek();
-            // [`]
-            if ($6 == 96) {
-              state.position += 1;
-              $5 = false;
-              state.backtrack($4);
-            }
-            state.predicate--;
-            if ($5) {
+            $l2:
+            {
+              final $5 = state.peek();
+              // [`]
+              if ($5 == 96) {
+                state.position += 1;
+                state.backtrack($4);
+                break $l2;
+              }
+              state.predicate--;
+              final $6 = state.peek();
               // [a-zA-Z0-9_$<(\{,:\})>? ]
               final $7 = $6 <= 60 ? $6 >= 60 || $6 <= 41 ? $6 >= 40 || $6 == 32 || $6 == 36 : $6 == 44 || $6 >= 48 && $6 <= 58 : $6 <= 95 ? $6 >= 95 || $6 <= 63 ? $6 >= 62 : $6 >= 65 && $6 <= 90 : $6 <= 123 ? $6 >= 97 : $6 == 125;
               if ($7) {
@@ -1138,6 +1142,8 @@ class SmartParser {
                 continue;
               }
             }
+            // $l2:
+            state.predicate--;
             break;
           }
           final $8 = state.substring($3, state.position);
@@ -1530,16 +1536,17 @@ class SmartParser {
   Result<int>? parseRangeChar(State state) {
     final $0 = state.position;
     state.predicate++;
-    var $1 = true;
-    final $2 = state.peek();
-    // '\\'
-    if ($2 == 92) {
-      state.position += 1;
-      $1 = false;
-      state.backtrack($0);
-    }
-    state.predicate--;
-    if ($1) {
+    $l:
+    {
+      final $1 = state.peek();
+      // '\\'
+      if ($1 == 92) {
+        state.position += 1;
+        state.backtrack($0);
+        break $l;
+      }
+      state.predicate--;
+      final $2 = state.peek();
       // [^{0-1f}\{\}\[\]\\]
       final $3 = !($2 <= 93 ? $2 >= 91 || $2 >= 0 && $2 <= 31 : $2 == 123 || $2 == 125) && !($2 < 0);
       if ($3) {
@@ -1547,15 +1554,17 @@ class SmartParser {
         return Ok($2);
       }
     }
+    // $l:
+    state.predicate--;
     final $4 = state.peek();
     // '\\'
     if ($4 == 92) {
       state.position += 1;
       final $5 = state.beginErrorHandling();
-      $l:
+      $l1:
       {
         final int $6;
-        $l1:
+        $l2:
         {
           final $7 = state.position;
           final $8 = state.peek();
@@ -1573,7 +1582,7 @@ class SmartParser {
                 if ($11 == 125) {
                   state.position += 1;
                   $6 = $10.$1;
-                  break $l1;
+                  break $l2;
                 } else {
                   state.backtrack($7);
                 }
@@ -1584,13 +1593,13 @@ class SmartParser {
               state.backtrack($7);
             }
           }
-          break $l;
+          break $l1;
         }
-        // $l1:
+        // $l2:
         state.endErrorHandling($5);
         return Ok($6);
       }
-      // $l:
+      // $l1:
       state.errorIncorrect('Unterminated Unicode escape sequence');
       state.endErrorHandling($5);
       final $12 = state.peek();
@@ -1978,20 +1987,22 @@ class SmartParser {
       }
     }
     state.predicate++;
-    var $4 = true;
-    // '}'
-    if ($1 == 125) {
-      state.position += 1;
-      $4 = false;
-      state.backtrack($0);
-    }
-    state.predicate--;
-    if ($4) {
+    $l:
+    {
+      // '}'
+      if ($1 == 125) {
+        state.position += 1;
+        state.backtrack($0);
+        break $l;
+      }
+      state.predicate--;
       if ($1 >= 0) {
         state.position += $1 > 0xffff ? 2 : 1;
         return Result.none;
       }
     }
+    // $l:
+    state.predicate--;
     return null;
   }
 
@@ -2108,20 +2119,22 @@ class SmartParser {
       while (true) {
         final $1 = state.position;
         state.predicate++;
-        var $2 = true;
-        final $3 = parseEndOfLine(state);
-        if ($3 != null) {
-          $2 = false;
-          state.backtrack($1);
-        }
-        state.predicate--;
-        if ($2) {
-          final $4 = state.peek();
-          if ($4 >= 0) {
-            state.position += $4 > 0xffff ? 2 : 1;
+        $l:
+        {
+          final $2 = parseEndOfLine(state);
+          if ($2 != null) {
+            state.backtrack($1);
+            break $l;
+          }
+          state.predicate--;
+          final $3 = state.peek();
+          if ($3 >= 0) {
+            state.position += $3 > 0xffff ? 2 : 1;
             continue;
           }
         }
+        // $l:
+        state.predicate--;
         break;
       }
       parseEndOfLine(state);

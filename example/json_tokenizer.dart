@@ -38,19 +38,20 @@ class JsonTokenizer {
     final $1 = parseTokens(state);
     final $2 = state.position;
     state.predicate++;
-    var $3 = true;
-    final $4 = state.peek();
-    if ($4 >= 0) {
-      state.position += $4 > 0xffff ? 2 : 1;
-      $3 = false;
-      state.backtrack($2);
-    }
-    state.predicate--;
-    if ($3) {
+    $l:
+    {
+      final $3 = state.peek();
+      if ($3 >= 0) {
+        state.position += $3 > 0xffff ? 2 : 1;
+        state.backtrack($2);
+        break $l;
+      }
+      state.predicate--;
       return $1;
-    } else {
-      state.backtrack($0);
     }
+    // $l:
+    state.predicate--;
+    state.backtrack($0);
     return null;
   }
 

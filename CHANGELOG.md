@@ -1,3 +1,7 @@
+## 1.0.6
+
+- The algorithm for the `NotPredicateExpression` generator has been changed.
+
 ## 1.0.5
 
 - Minor improvements have been made to various generators.
