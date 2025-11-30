@@ -119,7 +119,7 @@ const JsonParser();
     }
   >
   ~{ state.error('Incorrect Unicode escape sequence', position: end, start: start, end: end); }
-  $ = { String.fromCharCode(int.parse(s, radix: 16)); }
+  $ = { String.fromCharCode(int.parse(s, radix: 16)) }
 
 `String` Escaped =>
   & "u"

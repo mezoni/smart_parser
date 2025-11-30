@@ -1,3 +1,5 @@
+// ignore_for_file: unused_element
+
 import 'dart:convert';
 
 import 'package:simple_sparse_list/ranges_helper.dart';
@@ -1301,18 +1303,6 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     return value;
   }
 
-  List<int> _getCaseInsensitiveLetters(Runes runes) {
-    final result = <int>[];
-    for (final rune in runes) {
-      final upperCase = charToUpperCase(rune);
-      final lowerCase = charToLowerCase(rune);
-      result.add(upperCase);
-      result.add(lowerCase);
-    }
-
-    return result;
-  }
-
   String _getCh(Code code) {
     return _getCachedValue('ch', () {
       final value = _allocate('c');
@@ -1349,15 +1339,6 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     }
 
     return _allocate(name);
-  }
-
-  String _getToken(Code code) {
-    return _getCachedValue('token', () {
-      final value = _allocate('tok');
-      final token = options.getToken;
-      code.declare('final', value, token);
-      return value;
-    });
   }
 
   String _getTokenIndex(Code code) {

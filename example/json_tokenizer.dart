@@ -322,7 +322,7 @@ class JsonTokenizer {
   ///     }
   ///   >
   ///   ~{ state.error('Incorrect Unicode escape sequence', position: end, start: start, end: end); }
-  ///   $ = { String.fromCharCode(int.parse(s, radix: 16)); }
+  ///   $ = { String.fromCharCode(int.parse(s, radix: 16)) }
   /// ```
   Result<String>? parseEscapeUnicode(State state) {
     final $pos = state.position;
@@ -357,7 +357,7 @@ class JsonTokenizer {
       if ($cnt >= 4) {
         final $str = state.substring($pos1, state.position);
         final s = $str;
-        final $val = String.fromCharCode(int.parse(s, radix: 16));;
+        final $val = String.fromCharCode(int.parse(s, radix: 16));
         return Ok($val);
       } else {
         state.ch = $c1;

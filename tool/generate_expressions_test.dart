@@ -44,10 +44,6 @@ void main(List<String> args) {
   Process.runSync(Platform.executable, ['format', outputFile]);
 }
 
-String _error(int start, int end, String message) {
-  return '(end: $end, message: $message, start: $start)';
-}
-
 String _errorExpected(int pos, List<String> elements) {
   elements = elements.toList()..sort();
   final expected = elements.map(escapeString).join(', ');
