@@ -1,3 +1,13 @@
+String camelize(String word) {
+  if (word.isEmpty) {
+    return word;
+  }
+
+  final runes = word.runes.toList();
+  return String.fromCharCode(runes[0]).toLowerCase() +
+      String.fromCharCodes(runes.sublist(1));
+}
+
 String escapeString(String text, [String? quote = '\'']) {
   if (quote != null && !((quote != '\'') || quote != '"')) {
     throw ArgumentError.value(quote, 'quote', 'Unknown quote');

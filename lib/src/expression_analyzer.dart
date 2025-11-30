@@ -5,18 +5,27 @@ class ExpressionAnalyzer implements Visitor<void> {
 
   bool _hasChanges = false;
 
+  String _name = '';
+
+  final _productionsUsed = <String, bool>{};
+
   final _warnings = <String>{};
 
   ExpressionAnalyzer({required this.productions});
 
   void analyze() {
+    _productionsUsed.clear();
     _warnings.clear();
     final productionList = productions.values;
+    _productionsUsed.addEntries(
+      productionList.map((e) => MapEntry(e.name, false)),
+    );
     while (true) {
       _hasChanges = false;
       for (final production in productionList) {
         final isVoid = production.isVoid;
         final expression = production.expression;
+        _name = production.name;
         _setIsVoid(expression, isVoid);
         expression.accept(this);
       }
@@ -26,9 +35,17 @@ class ExpressionAnalyzer implements Visitor<void> {
       }
     }
 
-    for (final warning in _warnings) {
-      print(warning);
+    final unusedProductions = _productionsUsed.entries
+        .where((e) => !e.value)
+        .map((e) => e.key)
+        .toList();
+    if (unusedProductions.length > 1) {
+      _warnings.add('''
+Found unreferenced productions:
+${unusedProductions.join('\n')}''');
     }
+
+    print(_warnings.join('\n\n'));
   }
 
   @override
@@ -96,6 +113,16 @@ class ExpressionAnalyzer implements Visitor<void> {
 
   @override
   void visitLiteral(LiteralExpression node) {
+    final text = node.text;
+    _setIsAlwaysSuccessful(node, text.isEmpty);
+    _setCanChangePosition(node, text.isNotEmpty);
+    _setAcceptancePoints(node, 1);
+    _setRejectionPoints(node, text.isEmpty ? 0 : 1);
+    _setIsComplete(node, true);
+  }
+
+  @override
+  void visitMatch(MatchExpression node) {
     final text = node.text;
     _setIsAlwaysSuccessful(node, text.isEmpty);
     _setCanChangePosition(node, text.isNotEmpty);
@@ -193,6 +220,7 @@ class ExpressionAnalyzer implements Visitor<void> {
   void visitProduction(ProductionExpression node) {
     final name = node.name;
     final production = productions[name];
+    _productionsUsed[name] = true;
     if (production == null) {
       _setIsAlwaysSuccessful(node, false);
       _setCanChangePosition(node, true);
@@ -211,7 +239,20 @@ class ExpressionAnalyzer implements Visitor<void> {
   void visitSequence(SequenceExpression node) {
     final children = node.expressions;
     final last = children.last;
-    node.visitChildren(this);
+    final semanticValues = <String>{};
+    for (final child in children) {
+      child.accept(this);
+      final semanticValue = child.semanticValue;
+      if (semanticValue != null) {
+        if (!semanticValues.add(semanticValue)) {
+          _warnings.add('''
+Duplicate semantic value name.
+Semantic value: $semanticValue
+Production: $_name''');
+        }
+      }
+    }
+
     final isNotAlwaysSuccessful = children.any((e) => !e.isAlwaysSuccessful);
     _setIsAlwaysSuccessful(node, !isNotAlwaysSuccessful);
     _setCanChangePosition(node, children.any((e) => e.canChangePosition));
@@ -233,6 +274,15 @@ class ExpressionAnalyzer implements Visitor<void> {
   }
 
   @override
+  void visitToken(TokenExpression node) {
+    _setIsAlwaysSuccessful(node, false);
+    _setCanChangePosition(node, true);
+    _setAcceptancePoints(node, 1);
+    _setRejectionPoints(node, 1);
+    _setIsComplete(node, true);
+  }
+
+  @override
   void visitValue(ValueExpression node) {
     _setIsAlwaysSuccessful(node, true);
     _setCanChangePosition(node, false);
@@ -246,6 +296,7 @@ class ExpressionAnalyzer implements Visitor<void> {
     final child = node.expression;
     final range = node.range;
     final min = range.$1;
+    final max = range.$2;
     final isAlwaysSuccessful = min == 0;
     child.accept(this);
     _setIsAlwaysSuccessful(
@@ -258,7 +309,7 @@ class ExpressionAnalyzer implements Visitor<void> {
     _setRejectionPoints(node, min == 0 ? 0 : 1);
     _setIsComplete(node, true);
 
-    _checkInfiniteLoop(node);
+    _checkInfiniteLoop(node, max);
   }
 
   @override
@@ -275,14 +326,14 @@ class ExpressionAnalyzer implements Visitor<void> {
     _checkInfiniteLoop(node);
   }
 
-  void _checkInfiniteLoop(SingleExpression node) {
+  void _checkInfiniteLoop(SingleExpression node, [int? max]) {
     final child = node.expression;
-    if (child.isAlwaysSuccessful) {
+    if (child.isAlwaysSuccessful && max == null) {
       _warnings.add('''
-Possibly an infinite loop.
-Loop expression: ${node.runtimeType}
-Block expression: ${child.runtimeType}
-Block expression source: ${child.sourceCode}''');
+The child expression always succeeds and the maximum number of repetitions is not specified.
+The repetition will cause an infinite loop.
+Repetition expression: ${node.runtimeType}
+Repetition expression source:\n${node.print()}''');
     }
   }
 

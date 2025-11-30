@@ -110,13 +110,15 @@ class Code extends CodeBuilder {
   }
 
   Code if$(String cond, void Function(Code code) f) {
-    final block = addBlock(begin: 'if ($cond) {');
+    final ifElse = IfElse(cond, '!($cond)');
+    _elements.add(ifElse);
+    final block = ifElse.ifBlock;
     f(block);
     return block;
   }
 
-  IfElse ifElse(String ok, String notOk) {
-    final ifElse = IfElse(ok, notOk);
+  IfElse ifElse(String ok, [String? notOk]) {
+    final ifElse = IfElse(ok, notOk ?? '!($ok)');
     _elements.add(ifElse);
     return ifElse;
   }
@@ -252,7 +254,7 @@ class IfElse extends CodeBuilder {
         if (ok == 'true') {
           code.add(ifBlock);
         } else {
-          code.if$(ok, (code) {
+          code.addBlock(begin: 'if ($ok) {')((code) {
             code.add(ifBlock);
           });
         }
@@ -262,7 +264,7 @@ class IfElse extends CodeBuilder {
         if (notOk == 'true') {
           code.add(elseBlock);
         } else {
-          code.if$(notOk, (code) {
+          code.addBlock(begin: 'if ($notOk) {')((code) {
             code.add(elseBlock);
           });
         }

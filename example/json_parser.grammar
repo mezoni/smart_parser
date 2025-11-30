@@ -26,7 +26,8 @@ const JsonParser();
 `Object?` Start =>
   S
   $ = Value
-  & { state.peek() < 0 }
+  & { state.ch < 0 }
+  ~{ state.errorExpected('enf of file'); }
 
 `List<Object?>` Elements =>
   v = Value
@@ -39,13 +40,14 @@ const JsonParser();
   $ = { l }
 
 `List<Object?>` Array =>
-  '[' S
+  "[" S
   e = Elements?
   ']' S
   $ = { e ?? [] }
 
 `MapEntry<String, Object?>` KeyValue =>
   k = String
+  ~{ state.errorExpected('string'); }
   ':' S
   v = Value
   $ = { MapEntry(k, v) }
@@ -64,23 +66,10 @@ const JsonParser();
   $ = { m }
 
 `Map<String, Object?>` Object =>
-  '{' S
+  "{" S
   m = Map?
   '}' S
   $ = { m ?? {} }
-
-`String` Hex =>
-  s = <
-    @while (4, 4) {
-      [a-fA-F0-9]
-    }
-  >
-  $ = { String.fromCharCode(int.parse(s, radix: 16)) }
-  ~ {
-    state.errorIncorrect('Expected hexadecimal digit', false);
-    state.errorIncorrect('Unterminated 4 hexadecimal digit number', true);
-    state.errorExpected('4 hexadecimal digit number');
-  }
 
 `String` EscapeC =>
   (
@@ -108,7 +97,7 @@ const JsonParser();
     [t]
     $ = `const` { '\t' }
   )
-  ~ {
+  ~{
     if (state.position == state.length) {
       state.errorExpected('escape character');
     } else {
@@ -116,21 +105,43 @@ const JsonParser();
     }
   }
 
+`String` EscapeUnicode =>
+  { final start = state.position; }
+  "u"
+  { var end = 0; }
+  s = <
+    @while (4, 4) {
+      [a-fA-F0-9]
+      ~{
+        end = state.position;
+        state.errorExpected('hexadecimal digit');
+      }
+    }
+  >
+  ~{ state.error('Incorrect Unicode escape sequence', position: end, start: start, end: end); }
+  $ = { String.fromCharCode(int.parse(s, radix: 16)); }
+
 `String` Escaped =>
-  [u]
-  $ = Hex
+  & "u"
+  $ = EscapeUnicode
   ----
   EscapeC
 
 `String` String =>
-  '"' S
+  { final start = state.position; }
+  ["]
   p = @while (0) {
     <[^{0-1F}"\\]+>
     ---
     [\\]
     $ = Escaped
   }
-  '"' S
+  ["]
+  ~{
+    state.error('Unterminated string', start: start);
+    state.errorExpected('"');
+  }
+  S
   $ = { p.join() }
 
 `num` Number =>
@@ -138,42 +149,57 @@ const JsonParser();
     final start = state.position;
     var flag = true;
   }
-  [-]? ([0] / [1-9] [0-9]*)
+  [-]?
+  ([0] / [1-9] [0-9]*)
+  ~{ state.errorExpected('digit'); }
   (
-    ([.] [0-9]+)
+    [.]
+    [0-9]+
+    ~{
+      state.errorExpected('digit');
+      state.error('Fractional part is missing a number');
+      state.error('Malformed number', start: start, end: state.position);
+    }
     { flag = false; }
-    ~ { state.errorIncorrect('Fractional part is missing a number'); }
   )?
   (
-    ([eE] [\-+]? [0-9]+)
+    [eE]
+    [\-+]?
+    [0-9]+
+    ~{
+      state.errorExpected('digit');
+      state.error('Exponent part is missing a number');
+      state.error('Malformed number', start: start, end: state.position);
+    }
     { flag = false; }
-    ~ { state.errorIncorrect('Exponent part is missing a number'); }
   )?
   s = { state.substring(start, state.position) }
   S
   $ = { flag && s.length <= 18 ? int.parse(s) : num.parse(s) }
-  ~ {
-    state.errorIncorrect('Unterminated number', true);
-    state.errorExpected('number');
-  }
 
 `Object?` Value =>
-  'null' S
-  $ = `const` { null }
-  ----
-  'true' S
-  $ = `const` { true }
-  ----
-  'false' S
-  $ = `const` { false }
-  ----
-  Object
-  ----
-  Array
-  ----
-  String
-  ----
-  Number
+  (
+    "null" S
+    $ = `const` { null }
+    ----
+    "true" S
+    $ = `const` { true }
+    ----
+    "false" S
+    $ = `const` { false }
+    ----
+    & "{"
+    $ = Object
+    ----
+    & "["
+    $ = Array
+    ----
+    & ["]
+    $ = String
+    ----
+    Number
+  )
+  ~{ state.errorExpected(const ['string', 'number', 'array', 'object', 'null', 'boolean value']); }
 
   `void` S =>
     [\n\r\t ]*

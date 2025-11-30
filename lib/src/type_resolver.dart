@@ -70,6 +70,11 @@ class ExpressionTypeResolver implements Visitor<void> {
   }
 
   @override
+  void visitMatch(MatchExpression node) {
+    _assignType(node, 'String');
+  }
+
+  @override
   void visitNotPredicate(NotPredicateExpression node) {
     final child = node.expression;
     child.accept(this);
@@ -162,6 +167,11 @@ class ExpressionTypeResolver implements Visitor<void> {
         }
       }
     }
+  }
+
+  @override
+  void visitToken(TokenExpression node) {
+    _assignType(node, 'Token');
   }
 
   @override

@@ -4,31 +4,56 @@ import 'code_builder.dart';
 import 'expressions.dart';
 import 'helper.dart';
 
+String _action(String code) {
+  final lines = CodeBuilder.unindentText(code);
+  for (var i = 0; i < lines.length; i++) {
+    final line = lines[i];
+    lines[i] = line.trimRight();
+  }
+
+  if (lines.length > 1) {
+    final newLines = ['{'];
+    for (final line in lines) {
+      newLines.add('  $line');
+    }
+
+    newLines.add('}');
+    return newLines.join('\n');
+  } else {
+    if (lines.isEmpty) {
+      return '{ }';
+    }
+
+    final first = lines.first;
+    return '{ $first }';
+  }
+}
+
 class Printer implements Visitor<String> {
   const Printer();
 
   @override
   String visitAction(ActionExpression node) {
     final source = node.source;
-    return _action(source);
+    return _action(source).addErrorHandler(node);
   }
 
   @override
   String visitAndPredicate(AndPredicateExpression node) {
     final child = node.expression;
     final code = child.accept(this);
-    return '&$code';
+    return '&$code'.addErrorHandler(node);
   }
 
   @override
   String visitAnyCharacter(AnyCharacterExpression node) {
-    return '.';
+    return '.'.addErrorHandler(node);
   }
 
   @override
   String visitCapture(CaptureExpression node) {
     final child = node.expression;
-    return _enclose(child, '<', '>');
+    return _enclose(child, '<', '>').addErrorHandler(node);
   }
 
   @override
@@ -96,13 +121,13 @@ class Printer implements Visitor<String> {
     }
 
     buffer.write(']');
-    return buffer.toString();
+    return buffer.toString().addErrorHandler(node);
   }
 
   @override
   String visitGroup(GroupExpression node) {
     final child = node.expression;
-    return _enclose(child, '(', ')');
+    return _enclose(child, '(', ')').addErrorHandler(node);
   }
 
   @override
@@ -111,28 +136,36 @@ class Printer implements Visitor<String> {
     final text = node.text;
     final quote = isPrimitive ? '"' : '\'';
     final escaped = escapeString(text, quote);
-    return escaped;
+    return escaped.addErrorHandler(node);
+  }
+
+  @override
+  String visitMatch(MatchExpression node) {
+    final text = node.text;
+    final quote = node.quote;
+    final escaped = escapeString(text, quote);
+    return '@match($escaped)'.addErrorHandler(node);
   }
 
   @override
   String visitNotPredicate(NotPredicateExpression node) {
     final child = node.expression;
     final code = child.accept(this);
-    return '!$code';
+    return '!$code'.addErrorHandler(node);
   }
 
   @override
   String visitOneOrMore(OneOrMoreExpression node) {
     final child = node.expression;
     final code = child.accept(this);
-    return '$code+';
+    return '$code+'.addErrorHandler(node);
   }
 
   @override
   String visitOptional(OptionalExpression node) {
     final child = node.expression;
     final code = child.accept(this);
-    return '$code?';
+    return '$code?'.addErrorHandler(node);
   }
 
   @override
@@ -145,9 +178,9 @@ class Printer implements Visitor<String> {
     }
 
     if (sources.any((e) => const LineSplitter().convert(e).length > 1)) {
-      return sources.join('\n/\n');
+      return sources.join('\n/\n').addErrorHandler(node);
     } else {
-      return sources.join(' / ');
+      return sources.join(' / ').addErrorHandler(node);
     }
   }
 
@@ -155,7 +188,7 @@ class Printer implements Visitor<String> {
   String visitPosition(PositionExpression node) {
     final action = node.action;
     final code = _action(action);
-    return '@position($code)';
+    return '@position($code)'.addErrorHandler(node);
   }
 
   @override
@@ -163,13 +196,13 @@ class Printer implements Visitor<String> {
     final negate = node.negate;
     final predicate = node.predicate;
     final code = _action(predicate);
-    return negate ? '!$code' : '&$code';
+    return negate ? '!$code' : '&$code'.addErrorHandler(node);
   }
 
   @override
   String visitProduction(ProductionExpression node) {
     final name = node.name;
-    return name;
+    return name.addErrorHandler(node);
   }
 
   @override
@@ -192,7 +225,13 @@ class Printer implements Visitor<String> {
       source.add('~$code');
     }
 
-    return source.join('\n');
+    return source.join('\n').addErrorHandler(node);
+  }
+
+  @override
+  String visitToken(TokenExpression node) {
+    final name = node.name;
+    return '.$name'.addErrorHandler(node);
   }
 
   @override
@@ -204,7 +243,7 @@ class Printer implements Visitor<String> {
       code = '`$valueType` $code';
     }
 
-    return code;
+    return code.addErrorHandler(node);
   }
 
   @override
@@ -222,35 +261,15 @@ class Printer implements Visitor<String> {
     return '''
 @while ($q) {
   $code
-}''';
+}'''
+        .addErrorHandler(node);
   }
 
   @override
   String visitZeroOrMore(ZeroOrMoreExpression node) {
     final child = node.expression;
     final code = child.accept(this);
-    return '$code*';
-  }
-
-  String _action(String code) {
-    final lines = CodeBuilder.unindentText(code);
-    for (var i = 0; i < lines.length; i++) {
-      final line = lines[i];
-      lines[i] = line.trimRight();
-    }
-
-    if (lines.length > 1) {
-      final newLines = ['{'];
-      for (final line in lines) {
-        newLines.add('  $line');
-      }
-
-      newLines.add('}');
-      return newLines.join('\n');
-    } else {
-      final first = lines.first;
-      return '{ $first }';
-    }
+    return '$code*'.addErrorHandler(node);
   }
 
   String _enclose(Expression node, String open, String close) {
@@ -264,5 +283,19 @@ class Printer implements Visitor<String> {
     newLines.addAll(lines.map((e) => '  $e').toList());
     newLines.add(close);
     return newLines.join('\n');
+  }
+}
+
+extension on String {
+  String addErrorHandler(Expression node) {
+    final errorHandler = node.errorHandler;
+    final source = <String>[];
+    source.add(this);
+    if (errorHandler != null) {
+      final code = _action(errorHandler);
+      source.add('~$code');
+    }
+
+    return source.join('\n');
   }
 }

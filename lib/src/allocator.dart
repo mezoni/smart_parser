@@ -10,8 +10,4 @@ class Allocator {
 
     return '\$$name$index';
   }
-
-  void reset() {
-    _indexes.clear();
-  }
 }

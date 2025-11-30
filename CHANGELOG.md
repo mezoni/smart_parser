@@ -1,6 +1,9 @@
-## 1.0.6
+## 2.0.0
 
-- The algorithm for the `NotPredicateExpression` generator has been changed.
+- Breaking changes. The way input data is accessed has been changed.
+- Breaking changes. Changes to the error generation system.
+- Added meta expression `@match` for parsing case-insensitive data.
+- Added stream token parser generator.
 
 ## 1.0.5
 

@@ -8,7 +8,9 @@ void main(List<String> args) {
 
 const _data = [
   '"string',
-  '{"key" : "value"',
+  '{"key":"value"',
+  '{"key""value"',
+  '{true:false}',
   '[0, ]',
   '[0, 1',
   '-',

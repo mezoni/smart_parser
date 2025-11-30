@@ -21,7 +21,10 @@ class ParserGenerator {
 
   /// Generates parser source code and returns that code.
   String generate() {
-    final grammarGenerator = GrammarGenerator(source: source);
+    final grammarGenerator = GrammarGenerator(
+      inputType: options.inputType,
+      source: source,
+    );
     final grammar = grammarGenerator.generate();
     final libraryCode = StringBuffer();
     final globals = grammar.globals;
@@ -60,7 +63,7 @@ class ParserGenerator {
     classCode.writeln('// dart format on');
     libraryCode.writeln(classCode);
 
-    final runtimeGenerator = RuntimeGenerator();
+    final runtimeGenerator = RuntimeGenerator(inputType: options.inputType);
     final runtime = runtimeGenerator.generate();
     libraryCode.writeln(runtime);
     return '$libraryCode';

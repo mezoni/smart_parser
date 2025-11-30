@@ -32,7 +32,7 @@ $source''';
   expect(errors2, errors, reason: reason('state errors'));
 }
 
-void __testSuccess(String source, List<TokenType> types, List<Object?> values) {
+void __testSuccess(String source, List<TokenKind> types, List<Object?> values) {
   String reason(String text) {
     return '''
 Test failed: $text
@@ -40,11 +40,15 @@ $source''';
   }
 
   final result = _tokenize(source);
+  values = values.toList();
+  values.add(null);
+  types = types.toList();
+  types.add(TokenKind.eof);
   expect(result, isNotNull, reason: reason('result != null'));
   final value = result!.$1;
   expect(value, isA<List<Token>>(), reason: 'value is! List<Token>');
   expect(
-    value.map((e) => e.type).toList(),
+    value.map((e) => e.kind).toList(),
     types,
     reason: reason('token types'),
   );
@@ -69,14 +73,6 @@ String _errorToString(({int end, String message, int start}) error) {
   return _toErrorString(error.start, error.end, error.message);
 }
 
-String _errorUnexpected(int start, int end) {
-  return _errorToString((
-    start: start,
-    end: end,
-    message: 'Unexpected input data',
-  ));
-}
-
 void _testArray() {
   test('array', () {
     {
@@ -84,11 +80,11 @@ void _testArray() {
       __testSuccess(
         source,
         [
-          TokenType.openBracket,
-          TokenType.null$,
-          TokenType.comma,
-          TokenType.true$,
-          TokenType.closeBracket,
+          TokenKind.openBracket,
+          TokenKind.null$,
+          TokenKind.comma,
+          TokenKind.true$,
+          TokenKind.closeBracket,
         ],
         ['[', null, ',', true, ']'],
       );
@@ -100,7 +96,7 @@ void _testFalse() {
   test('false', () {
     {
       const source = ' false  ';
-      __testSuccess(source, [TokenType.false$], [false]);
+      __testSuccess(source, [TokenKind.false$], [false]);
     }
   });
 }
@@ -109,7 +105,7 @@ void _testNull() {
   test('null', () {
     {
       const source = ' null  ';
-      __testSuccess(source, [TokenType.null$], [null]);
+      __testSuccess(source, [TokenKind.null$], [null]);
     }
   });
 }
@@ -118,108 +114,110 @@ void _testNumber() {
   test('number', () {
     {
       const source = ' 0 ';
-      __testSuccess(source, [TokenType.number], [0]);
+      __testSuccess(source, [TokenKind.number], [0]);
     }
 
     {
       const source = ' -0 ';
-      __testSuccess(source, [TokenType.number], [-0]);
+      __testSuccess(source, [TokenKind.number], [-0]);
     }
 
     {
       const source = ' 1 ';
-      __testSuccess(source, [TokenType.number], [1]);
+      __testSuccess(source, [TokenKind.number], [1]);
     }
 
     {
       const source = ' 9 ';
-      __testSuccess(source, [TokenType.number], [9]);
+      __testSuccess(source, [TokenKind.number], [9]);
     }
 
     {
       const source = ' -1 ';
-      __testSuccess(source, [TokenType.number], [-1]);
+      __testSuccess(source, [TokenKind.number], [-1]);
     }
 
     {
       const source = ' -99 ';
-      __testSuccess(source, [TokenType.number], [-99]);
+      __testSuccess(source, [TokenKind.number], [-99]);
     }
 
     {
       const source = ' 999999999999999999 ';
-      __testSuccess(source, [TokenType.number], [999999999999999999]);
+      __testSuccess(source, [TokenKind.number], [999999999999999999]);
     }
 
     {
       const source = ' -999999999999999999 ';
-      __testSuccess(source, [TokenType.number], [-999999999999999999]);
+      __testSuccess(source, [TokenKind.number], [-999999999999999999]);
     }
 
     {
       const source = ' 9223372036854775807 ';
-      __testSuccess(source, [TokenType.number], [0x7FFFFFFFFFFFFFFF]);
+      __testSuccess(source, [TokenKind.number], [0x7FFFFFFFFFFFFFFF]);
     }
 
     {
       const source = ' -9223372036854775808 ';
-      __testSuccess(source, [TokenType.number], [-0x8000000000000000]);
+      __testSuccess(source, [TokenKind.number], [-0x8000000000000000]);
     }
 
     {
       const source = ' 0.1 ';
-      __testSuccess(source, [TokenType.number], [0.1]);
+      __testSuccess(source, [TokenKind.number], [0.1]);
     }
 
     {
       const source = ' -0.1 ';
-      __testSuccess(source, [TokenType.number], [-0.1]);
+      __testSuccess(source, [TokenKind.number], [-0.1]);
     }
 
     {
       const source = ' 123.456 ';
-      __testSuccess(source, [TokenType.number], [123.456]);
+      __testSuccess(source, [TokenKind.number], [123.456]);
     }
 
     {
       const source = ' -123.456 ';
-      __testSuccess(source, [TokenType.number], [-123.456]);
+      __testSuccess(source, [TokenKind.number], [-123.456]);
     }
 
     {
       const source = ' 123.456E10 ';
-      __testSuccess(source, [TokenType.number], [123.456E10]);
+      __testSuccess(source, [TokenKind.number], [123.456E10]);
     }
 
     {
       const source = ' 123.456E-10 ';
-      __testSuccess(source, [TokenType.number], [123.456E-10]);
+      __testSuccess(source, [TokenKind.number], [123.456E-10]);
     }
 
     {
       const source = ' 123.456E+10 ';
-      __testSuccess(source, [TokenType.number], [123.456E+10]);
+      __testSuccess(source, [TokenKind.number], [123.456E+10]);
     }
 
     {
       const source = ' 123E10 ';
-      __testSuccess(source, [TokenType.number], [123E10]);
+      __testSuccess(source, [TokenKind.number], [123E10]);
     }
 
     {
       const source = ' 123E-10 ';
-      __testSuccess(source, [TokenType.number], [123E-10]);
+      __testSuccess(source, [TokenKind.number], [123E-10]);
     }
 
     {
       const source = ' 123E+10 ';
-      __testSuccess(source, [TokenType.number], [123E+10]);
+      __testSuccess(source, [TokenKind.number], [123E+10]);
     }
 
     {
       const source = ' 123. ';
       __testFailure(source, [
-        _toErrorString(5, 5, 'Unterminated fractional number'),
+        _toErrorString(5, 5, 'Fractional part is missing a number'),
+        _toErrorString(1, 5, 'Malformed number'),
+        _errorExpected(5, ['digit']),
       ]);
     }
 
@@ -227,6 +225,8 @@ void _testNumber() {
       const source = ' 123E ';
       __testFailure(source, [
         _toErrorString(5, 5, 'Exponent part is missing a number'),
+        _toErrorString(1, 5, 'Malformed number'),
+        _errorExpected(5, ['digit']),
       ]);
     }
 
@@ -234,6 +234,8 @@ void _testNumber() {
       const source = ' 123E+ ';
       __testFailure(source, [
         _toErrorString(6, 6, 'Exponent part is missing a number'),
+        _toErrorString(1, 6, 'Malformed number'),
+        _errorExpected(6, ['digit']),
       ]);
     }
   });
@@ -243,44 +245,45 @@ void _testString() {
   test('string', () {
     {
       const source = ' "" ';
-      __testSuccess(source, [TokenType.string], ['']);
+      __testSuccess(source, [TokenKind.string], ['']);
     }
 
     {
       const source = ' "abc" ';
-      __testSuccess(source, [TokenType.string], ['abc']);
+      __testSuccess(source, [TokenKind.string], ['abc']);
     }
 
     {
       const source = r' "\u0020" ';
-      __testSuccess(source, [TokenType.string], [' ']);
+      __testSuccess(source, [TokenKind.string], [' ']);
     }
 
     {
       const source = r' "\n" ';
-      __testSuccess(source, [TokenType.string], ['\n']);
+      __testSuccess(source, [TokenKind.string], ['\n']);
     }
 
     {
       const source = r' "\u" ';
       __testFailure(source, [
-        _errorExpected(4, ['4 hexadecimal digit number']),
+        _toErrorString(3, 4, 'Incorrect Unicode escape sequence'),
+        _errorExpected(4, ['hexadecimal digit']),
       ]);
     }
 
     {
       const source = r' "\u0" ';
       __testFailure(source, [
-        _toErrorString(5, 5, 'Expected hexadecimal digit'),
-        _toErrorString(4, 5, 'Incorrect 4 hexadecimal digit number'),
+        _toErrorString(3, 5, 'Incorrect Unicode escape sequence'),
+        _errorExpected(5, ['hexadecimal digit']),
       ]);
     }
 
     {
       const source = r' "\u000" ';
       __testFailure(source, [
-        _toErrorString(7, 7, 'Expected hexadecimal digit'),
-        _toErrorString(4, 7, 'Incorrect 4 hexadecimal digit number'),
+        _toErrorString(3, 7, 'Incorrect Unicode escape sequence'),
+        _errorExpected(7, ['hexadecimal digit']),
       ]);
     }
 
@@ -292,6 +295,7 @@ void _testString() {
     {
       const source = r' " ';
       __testFailure(source, [
+        _toErrorString(1, 1, 'Unterminated string'),
         _errorExpected(3, ['"']),
       ]);
     }
@@ -302,7 +306,7 @@ void _testTrue() {
   test('true', () {
     {
       const source = ' true  ';
-      __testSuccess(source, [TokenType.true$], [true]);
+      __testSuccess(source, [TokenKind.true$], [true]);
     }
   });
 }

@@ -1,30 +1,31 @@
 class Token {
   final int end;
 
-  final int start;
+  final TokenKind kind;
 
-  final TokenType type;
+  final int start;
 
   final Object? value;
 
   Token({
     required this.end,
+    required this.kind,
     required this.start,
-    required this.type,
     this.value,
   });
 
   @override
   String toString() {
-    return type.toString();
+    return kind.toString();
   }
 }
 
-enum TokenType {
+enum TokenKind {
   closeBrace('}'),
   closeBracket(']'),
   colon(':'),
   comma(','),
+  eof('eof'),
   false$('false'),
   null$('null'),
   number('number'),
@@ -35,7 +36,7 @@ enum TokenType {
 
   final String name;
 
-  const TokenType(this.name);
+  const TokenKind(this.name);
 
   @override
   String toString() {

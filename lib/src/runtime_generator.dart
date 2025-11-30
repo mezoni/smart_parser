@@ -1,3 +1,5 @@
+import '../parser_generator_options.dart';
+
 class RuntimeGenerator {
   static const _template = r'''
 /// Shortened name (alias) for the [Result] type.
@@ -23,11 +25,14 @@ class Result<R> {
 }
 
 class State {
-  static const _expected = Object();
+  static const _errorExpected = 0;
 
   static const _maxErrorCount = 64;
 
-  /// The farthest local parsing position.
+  /// Current character.
+  int ch = -1;
+
+  /// The furthest position of parsing.
   int farthestPosition = 0;
 
   /// The length of the input data.
@@ -39,55 +44,22 @@ class State {
   /// Intended for internal use only.
   int predicate = 0;
 
-  int _ch = 0;
-
-  final List<Object?> _flags = List.filled(_maxErrorCount, null);
-
   int _errorCount = 0;
-
-  int _errorState = -1;
 
   int _farthestError = 0;
 
-  int _farthestPosition = 0;
+  final List<int?> _flags = List.filled(_maxErrorCount, null);
 
   final String _input;
 
-  final List<String?> _messages = List.filled(_maxErrorCount, null);
+  final List<int?> _ends = List.filled(_maxErrorCount, null);
 
-  int _peekPosition = -1;
+  final List<Object?> _messages = List.filled(_maxErrorCount, null);
 
   final List<int?> _starts = List.filled(_maxErrorCount, null);
 
   State(String input) : _input = input, length = input.length {
-    peek();
-  }
-
-  void backtrack(int position) {
-    if (position > this.position) {
-      throw RangeError.range(position, 0, this.position, 'position');
-    }
-
-    if (predicate == 0) {
-      if (_farthestPosition < this.position) {
-        _farthestPosition = this.position;
-      }
-
-      if (farthestPosition < this.position) {
-        farthestPosition = this.position;
-      }
-    }
-
-    this.position = position;
-  }
-
-  /// Intended for internal use only.
-  /// @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  int beginErrorHandling() {
-    final farthestPosition = this.farthestPosition;
-    this.farthestPosition = position;
-    return farthestPosition;
+    readChar(0, true);
   }
 
   @pragma('vm:prefer-inline')
@@ -96,61 +68,21 @@ class State {
   /// [char].
   int charSize(int char) => char > 0xffff ? 2 : 1;
 
-  /// Intended for internal use only.
-  /// @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  void endErrorHandling(int farthestPosition) {
-    if (this.farthestPosition < farthestPosition) {
-      this.farthestPosition = farthestPosition;
-    }
-  }
-
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   /// Adds (if possible) an error to the error buffer.
   ///
   /// Parameters:
   ///
-  ///  - [message]: The message text used when building error messages.
-  ///  - [fullSpan]: Specifies information about the location of the error.
-  ///  - `true` - (start, end)
-  ///  - `false` - (end, end)
-  ///  - `null` - (start, start)
-  void error(String message, [bool? fullSpan = false]) {
-    if (predicate != 0) {
-      return;
-    }
-
-    if (_farthestError <= farthestPosition) {
-      if (_farthestError < farthestPosition) {
-        _farthestError = farthestPosition;
-        _errorCount = 0;
-      }
-
-      if (_errorCount < _messages.length) {
-        _flags[_errorCount] = fullSpan;
-        _messages[_errorCount] = message;
-        _starts[_errorCount] = position;
-        _errorCount++;
-      }
-    }
-  }
-
-  /// Intended for internal use only.
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  /// Adds (if possible) an `expected` error to the error buffer at the current
-  /// position.
-  ///
-  /// Parameters:
-  ///
-  ///  - [element]: A specific syntactic element that was expected but was
-  /// missing.
-  void errorExpected(String element) {
-    if (predicate != 0) {
-      return;
-    }
-
+  ///  - [message]: A message that describes the error.
+  ///  - [position]: Farthest position of the error. Used to determine whether
+  /// errors can be added in the error buffer.
+  ///  - [start]: Starting position of the location. Used to display the start
+  /// of an error.
+  ///  - [end]: Ending position of the location. Used to display the end of an
+  /// error.
+  void error(String message, {int? position, int? start, int? end}) {
+    position ??= this.position;
     if (_farthestError <= position) {
       if (_farthestError < position) {
         _farthestError = position;
@@ -158,95 +90,99 @@ class State {
       }
 
       if (_errorCount < _messages.length) {
-        _flags[_errorCount] = _expected;
-        _messages[_errorCount] = element;
+        _ends[_errorCount] = end;
+        _flags[_errorCount] = null;
+        _messages[_errorCount] = message;
+        _starts[_errorCount] = start;
         _errorCount++;
       }
     }
-
-    if (_farthestPosition < position) {
-      _farthestPosition = position;
-    }
-
-    if (farthestPosition < position) {
-      farthestPosition = position;
-    }
   }
 
-  /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  /// Adds (if possible) an error to the error buffer in the case where the
-  /// error has a position further than the staring parsing position.
+  /// Adds (if possible) an `expected` error to the error buffer.
   ///
   /// Parameters:
   ///
-  ///  - [message]: The message text used when building error messages.
-  ///  - [fullSpan]: Specifies information about the location of the error.
-  ///  - `true` - (start, end)
-  ///  - `false` - (end, end)
-  ///  - `null` - (start, start)
-  void errorIncorrect(String message, [bool? fullSpan = false]) {
-    if (predicate != 0) {
-      return;
-    }
+  ///  - [expected]: One or more expected syntactic elements.
+  ///  - [position]: Farthest position of the error. Used to determine whether
+  /// errors can be added in the error buffer.
+  ///  - [start]: Starting position of the location. Used to display the start
+  /// of an error.
+  ///
+  /// Example with one element:
+  ///
+  /// ```dart
+  /// state.errorExpected('string');
+  /// ```
+  /// Example with multiple elements:
+  ///
+  /// ```dart
+  /// state.errorExpected(const ['string', 'number']);
+  /// ```
+  void errorExpected(Object expected, {int? position, int? start}) {
+    position ??= this.position;
+    if (_farthestError <= position) {
+      if (_farthestError < position) {
+        _farthestError = position;
+        _errorCount = 0;
+      }
 
-    if (farthestPosition > position) {
-      error(message, fullSpan);
+      if (_errorCount < _messages.length) {
+        _flags[_errorCount] = _errorExpected;
+        _messages[_errorCount] = expected;
+        _starts[_errorCount] = start;
+        _errorCount++;
+      }
     }
   }
 
   /// Converts error messages to errors and returns them as an error list.
   List<({int end, String message, int start})> getErrors() {
+    final position = _farthestError;
     final errors = <({int end, String message, int start})>[];
-    if (_farthestPosition < position) {
-      _farthestPosition = position;
-    }
-
-    final end = _farthestError;
-    final expected = <String>{};
+    final expected = <int, Set<String>>{};
     for (var i = 0; i < _errorCount; i++) {
       final message = _messages[i];
-      if (message == null) {
-        continue;
-      }
-
       switch (_flags[i]) {
-        case _expected:
-          expected.add(message);
-          break;
-        case true:
-          final start = _starts[i]!;
-          errors.add((message: message, start: start, end: end));
-          break;
-        case false:
-          errors.add((message: message, start: end, end: end));
-          break;
-        case null:
-          final start = _starts[i]!;
-          errors.add((message: message, start: start, end: start));
+        case _errorExpected:
+          final start = _starts[i] ??= position;
+          if (message is List) {
+            (expected[start] ??= {}).addAll(message.map((e) => '$e'));
+          } else {
+            (expected[start] ??= {}).add('$message');
+          }
+
           break;
         default:
-          errors.add((message: message, start: end, end: end));
+          var start = _starts[i];
+          var end = _ends[i];
+          if (end == null && start != null) {
+            end = start;
+          } else if (start == null && end != null) {
+            start = end;
+          }
+
+          start ??= position;
+          end ??= position;
+          errors.add((message: '$message', start: start, end: end));
       }
     }
 
     if (expected.isNotEmpty) {
-      final list = expected.toList();
-      list.sort();
-      final message = 'Expected: ${list.map((e) => '\'$e\'').join(', ')}';
-      errors.add((
-        message: message,
-        start: _farthestError,
-        end: _farthestError,
-      ));
+      for (final position in expected.keys) {
+        final list = expected[position]!.toList();
+        final message = 'Expected: ${list.map((e) => '\'$e\'').join(', ')}';
+        errors.add((message: message, start: position, end: position));
+      }
     }
 
     if (errors.isEmpty) {
       errors.add((
-        message: 'Unexpected input data',
-        start: _farthestPosition,
-        end: _farthestPosition,
+        message: 'Syntax error',
+        start: farthestPosition,
+        end: farthestPosition,
       ));
     }
 
@@ -259,67 +195,104 @@ class State {
   /// [position,.
   int indexOf(String string) => _input.indexOf(string, position);
 
-  /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  int peek() {
-    if (_peekPosition == position) {
-      return _ch;
+  @pragma('vm:unsafe:no-interrupts')
+  /// Intended for internal use only.
+  int match(List<int> lowerCase, List<int> upperCase) {
+    if (lowerCase.length != upperCase.length) {
+      throw ArgumentError('The lengths of the lists do not match');
     }
 
-    _peekPosition = position;
-    if (position < length) {
-      if ((_ch = _input.codeUnitAt(position)) < 0xd800) {
-        return _ch;
+    if (upperCase.isEmpty) {
+      return 0;
+    }
+
+    var ch = this.ch;
+    if (ch == lowerCase[0] || ch == upperCase[0]) {
+      var length = charSize(ch);
+      for (var i = 1; i < lowerCase.length; i++) {
+        ch = readChar(position + length, false);
+        if (ch != lowerCase[i] && ch != upperCase[i]) {
+          break;
+        }
+
+        length += charSize(ch);
       }
 
-      if (_ch < 0xe000) {
+      return length;
+    }
+
+    return -1;
+  }
+
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  /// Reads the next character, advances the position to the next character and
+  /// returns that character.
+  int nextChar() {
+    if (position >= length) {
+      return ch = -1;
+    }
+
+    position += charSize(ch);
+    if (predicate == 0 && farthestPosition < position) {
+      farthestPosition = position;
+    }
+
+    if (position < length) {
+      if ((ch = _input.codeUnitAt(position)) < 0xd800) {
+        return ch;
+      }
+
+      if (ch < 0xe000) {
         final c = _input.codeUnitAt(position + 1);
         if ((c & 0xfc00) == 0xdc00) {
-          return _ch = 0x10000 + ((_ch & 0x3ff) << 10) + (c & 0x3ff);
+          return ch = 0x10000 + ((ch & 0x3ff) << 10) + (c & 0x3ff);
         }
 
         throw FormatException('Invalid UTF-16 character', this, position);
       }
 
-      return _ch;
+      return ch;
     } else {
-      return _ch = -1;
+      return ch = -1;
     }
   }
 
-  /// Removes recent errors. Recent errors are errors that were added while
-  /// parsing the expression.
-  void removeRecentErrors() {
-    if (_farthestError == position) {
-      if (_errorState >= 0) {
-        _errorCount = _errorState > _maxErrorCount
-            ? _maxErrorCount
-            : _errorState;
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int readChar(int position, bool advance) {
+    var ch = -1;
+    l:
+    {
+      if (position < length) {
+        if ((ch = _input.codeUnitAt(position)) < 0xd800) {
+          break l;
+        }
+
+        if (ch < 0xe000) {
+          final c = _input.codeUnitAt(position + 1);
+          if ((c & 0xfc00) == 0xdc00) {
+            ch = 0x10000 + ((ch & 0x3ff) << 10) + (c & 0x3ff);
+            break l;
+          }
+
+          throw FormatException('Invalid UTF-16 character', this, position);
+        }
       }
     }
-  }
 
-  /// Intended for internal use only.
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  void restoreErrorState(int errorState) {
-    _errorState = errorState;
-  }
-
-  /// Intended for internal use only.
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  int setErrorState() {
-    final errorState = _errorState;
-    if (_farthestError < position) {
-      _errorState = 0;
-    } else if (_farthestError == position) {
-      _errorState = _errorCount;
-    } else {
-      _errorState = -1;
+    if (advance) {
+      this.position = position < length ? position : length;
+      this.ch = ch;
+      if (predicate == 0 && farthestPosition < position) {
+        farthestPosition = position;
+      }
     }
-    return errorState;
+
+    return ch;
   }
 
   @pragma('vm:prefer-inline')
@@ -375,6 +348,10 @@ class State {
     return '|$position|$line';
   }
 }''';
+
+  final InputType inputType;
+
+  RuntimeGenerator({this.inputType = InputType.string});
 
   String generate() {
     return _template;

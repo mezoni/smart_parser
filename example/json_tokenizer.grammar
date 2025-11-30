@@ -4,9 +4,9 @@ import 'package:source_span/source_span.dart';
 import 'json_token.dart';
 
 List<Token> tokenize(String source) {
-  const lexer = JsonTokenizer();
+  const tokenizer = JsonTokenizer();
   final state = State(source);
-  final result = lexer.parseStart(state);
+  final result = tokenizer.parseStart(state);
   if (result == null) {
     final file = SourceFile.fromString(source);
     throw FormatException(
@@ -24,14 +24,20 @@ List<Token> tokenize(String source) {
 %%
 const JsonTokenizer();
 
-Token _token(int start, int end, TokenType type, Object? value) {
-  return Token(start: start, end: end, type: type, value: value);
+Token _token(int start, int end, TokenKind kind, Object? value) {
+  return Token(start: start, end: end, kind: kind, value: value);
 }
 %%
 
 `List<Token>` Start =>
-  $ = Tokens
-  !.
+  t = Tokens
+  & { state.ch < 0 }
+  {
+    final eof = _token(state.position, state.position, TokenKind.eof, null);
+    t.add(eof);
+  }
+  $ = { t }
+
 
 `List<Token>` Tokens =>
   $ = (
@@ -39,54 +45,41 @@ Token _token(int start, int end, TokenType type, Object? value) {
     $ = (
       { final int start = state.position; }
       ":"
-      $ = { _token(start, state.position, TokenType.colon, ':') }
+      $ = { _token(start, state.position, TokenKind.colon, ':') }
       ----
       ","
-      $ = { _token(start, state.position, TokenType.comma, ',') }
+      $ = { _token(start, state.position, TokenKind.comma, ',') }
       ----
       "{"
-      $ = { _token(start, state.position, TokenType.openBrace, '\u007B') }
+      $ = { _token(start, state.position, TokenKind.openBrace, '\u007B') }
       ----
       "}"
-      $ = { _token(start, state.position, TokenType.closeBrace, '\u007D') }
+      $ = { _token(start, state.position, TokenKind.closeBrace, '\u007D') }
       ----
       "["
-      $ = { _token(start, state.position, TokenType.openBracket, '[') }
+      $ = { _token(start, state.position, TokenKind.openBracket, '[') }
       ----
       "]"
-      $ = { _token(start, state.position, TokenType.closeBracket, ']') }
+      $ = { _token(start, state.position, TokenKind.closeBracket, ']') }
       ----
       "null"
-      $ = { _token(start, state.position, TokenType.null$, null) }
+      $ = { _token(start, state.position, TokenKind.null$, null) }
       ----
       "true"
-      $ = { _token(start, state.position, TokenType.true$, true) }
+      $ = { _token(start, state.position, TokenKind.true$, true) }
       ----
       "false"
-      $ = { _token(start, state.position, TokenType.false$, false) }
+      $ = { _token(start, state.position, TokenKind.false$, false) }
       ----
-      "\""
+      &["]
       v = String
-      $ = { _token(start, state.position, TokenType.string, v) }
+      $ = { _token(start, state.position, TokenKind.string, v) }
       ----
       v = Number
-      $ = { _token(start, state.position, TokenType.number, v) }
+      $ = { _token(start, state.position, TokenKind.number, v) }
     )
   )*
   S
-
-`String` Hex =>
-  s = <
-    @while (4, 4) {
-      [a-fA-F0-9]
-    }
-  >
-  $ = { String.fromCharCode(int.parse(s, radix: 16)) }
-  ~ {
-    state.errorExpected('4 hexadecimal digit number');
-    state.errorIncorrect('Expected hexadecimal digit', false);
-    state.errorIncorrect('Incorrect 4 hexadecimal digit number', true);
-  }
 
 `String` EscapeC =>
   (
@@ -114,24 +107,51 @@ Token _token(int start, int end, TokenType type, Object? value) {
     [t]
     $ = `const` { '\t' }
   )
-  ~ { state.error('Illegal escape character'); }
+  ~{
+    if (state.position == state.length) {
+      state.errorExpected('escape character');
+    } else {
+      state.error('Illegal escape character');
+    }
+  }
+
+`String` EscapeUnicode =>
+  { final start = state.position; }
+  "u"
+  { var end = 0; }
+  s = <
+    @while (4, 4) {
+      [a-fA-F0-9]
+      ~{
+        end = state.position;
+        state.errorExpected('hexadecimal digit');
+      }
+    }
+  >
+  ~{ state.error('Incorrect Unicode escape sequence', position: end, start: start, end: end); }
+  $ = { String.fromCharCode(int.parse(s, radix: 16)); }
 
 `String` Escaped =>
-  [\\]
-  $ = (
-    [u]
-    $ = Hex
-    ----
-    EscapeC
-  )
+  & "u"
+  $ = EscapeUnicode
+  ----
+  EscapeC
 
 `String` String =>
+  { final start = state.position; }
+  ["]
   p = @while (0) {
     <[^{0-1F}"\\]+>
     ---
-    Escaped
+    [\\]
+    $ = Escaped
   }
-  '"'
+  ["]
+  ~{
+    state.error('Unterminated string', start: start);
+    state.errorExpected('"');
+  }
+  S
   $ = { p.join() }
 
 `num` Number =>
@@ -139,19 +159,33 @@ Token _token(int start, int end, TokenType type, Object? value) {
     final start = state.position;
     var flag = true;
   }
-  [-]? ([0] / [1-9] [0-9]*)
+  [-]?
+  ([0] / [1-9] [0-9]*)
+  ~{ state.errorExpected('digit'); }
   (
-    ([.] [0-9]+)
+    [.]
+    [0-9]+
+    ~{
+      state.errorExpected('digit');
+      state.error('Fractional part is missing a number');
+      state.error('Malformed number', start: start, end: state.position);
+    }
     { flag = false; }
-    ~ { state.errorIncorrect('Unterminated fractional number'); }
   )?
   (
-    ([eE] [\-+]? [0-9]+)
+    [eE]
+    [\-+]?
+    [0-9]+
+    ~{
+      state.errorExpected('digit');
+      state.error('Exponent part is missing a number');
+      state.error('Malformed number', start: start, end: state.position);
+    }
     { flag = false; }
-    ~ { state.errorIncorrect('Exponent part is missing a number'); }
   )?
   s = { state.substring(start, state.position) }
-  $ = { flag && s.length <= 18 ? int.parse(s) : num.parse(s)  }
+  S
+  $ = { flag && s.length <= 18 ? int.parse(s) : num.parse(s) }
 
 `void` S =>
   [\n\r\t ]*

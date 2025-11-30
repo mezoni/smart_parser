@@ -4,8 +4,8 @@ import 'generate_expressions_test.dart' as generate_test;
 import 'generate_readme.dart' as generate_readme;
 
 void main(List<String> args) {
-  generate_readme.main(args);
   generate_test.main(args);
   generate_json_parser.main(args);
   generate_json_tokenizer.main(args);
+  generate_readme.main(args);
 }

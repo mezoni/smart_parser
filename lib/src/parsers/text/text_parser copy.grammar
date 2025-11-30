@@ -1,11 +1,11 @@
 %{
 import 'package:source_span/source_span.dart';
 
-import '../expressions.dart';
-import '../grammar.dart';
+import '../../expressions.dart';
+import '../../grammar.dart';
 
 Grammar parse(String source) {
-  const parser = SmartParser();
+  const parser = TextParser();
   final state = State(source);
   final result = parser.parseStart(state);
   if (result == null) {
@@ -20,10 +20,19 @@ Grammar parse(String source) {
 
   return result.$1;
 }
+
+extension _Ext<T extends Expression> on T {
+  T setType(String? type) {
+    if (type != null) {
+      this.type = type;
+    }
+    return this;
+  }
+}
 }%
 
 %%
-const SmartParser();
+const TextParser();
 %%
 
 `Grammar`
@@ -37,23 +46,27 @@ Start =>
 
 `String`
 Globals =>
-  '%{'
+  { final start = state.position; }
+  "%{"
   { final index = state.indexOf('\u007D%'); }
   $ = <@position({ index == -1 ? state.length : index })>
-  '}%' S
+  "}%" ~{ state.error('Unterminated globals section', position: start); } S
 
 `String`
 Members =>
-  '%%'
+  { final start = state.position; }
+  "%%"
   { final index = state.indexOf('%%'); }
   $ = <@position({ index == -1 ? state.length : index })>
-  '%%' S
+  "%%" ~{ state.error('Unterminated members section', position: start); } S
 
 `Production`
 Production =>
   { final start = state.position; }
   t = Type
+  ~{ state.errorExpected('type'); }
   i = ProductionName
+  ~{ state.errorExpected('production name'); }
   '=>' S
   e = Expression
   [;]? S
@@ -67,9 +80,9 @@ Production =>
 Expression =>
   { final pos = state.position; }
   e = OrderedChoice
+  ~{ state.errorExpected('expression'); }
   { e.sourceCode = state.substring(pos, state.position).trimRight(); }
   $ = { e }
-  ~ { state.errorExpected('expression'); }
 
 `Expression`
 OrderedChoice =>
@@ -77,9 +90,9 @@ OrderedChoice =>
   { final l = [n]; }
   @while (0) {
     (
-      '/'
+      "/"
       ----
-      '-'+
+      "-"+
     ) S
     n = Sequence
     { l.add(n); }
@@ -92,14 +105,11 @@ Sequence =>
   n = (
     { final pos = state.position; }
     e = SequenceElement
+    h = ErrorHandler?
     { e.sourceCode = state.substring(pos, state.position).trimRight(); }
-    $ = `Expression` { e }
+    $ = `Expression` { e..errorHandler = h }
   )+
-  h = (
-    '~' S
-    $ = Block
-  )?
-  e = { SequenceExpression(errorHandler: h, expressions: n) }
+  e = { SequenceExpression(expressions: n) }
   { e.sourceCode = state.substring(pos, state.position).trimRight(); }
   $ = { e }
 
@@ -126,7 +136,7 @@ SequenceElement =>
 
 `Expression`
 Prefix =>
-  '!' S
+  "!" S
   $ = (
     b = Block
     $ = { PredicateExpression(negate: true, predicate: b) }
@@ -135,7 +145,7 @@ Prefix =>
     $ = { NotPredicateExpression(expression: s) }
   )
   ----
-  '&' S
+  "&" S
   $ = (
     b = Block
     $ = { PredicateExpression(negate: false, predicate: b) }
@@ -150,13 +160,13 @@ Prefix =>
 Suffix =>
   p = Primary
   $ = (
-    '*' S
+    "*" S
     $ = { ZeroOrMoreExpression(expression: p) }
     ----
-    '+' S
+    "+" S
     $ = { OneOrMoreExpression(expression: p) }
     ----
-    '?' S
+    "?" S
     $ = { OptionalExpression(expression: p) }
     ---
     ""
@@ -181,8 +191,9 @@ Primary =>
     Capture
     ----
     Position
-  )
-  ~ { state.errorExpected('expression'); }
+    ----
+    Match
+  ) ~{ state.errorExpected('expression'); }
 
 `Expression`
 Symbol =>
@@ -202,37 +213,36 @@ Value =>
 
 `Expression`
 AnyCharacter =>
-  '.' S
+  "." S
   $ = { AnyCharacterExpression() }
 
 `Expression`
 Capture =>
-  '<' S
+  "<" S
   e = Expression
   '>' S
   $ = { CaptureExpression(expression: e) }
-;
 
 `Expression`
 CharacterClass =>
   { var negate = false; }
   (
-    '[^'
+    "[^"
     { negate = true; }
     ----
-    '['
+    "["
   )
   r = @while (1) {
-    ! ']'
+    ! "]"
     $ = Range
-  }
+  } ~{ state.errorExpected('characters'); }
   ']' S
   $ = { CharacterClassExpression(ranges: r, negate: negate) }
 
 `Expression`
 Group =>
   t = Type?
-  '(' S
+  "(" S
   e = Expression
   ')' S
   g = { GroupExpression(expression: e) }
@@ -248,23 +258,41 @@ Literal =>
   $ = { LiteralExpression(isPrimitive: true, text: s) }
 
 `Expression`
+Match =>
+  "@match" S
+  '(' S
+  { var quote = '\''; }
+  s = (
+    SQString
+    ---
+    $ = DQString
+    { quote = '"'; }
+  )
+  ~{ state.errorExpected('string value'); }
+  ')' S
+  $ = { MatchExpression(quote: quote, text: s) }
+
+`Expression`
 Position =>
-  '@position' S
+  "@position" S
   '(' S
   b = Block
+  ~{ state.errorExpected('position value'); }
   ')' S
   $ = { PositionExpression(action: b) }
 
 `Expression`
-  While =>
-  '@while' S
+While =>
+  t = Type?
+  "@while" S
   '(' S
   r = WhileRange
+  ~{ state.errorExpected('while range'); }
   ')' S
   '{' S
   e = Expression
   '}' S
-  $ = { WhileExpression(expression: e, range: r) }
+  $ = { WhileExpression(expression: e, range: r).setType(t) }
 
 `(int, int?)`
 WhileRange =>
@@ -276,20 +304,25 @@ WhileRange =>
   $ = { (m, n) }
 
 `String`
+ErrorHandler =>
+  "~" S
+  $ = Block
+
+`String`
 Type =>
-  '`'
+  "`"
   $ = <
-    @while (0) {
+    @while (1) {
       ! [`]
       [a-zA-Z0-9_$<(\{,:\})>? ]
     }
   >
+  ~{ state.errorExpected('type description'); }
   '`' S
-  ~ { state.errorExpected('type'); }
 
 `String`
 DQString =>
-  '"'
+  "\""
   p = @while (0) {
     <[{20-21}{23-5B}{5D-10FFFF}]+>
     ---
@@ -300,7 +333,7 @@ DQString =>
 
 `String`
 SQString =>
-  '\''
+  "'"
   p = @while (0) {
     <[{20-26}{28-5B}{5D-10FFFF}]+>
     ---
@@ -314,11 +347,12 @@ Escaped =>
   "\\"
   $ = (
     "u"
-    "{"
+    '{'
     v = HexValue
-    "}"
+    ~{ state.error('unicode escape'); }
+    '}'
+    ~{ state.error('Unterminated Unicode escape sequence'); }
     $ = {String.fromCharCode(v) }
-    ~ { state.errorIncorrect('Unterminated Unicode escape sequence'); }
     ----
     "a"
     $ = `const` { '\u0007' }
@@ -353,6 +387,7 @@ Escaped =>
     "'"
     $ = `const` { '\'' }
   )
+  ~{state.error('Illegal escape character'); }
 
 `int`
 RangeChar =>
@@ -362,10 +397,10 @@ RangeChar =>
   "\\"
   $ = (
     "u"
-    "{"
+    '{'
     $ = HexValue
-    "}"
-    ~ { state.errorIncorrect('Unterminated Unicode escape sequence'); }
+    ~{ state.errorExpected('hex number'); }
+    '}'
     ----
     "a"
     $ = `const` { 0x07 }
@@ -412,31 +447,32 @@ RangeChar =>
     "}"
     $ = `const` { 0x7D }
   )
+  ~{ state.error('Illegal escape character'); }
 
 `int`
 DecValue =>
   n = <[0-9]+>
+  ~{ state.errorExpected('decimal number'); }
   $ = { int.parse(n) }
-  ~ { state.errorExpected('number'); }
 
 `int`
 DecValue1 =>
   n = <[1-9] [0-9]*>
+  ~{ state.errorExpected('decimal number from 1'); }
   $ = { int.parse(n) }
-  ~ { state.errorExpected('number'); }
 
 `int`
 HexValue =>
   n = <[a-fA-F0-9]+>
+  ~{ state.errorExpected('hexadecimal number'); }
   $ = { int.parse(n, radix: 16) }
-  ~ { state.errorExpected('hexadecimal number'); }
 
 `(int, int)`
 Range =>
   (
     "{"
     s = HexValue
-    "-"
+    '-'
     e = HexValue
     '}'
     $ = { (s, e) }
@@ -447,18 +483,17 @@ Range =>
     $ = { (n, n) }
     ---
     s = RangeChar
-    "-"
+    '-'
     e = RangeChar
     $ = { (s, e) }
     ----
     n = RangeChar
     $ = { (n, n) }
   )
-  ~ { state.errorExpected('range'); }
 
 `String`
 Block =>
-  '{'
+  "{"
   $ = <BlockBody*>
   '}' S
 
@@ -475,13 +510,11 @@ BlockBody =>
 VariableName =>
   $ = <[a-z] [a-zA-Z0-9_]*>
   S
-  ~ { state.errorExpected('variable name'); }
 
 `String`
 ProductionName =>
   $ = <[A-Z] [a-zA-Z0-9_]*>
   S
-  ~ { state.errorExpected('production name'); }
 
 `void`
 S => @while (0) {

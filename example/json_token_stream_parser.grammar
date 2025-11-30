@@ -1,0 +1,134 @@
+%{
+import 'package:source_span/source_span.dart';
+
+import 'json_token.dart';
+import 'json_tokenizer.dart';
+
+Object? parse(String source) {
+  final tokens = tokenize(source);
+  final parser = JsonParser(tokens);
+  final state = State('');
+  final result = parser.parseStart(state);
+  if (result == null) {
+    final file = SourceFile.fromString(source);
+    throw FormatException(
+      state
+          .getErrors()
+          .map((e) => file.span(e.start, e.end).message(e.message))
+          .join('\n'),
+    );
+  }
+
+  return result.$1;
+}
+}%
+
+%%
+Token token;
+
+int index = 0;
+
+final List<Token> _tokens;
+
+JsonParser(List<Token> tokens)
+  : _tokens = tokens,
+    token = tokens.isEmpty
+        ? throw ArgumentError('Must not be empty', 'tokens')
+        : tokens.first;
+
+void nextToken(State state) {
+  if (index >= _tokens.length) {
+    return;
+  }
+
+  token = _tokens[++index];
+  final start = token.start;
+  state.position = start;
+  if (state.farthestPosition < start) {
+    state.farthestPosition = start;
+  }
+}
+
+void restoreToken(State state, int index) {
+  this.index = index;
+  token = _tokens[index];
+  state.position = token.start;
+}
+%%
+
+`Object?` Start =>
+  $ = Value
+  & { token.kind == TokenKind.eof }
+  ~{ state.errorExpected('enf of file'); }
+
+`List<Object?>` Elements =>
+  v = Value
+  { final l = [v]; }
+  @while (0) {
+    comma
+    ~{ state.errorExpected(','); }
+    v = Value
+    { l.add(v); }
+  }
+  $ = { l }
+
+`List<Object?>` Array =>
+  openBracket
+  e = Elements?
+  closeBracket
+  ~{ state.errorExpected(']'); }
+  $ = { e ?? [] }
+
+`MapEntry<String, Object?>` KeyValue =>
+  k = string
+  ~{ state.errorExpected('string'); }
+  colon
+  ~{ state.errorExpected(':'); }
+  v = Value
+  $ = { MapEntry(k.value as String, v) }
+
+`Map<String, Object?>` Map =>
+  v = KeyValue
+  {
+    final m = <String, Object?>{};
+    m[v.key] = v.value;
+  }
+  @while (0) {
+    comma
+    ~{ state.errorExpected(','); }
+    v = KeyValue
+    { m[v.key] = v.value; }
+  }
+  $ = { m }
+
+`Map<String, Object?>` Object =>
+  openBrace
+  m = Map?
+  closeBrace
+  ~{ state.errorExpected('\u007D'); }
+  $ = { m ?? {} }
+
+`Object?` Value =>
+  (
+    v = string
+    $ = { v.value }
+    ----
+    v = number
+    $ = { v.value }
+    ----
+    null$
+    $ = `const` { null }
+    ----
+    true$
+    $ = `const` { true }
+    ----
+    false$
+    $ = `const` { false }
+    ----
+    & openBrace
+    $ = Object
+    ----
+    & openBracket
+    $ = Array
+  )
+  ~{ state.errorExpected(const ['string', 'number', 'array', 'object', 'null', 'boolean value']); }

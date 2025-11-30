@@ -26,23 +26,29 @@ class JsonParser {
   /// `Object?` Start =>
   ///   S
   ///   $ = Value
-  ///   & { state.peek() < 0 }
+  ///   & { state.ch < 0 }
+  ///   ~{ state.errorExpected('enf of file'); }
   /// ```
   Result<Object?>? parseStart(State state) {
-    final $0 = state.position;
+    final $pos = state.position;
+    final $c = state.ch;
     parseS(state);
-    final $1 = parseValue(state);
-    if ($1 != null) {
-      final $2 = state.peek() < 0;
-      if ($2) {
-        return $1;
+    final $value = parseValue(state);
+    if ($value != null) {
+      final $ok = state.ch < 0;
+      if ($ok) {
+        return $value;
       } else {
-        state.backtrack($0);
+        state.errorExpected('enf of file');
+        state.ch = $c;
+        state.position = $pos;
+        return null;
       }
     } else {
-      state.backtrack($0);
+      state.ch = $c;
+      state.position = $pos;
+      return null;
     }
-    return null;
   }
 
   /// [List<Object?>] **Elements**
@@ -58,103 +64,113 @@ class JsonParser {
   ///   $ = { l }
   /// ```
   Result<List<Object?>>? parseElements(State state) {
-    final $0 = parseValue(state);
-    if ($0 != null) {
-      final v = $0.$1;
+    final $value = parseValue(state);
+    if ($value != null) {
+      final v = $value.$1;
       final l = [v];
       // (0)
       while (true) {
-        final $1 = state.position;
-        final $2 = state.peek();
+        final $pos = state.position;
+        final $c = state.ch;
         // ','
-        if ($2 == 44) {
-          state.position += 1;
+        if (state.ch == 44) {
+          state.nextChar();
           parseS(state);
-          final $3 = parseValue(state);
-          if ($3 != null) {
-            final v = $3.$1;
+          final $value1 = parseValue(state);
+          if ($value1 != null) {
+            final v = $value1.$1;
             l.add(v);
             continue;
           } else {
-            state.backtrack($1);
+            state.ch = $c;
+            state.position = $pos;
+            break;
           }
         } else {
           state.errorExpected(',');
+          break;
         }
-        break;
       }
-      final $4 = l;
-      return Ok($4);
+      final $val = l;
+      return Ok($val);
+    } else {
+      return null;
     }
-    return null;
   }
 
   /// [List<Object?>] **Array**
   /// ```txt
   /// `List<Object?>` Array =>
-  ///   '[' S
+  ///   "[" S
   ///   e = Elements?
   ///   ']' S
   ///   $ = { e ?? [] }
   /// ```
   Result<List<Object?>>? parseArray(State state) {
-    final $0 = state.position;
-    final $1 = state.peek();
-    // '['
-    if ($1 == 91) {
-      state.position += 1;
+    final $pos = state.position;
+    final $c = state.ch;
+    // "["
+    if (state.ch == 91) {
+      state.nextChar();
       parseS(state);
-      final $2 = parseElements(state);
-      final e = $2?.$1;
-      final $3 = state.peek();
+      final $elements = parseElements(state);
+      final e = $elements?.$1;
       // ']'
-      if ($3 == 93) {
-        state.position += 1;
+      if (state.ch == 93) {
+        state.nextChar();
         parseS(state);
-        final $4 = e ?? [];
-        return Ok($4);
+        final $val = e ?? [];
+        return Ok($val);
       } else {
         state.errorExpected(']');
-        state.backtrack($0);
+        state.ch = $c;
+        state.position = $pos;
+        return null;
       }
     } else {
-      state.errorExpected('[');
+      return null;
     }
-    return null;
   }
 
   /// [MapEntry<String, Object?>] **KeyValue**
   /// ```txt
   /// `MapEntry<String, Object?>` KeyValue =>
   ///   k = String
+  ///   ~{ state.errorExpected('string'); }
   ///   ':' S
   ///   v = Value
   ///   $ = { MapEntry(k, v) }
   /// ```
   Result<MapEntry<String, Object?>>? parseKeyValue(State state) {
-    final $0 = state.position;
-    final $1 = parseString(state);
-    if ($1 != null) {
-      final k = $1.$1;
-      final $2 = state.peek();
+    final $pos = state.position;
+    final $c = state.ch;
+    final $string = parseString(state);
+    if ($string != null) {
+      final k = $string.$1;
       // ':'
-      if ($2 == 58) {
-        state.position += 1;
+      if (state.ch == 58) {
+        state.nextChar();
         parseS(state);
-        final $3 = parseValue(state);
-        if ($3 != null) {
-          final v = $3.$1;
-          final $4 = MapEntry(k, v);
-          return Ok($4);
+        final $value = parseValue(state);
+        if ($value != null) {
+          final v = $value.$1;
+          final $val = MapEntry(k, v);
+          return Ok($val);
         } else {
-          state.backtrack($0);
+          state.ch = $c;
+          state.position = $pos;
+          return null;
         }
       } else {
         state.errorExpected(':');
-        state.backtrack($0);
+        state.ch = $c;
+        state.position = $pos;
+        return null;
       }
+    } else {
+      state.errorExpected('string');
+      return null;
     }
-    return null;
   }
 
   /// [Map<String, Object?>] **Map**
@@ -173,117 +189,73 @@ class JsonParser {
   ///   $ = { m }
   /// ```
   Result<Map<String, Object?>>? parseMap(State state) {
-    final $0 = parseKeyValue(state);
-    if ($0 != null) {
-      final v = $0.$1;
+    final $keyValue = parseKeyValue(state);
+    if ($keyValue != null) {
+      final v = $keyValue.$1;
       final m = <String, Object?>{};
       m[v.key] = v.value;
       // (0)
       while (true) {
-        final $1 = state.position;
-        final $2 = state.peek();
+        final $pos = state.position;
+        final $c = state.ch;
         // ','
-        if ($2 == 44) {
-          state.position += 1;
+        if (state.ch == 44) {
+          state.nextChar();
           parseS(state);
-          final $3 = parseKeyValue(state);
-          if ($3 != null) {
-            final v = $3.$1;
+          final $keyValue1 = parseKeyValue(state);
+          if ($keyValue1 != null) {
+            final v = $keyValue1.$1;
             m[v.key] = v.value;
             continue;
           } else {
-            state.backtrack($1);
+            state.ch = $c;
+            state.position = $pos;
+            break;
           }
         } else {
           state.errorExpected(',');
+          break;
         }
-        break;
       }
-      final $4 = m;
-      return Ok($4);
+      final $val = m;
+      return Ok($val);
+    } else {
+      return null;
     }
-    return null;
   }
 
   /// [Map<String, Object?>] **Object**
   /// ```txt
   /// `Map<String, Object?>` Object =>
-  ///   '{' S
+  ///   "{" S
   ///   m = Map?
   ///   '}' S
   ///   $ = { m ?? {} }
   /// ```
   Result<Map<String, Object?>>? parseObject(State state) {
-    final $0 = state.position;
-    final $1 = state.peek();
-    // '{'
-    if ($1 == 123) {
-      state.position += 1;
+    final $pos = state.position;
+    final $c = state.ch;
+    // "{"
+    if (state.ch == 123) {
+      state.nextChar();
       parseS(state);
-      final $2 = parseMap(state);
-      final m = $2?.$1;
-      final $3 = state.peek();
+      final $map = parseMap(state);
+      final m = $map?.$1;
       // '}'
-      if ($3 == 125) {
-        state.position += 1;
+      if (state.ch == 125) {
+        state.nextChar();
         parseS(state);
-        final $4 = m ?? {};
-        return Ok($4);
+        final $val = m ?? {};
+        return Ok($val);
       } else {
         state.errorExpected('}');
-        state.backtrack($0);
+        state.ch = $c;
+        state.position = $pos;
+        return null;
       }
     } else {
-      state.errorExpected('{');
+      return null;
     }
-    return null;
-  }
-
-  /// [String] **Hex**
-  /// ```txt
-  /// `String` Hex =>
-  ///   s = <
-  ///     @while (4, 4) {
-  ///       [a-fA-F0-9]
-  ///     }
-  ///   >
-  ///   $ = { String.fromCharCode(int.parse(s, radix: 16)) }
-  ///   ~ {
-  ///     state.errorIncorrect('Expected hexadecimal digit', false);
-  ///     state.errorIncorrect('Unterminated 4 hexadecimal digit number', true);
-  ///     state.errorExpected('4 hexadecimal digit number');
-  ///   }
-  /// ```
-  Result<String>? parseHex(State state) {
-    final $0 = state.beginErrorHandling();
-    final $1 = state.position;
-    var $2 = 0;
-    // (4, 4)
-    while ($2 < 4) {
-      final $3 = state.peek();
-      // [a-fA-F0-9]
-      final $4 = $3 <= 70 ? $3 >= 65 || $3 >= 48 && $3 <= 57 : $3 >= 97 && $3 <= 102;
-      if ($4) {
-        state.position += 1;
-        $2++;
-        continue;
-      }
-      break;
-    }
-    if ($2 >= 4) {
-      final $5 = state.substring($1, state.position);
-      final s = $5;
-      final $6 = String.fromCharCode(int.parse(s, radix: 16));
-      state.endErrorHandling($0);
-      return Ok($6);
-    } else {
-      state.backtrack($1);
-    }
-    state.errorIncorrect('Expected hexadecimal digit', false);
-    state.errorIncorrect('Unterminated 4 hexadecimal digit number', true);
-    state.errorExpected('4 hexadecimal digit number');
-    state.endErrorHandling($0);
-    return null;
   }
 
   /// [String] **EscapeC**
@@ -314,7 +286,7 @@ class JsonParser {
   ///     [t]
   ///     $ = `const` { '\t' }
   ///   )
-  ///   ~ {
+  ///   ~{
   ///     if (state.position == state.length) {
   ///       state.errorExpected('escape character');
   ///     } else {
@@ -323,173 +295,256 @@ class JsonParser {
   ///   }
   /// ```
   Result<String>? parseEscapeC(State state) {
-    final $0 = state.beginErrorHandling();
-    final $1 = state.peek();
     // ["]
-    if ($1 == 34) {
-      state.position += 1;
-      const $2 = '"';
-      state.endErrorHandling($0);
-      return const Ok($2);
-    }
-    // [\\]
-    if ($1 == 92) {
-      state.position += 1;
-      const $3 = '\\';
-      state.endErrorHandling($0);
-      return const Ok($3);
-    }
-    // [/]
-    if ($1 == 47) {
-      state.position += 1;
-      const $4 = '/';
-      state.endErrorHandling($0);
-      return const Ok($4);
-    }
-    // [b]
-    if ($1 == 98) {
-      state.position += 1;
-      const $5 = '\b';
-      state.endErrorHandling($0);
-      return const Ok($5);
-    }
-    // [f]
-    if ($1 == 102) {
-      state.position += 1;
-      const $6 = '\f';
-      state.endErrorHandling($0);
-      return const Ok($6);
-    }
-    // [n]
-    if ($1 == 110) {
-      state.position += 1;
-      const $7 = '\n';
-      state.endErrorHandling($0);
-      return const Ok($7);
-    }
-    // [r]
-    if ($1 == 114) {
-      state.position += 1;
-      const $8 = '\r';
-      state.endErrorHandling($0);
-      return const Ok($8);
-    }
-    // [t]
-    if ($1 == 116) {
-      state.position += 1;
-      const $9 = '\t';
-      state.endErrorHandling($0);
-      return const Ok($9);
-    }
-    if (state.position == state.length) {
-      state.errorExpected('escape character');
+    if (state.ch == 34) {
+      state.nextChar();
+      const $val = '"';
+      return const Ok($val);
     } else {
-      state.error('Illegal escape character');
+      // [\\]
+      if (state.ch == 92) {
+        state.nextChar();
+        const $val1 = '\\';
+        return const Ok($val1);
+      } else {
+        // [/]
+        if (state.ch == 47) {
+          state.nextChar();
+          const $val2 = '/';
+          return const Ok($val2);
+        } else {
+          // [b]
+          if (state.ch == 98) {
+            state.nextChar();
+            const $val3 = '\b';
+            return const Ok($val3);
+          } else {
+            // [f]
+            if (state.ch == 102) {
+              state.nextChar();
+              const $val4 = '\f';
+              return const Ok($val4);
+            } else {
+              // [n]
+              if (state.ch == 110) {
+                state.nextChar();
+                const $val5 = '\n';
+                return const Ok($val5);
+              } else {
+                // [r]
+                if (state.ch == 114) {
+                  state.nextChar();
+                  const $val6 = '\r';
+                  return const Ok($val6);
+                } else {
+                  // [t]
+                  if (state.ch == 116) {
+                    state.nextChar();
+                    const $val7 = '\t';
+                    return const Ok($val7);
+                  } else {
+                    if (state.position == state.length) {
+                      state.errorExpected('escape character');
+                    } else {
+                      state.error('Illegal escape character');
+                    }
+                    return null;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
-    state.endErrorHandling($0);
-    return null;
+  }
+
+  /// [String] **EscapeUnicode**
+  /// ```txt
+  /// `String` EscapeUnicode =>
+  ///   { final start = state.position; }
+  ///   "u"
+  ///   { var end = 0; }
+  ///   s = <
+  ///     @while (4, 4) {
+  ///       [a-fA-F0-9]
+  ///       ~{
+  ///         end = state.position;
+  ///         state.errorExpected('hexadecimal digit');
+  ///       }
+  ///     }
+  ///   >
+  ///   ~{ state.error('Incorrect Unicode escape sequence', position: end, start: start, end: end); }
+  ///   $ = { String.fromCharCode(int.parse(s, radix: 16)); }
+  /// ```
+  Result<String>? parseEscapeUnicode(State state) {
+    final $pos = state.position;
+    final $c = state.ch;
+    final start = state.position;
+    // "u"
+    if (state.ch == 117) {
+      state.nextChar();
+      var end = 0;
+      final $pos1 = state.position;
+      final $c1 = state.ch;
+      var $cnt = 0;
+      // (4, 4)
+      while ($cnt < 4) {
+        final $c2 = state.ch;
+        final $ok = $c2 <= 70 ? $c2 >= 65 || $c2 >= 48 && $c2 <= 57 : $c2 >= 97 && $c2 <= 102;
+        // [a-fA-F0-9]
+        // ~{
+        //   end = state.position;
+        //   state.errorExpected('hexadecimal digit');
+        // }
+        if ($ok) {
+          state.nextChar();
+          $cnt++;
+          continue;
+        } else {
+          end = state.position;
+          state.errorExpected('hexadecimal digit');
+          break;
+        }
+      }
+      if ($cnt >= 4) {
+        final $str = state.substring($pos1, state.position);
+        final s = $str;
+        final $val = String.fromCharCode(int.parse(s, radix: 16));;
+        return Ok($val);
+      } else {
+        state.ch = $c1;
+        state.position = $pos1;
+        state.error('Incorrect Unicode escape sequence', position: end, start: start, end: end);
+        state.ch = $c;
+        state.position = $pos;
+        return null;
+      }
+    } else {
+      return null;
+    }
   }
 
   /// [String] **Escaped**
   /// ```txt
   /// `String` Escaped =>
-  ///   [u]
-  ///   $ = Hex
+  ///   & "u"
+  ///   $ = EscapeUnicode
   ///   ----
   ///   EscapeC
   /// ```
   Result<String>? parseEscaped(State state) {
-    final $0 = state.position;
-    final $1 = state.peek();
-    // [u]
-    if ($1 == 117) {
-      state.position += 1;
-      final $2 = parseHex(state);
-      if ($2 != null) {
-        return $2;
-      } else {
-        state.backtrack($0);
+    Result<String>? $res;
+    // "u"
+    if (state.ch == 117) {
+      final $escapeUnicode = parseEscapeUnicode(state);
+      if ($escapeUnicode != null) {
+        $res = $escapeUnicode;
       }
     }
-    final $3 = parseEscapeC(state);
-    if ($3 != null) {
-      return $3;
+    if ($res != null) {
+      return $res;
+    } else {
+      final $escapeC = parseEscapeC(state);
+      if ($escapeC != null) {
+        return $escapeC;
+      } else {
+        return null;
+      }
     }
-    return null;
   }
 
   /// [String] **String**
   /// ```txt
   /// `String` String =>
-  ///   '"' S
+  ///   { final start = state.position; }
+  ///   ["]
   ///   p = @while (0) {
   ///     <[^{0-1F}"\\]+>
   ///     ---
   ///     [\\]
   ///     $ = Escaped
   ///   }
-  ///   '"' S
+  ///   ["]
+  ///   ~{
+  ///     state.error('Unterminated string', start: start);
+  ///     state.errorExpected('"');
+  ///   }
+  ///   S
   ///   $ = { p.join() }
   /// ```
   Result<String>? parseString(State state) {
-    final $0 = state.position;
-    final $1 = state.peek();
-    // '"'
-    if ($1 == 34) {
-      state.position += 1;
-      parseS(state);
-      final $2 = <String>[];
+    final $pos = state.position;
+    final $c = state.ch;
+    final start = state.position;
+    // ["]
+    if (state.ch == 34) {
+      state.nextChar();
+      final $list = <String>[];
       // (0)
       while (true) {
-        final $3 = state.position;
-        var $4 = false;
+        final $pos1 = state.position;
+        var $ok = false;
         // (1)
         while (true) {
-          final $5 = state.peek();
+          final $c1 = state.ch;
+          final $ok1 = !($c1 <= 34 ? $c1 >= 34 || $c1 >= 0 && $c1 <= 31 : $c1 == 92) && !($c1 < 0);
           // [^{0-1f}"\\]
-          final $6 = !($5 <= 34 ? $5 >= 34 || $5 >= 0 && $5 <= 31 : $5 == 92) && !($5 < 0);
-          if ($6) {
-            state.position += $5 > 0xffff ? 2 : 1;
-            $4 = true;
-            continue;
-          }
-          break;
-        }
-        if ($4) {
-          final $7 = state.substring($3, state.position);
-          $2.add($7);
-          continue;
-        }
-        final $8 = state.peek();
-        // [\\]
-        if ($8 == 92) {
-          state.position += 1;
-          final $9 = parseEscaped(state);
-          if ($9 != null) {
-            $2.add($9.$1);
+          if ($ok1) {
+            state.nextChar();
+            $ok = true;
             continue;
           } else {
-            state.backtrack($3);
+            break;
           }
         }
-        break;
+        if ($ok) {
+          final $str = state.substring($pos1, state.position);
+          $list.add($str);
+          continue;
+        } else {
+          Result<String>? $res;
+          final $c2 = state.ch;
+          // [\\]
+          if (state.ch == 92) {
+            state.nextChar();
+            final $escaped = parseEscaped(state);
+            if ($escaped != null) {
+              $res = $escaped;
+            } else {
+              state.ch = $c2;
+              state.position = $pos1;
+            }
+          }
+          if ($res != null) {
+            $list.add($res.$1);
+            continue;
+          } else {
+            break;
+          }
+        }
       }
-      final p = $2;
-      final $10 = state.peek();
-      // '"'
-      if ($10 == 34) {
-        state.position += 1;
+      final p = $list;
+      // ["]
+      // ~{
+      //   state.error('Unterminated string', start: start);
+      //   state.errorExpected('"');
+      // }
+      if (state.ch == 34) {
+        state.nextChar();
         parseS(state);
-        final $11 = p.join();
-        return Ok($11);
+        final $val = p.join();
+        return Ok($val);
       } else {
+        state.error('Unterminated string', start: start);
         state.errorExpected('"');
-        state.backtrack($0);
+        state.ch = $c;
+        state.position = $pos;
+        return null;
       }
     } else {
-      state.errorExpected('"');
+      return null;
     }
-    return null;
   }
 
   /// [num] **Number**
@@ -499,206 +554,244 @@ class JsonParser {
   ///     final start = state.position;
   ///     var flag = true;
   ///   }
-  ///   [-]? ([0] / [1-9] [0-9]*)
+  ///   [-]?
+  ///   ([0] / [1-9] [0-9]*)
+  ///   ~{ state.errorExpected('digit'); }
   ///   (
-  ///     ([.] [0-9]+)
+  ///     [.]
+  ///     [0-9]+
+  ///     ~{
+  ///       state.errorExpected('digit');
+  ///       state.error('Fractional part is missing a number');
+  ///       state.error('Malformed number', start: start, end: state.position);
+  ///     }
   ///     { flag = false; }
-  ///     ~ { state.errorIncorrect('Fractional part is missing a number'); }
   ///   )?
   ///   (
-  ///     ([eE] [\-+]? [0-9]+)
+  ///     [eE]
+  ///     [\-+]?
+  ///     [0-9]+
+  ///     ~{
+  ///       state.errorExpected('digit');
+  ///       state.error('Exponent part is missing a number');
+  ///       state.error('Malformed number', start: start, end: state.position);
+  ///     }
   ///     { flag = false; }
-  ///     ~ { state.errorIncorrect('Exponent part is missing a number'); }
   ///   )?
   ///   s = { state.substring(start, state.position) }
   ///   S
   ///   $ = { flag && s.length <= 18 ? int.parse(s) : num.parse(s) }
-  ///   ~ {
-  ///     state.errorIncorrect('Unterminated number', true);
-  ///     state.errorExpected('number');
-  ///   }
   /// ```
   Result<num>? parseNumber(State state) {
-    final $0 = state.position;
-    final $1 = state.beginErrorHandling();
+    final $pos = state.position;
+    final $c = state.ch;
     final start = state.position;
     var flag = true;
-    final $2 = state.peek();
     // [\-]
-    if ($2 == 45) {
-      state.position += 1;
+    if (state.ch == 45) {
+      state.nextChar();
     }
-    $l:
-    {
-      $l1:
-      {
-        final $3 = state.peek();
-        // [0]
-        if ($3 == 48) {
-          state.position += 1;
-          break $l1;
-        }
-        // [1-9]
-        final $4 = $3 >= 49 && $3 <= 57;
-        if ($4) {
-          state.position += 1;
-          // (0)
-          while (true) {
-            final $5 = state.peek();
-            // [0-9]
-            final $6 = $5 >= 48 && $5 <= 57;
-            if ($6) {
-              state.position += 1;
-              continue;
-            }
+    var $res = false;
+    // [0]
+    if (state.ch == 48) {
+      state.nextChar();
+      $res = true;
+    } else {
+      final $c1 = state.ch;
+      final $ok = $c1 >= 49 && $c1 <= 57;
+      // [1-9]
+      if ($ok) {
+        state.nextChar();
+        // (0)
+        while (true) {
+          final $c2 = state.ch;
+          final $ok1 = $c2 >= 48 && $c2 <= 57;
+          // [0-9]
+          if ($ok1) {
+            state.nextChar();
+            continue;
+          } else {
             break;
           }
-          break $l1;
         }
-        break $l;
+        $res = true;
+      } else {
+        state.errorExpected('digit');
       }
-      // $l1:
-      final $7 = state.beginErrorHandling();
-      final $8 = state.position;
-      final $9 = state.peek();
-      // [.]
-      if ($9 == 46) {
-        state.position += 1;
-        var $10 = false;
-        // (1)
-        while (true) {
-          final $11 = state.peek();
-          // [0-9]
-          final $12 = $11 >= 48 && $11 <= 57;
-          if ($12) {
-            state.position += 1;
-            $10 = true;
-            continue;
-          }
-          break;
-        }
-        if ($10) {
-          flag = false;
-          state.endErrorHandling($7);
-        } else {
-          state.backtrack($8);
-        }
-      }
-      state.errorIncorrect('Fractional part is missing a number');
-      state.endErrorHandling($7);
-      final $13 = state.beginErrorHandling();
-      final $14 = state.position;
-      final $15 = state.peek();
-      // [eE]
-      final $16 = $15 == 69 || $15 == 101;
-      if ($16) {
-        state.position += 1;
-        final $17 = state.peek();
-        // [\-+]
-        final $18 = $17 == 43 || $17 == 45;
-        if ($18) {
-          state.position += 1;
-        }
-        var $19 = false;
-        // (1)
-        while (true) {
-          final $20 = state.peek();
-          // [0-9]
-          final $21 = $20 >= 48 && $20 <= 57;
-          if ($21) {
-            state.position += 1;
-            $19 = true;
-            continue;
-          }
-          break;
-        }
-        if ($19) {
-          flag = false;
-          state.endErrorHandling($13);
-        } else {
-          state.backtrack($14);
-        }
-      }
-      state.errorIncorrect('Exponent part is missing a number');
-      state.endErrorHandling($13);
-      final $22 = state.substring(start, state.position);
-      final s = $22;
-      parseS(state);
-      final $23 = flag && s.length <= 18 ? int.parse(s) : num.parse(s);
-      state.endErrorHandling($1);
-      return Ok($23);
     }
-    // $l:
-    state.backtrack($0);
-    state.errorIncorrect('Unterminated number', true);
-    state.errorExpected('number');
-    state.endErrorHandling($1);
-    return null;
+    if ($res) {
+      final $pos1 = state.position;
+      final $c3 = state.ch;
+      // [.]
+      if (state.ch == 46) {
+        state.nextChar();
+        var $ok2 = false;
+        // (1)
+        while (true) {
+          final $c4 = state.ch;
+          final $ok3 = $c4 >= 48 && $c4 <= 57;
+          // [0-9]
+          if ($ok3) {
+            state.nextChar();
+            $ok2 = true;
+            continue;
+          } else {
+            break;
+          }
+        }
+        if ($ok2) {
+          flag = false;
+        } else {
+          state.errorExpected('digit');
+          state.error('Fractional part is missing a number');
+          state.error('Malformed number', start: start, end: state.position);
+          state.ch = $c3;
+          state.position = $pos1;
+        }
+      }
+      final $pos2 = state.position;
+      final $c5 = state.ch;
+      final $ok4 = $c5 == 69 || $c5 == 101;
+      // [eE]
+      if ($ok4) {
+        state.nextChar();
+        final $c6 = state.ch;
+        final $ok5 = $c6 == 43 || $c6 == 45;
+        // [\-+]
+        if ($ok5) {
+          state.nextChar();
+        }
+        var $ok6 = false;
+        // (1)
+        while (true) {
+          final $c7 = state.ch;
+          final $ok7 = $c7 >= 48 && $c7 <= 57;
+          // [0-9]
+          if ($ok7) {
+            state.nextChar();
+            $ok6 = true;
+            continue;
+          } else {
+            break;
+          }
+        }
+        if ($ok6) {
+          flag = false;
+        } else {
+          state.errorExpected('digit');
+          state.error('Exponent part is missing a number');
+          state.error('Malformed number', start: start, end: state.position);
+          state.ch = $c5;
+          state.position = $pos2;
+        }
+      }
+      final $val = state.substring(start, state.position);
+      final s = $val;
+      parseS(state);
+      final $val1 = flag && s.length <= 18 ? int.parse(s) : num.parse(s);
+      return Ok($val1);
+    } else {
+      state.errorExpected('digit');
+      state.ch = $c;
+      state.position = $pos;
+      return null;
+    }
   }
 
   /// [Object?] **Value**
   /// ```txt
   /// `Object?` Value =>
-  ///   'null' S
-  ///   $ = `const` { null }
-  ///   ----
-  ///   'true' S
-  ///   $ = `const` { true }
-  ///   ----
-  ///   'false' S
-  ///   $ = `const` { false }
-  ///   ----
-  ///   Object
-  ///   ----
-  ///   Array
-  ///   ----
-  ///   String
-  ///   ----
-  ///   Number
+  ///   (
+  ///     "null" S
+  ///     $ = `const` { null }
+  ///     ----
+  ///     "true" S
+  ///     $ = `const` { true }
+  ///     ----
+  ///     "false" S
+  ///     $ = `const` { false }
+  ///     ----
+  ///     & "{"
+  ///     $ = Object
+  ///     ----
+  ///     & "["
+  ///     $ = Array
+  ///     ----
+  ///     & ["]
+  ///     $ = String
+  ///     ----
+  ///     Number
+  ///   )
+  ///   ~{ state.errorExpected(const ['string', 'number', 'array', 'object', 'null', 'boolean value']); }
   /// ```
   Result<Object?>? parseValue(State state) {
-    final $0 = state.peek();
-    if ($0 == 110 && state.startsWith('null')) {
-      state.position += 4;
+    // "null"
+    if (state.ch == 110 && state.startsWith("null")) {
+      state.readChar(state.position + 4, true);
       parseS(state);
-      const $1 = null;
-      return const Ok($1);
+      const $val = null;
+      return const Ok($val);
     } else {
-      state.errorExpected('null');
+      // "true"
+      if (state.ch == 116 && state.startsWith("true")) {
+        state.readChar(state.position + 4, true);
+        parseS(state);
+        const $val1 = true;
+        return const Ok($val1);
+      } else {
+        // "false"
+        if (state.ch == 102 && state.startsWith("false")) {
+          state.readChar(state.position + 5, true);
+          parseS(state);
+          const $val2 = false;
+          return const Ok($val2);
+        } else {
+          Result<Object?>? $res;
+          // "{"
+          if (state.ch == 123) {
+            final $object = parseObject(state);
+            if ($object != null) {
+              $res = $object;
+            }
+          }
+          if ($res != null) {
+            return $res;
+          } else {
+            Result<Object?>? $res1;
+            // "["
+            if (state.ch == 91) {
+              final $array = parseArray(state);
+              if ($array != null) {
+                $res1 = $array;
+              }
+            }
+            if ($res1 != null) {
+              return $res1;
+            } else {
+              Result<Object?>? $res2;
+              // ["]
+              if (state.ch == 34) {
+                final $string = parseString(state);
+                if ($string != null) {
+                  $res2 = $string;
+                }
+              }
+              if ($res2 != null) {
+                return $res2;
+              } else {
+                final $number = parseNumber(state);
+                if ($number != null) {
+                  return $number;
+                } else {
+                  state.errorExpected(const ['string', 'number', 'array', 'object', 'null', 'boolean value']);
+                  return null;
+                }
+              }
+            }
+          }
+        }
+      }
     }
-    if ($0 == 116 && state.startsWith('true')) {
-      state.position += 4;
-      parseS(state);
-      const $2 = true;
-      return const Ok($2);
-    } else {
-      state.errorExpected('true');
-    }
-    if ($0 == 102 && state.startsWith('false')) {
-      state.position += 5;
-      parseS(state);
-      const $3 = false;
-      return const Ok($3);
-    } else {
-      state.errorExpected('false');
-    }
-    final $4 = parseObject(state);
-    if ($4 != null) {
-      return $4;
-    }
-    final $5 = parseArray(state);
-    if ($5 != null) {
-      return $5;
-    }
-    final $6 = parseString(state);
-    if ($6 != null) {
-      return $6;
-    }
-    final $7 = parseNumber(state);
-    if ($7 != null) {
-      return $7;
-    }
-    return null;
   }
 
   /// [void] **S**
@@ -709,14 +802,15 @@ class JsonParser {
   Result<void> parseS(State state) {
     // (0)
     while (true) {
-      final $0 = state.peek();
+      final $c = state.ch;
+      final $ok = $c <= 13 ? $c >= 13 || $c >= 9 && $c <= 10 : $c == 32;
       // [\n\r\t ]
-      final $1 = $0 <= 13 ? $0 >= 13 || $0 >= 9 && $0 <= 10 : $0 == 32;
-      if ($1) {
-        state.position += 1;
+      if ($ok) {
+        state.nextChar();
         continue;
+      } else {
+        break;
       }
-      break;
     }
     return Result.none;
   }
@@ -747,11 +841,14 @@ class Result<R> {
 }
 
 class State {
-  static const _expected = Object();
+  static const _errorExpected = 0;
 
   static const _maxErrorCount = 64;
 
-  /// The farthest local parsing position.
+  /// Current character.
+  int ch = -1;
+
+  /// The furthest position of parsing.
   int farthestPosition = 0;
 
   /// The length of the input data.
@@ -763,55 +860,22 @@ class State {
   /// Intended for internal use only.
   int predicate = 0;
 
-  int _ch = 0;
-
-  final List<Object?> _flags = List.filled(_maxErrorCount, null);
-
   int _errorCount = 0;
-
-  int _errorState = -1;
 
   int _farthestError = 0;
 
-  int _farthestPosition = 0;
+  final List<int?> _flags = List.filled(_maxErrorCount, null);
 
   final String _input;
 
-  final List<String?> _messages = List.filled(_maxErrorCount, null);
+  final List<int?> _ends = List.filled(_maxErrorCount, null);
 
-  int _peekPosition = -1;
+  final List<Object?> _messages = List.filled(_maxErrorCount, null);
 
   final List<int?> _starts = List.filled(_maxErrorCount, null);
 
   State(String input) : _input = input, length = input.length {
-    peek();
-  }
-
-  void backtrack(int position) {
-    if (position > this.position) {
-      throw RangeError.range(position, 0, this.position, 'position');
-    }
-
-    if (predicate == 0) {
-      if (_farthestPosition < this.position) {
-        _farthestPosition = this.position;
-      }
-
-      if (farthestPosition < this.position) {
-        farthestPosition = this.position;
-      }
-    }
-
-    this.position = position;
-  }
-
-  /// Intended for internal use only.
-  /// @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  int beginErrorHandling() {
-    final farthestPosition = this.farthestPosition;
-    this.farthestPosition = position;
-    return farthestPosition;
+    readChar(0, true);
   }
 
   @pragma('vm:prefer-inline')
@@ -820,61 +884,21 @@ class State {
   /// [char].
   int charSize(int char) => char > 0xffff ? 2 : 1;
 
-  /// Intended for internal use only.
-  /// @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  void endErrorHandling(int farthestPosition) {
-    if (this.farthestPosition < farthestPosition) {
-      this.farthestPosition = farthestPosition;
-    }
-  }
-
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
   /// Adds (if possible) an error to the error buffer.
   ///
   /// Parameters:
   ///
-  ///  - [message]: The message text used when building error messages.
-  ///  - [fullSpan]: Specifies information about the location of the error.
-  ///  - `true` - (start, end)
-  ///  - `false` - (end, end)
-  ///  - `null` - (start, start)
-  void error(String message, [bool? fullSpan = false]) {
-    if (predicate != 0) {
-      return;
-    }
-
-    if (_farthestError <= farthestPosition) {
-      if (_farthestError < farthestPosition) {
-        _farthestError = farthestPosition;
-        _errorCount = 0;
-      }
-
-      if (_errorCount < _messages.length) {
-        _flags[_errorCount] = fullSpan;
-        _messages[_errorCount] = message;
-        _starts[_errorCount] = position;
-        _errorCount++;
-      }
-    }
-  }
-
-  /// Intended for internal use only.
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  /// Adds (if possible) an `expected` error to the error buffer at the current
-  /// position.
-  ///
-  /// Parameters:
-  ///
-  ///  - [element]: A specific syntactic element that was expected but was
-  /// missing.
-  void errorExpected(String element) {
-    if (predicate != 0) {
-      return;
-    }
-
+  ///  - [message]: A message that describes the error.
+  ///  - [position]: Farthest position of the error. Used to determine whether
+  /// errors can be added in the error buffer.
+  ///  - [start]: Starting position of the location. Used to display the start
+  /// of an error.
+  ///  - [end]: Ending position of the location. Used to display the end of an
+  /// error.
+  void error(String message, {int? position, int? start, int? end}) {
+    position ??= this.position;
     if (_farthestError <= position) {
       if (_farthestError < position) {
         _farthestError = position;
@@ -882,95 +906,99 @@ class State {
       }
 
       if (_errorCount < _messages.length) {
-        _flags[_errorCount] = _expected;
-        _messages[_errorCount] = element;
+        _ends[_errorCount] = end;
+        _flags[_errorCount] = null;
+        _messages[_errorCount] = message;
+        _starts[_errorCount] = start;
         _errorCount++;
       }
     }
-
-    if (_farthestPosition < position) {
-      _farthestPosition = position;
-    }
-
-    if (farthestPosition < position) {
-      farthestPosition = position;
-    }
   }
 
-  /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  /// Adds (if possible) an error to the error buffer in the case where the
-  /// error has a position further than the staring parsing position.
+  /// Adds (if possible) an `expected` error to the error buffer.
   ///
   /// Parameters:
   ///
-  ///  - [message]: The message text used when building error messages.
-  ///  - [fullSpan]: Specifies information about the location of the error.
-  ///  - `true` - (start, end)
-  ///  - `false` - (end, end)
-  ///  - `null` - (start, start)
-  void errorIncorrect(String message, [bool? fullSpan = false]) {
-    if (predicate != 0) {
-      return;
-    }
+  ///  - [expected]: One or more expected syntactic elements.
+  ///  - [position]: Farthest position of the error. Used to determine whether
+  /// errors can be added in the error buffer.
+  ///  - [start]: Starting position of the location. Used to display the start
+  /// of an error.
+  ///
+  /// Example with one element:
+  ///
+  /// ```dart
+  /// state.errorExpected('string');
+  /// ```
+  /// Example with multiple elements:
+  ///
+  /// ```dart
+  /// state.errorExpected(const ['string', 'number']);
+  /// ```
+  void errorExpected(Object expected, {int? position, int? start}) {
+    position ??= this.position;
+    if (_farthestError <= position) {
+      if (_farthestError < position) {
+        _farthestError = position;
+        _errorCount = 0;
+      }
 
-    if (farthestPosition > position) {
-      error(message, fullSpan);
+      if (_errorCount < _messages.length) {
+        _flags[_errorCount] = _errorExpected;
+        _messages[_errorCount] = expected;
+        _starts[_errorCount] = start;
+        _errorCount++;
+      }
     }
   }
 
   /// Converts error messages to errors and returns them as an error list.
   List<({int end, String message, int start})> getErrors() {
+    final position = _farthestError;
     final errors = <({int end, String message, int start})>[];
-    if (_farthestPosition < position) {
-      _farthestPosition = position;
-    }
-
-    final end = _farthestError;
-    final expected = <String>{};
+    final expected = <int, Set<String>>{};
     for (var i = 0; i < _errorCount; i++) {
       final message = _messages[i];
-      if (message == null) {
-        continue;
-      }
-
       switch (_flags[i]) {
-        case _expected:
-          expected.add(message);
-          break;
-        case true:
-          final start = _starts[i]!;
-          errors.add((message: message, start: start, end: end));
-          break;
-        case false:
-          errors.add((message: message, start: end, end: end));
-          break;
-        case null:
-          final start = _starts[i]!;
-          errors.add((message: message, start: start, end: start));
+        case _errorExpected:
+          final start = _starts[i] ??= position;
+          if (message is List) {
+            (expected[start] ??= {}).addAll(message.map((e) => '$e'));
+          } else {
+            (expected[start] ??= {}).add('$message');
+          }
+
           break;
         default:
-          errors.add((message: message, start: end, end: end));
+          var start = _starts[i];
+          var end = _ends[i];
+          if (end == null && start != null) {
+            end = start;
+          } else if (start == null && end != null) {
+            start = end;
+          }
+
+          start ??= position;
+          end ??= position;
+          errors.add((message: '$message', start: start, end: end));
       }
     }
 
     if (expected.isNotEmpty) {
-      final list = expected.toList();
-      list.sort();
-      final message = 'Expected: ${list.map((e) => '\'$e\'').join(', ')}';
-      errors.add((
-        message: message,
-        start: _farthestError,
-        end: _farthestError,
-      ));
+      for (final position in expected.keys) {
+        final list = expected[position]!.toList();
+        final message = 'Expected: ${list.map((e) => '\'$e\'').join(', ')}';
+        errors.add((message: message, start: position, end: position));
+      }
     }
 
     if (errors.isEmpty) {
       errors.add((
-        message: 'Unexpected input data',
-        start: _farthestPosition,
-        end: _farthestPosition,
+        message: 'Syntax error',
+        start: farthestPosition,
+        end: farthestPosition,
       ));
     }
 
@@ -983,67 +1011,104 @@ class State {
   /// [position,.
   int indexOf(String string) => _input.indexOf(string, position);
 
-  /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  int peek() {
-    if (_peekPosition == position) {
-      return _ch;
+  @pragma('vm:unsafe:no-interrupts')
+  /// Intended for internal use only.
+  int match(List<int> lowerCase, List<int> upperCase) {
+    if (lowerCase.length != upperCase.length) {
+      throw ArgumentError('The lengths of the lists do not match');
     }
 
-    _peekPosition = position;
-    if (position < length) {
-      if ((_ch = _input.codeUnitAt(position)) < 0xd800) {
-        return _ch;
+    if (upperCase.isEmpty) {
+      return 0;
+    }
+
+    var ch = this.ch;
+    if (ch == lowerCase[0] || ch == upperCase[0]) {
+      var length = charSize(ch);
+      for (var i = 1; i < lowerCase.length; i++) {
+        ch = readChar(position + length, false);
+        if (ch != lowerCase[i] && ch != upperCase[i]) {
+          break;
+        }
+
+        length += charSize(ch);
       }
 
-      if (_ch < 0xe000) {
+      return length;
+    }
+
+    return -1;
+  }
+
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  /// Reads the next character, advances the position to the next character and
+  /// returns that character.
+  int nextChar() {
+    if (position >= length) {
+      return ch = -1;
+    }
+
+    position += charSize(ch);
+    if (predicate == 0 && farthestPosition < position) {
+      farthestPosition = position;
+    }
+
+    if (position < length) {
+      if ((ch = _input.codeUnitAt(position)) < 0xd800) {
+        return ch;
+      }
+
+      if (ch < 0xe000) {
         final c = _input.codeUnitAt(position + 1);
         if ((c & 0xfc00) == 0xdc00) {
-          return _ch = 0x10000 + ((_ch & 0x3ff) << 10) + (c & 0x3ff);
+          return ch = 0x10000 + ((ch & 0x3ff) << 10) + (c & 0x3ff);
         }
 
         throw FormatException('Invalid UTF-16 character', this, position);
       }
 
-      return _ch;
+      return ch;
     } else {
-      return _ch = -1;
+      return ch = -1;
     }
   }
 
-  /// Removes recent errors. Recent errors are errors that were added while
-  /// parsing the expression.
-  void removeRecentErrors() {
-    if (_farthestError == position) {
-      if (_errorState >= 0) {
-        _errorCount = _errorState > _maxErrorCount
-            ? _maxErrorCount
-            : _errorState;
+  /// Intended for internal use only.
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int readChar(int position, bool advance) {
+    var ch = -1;
+    l:
+    {
+      if (position < length) {
+        if ((ch = _input.codeUnitAt(position)) < 0xd800) {
+          break l;
+        }
+
+        if (ch < 0xe000) {
+          final c = _input.codeUnitAt(position + 1);
+          if ((c & 0xfc00) == 0xdc00) {
+            ch = 0x10000 + ((ch & 0x3ff) << 10) + (c & 0x3ff);
+            break l;
+          }
+
+          throw FormatException('Invalid UTF-16 character', this, position);
+        }
       }
     }
-  }
 
-  /// Intended for internal use only.
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  void restoreErrorState(int errorState) {
-    _errorState = errorState;
-  }
-
-  /// Intended for internal use only.
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
-  int setErrorState() {
-    final errorState = _errorState;
-    if (_farthestError < position) {
-      _errorState = 0;
-    } else if (_farthestError == position) {
-      _errorState = _errorCount;
-    } else {
-      _errorState = -1;
+    if (advance) {
+      this.position = position < length ? position : length;
+      this.ch = ch;
+      if (predicate == 0 && farthestPosition < position) {
+        farthestPosition = position;
+      }
     }
-    return errorState;
+
+    return ch;
   }
 
   @pragma('vm:prefer-inline')

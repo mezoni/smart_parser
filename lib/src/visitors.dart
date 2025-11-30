@@ -15,6 +15,8 @@ abstract class Visitor<T> {
 
   T visitLiteral(LiteralExpression node);
 
+  T visitMatch(MatchExpression node);
+
   T visitNotPredicate(NotPredicateExpression node);
 
   T visitOneOrMore(OneOrMoreExpression node);
@@ -30,6 +32,8 @@ abstract class Visitor<T> {
   T visitProduction(ProductionExpression node);
 
   T visitSequence(SequenceExpression node);
+
+  T visitToken(TokenExpression node);
 
   T visitValue(ValueExpression node);
 
@@ -60,6 +64,9 @@ abstract class VisitorBase<T> implements Visitor<T> {
   @override
   T visitLiteral(LiteralExpression node) => visitNode(node);
 
+  @override
+  T visitMatch(MatchExpression node) => visitNode(node);
+
   T visitNode(Expression node);
 
   @override
@@ -85,6 +92,9 @@ abstract class VisitorBase<T> implements Visitor<T> {
 
   @override
   T visitSequence(SequenceExpression node) => visitNode(node);
+
+  @override
+  T visitToken(TokenExpression node) => visitNode(node);
 
   @override
   T visitValue(ValueExpression node) => visitNode(node);

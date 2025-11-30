@@ -1,3 +1,4 @@
+import 'printer.dart';
 import 'visitors.dart';
 
 export 'visitors.dart';
@@ -60,6 +61,8 @@ abstract class Expression {
 
   bool canChangePosition = true;
 
+  String? errorHandler;
+
   bool isAlwaysSuccessful = false;
 
   bool isComplete = false;
@@ -75,6 +78,11 @@ abstract class Expression {
   String type = defaultType;
 
   T accept<T>(Visitor<T> visitor);
+
+  String print() {
+    const printer = Printer();
+    return accept(printer);
+  }
 
   @override
   String toString() {
@@ -105,6 +113,19 @@ class LiteralExpression extends Expression {
   @override
   T accept<T>(Visitor<T> visitor) {
     return visitor.visitLiteral(this);
+  }
+}
+
+class MatchExpression extends Expression {
+  final String quote;
+
+  final String text;
+
+  MatchExpression({required this.quote, required this.text});
+
+  @override
+  T accept<T>(Visitor<T> visitor) {
+    return visitor.visitMatch(this);
   }
 }
 
@@ -224,9 +245,7 @@ class ProductionExpression extends Expression {
 }
 
 class SequenceExpression extends MultiExpression {
-  final String? errorHandler;
-
-  SequenceExpression({this.errorHandler, required super.expressions});
+  SequenceExpression({required super.expressions});
 
   @override
   T accept<T>(Visitor<T> visitor) {
@@ -242,6 +261,17 @@ abstract class SingleExpression extends Expression {
   @override
   void visitChildren<T>(Visitor<T> visitor) {
     expression.accept(visitor);
+  }
+}
+
+class TokenExpression extends Expression {
+  final String name;
+
+  TokenExpression({required this.name});
+
+  @override
+  T accept<T>(Visitor<T> visitor) {
+    return visitor.visitToken(this);
   }
 }
 

@@ -19,15 +19,15 @@
   $ = `const` { x }
 
 `String` AndPredicate0 =>
-  & 'abc'
+  &"abc"
   $ = 'abcd'
 
 `void` AndPredicateVoid0 =>
-  & 'abc'
+  &"abc"
   $ = 'abcd'
 
 `void` AndPredicate1 =>
-  & 'abc'
+  &"abc"
 
 `int` AnyCharacter0 =>
   .
@@ -178,6 +178,18 @@
 `void` LiteralVoid4 =>
   "\r\n"
 
+`String` Match0 =>
+  @match('for')
+
+`void` MatchVoid0 =>
+  @match('for')
+
+`String` Match1 =>
+  @match('FOR')
+
+`void` MatchVoid1 =>
+  @match('FOR')
+
 `String` NotPredicate0 =>
   ! 'abc'
   $ = 'ab'
@@ -205,15 +217,6 @@
     [a]
   }
   $ = [a]*
-
-`void` NotPredicate3 =>
-  !''
-
-`void` NotPredicate4 =>
-  ![a]?
-
-`void` NotPredicate5 =>
-  !([a] / [z])?
 
 `List<int>` OneOrMore0 =>
   [a]+
@@ -271,9 +274,6 @@
 `void` Predicate3 =>
   ! { false }
 
-`void` Predicate4 =>
-  & (a = { false })
-
 `int` Sequence0 =>
   a = [0-9]
   b = [0-9]
@@ -291,52 +291,18 @@
   [b]
   [c]
   $ = `const` { 'abc' }
-  ~ {
-    state.errorExpected('abc');
-    state.errorIncorrect('Full', true);
-    state.errorIncorrect('End', false);
-    state.errorIncorrect('Start', null);
-  }
 
 `void` SequenceVoid1 =>
   [a]
   [b]
   [c]
   $ = `const` { 'abc' }
-  ~ {
-    state.errorExpected('abc');
-    state.errorIncorrect('Full', true);
-    state.errorIncorrect('End', false);
-    state.errorIncorrect('Start', null);
-  }
 
 `String` Sequence2 =>
-  (
-    'bar'
-    /
-    'baz'
-  )
-  ~ {
-    state.removeRecentErrors();
-    state.errorExpected('foo');
-  }
-
-`void` SequenceVoid2 =>
-  (
-    'bar'
-    /
-    'baz'
-  )
-  ~ {
-    state.removeRecentErrors();
-    state.errorExpected('foo');
-  }
-
-`String` Sequence3 =>
   "foo"
   ~ { state.errorExpected('foo'); }
 
-`void` SequenceVoid3 =>
+`void` SequenceVoid2 =>
   "foo"
   ~ { state.errorExpected('foo'); }
 

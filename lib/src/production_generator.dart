@@ -3,6 +3,7 @@ import 'allocator.dart';
 import 'code_builder.dart';
 import 'expression_generator.dart';
 import 'expressions.dart';
+import 'helper.dart';
 
 class ProductionGenerator {
   final ParserGeneratorOptions options;
@@ -16,39 +17,30 @@ class ProductionGenerator {
     final name = production.name;
     final type = production.type;
     final allocator = Allocator();
-    final isVoid = production.isVoid;
     final cache = Cache();
+    final suggestedName = camelize(name);
     final expressionGenerator = ExpressionGenerator(
       allocator: allocator,
       cache: cache,
       options: options,
+      productionName: name,
+      suggestedName: suggestedName,
     );
 
-    final start = expressionGenerator.generate(expression);
-    final isAlwaysSuccessful = expression.isAlwaysSuccessful;
-    start.onPreprocess((code) {
-      // TODO
-      //cache.clear();
-    });
-
-    start.onAccept((event) {
-      final code = event.output;
-      final result = event.result;
-      if (isVoid) {
-        code.stmt('return Result.none');
-      } else {
+    final res = expressionGenerator.generate(expression);
+    for (final success in res.successes) {
+      success.succeeds((code) {
+        final result = success.result;
         code.stmt('return $result');
-      }
-    });
+      });
+    }
 
-    if (!isAlwaysSuccessful) {
-      start.onPostprocess((code) {
+    for (final failure in res.failures) {
+      failure((code) {
         code.stmt('return null');
       });
     }
 
-    final source = Code();
-    start.build(source);
     final productionCode = Code();
     productionCode.writeln('/// [$type] **$name**');
     final sourceCode = production.sourceCode;
@@ -70,7 +62,7 @@ class ProductionGenerator {
       hideEmpty: false,
     );
     method((code) {
-      code.add(source);
+      code.add(res.code);
     });
     productionCode.add(method);
     return '$productionCode';

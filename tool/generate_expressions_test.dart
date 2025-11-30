@@ -19,6 +19,7 @@ void main(List<String> args) {
     _testCharacterClass(),
     _testGroup(),
     _testLiteral(),
+    _testMatch(),
     _testNotPredicate(),
     _testOneOrMore(),
     _testOptional(),
@@ -53,8 +54,8 @@ String _errorExpected(int pos, List<String> elements) {
   return '(end: $pos, message: Expected: $expected, start: $pos)';
 }
 
-String _errorUnexpectedData(int start, int end) {
-  return '(end: $end, message: Unexpected input data, start: $start)';
+String _errorSyntaxError(int start, int end) {
+  return '(end: $end, message: Syntax error, start: $start)';
 }
 
 (Code, String) _generateTests(List<Test> tests) {
@@ -243,13 +244,13 @@ Test _testAndPredicate() {
   final test = Test('AndPredicate', 'AndPredicate');
   {
     final production = test.addProduction('String', r'''
-& 'abc'
+&"abc"
 $ = 'abcd'
 ''');
     {
       production.addSuccess('abcd', 4, escapeString('abcd'));
-      production.addFailure('', 0, [_errorUnexpectedData(0, 0)]);
-      production.addFailure('z', 0, [_errorUnexpectedData(0, 0)]);
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('z', 0, [_errorSyntaxError(0, 0)]);
       production.addFailure('abc', 0, [
         _errorExpected(0, ['abcd']),
       ]);
@@ -258,14 +259,14 @@ $ = 'abcd'
 
   {
     final production = test.addProduction('void', r'''
-& 'abc'
+&"abc"
 ''');
     {
       production.addSuccess('abc', 0, 'null');
-      production.addFailure('', 0, [_errorUnexpectedData(0, 0)]);
-      production.addFailure('z', 0, [_errorUnexpectedData(0, 0)]);
-      production.addFailure('a', 0, [_errorUnexpectedData(0, 0)]);
-      production.addFailure('ab', 0, [_errorUnexpectedData(0, 0)]);
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('z', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('a', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('ab', 0, [_errorSyntaxError(0, 0)]);
     }
   }
 
@@ -280,7 +281,7 @@ Test _testAnyCharacter() {
     {
       production.addSuccess('a', 1, '97');
       production.addSuccess('z', 1, '122');
-      production.addFailure('', 0, [_errorUnexpectedData(0, 0)]);
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
     }
   }
 
@@ -293,8 +294,8 @@ Test _testCapture() {
     final production = test.addProduction('String', '<[a]>');
     {
       production.addSuccess('a', 1, escapeString('a'));
-      production.addFailure('', 0, [_errorUnexpectedData(0, 0)]);
-      production.addFailure('z', 0, [_errorUnexpectedData(0, 0)]);
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('z', 0, [_errorSyntaxError(0, 0)]);
     }
   }
 
@@ -302,8 +303,8 @@ Test _testCapture() {
     final production = test.addProduction('void', '<[a]>');
     {
       production.addSuccess('a', 1, 'null');
-      production.addFailure('', 0, [_errorUnexpectedData(0, 0)]);
-      production.addFailure('z', 0, [_errorUnexpectedData(0, 0)]);
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('z', 0, [_errorSyntaxError(0, 0)]);
     }
   }
 
@@ -313,8 +314,8 @@ Test _testCapture() {
     {
       production.addSuccess('a', 1, escapeString('a'));
       production.addSuccess('b', 1, escapeString('b'));
-      production.addFailure('', 0, [_errorUnexpectedData(0, 0)]);
-      production.addFailure('z', 0, [_errorUnexpectedData(0, 0)]);
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('z', 0, [_errorSyntaxError(0, 0)]);
     }
   }
 
@@ -325,8 +326,8 @@ $ = <[b] / [c]>''');
     {
       production.addSuccess('ab', 2, escapeString('b'));
       production.addSuccess('ac', 2, escapeString('c'));
-      production.addFailure('', 0, [_errorUnexpectedData(0, 0)]);
-      production.addFailure('a', 1, [_errorUnexpectedData(1, 1)]);
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('a', 1, [_errorSyntaxError(1, 1)]);
     }
   }
 
@@ -339,8 +340,8 @@ Test _testCharacterClass() {
     final production = test.addProduction('int', '[a]');
     {
       production.addSuccess('a', 1, '97');
-      production.addFailure('', 0, [_errorUnexpectedData(0, 0)]);
-      production.addFailure('z', 0, [_errorUnexpectedData(0, 0)]);
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('z', 0, [_errorSyntaxError(0, 0)]);
     }
   }
 
@@ -349,8 +350,8 @@ Test _testCharacterClass() {
     {
       production.addSuccess('a', 1, '97');
       production.addSuccess('z', 1, '122');
-      production.addFailure('', 0, [_errorUnexpectedData(0, 0)]);
-      production.addFailure('!', 0, [_errorUnexpectedData(0, 0)]);
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('!', 0, [_errorSyntaxError(0, 0)]);
     }
   }
 
@@ -359,8 +360,8 @@ Test _testCharacterClass() {
     {
       production.addSuccess('0', 1, '48');
       production.addSuccess('z', 1, '122');
-      production.addFailure('a', 0, [_errorUnexpectedData(0, 0)]);
-      production.addFailure('', 0, [_errorUnexpectedData(0, 0)]);
+      production.addFailure('a', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
     }
   }
 
@@ -369,9 +370,9 @@ Test _testCharacterClass() {
     {
       production.addSuccess('0', 1, '48');
       production.addSuccess('z', 1, '122');
-      production.addFailure('a', 0, [_errorUnexpectedData(0, 0)]);
-      production.addFailure('b', 0, [_errorUnexpectedData(0, 0)]);
-      production.addFailure('', 0, [_errorUnexpectedData(0, 0)]);
+      production.addFailure('a', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('b', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
     }
   }
 
@@ -380,10 +381,10 @@ Test _testCharacterClass() {
     {
       production.addSuccess('0', 1, '48');
       production.addSuccess('z', 1, '122');
-      production.addFailure('a', 0, [_errorUnexpectedData(0, 0)]);
-      production.addFailure('b', 0, [_errorUnexpectedData(0, 0)]);
-      production.addFailure('c', 0, [_errorUnexpectedData(0, 0)]);
-      production.addFailure('', 0, [_errorUnexpectedData(0, 0)]);
+      production.addFailure('a', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('b', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('c', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
     }
   }
 
@@ -391,9 +392,9 @@ Test _testCharacterClass() {
     final production = test.addProduction('int', '[^a-z]');
     {
       production.addSuccess('0', 1, '48');
-      production.addFailure('', 0, [_errorUnexpectedData(0, 0)]);
-      production.addFailure('a', 0, [_errorUnexpectedData(0, 0)]);
-      production.addFailure('z', 0, [_errorUnexpectedData(0, 0)]);
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('a', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('z', 0, [_errorSyntaxError(0, 0)]);
     }
   }
 
@@ -401,8 +402,8 @@ Test _testCharacterClass() {
     final production = test.addProduction('int', r'[\^]');
     {
       production.addSuccess('^', 1, '94');
-      production.addFailure('', 0, [_errorUnexpectedData(0, 0)]);
-      production.addFailure('a', 0, [_errorUnexpectedData(0, 0)]);
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('a', 0, [_errorSyntaxError(0, 0)]);
     }
   }
 
@@ -410,8 +411,8 @@ Test _testCharacterClass() {
     final production = test.addProduction('int', r'[\-]');
     {
       production.addSuccess('-', 1, '45');
-      production.addFailure('', 0, [_errorUnexpectedData(0, 0)]);
-      production.addFailure('a', 0, [_errorUnexpectedData(0, 0)]);
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('a', 0, [_errorSyntaxError(0, 0)]);
     }
   }
 
@@ -419,8 +420,8 @@ Test _testCharacterClass() {
     final production = test.addProduction('int', r'[\u{20}]');
     {
       production.addSuccess(' ', 1, '32');
-      production.addFailure('', 0, [_errorUnexpectedData(0, 0)]);
-      production.addFailure('a', 0, [_errorUnexpectedData(0, 0)]);
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('a', 0, [_errorSyntaxError(0, 0)]);
     }
   }
 
@@ -429,8 +430,8 @@ Test _testCharacterClass() {
     {
       production.addSuccess('0', 1, '48');
       production.addSuccess('9', 1, '57');
-      production.addFailure('', 0, [_errorUnexpectedData(0, 0)]);
-      production.addFailure('a', 0, [_errorUnexpectedData(0, 0)]);
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('a', 0, [_errorSyntaxError(0, 0)]);
     }
   }
 
@@ -438,8 +439,8 @@ Test _testCharacterClass() {
     final production = test.addProduction('int', r'[\u{0}]');
     {
       production.addSuccess('\u0000', 1, '0');
-      production.addFailure('', 0, [_errorUnexpectedData(0, 0)]);
-      production.addFailure('a', 0, [_errorUnexpectedData(0, 0)]);
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('a', 0, [_errorSyntaxError(0, 0)]);
     }
   }
 
@@ -448,8 +449,8 @@ Test _testCharacterClass() {
     {
       production.addSuccess('\u0000', 1, '0');
       production.addSuccess('\u0009', 1, '9');
-      production.addFailure('', 0, [_errorUnexpectedData(0, 0)]);
-      production.addFailure('a', 0, [_errorUnexpectedData(0, 0)]);
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('a', 0, [_errorSyntaxError(0, 0)]);
     }
   }
 
@@ -457,8 +458,8 @@ Test _testCharacterClass() {
     final production = test.addProduction('int', r'[^\u{0}]');
     {
       production.addSuccess('a', 1, '97');
-      production.addFailure('', 0, [_errorUnexpectedData(0, 0)]);
-      production.addFailure('\u0000', 0, [_errorUnexpectedData(0, 0)]);
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('\u0000', 0, [_errorSyntaxError(0, 0)]);
     }
   }
 
@@ -466,9 +467,9 @@ Test _testCharacterClass() {
     final production = test.addProduction('int', r'[^\u{0}-\u{9}]');
     {
       production.addSuccess('a', 1, '97');
-      production.addFailure('', 0, [_errorUnexpectedData(0, 0)]);
-      production.addFailure('\u0000', 0, [_errorUnexpectedData(0, 0)]);
-      production.addFailure('\u0009', 0, [_errorUnexpectedData(0, 0)]);
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('\u0000', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('\u0009', 0, [_errorSyntaxError(0, 0)]);
     }
   }
 
@@ -482,8 +483,8 @@ Test _testGroup() {
     {
       production.addSuccess('a', 1, '97');
       production.addSuccess('z', 1, '122');
-      production.addFailure('', 0, [_errorUnexpectedData(0, 0)]);
-      production.addFailure('b', 0, [_errorUnexpectedData(0, 0)]);
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('b', 0, [_errorSyntaxError(0, 0)]);
     }
   }
 
@@ -510,9 +511,9 @@ $ = <
     {
       production.addSuccess('fo', 2, escapeString('fo'));
       production.addSuccess('fort', 4, escapeString('fort'));
-      production.addFailure('', 0, [_errorUnexpectedData(0, 0)]);
-      production.addFailure('for', 0, [_errorUnexpectedData(0, 0)]);
-      production.addFailure('foreach', 0, [_errorUnexpectedData(0, 0)]);
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('for', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('foreach', 0, [_errorSyntaxError(0, 0)]);
     }
   }
 
@@ -542,9 +543,9 @@ $ = <
     {
       production.addSuccess('fo', 2, escapeString('fo'));
       production.addSuccess('fort', 4, escapeString('fort'));
-      production.addFailure('', 0, [_errorUnexpectedData(0, 0)]);
-      production.addFailure('for', 0, [_errorUnexpectedData(0, 0)]);
-      production.addFailure('foreach', 0, [_errorUnexpectedData(0, 0)]);
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('for', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('foreach', 0, [_errorSyntaxError(0, 0)]);
     }
   }
 
@@ -570,8 +571,8 @@ Test _testLiteral() {
     final production = test.addProduction('String', '"abc"');
     {
       production.addSuccess('abc', 3, escapeString('abc'));
-      production.addFailure('', 0, [_errorUnexpectedData(0, 0)]);
-      production.addFailure('a', 0, [_errorUnexpectedData(0, 0)]);
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('a', 0, [_errorSyntaxError(0, 0)]);
     }
   }
 
@@ -595,7 +596,40 @@ Test _testLiteral() {
     final production = test.addProduction('String', '"\\r\\n"');
     {
       production.addSuccess('\r\n', 2, escapeString('\r\n'));
-      production.addFailure('\r', 0, [_errorUnexpectedData(0, 0)]);
+      production.addFailure('\r', 0, [_errorSyntaxError(0, 0)]);
+    }
+  }
+
+  return test;
+}
+
+Test _testMatch() {
+  final test = Test('Match', 'Match');
+  {
+    final production = test.addProduction('String', '''
+@match('for')''');
+    {
+      production.addSuccess('for', 3, escapeString('for'));
+      production.addSuccess('FOR', 3, escapeString('FOR'));
+      production.addSuccess('For', 3, escapeString('For'));
+      production.addSuccess('fOr', 3, escapeString('fOr'));
+      production.addSuccess('foR', 3, escapeString('foR'));
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('z', 0, [_errorSyntaxError(0, 0)]);
+    }
+  }
+
+  {
+    final production = test.addProduction('String', '''
+@match('FOR')''');
+    {
+      production.addSuccess('for', 3, escapeString('for'));
+      production.addSuccess('FOR', 3, escapeString('FOR'));
+      production.addSuccess('For', 3, escapeString('For'));
+      production.addSuccess('fOr', 3, escapeString('fOr'));
+      production.addSuccess('foR', 3, escapeString('foR'));
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('z', 0, [_errorSyntaxError(0, 0)]);
     }
   }
 
@@ -611,7 +645,7 @@ $ = 'ab'
 ''');
     {
       production.addSuccess('ab', 2, escapeString('ab'));
-      production.addFailure('abc', 0, [_errorUnexpectedData(0, 0)]);
+      production.addFailure('abc', 0, [_errorSyntaxError(0, 0)]);
     }
   }
 
@@ -622,7 +656,7 @@ $ = 'abc'
 ''');
     {
       production.addSuccess('abc', 3, escapeString('abc'));
-      production.addFailure('abc=>', 3, [_errorUnexpectedData(3, 3)]);
+      production.addFailure('abc=>', 3, [_errorSyntaxError(3, 3)]);
     }
   }
 
@@ -636,34 +670,7 @@ $ = [a]*
     {
       production.addSuccess('', 0, '<int>[]');
       production.addSuccess('a', 1, '[97]');
-      production.addFailure('aa', 0, [_errorUnexpectedData(0, 0)]);
-    }
-  }
-
-  {
-    final production = test.addProduction('void', "!''");
-    {
-      production.addFailure('a', 0, [_errorUnexpectedData(0, 0)]);
-      production.addFailure('', 0, [_errorUnexpectedData(0, 0)]);
-    }
-  }
-
-  {
-    final production = test.addProduction('void', '![a]?');
-    {
-      production.addFailure('a', 0, [_errorUnexpectedData(0, 0)]);
-      production.addFailure('b', 0, [_errorUnexpectedData(0, 0)]);
-      production.addFailure('', 0, [_errorUnexpectedData(0, 0)]);
-    }
-  }
-
-  {
-    final production = test.addProduction('void', '!([a] / [z])?');
-    {
-      production.addFailure('a', 0, [_errorUnexpectedData(0, 0)]);
-      production.addFailure('z', 0, [_errorUnexpectedData(0, 0)]);
-      production.addFailure('b', 0, [_errorUnexpectedData(0, 0)]);
-      production.addFailure('', 0, [_errorUnexpectedData(0, 0)]);
+      production.addFailure('aa', 0, [_errorSyntaxError(0, 0)]);
     }
   }
 
@@ -677,8 +684,8 @@ Test _testOneOrMore() {
     {
       production.addSuccess('a', 1, '[97]');
       production.addSuccess('aa', 2, '[97, 97]');
-      production.addFailure('', 0, [_errorUnexpectedData(0, 0)]);
-      production.addFailure('b', 0, [_errorUnexpectedData(0, 0)]);
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('b', 0, [_errorSyntaxError(0, 0)]);
     }
   }
 
@@ -689,8 +696,8 @@ Test _testOneOrMore() {
       production.addSuccess('aa', 2, '[97, 97]');
       production.addSuccess('z', 1, '[122]');
       production.addSuccess('za', 2, '[122, 97]');
-      production.addFailure('', 0, [_errorUnexpectedData(0, 0)]);
-      production.addFailure('b', 0, [_errorUnexpectedData(0, 0)]);
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('b', 0, [_errorSyntaxError(0, 0)]);
     }
   }
 
@@ -745,7 +752,7 @@ $ = [c]''');
       production.addSuccess('ac', 2, '99');
       production.addSuccess('bc', 2, '99');
       production.addSuccess('c', 1, '99');
-      production.addFailure('', 0, [_errorUnexpectedData(0, 0)]);
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
     }
   }
 
@@ -765,29 +772,21 @@ Test _testPredicate() {
   {
     final production = test.addProduction('void', '& { false }');
     {
-      production.addFailure('a', 0, [_errorUnexpectedData(0, 0)]);
-      production.addFailure('', 0, [_errorUnexpectedData(0, 0)]);
+      production.addFailure('a', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
     }
   }
 
   {
     final production = test.addProduction('void', '! { true }');
     {
-      production.addFailure('a', 0, [_errorUnexpectedData(0, 0)]);
-      production.addFailure('', 0, [_errorUnexpectedData(0, 0)]);
+      production.addFailure('a', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
     }
   }
 
   {
     final production = test.addProduction('void', '! { false }');
-    {
-      production.addSuccess('a', 0, 'null');
-      production.addSuccess('', 0, 'null');
-    }
-  }
-
-  {
-    final production = test.addProduction('void', '& (a = { false })');
     {
       production.addSuccess('a', 0, 'null');
       production.addSuccess('', 0, 'null');
@@ -808,7 +807,7 @@ c = [0-9]
 $ = { a - 48 + b - 48 + c - 48 }''');
     {
       production.addSuccess('123', 3, '6');
-      production.addFailure('12', 2, [_errorUnexpectedData(2, 2)]);
+      production.addFailure('12', 2, [_errorSyntaxError(2, 2)]);
     }
   }
 
@@ -817,51 +816,12 @@ $ = { a - 48 + b - 48 + c - 48 }''');
 [a]
 [b]
 [c]
-$ = `const` { 'abc' }
-~ {
-  state.errorExpected('abc');
-  state.errorIncorrect('Full', true);
-  state.errorIncorrect('End', false);
-  state.errorIncorrect('Start', null);
-}''');
+$ = `const` { 'abc' }''');
     {
       production.addSuccess('abc', 3, escapeString('abc'));
-      production.addFailure('', 0, [
-        _errorExpected(0, ['abc']),
-      ]);
-      production.addFailure('a', 1, [
-        _error(0, 0, 'Start'),
-        _error(1, 1, 'End'),
-        _error(0, 1, 'Full'),
-      ]);
-      production.addFailure('ab', 2, [
-        _error(0, 0, 'Start'),
-        _error(2, 2, 'End'),
-        _error(0, 2, 'Full'),
-      ]);
-    }
-  }
-
-  {
-    final production = test.addProduction('String', r'''
-(
-  'bar'
-  /
-  'baz'
-)
-~ {
-  state.removeRecentErrors();
-  state.errorExpected('foo');
-}''');
-    {
-      production.addSuccess('bar', 3, escapeString('bar'));
-      production.addSuccess('baz', 3, escapeString('baz'));
-      production.addFailure('', 0, [
-        _errorExpected(0, ['foo']),
-      ]);
-      production.addFailure('abc', 0, [
-        _errorExpected(0, ['foo']),
-      ]);
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('a', 1, [_errorSyntaxError(1, 1)]);
+      production.addFailure('ab', 2, [_errorSyntaxError(2, 2)]);
     }
   }
 
@@ -921,8 +881,8 @@ Test _testWhile() {
     {
       production.addSuccess('a', 1, '[97]');
       production.addSuccess('aa', 2, '[97, 97]');
-      production.addFailure('', 0, [_errorUnexpectedData(0, 0)]);
-      production.addFailure('b', 0, [_errorUnexpectedData(0, 0)]);
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('b', 0, [_errorSyntaxError(0, 0)]);
     }
   }
 
@@ -937,8 +897,8 @@ Test _testWhile() {
       production.addSuccess('z', 1, '[122]');
       production.addSuccess('za', 2, '[122, 97]');
       production.addSuccess('zz', 2, '[122, 122]');
-      production.addFailure('', 0, [_errorUnexpectedData(0, 0)]);
-      production.addFailure('b', 0, [_errorUnexpectedData(0, 0)]);
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('b', 0, [_errorSyntaxError(0, 0)]);
     }
   }
 
@@ -950,9 +910,9 @@ Test _testWhile() {
     {
       production.addSuccess('aa', 2, '[97, 97]');
       production.addSuccess('aaa', 3, '[97, 97, 97]');
-      production.addFailure('', 0, [_errorUnexpectedData(0, 0)]);
-      production.addFailure('a', 1, [_errorUnexpectedData(1, 1)]);
-      production.addFailure('b', 0, [_errorUnexpectedData(0, 0)]);
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('a', 1, [_errorSyntaxError(1, 1)]);
+      production.addFailure('b', 0, [_errorSyntaxError(0, 0)]);
     }
   }
 
@@ -967,9 +927,9 @@ Test _testWhile() {
       production.addSuccess('za', 2, '[122, 97]');
       production.addSuccess('zz', 2, '[122, 122]');
       production.addSuccess('zzz', 3, '[122, 122, 122]');
-      production.addFailure('', 0, [_errorUnexpectedData(0, 0)]);
-      production.addFailure('a', 1, [_errorUnexpectedData(1, 1)]);
-      production.addFailure('b', 0, [_errorUnexpectedData(0, 0)]);
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('a', 1, [_errorSyntaxError(1, 1)]);
+      production.addFailure('b', 0, [_errorSyntaxError(0, 0)]);
     }
   }
 
@@ -1008,8 +968,8 @@ Test _testWhile() {
     {
       production.addSuccess('a', 1, '[97]');
       production.addSuccess('aa', 1, '[97]');
-      production.addFailure('', 0, [_errorUnexpectedData(0, 0)]);
-      production.addFailure('b', 0, [_errorUnexpectedData(0, 0)]);
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('b', 0, [_errorSyntaxError(0, 0)]);
     }
   }
 
@@ -1021,9 +981,9 @@ Test _testWhile() {
     {
       production.addSuccess('aa', 2, '[97, 97]');
       production.addSuccess('aaa', 2, '[97, 97]');
-      production.addFailure('', 0, [_errorUnexpectedData(0, 0)]);
-      production.addFailure('a', 1, [_errorUnexpectedData(1, 1)]);
-      production.addFailure('b', 0, [_errorUnexpectedData(0, 0)]);
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('a', 1, [_errorSyntaxError(1, 1)]);
+      production.addFailure('b', 0, [_errorSyntaxError(0, 0)]);
     }
   }
 
@@ -1036,9 +996,9 @@ Test _testWhile() {
       production.addSuccess('aa', 2, '[97, 97]');
       production.addSuccess('aaa', 3, '[97, 97, 97]');
       production.addSuccess('aaaa', 3, '[97, 97, 97]');
-      production.addFailure('', 0, [_errorUnexpectedData(0, 0)]);
-      production.addFailure('a', 1, [_errorUnexpectedData(1, 1)]);
-      production.addFailure('b', 0, [_errorUnexpectedData(0, 0)]);
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('a', 1, [_errorSyntaxError(1, 1)]);
+      production.addFailure('b', 0, [_errorSyntaxError(0, 0)]);
     }
   }
 
@@ -1052,9 +1012,9 @@ $ = @while (1) {
       production.addSuccess('ac', 2, '[99]');
       production.addSuccess('bc', 2, '[99]');
       production.addSuccess('bcc', 3, '[99, 99]');
-      production.addFailure('', 0, [_errorUnexpectedData(0, 0)]);
-      production.addFailure('a', 1, [_errorUnexpectedData(1, 1)]);
-      production.addFailure('b', 1, [_errorUnexpectedData(1, 1)]);
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('a', 1, [_errorSyntaxError(1, 1)]);
+      production.addFailure('b', 1, [_errorSyntaxError(1, 1)]);
     }
   }
 
