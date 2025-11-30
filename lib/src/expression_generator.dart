@@ -424,17 +424,19 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     final handler = code.ifElse(isTrue, isFalse);
     handler.ifBlock((code) {
       if (!_insidePredicate.contains(node)) {
-        final start = _allocate('start');
-        variable = _getSuggestedName('str');
-        code.declare('final', start, 'state.position');
-        code.stmt('state.readChar($start + $length, true)');
-        code.declare(
-          'final',
-          variable,
-          'state.substring($start, state.position)',
-        );
-        value = variable;
-        result = 'Ok($value)';
+        if (!isVoid) {
+          final start = _allocate('start');
+          variable = _getSuggestedName('str');
+          code.declare('final', start, 'state.position');
+          code.stmt('state.readChar($start + $length, true)');
+          code.declare(
+            'final',
+            variable,
+            'state.substring($start, state.position)',
+          );
+          value = variable;
+          result = 'Ok($value)';
+        }
       }
 
       code.add(succeeds);

@@ -8482,9 +8482,6 @@ class _TestParser {
     // @match('for')
     final $length = state.match(const [102, 111, 114], const [70, 79, 82]);
     if ($length >= 0) {
-      final $start = state.position;
-      state.readChar($start + $length, true);
-      final matchVoid0 = state.substring($start, state.position);
       return Result.none;
     } else {
       return null;
@@ -8518,9 +8515,6 @@ class _TestParser {
     // @match('FOR')
     final $length = state.match(const [102, 111, 114], const [70, 79, 82]);
     if ($length >= 0) {
-      final $start = state.position;
-      state.readChar($start + $length, true);
-      final matchVoid1 = state.substring($start, state.position);
       return Result.none;
     } else {
       return null;

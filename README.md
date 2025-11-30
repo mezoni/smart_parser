@@ -2261,9 +2261,6 @@ Result<void>? parseFor(State state) {
   // @match('for')
   final $length = state.match(const [102, 111, 114], const [70, 79, 82]);
   if ($length >= 0) {
-    final $start = state.position;
-    state.readChar($start + $length, true);
-    final for = state.substring($start, state.position);
     return Result.none;
   } else {
     return null;
