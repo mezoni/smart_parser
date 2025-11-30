@@ -7514,8 +7514,8 @@ class _TestParser {
   ///   $ = `const` { 41 }
   /// ```
   Result<int> parseAction0(State state) {
-    const action0 = 41;
-    return const Ok(action0);
+    const $action0 = 41;
+    return const Ok($action0);
   }
 
   /// [void] **ActionVoid0**
@@ -7524,7 +7524,7 @@ class _TestParser {
   ///   $ = `const` { 41 }
   /// ```
   Result<void> parseActionVoid0(State state) {
-    const actionVoid0 = 41;
+    const $actionVoid0 = 41;
     return Result.none;
   }
 
@@ -7534,8 +7534,8 @@ class _TestParser {
   ///   $ = `const int` { 41 }
   /// ```
   Result<int> parseAction1(State state) {
-    const int action1 = 41;
-    return const Ok(action1);
+    const int $action1 = 41;
+    return const Ok($action1);
   }
 
   /// [void] **ActionVoid1**
@@ -7544,7 +7544,7 @@ class _TestParser {
   ///   $ = `const int` { 41 }
   /// ```
   Result<void> parseActionVoid1(State state) {
-    const int actionVoid1 = 41;
+    const int $actionVoid1 = 41;
     return Result.none;
   }
 
@@ -7637,9 +7637,9 @@ class _TestParser {
   /// ```
   Result<int>? parseAnyCharacter0(State state) {
     if (state.ch >= 0) {
-      final anyCharacter0 = state.ch;
+      final $anyCharacter0 = state.ch;
       state.nextChar();
-      return Ok(anyCharacter0);
+      return Ok($anyCharacter0);
     } else {
       return null;
     }
@@ -7669,8 +7669,8 @@ class _TestParser {
     // [a]
     if (state.ch == 97) {
       state.nextChar();
-      final capture0 = state.substring($pos, state.position);
-      return Ok(capture0);
+      final $capture0 = state.substring($pos, state.position);
+      return Ok($capture0);
     } else {
       return null;
     }
@@ -7716,8 +7716,8 @@ class _TestParser {
     // [a]
     if (state.ch == 97) {
       state.nextChar();
-      final capture2 = state.substring($pos, state.position);
-      return Ok(capture2);
+      final $capture2 = state.substring($pos, state.position);
+      return Ok($capture2);
     } else {
       // [b]
       if (state.ch == 98) {
@@ -8466,8 +8466,8 @@ class _TestParser {
     if ($length >= 0) {
       final $start = state.position;
       state.readChar($start + $length, true);
-      final match0 = state.substring($start, state.position);
-      return Ok(match0);
+      final $match0 = state.substring($start, state.position);
+      return Ok($match0);
     } else {
       return null;
     }
@@ -8499,8 +8499,8 @@ class _TestParser {
     if ($length >= 0) {
       final $start = state.position;
       state.readChar($start + $length, true);
-      final match1 = state.substring($start, state.position);
-      return Ok(match1);
+      final $match1 = state.substring($start, state.position);
+      return Ok($match1);
     } else {
       return null;
     }
@@ -8839,13 +8839,13 @@ class _TestParser {
   ///   [a]?
   /// ```
   Result<int?> parseOptional0(State state) {
-    int? optional0;
+    int? $optional0;
     // [a]
     if (state.ch == 97) {
       state.nextChar();
-      optional0 = 97;
+      $optional0 = 97;
     }
-    return Ok(optional0);
+    return Ok($optional0);
   }
 
   /// [void] **OptionalVoid0**

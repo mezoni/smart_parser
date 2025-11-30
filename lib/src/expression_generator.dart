@@ -1346,7 +1346,6 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     if (suggestedName != null) {
       name = suggestedName!;
       suggestedName = null;
-      return name;
     }
 
     return _allocate(name);

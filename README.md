@@ -431,9 +431,9 @@ Dart code:
 /// ```
 Result<int>? parseAnyCharacter(State state) {
   if (state.ch >= 0) {
-    final anyCharacter = state.ch;
+    final $anyCharacter = state.ch;
     state.nextChar();
-    return Ok(anyCharacter);
+    return Ok($anyCharacter);
   } else {
     return null;
   }
@@ -1380,13 +1380,13 @@ Dart code:
 ///   [a]?
 /// ```
 Result<int?> parseOptional(State state) {
-  int? optional;
+  int? $optional;
   // [a]
   if (state.ch == 97) {
     state.nextChar();
-    optional = 97;
+    $optional = 97;
   }
-  return Ok(optional);
+  return Ok($optional);
 }
 ```
 
@@ -2058,8 +2058,8 @@ Result<String>? parseDigits(State state) {
     }
   }
   if ($ok) {
-    final digits = state.substring($pos, state.position);
-    return Ok(digits);
+    final $digits = state.substring($pos, state.position);
+    return Ok($digits);
   } else {
     return null;
   }
@@ -2234,8 +2234,8 @@ Result<String>? parseFor(State state) {
   if ($length >= 0) {
     final $start = state.position;
     state.readChar($start + $length, true);
-    final for = state.substring($start, state.position);
-    return Ok(for);
+    final $for = state.substring($start, state.position);
+    return Ok($for);
   } else {
     return null;
   }
