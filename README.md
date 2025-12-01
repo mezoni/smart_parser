@@ -2,7 +2,7 @@
 
 All in one, a generator of recursive descent PEG parsers, tokenizers, and token stream parsers.
 
-Version: 2.0.0
+Version: 2.0.1
 
 [![Pub Package](https://img.shields.io/pub/v/smart_parser.svg)](https://pub.dev/packages/smart_parser)
 [![GitHub Issues](https://img.shields.io/github/issues/mezoni/smart_parser.svg)](https://github.com/mezoni/smart_parser/issues)
@@ -278,8 +278,8 @@ Grammar code:
       }
     }
   >
-  ~{ state.error('Incorrect Unicode escape sequence', position: end, length: end - start); }
-  $ = { String.fromCharCode(int.parse(s, radix: 16)); }
+  ~{ state.error('Incorrect Unicode escape sequence', position: end, start: start, end: end); }
+  $ = { String.fromCharCode(int.parse(s, radix: 16)) }
 ```
 
 Dart code:
@@ -300,8 +300,8 @@ Dart code:
 ///       }
 ///     }
 ///   >
-///   ~{ state.error('Incorrect Unicode escape sequence', position: end, length: end - start); }
-///   $ = { String.fromCharCode(int.parse(s, radix: 16)); }
+///   ~{ state.error('Incorrect Unicode escape sequence', position: end, start: start, end: end); }
+///   $ = { String.fromCharCode(int.parse(s, radix: 16)) }
 /// ```
 Result<String>? parseEscapeUnicode(State state) {
   final $pos = state.position;
@@ -336,12 +336,12 @@ Result<String>? parseEscapeUnicode(State state) {
     if ($cnt >= 4) {
       final $str = state.substring($pos1, state.position);
       final s = $str;
-      final $val = String.fromCharCode(int.parse(s, radix: 16));;
+      final $val = String.fromCharCode(int.parse(s, radix: 16));
       return Ok($val);
     } else {
       state.ch = $c1;
       state.position = $pos1;
-      state.error('Incorrect Unicode escape sequence', position: end, length: end - start);
+      state.error('Incorrect Unicode escape sequence', position: end, start: start, end: end);
       state.ch = $c;
       state.position = $pos;
       return null;
@@ -2261,6 +2261,7 @@ Result<void>? parseFor(State state) {
   // @match('for')
   final $length = state.match(const [102, 111, 114], const [70, 79, 82]);
   if ($length >= 0) {
+    state.readChar(state.position + $length, true);
     return Result.none;
   } else {
     return null;

@@ -23,36 +23,41 @@ Object? parse(String source) {
 
 // dart format off
 class JsonParser {
-  Token token;
+    Token token;
 
-  int index = 0;
+    int index = 0;
 
-  final List<Token> _tokens;
+    final List<Token> _tokens;
 
-  JsonParser(List<Token> tokens)
-    : _tokens = tokens,
-      token = tokens.isEmpty
-          ? throw ArgumentError('Must not be empty', 'tokens')
-          : tokens.first;
+    JsonParser(List<Token> tokens)
+      : _tokens = tokens,
+        token = tokens.isEmpty
+            ? throw ArgumentError('Must not be empty', 'tokens')
+            : tokens.first;
 
-  void nextToken(State state) {
-    if (index >= _tokens.length) {
-      return;
+    /// Advances the parsing position to the next token, if possible.
+    /// Sets this token as the current token.
+    /// Returns the token that was current when this method was called.
+    Token nextToken(State state) {
+      final token = this.token;
+      if (index < _tokens.length) {
+        this.token = _tokens[++index];
+        final start = this.token.start;
+        state.position = start;
+        if (state.farthestPosition < start) {
+          state.farthestPosition = start;
+        }
+      }
+
+      return token;
     }
 
-    token = _tokens[++index];
-    final start = token.start;
-    state.position = start;
-    if (state.farthestPosition < start) {
-      state.farthestPosition = start;
+    /// Restores the current token.
+    void restoreToken(State state, int index) {
+      this.index = index;
+      token = _tokens[index];
+      state.position = token.start;
     }
-  }
-
-  void restoreToken(State state, int index) {
-    this.index = index;
-    token = _tokens[index];
-    state.position = token.start;
-  }
 
   /// [Object?] **Start**
   /// ```txt
@@ -164,8 +169,7 @@ class JsonParser {
   Result<MapEntry<String, Object?>>? parseKeyValue(State state) {
     final $index = index;
     if (token.kind == TokenKind.string) {
-      final $tok = token;
-      nextToken(state);
+      final $tok = nextToken(state);
       final k = $tok;
       if (token.kind == TokenKind.colon) {
         nextToken(state);
@@ -199,7 +203,7 @@ class JsonParser {
   ///   }
   ///   @while (0) {
   ///     comma
-  ///     ~{ state.errorExpected(':'); }
+  ///     ~{ state.errorExpected(','); }
   ///     v = KeyValue
   ///     { m[v.key] = v.value; }
   ///   }
@@ -226,7 +230,7 @@ class JsonParser {
             break;
           }
         } else {
-          state.errorExpected(':');
+          state.errorExpected(',');
           break;
         }
       }
@@ -295,15 +299,13 @@ class JsonParser {
   /// ```
   Result<Object?>? parseValue(State state) {
     if (token.kind == TokenKind.string) {
-      final $tok = token;
-      nextToken(state);
+      final $tok = nextToken(state);
       final v = $tok;
       final $val = v.value;
       return Ok($val);
     } else {
       if (token.kind == TokenKind.number) {
-        final $tok1 = token;
-        nextToken(state);
+        final $tok1 = nextToken(state);
         final v = $tok1;
         final $val1 = v.value;
         return Ok($val1);
@@ -323,30 +325,20 @@ class JsonParser {
               const $val4 = false;
               return const Ok($val4);
             } else {
-              Result<Object?>? $res;
               if (token.kind == TokenKind.openBrace) {
                 final $object = parseObject(state);
                 if ($object != null) {
-                  $res = $object;
+                  return $object;
                 }
               }
-              if ($res != null) {
-                return $res;
-              } else {
-                Result<Object?>? $res1;
-                if (token.kind == TokenKind.openBracket) {
-                  final $array = parseArray(state);
-                  if ($array != null) {
-                    $res1 = $array;
-                  }
-                }
-                if ($res1 != null) {
-                  return $res1;
-                } else {
-                  state.errorExpected(const ['string', 'number', 'array', 'object', 'null', 'boolean value']);
-                  return null;
+              if (token.kind == TokenKind.openBracket) {
+                final $array = parseArray(state);
+                if ($array != null) {
+                  return $array;
                 }
               }
+              state.errorExpected(const ['string', 'number', 'array', 'object', 'null', 'boolean value']);
+              return null;
             }
           }
         }
@@ -554,30 +546,31 @@ class State {
   @pragma('dart2js:tryInline')
   @pragma('vm:unsafe:no-interrupts')
   /// Intended for internal use only.
-  int? match(List<int> lowerCase, List<int> upperCase) {
+  int match(List<int> lowerCase, List<int> upperCase) {
     if (lowerCase.length != upperCase.length) {
-      throw ArgumentError('The lengths of the lists do not match.');
+      throw ArgumentError('The lengths of the lists do not match');
+    }
+
+    if (upperCase.isEmpty) {
+      return 0;
     }
 
     var ch = this.ch;
-    if (lowerCase.isNotEmpty) {
-      if (ch == lowerCase[0] || ch == upperCase[0]) {
-        var length = charSize(ch);
-        ch = readChar(position, false);
-        for (var i = 1; i < lowerCase.length; i++) {
-          if (ch != lowerCase[i] && ch != upperCase[i]) {
-            return null;
-          }
-
-          length += charSize(ch);
-          ch = readChar(position + length, false);
+    if (ch == lowerCase[0] || ch == upperCase[0]) {
+      var length = charSize(ch);
+      for (var i = 1; i < lowerCase.length; i++) {
+        ch = readChar(position + length, false);
+        if (ch != lowerCase[i] && ch != upperCase[i]) {
+          break;
         }
 
-        return length;
+        length += charSize(ch);
       }
+
+      return length;
     }
 
-    return 0;
+    return -1;
   }
 
   @pragma('vm:prefer-inline')

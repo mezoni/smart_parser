@@ -173,8 +173,8 @@ START
       }
     }
   >
-  ~{ state.error('Incorrect Unicode escape sequence', position: end, length: end - start); }
-  $ = { String.fromCharCode(int.parse(s, radix: 16)); }
+  ~{ state.error('Incorrect Unicode escape sequence', position: end, start: start, end: end); }
+  $ = { String.fromCharCode(int.parse(s, radix: 16)) }
 END
 ```
 

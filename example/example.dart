@@ -434,23 +434,18 @@ class JsonParser {
   ///   EscapeC
   /// ```
   Result<String>? parseEscaped(State state) {
-    Result<String>? $res;
     // "u"
     if (state.ch == 117) {
       final $escapeUnicode = parseEscapeUnicode(state);
       if ($escapeUnicode != null) {
-        $res = $escapeUnicode;
+        return $escapeUnicode;
       }
     }
-    if ($res != null) {
-      return $res;
+    final $escapeC = parseEscapeC(state);
+    if ($escapeC != null) {
+      return $escapeC;
     } else {
-      final $escapeC = parseEscapeC(state);
-      if ($escapeC != null) {
-        return $escapeC;
-      } else {
-        return null;
-      }
+      return null;
     }
   }
 
@@ -503,25 +498,20 @@ class JsonParser {
           $list.add($str);
           continue;
         } else {
-          Result<String>? $res;
           final $c2 = state.ch;
           // [\\]
           if (state.ch == 92) {
             state.nextChar();
             final $escaped = parseEscaped(state);
             if ($escaped != null) {
-              $res = $escaped;
+              $list.add($escaped.$1);
+              continue;
             } else {
               state.ch = $c2;
               state.position = $pos1;
             }
           }
-          if ($res != null) {
-            $list.add($res.$1);
-            continue;
-          } else {
-            break;
-          }
+          break;
         }
       }
       final p = $list;
@@ -746,48 +736,33 @@ class JsonParser {
           const $val2 = false;
           return const Ok($val2);
         } else {
-          Result<Object?>? $res;
           // "{"
           if (state.ch == 123) {
             final $object = parseObject(state);
             if ($object != null) {
-              $res = $object;
+              return $object;
             }
           }
-          if ($res != null) {
-            return $res;
+          // "["
+          if (state.ch == 91) {
+            final $array = parseArray(state);
+            if ($array != null) {
+              return $array;
+            }
+          }
+          // ["]
+          if (state.ch == 34) {
+            final $string = parseString(state);
+            if ($string != null) {
+              return $string;
+            }
+          }
+          final $number = parseNumber(state);
+          if ($number != null) {
+            return $number;
           } else {
-            Result<Object?>? $res1;
-            // "["
-            if (state.ch == 91) {
-              final $array = parseArray(state);
-              if ($array != null) {
-                $res1 = $array;
-              }
-            }
-            if ($res1 != null) {
-              return $res1;
-            } else {
-              Result<Object?>? $res2;
-              // ["]
-              if (state.ch == 34) {
-                final $string = parseString(state);
-                if ($string != null) {
-                  $res2 = $string;
-                }
-              }
-              if ($res2 != null) {
-                return $res2;
-              } else {
-                final $number = parseNumber(state);
-                if ($number != null) {
-                  return $number;
-                } else {
-                  state.errorExpected(const ['string', 'number', 'array', 'object', 'null', 'boolean value']);
-                  return null;
-                }
-              }
-            }
+            state.errorExpected(const ['string', 'number', 'array', 'object', 'null', 'boolean value']);
+            return null;
           }
         }
       }
@@ -1030,7 +1005,7 @@ class State {
       for (var i = 1; i < lowerCase.length; i++) {
         ch = readChar(position + length, false);
         if (ch != lowerCase[i] && ch != upperCase[i]) {
-          break;
+          return -1;
         }
 
         length += charSize(ch);

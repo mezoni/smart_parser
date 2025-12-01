@@ -1,3 +1,8 @@
+## 2.0.1
+
+- A small change (improvement) in the token parsing algorithm and in the algorithm for the "nextToken()" function.
+- Fixed a bug in the code generation of the `@match` expression.
+
 ## 2.0.0
 
 - Breaking changes. The way input data is accessed has been changed.

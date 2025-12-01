@@ -8482,6 +8482,7 @@ class _TestParser {
     // @match('for')
     final $length = state.match(const [102, 111, 114], const [70, 79, 82]);
     if ($length >= 0) {
+      state.readChar(state.position + $length, true);
       return Result.none;
     } else {
       return null;
@@ -8515,6 +8516,7 @@ class _TestParser {
     // @match('FOR')
     final $length = state.match(const [102, 111, 114], const [70, 79, 82]);
     if ($length >= 0) {
+      state.readChar(state.position + $length, true);
       return Result.none;
     } else {
       return null;
@@ -10744,7 +10746,7 @@ class State {
       for (var i = 1; i < lowerCase.length; i++) {
         ch = readChar(position + length, false);
         if (ch != lowerCase[i] && ch != upperCase[i]) {
-          break;
+          return -1;
         }
 
         length += charSize(ch);

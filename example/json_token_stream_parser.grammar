@@ -24,36 +24,41 @@ Object? parse(String source) {
 }%
 
 %%
-Token token;
+  Token token;
 
-int index = 0;
+  int index = 0;
 
-final List<Token> _tokens;
+  final List<Token> _tokens;
 
-JsonParser(List<Token> tokens)
-  : _tokens = tokens,
-    token = tokens.isEmpty
-        ? throw ArgumentError('Must not be empty', 'tokens')
-        : tokens.first;
+  JsonParser(List<Token> tokens)
+    : _tokens = tokens,
+      token = tokens.isEmpty
+          ? throw ArgumentError('Must not be empty', 'tokens')
+          : tokens.first;
 
-void nextToken(State state) {
-  if (index >= _tokens.length) {
-    return;
+  /// Advances the parsing position to the next token, if possible.
+  /// Sets this token as the current token.
+  /// Returns the token that was current when this method was called.
+  Token nextToken(State state) {
+    final token = this.token;
+    if (index < _tokens.length) {
+      this.token = _tokens[++index];
+      final start = this.token.start;
+      state.position = start;
+      if (state.farthestPosition < start) {
+        state.farthestPosition = start;
+      }
+    }
+
+    return token;
   }
 
-  token = _tokens[++index];
-  final start = token.start;
-  state.position = start;
-  if (state.farthestPosition < start) {
-    state.farthestPosition = start;
+  /// Restores the current token.
+  void restoreToken(State state, int index) {
+    this.index = index;
+    token = _tokens[index];
+    state.position = token.start;
   }
-}
-
-void restoreToken(State state, int index) {
-  this.index = index;
-  token = _tokens[index];
-  state.position = token.start;
-}
 %%
 
 `Object?` Start =>

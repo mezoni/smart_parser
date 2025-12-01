@@ -214,7 +214,7 @@ class State {
       for (var i = 1; i < lowerCase.length; i++) {
         ch = readChar(position + length, false);
         if (ch != lowerCase[i] && ch != upperCase[i]) {
-          break;
+          return -1;
         }
 
         length += charSize(ch);

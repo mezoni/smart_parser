@@ -438,6 +438,8 @@ class ExpressionGenerator implements Visitor<BuildResult> {
           );
           value = variable;
           result = 'Ok($value)';
+        } else {
+          code.stmt('state.readChar(state.position + $length, true)');
         }
       }
 
@@ -686,7 +688,12 @@ class ExpressionGenerator implements Visitor<BuildResult> {
       cache.restore(data);
       final child = children[i];
       var res = child.accept(this);
-      res = _combine(node, res, true);
+      if (child is SequenceExpression) {
+        res = _combineSequence(child, res);
+      } else {
+        res = _combine(child, res, true);
+      }
+
       if (res.failures.length > 1) {
         throw StateError('Internal error');
       }
@@ -996,15 +1003,15 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     final handler = code.ifElse('$tokenKind == $tokenKindValue');
     handler.ifBlock((code) {
       var variable = _invalid;
-      if (!isVoid) {
-        variable = _getSuggestedName('tok');
-        code.declare('final', variable, 'token');
-        value = variable;
-        result = 'Ok($value)';
-      }
-
       if (!_insidePredicate.contains(node)) {
-        code.stmt(nextToken);
+        if (!isVoid) {
+          variable = _getSuggestedName('tok');
+          code.declare('final', variable, nextToken);
+          value = variable;
+          result = 'Ok($value)';
+        } else {
+          code.stmt(nextToken);
+        }
       }
 
       code.add(succeeds);
@@ -1251,6 +1258,22 @@ class ExpressionGenerator implements Visitor<BuildResult> {
       ],
       failures: [fails],
     );
+  }
+
+  BuildResult _combineSequence(SequenceExpression node, BuildResult res) {
+    if (res.successes.length > 1) {
+      _internalError();
+    }
+
+    if (res.failures.length < 2) {
+      return res;
+    }
+
+    final code = Code();
+    final fails = Code();
+    code.add(res.code);
+    code.add(fails);
+    return BuildResult(code: code, successes: res.successes, failures: [fails]);
   }
 
   ({bool isConst, String result}) _declareResult(

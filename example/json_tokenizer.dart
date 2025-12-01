@@ -107,63 +107,62 @@ class JsonTokenizer {
       final $pos = state.position;
       final $c = state.ch;
       parseS(state);
-      Result<Token>? $res1;
+      Result<Token>? $res;
       final int start = state.position;
       // ":"
       if (state.ch == 58) {
         state.nextChar();
         final $val = _token(start, state.position, TokenKind.colon, ':');
-        $res1 = Ok($val);
+        $res = Ok($val);
       } else {
         // ","
         if (state.ch == 44) {
           state.nextChar();
           final $val1 = _token(start, state.position, TokenKind.comma, ',');
-          $res1 = Ok($val1);
+          $res = Ok($val1);
         } else {
           // "{"
           if (state.ch == 123) {
             state.nextChar();
             final $val2 = _token(start, state.position, TokenKind.openBrace, '\u007B');
-            $res1 = Ok($val2);
+            $res = Ok($val2);
           } else {
             // "}"
             if (state.ch == 125) {
               state.nextChar();
               final $val3 = _token(start, state.position, TokenKind.closeBrace, '\u007D');
-              $res1 = Ok($val3);
+              $res = Ok($val3);
             } else {
               // "["
               if (state.ch == 91) {
                 state.nextChar();
                 final $val4 = _token(start, state.position, TokenKind.openBracket, '[');
-                $res1 = Ok($val4);
+                $res = Ok($val4);
               } else {
                 // "]"
                 if (state.ch == 93) {
                   state.nextChar();
                   final $val5 = _token(start, state.position, TokenKind.closeBracket, ']');
-                  $res1 = Ok($val5);
+                  $res = Ok($val5);
                 } else {
                   // "null"
                   if (state.ch == 110 && state.startsWith("null")) {
                     state.readChar(state.position + 4, true);
                     final $val6 = _token(start, state.position, TokenKind.null$, null);
-                    $res1 = Ok($val6);
+                    $res = Ok($val6);
                   } else {
                     // "true"
                     if (state.ch == 116 && state.startsWith("true")) {
                       state.readChar(state.position + 4, true);
                       final $val7 = _token(start, state.position, TokenKind.true$, true);
-                      $res1 = Ok($val7);
+                      $res = Ok($val7);
                     } else {
                       // "false"
                       if (state.ch == 102 && state.startsWith("false")) {
                         state.readChar(state.position + 5, true);
                         final $val8 = _token(start, state.position, TokenKind.false$, false);
-                        $res1 = Ok($val8);
+                        $res = Ok($val8);
                       } else {
-                        Result<Token>? $res;
                         // ["]
                         if (state.ch == 34) {
                           final $string = parseString(state);
@@ -173,15 +172,11 @@ class JsonTokenizer {
                             $res = Ok($val9);
                           }
                         }
-                        if ($res != null) {
-                          $res1 = $res;
-                        } else {
-                          final $number = parseNumber(state);
-                          if ($number != null) {
-                            final v = $number.$1;
-                            final $val10 = _token(start, state.position, TokenKind.number, v);
-                            $res1 = Ok($val10);
-                          }
+                        final $number = parseNumber(state);
+                        if ($number != null) {
+                          final v = $number.$1;
+                          final $val10 = _token(start, state.position, TokenKind.number, v);
+                          $res = Ok($val10);
                         }
                       }
                     }
@@ -192,8 +187,8 @@ class JsonTokenizer {
           }
         }
       }
-      if ($res1 != null) {
-        $list.add($res1.$1);
+      if ($res != null) {
+        $list.add($res.$1);
         continue;
       } else {
         state.ch = $c;
@@ -381,23 +376,18 @@ class JsonTokenizer {
   ///   EscapeC
   /// ```
   Result<String>? parseEscaped(State state) {
-    Result<String>? $res;
     // "u"
     if (state.ch == 117) {
       final $escapeUnicode = parseEscapeUnicode(state);
       if ($escapeUnicode != null) {
-        $res = $escapeUnicode;
+        return $escapeUnicode;
       }
     }
-    if ($res != null) {
-      return $res;
+    final $escapeC = parseEscapeC(state);
+    if ($escapeC != null) {
+      return $escapeC;
     } else {
-      final $escapeC = parseEscapeC(state);
-      if ($escapeC != null) {
-        return $escapeC;
-      } else {
-        return null;
-      }
+      return null;
     }
   }
 
@@ -450,25 +440,20 @@ class JsonTokenizer {
           $list.add($str);
           continue;
         } else {
-          Result<String>? $res;
           final $c2 = state.ch;
           // [\\]
           if (state.ch == 92) {
             state.nextChar();
             final $escaped = parseEscaped(state);
             if ($escaped != null) {
-              $res = $escaped;
+              $list.add($escaped.$1);
+              continue;
             } else {
               state.ch = $c2;
               state.position = $pos1;
             }
           }
-          if ($res != null) {
-            $list.add($res.$1);
-            continue;
-          } else {
-            break;
-          }
+          break;
         }
       }
       final p = $list;
@@ -881,7 +866,7 @@ class State {
       for (var i = 1; i < lowerCase.length; i++) {
         ch = readChar(position + length, false);
         if (ch != lowerCase[i] && ch != upperCase[i]) {
-          break;
+          return -1;
         }
 
         length += charSize(ch);
