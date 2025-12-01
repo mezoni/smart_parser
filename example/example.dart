@@ -300,63 +300,55 @@ class JsonParser {
       state.nextChar();
       const $val = '"';
       return const Ok($val);
-    } else {
-      // [\\]
-      if (state.ch == 92) {
-        state.nextChar();
-        const $val1 = '\\';
-        return const Ok($val1);
-      } else {
-        // [/]
-        if (state.ch == 47) {
-          state.nextChar();
-          const $val2 = '/';
-          return const Ok($val2);
-        } else {
-          // [b]
-          if (state.ch == 98) {
-            state.nextChar();
-            const $val3 = '\b';
-            return const Ok($val3);
-          } else {
-            // [f]
-            if (state.ch == 102) {
-              state.nextChar();
-              const $val4 = '\f';
-              return const Ok($val4);
-            } else {
-              // [n]
-              if (state.ch == 110) {
-                state.nextChar();
-                const $val5 = '\n';
-                return const Ok($val5);
-              } else {
-                // [r]
-                if (state.ch == 114) {
-                  state.nextChar();
-                  const $val6 = '\r';
-                  return const Ok($val6);
-                } else {
-                  // [t]
-                  if (state.ch == 116) {
-                    state.nextChar();
-                    const $val7 = '\t';
-                    return const Ok($val7);
-                  } else {
-                    if (state.position == state.length) {
-                      state.errorExpected('escape character');
-                    } else {
-                      state.error('Illegal escape character');
-                    }
-                    return null;
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
     }
+    // [\\]
+    if (state.ch == 92) {
+      state.nextChar();
+      const $val1 = '\\';
+      return const Ok($val1);
+    }
+    // [/]
+    if (state.ch == 47) {
+      state.nextChar();
+      const $val2 = '/';
+      return const Ok($val2);
+    }
+    // [b]
+    if (state.ch == 98) {
+      state.nextChar();
+      const $val3 = '\b';
+      return const Ok($val3);
+    }
+    // [f]
+    if (state.ch == 102) {
+      state.nextChar();
+      const $val4 = '\f';
+      return const Ok($val4);
+    }
+    // [n]
+    if (state.ch == 110) {
+      state.nextChar();
+      const $val5 = '\n';
+      return const Ok($val5);
+    }
+    // [r]
+    if (state.ch == 114) {
+      state.nextChar();
+      const $val6 = '\r';
+      return const Ok($val6);
+    }
+    // [t]
+    if (state.ch == 116) {
+      state.nextChar();
+      const $val7 = '\t';
+      return const Ok($val7);
+    }
+    if (state.position == state.length) {
+      state.errorExpected('escape character');
+    } else {
+      state.error('Illegal escape character');
+    }
+    return null;
   }
 
   /// [String] **EscapeUnicode**
@@ -444,9 +436,8 @@ class JsonParser {
     final $escapeC = parseEscapeC(state);
     if ($escapeC != null) {
       return $escapeC;
-    } else {
-      return null;
     }
+    return null;
   }
 
   /// [String] **String**
@@ -497,22 +488,21 @@ class JsonParser {
           final $str = state.substring($pos1, state.position);
           $list.add($str);
           continue;
-        } else {
-          final $c2 = state.ch;
-          // [\\]
-          if (state.ch == 92) {
-            state.nextChar();
-            final $escaped = parseEscaped(state);
-            if ($escaped != null) {
-              $list.add($escaped.$1);
-              continue;
-            } else {
-              state.ch = $c2;
-              state.position = $pos1;
-            }
-          }
-          break;
         }
+        final $c2 = state.ch;
+        // [\\]
+        if (state.ch == 92) {
+          state.nextChar();
+          final $escaped = parseEscaped(state);
+          if ($escaped != null) {
+            $list.add($escaped.$1);
+            continue;
+          } else {
+            state.ch = $c2;
+            state.position = $pos1;
+          }
+        }
+        break;
       }
       final p = $list;
       // ["]
@@ -721,52 +711,48 @@ class JsonParser {
       parseS(state);
       const $val = null;
       return const Ok($val);
-    } else {
-      // "true"
-      if (state.ch == 116 && state.startsWith("true")) {
-        state.readChar(state.position + 4, true);
-        parseS(state);
-        const $val1 = true;
-        return const Ok($val1);
-      } else {
-        // "false"
-        if (state.ch == 102 && state.startsWith("false")) {
-          state.readChar(state.position + 5, true);
-          parseS(state);
-          const $val2 = false;
-          return const Ok($val2);
-        } else {
-          // "{"
-          if (state.ch == 123) {
-            final $object = parseObject(state);
-            if ($object != null) {
-              return $object;
-            }
-          }
-          // "["
-          if (state.ch == 91) {
-            final $array = parseArray(state);
-            if ($array != null) {
-              return $array;
-            }
-          }
-          // ["]
-          if (state.ch == 34) {
-            final $string = parseString(state);
-            if ($string != null) {
-              return $string;
-            }
-          }
-          final $number = parseNumber(state);
-          if ($number != null) {
-            return $number;
-          } else {
-            state.errorExpected(const ['string', 'number', 'array', 'object', 'null', 'boolean value']);
-            return null;
-          }
-        }
+    }
+    // "true"
+    if (state.ch == 116 && state.startsWith("true")) {
+      state.readChar(state.position + 4, true);
+      parseS(state);
+      const $val1 = true;
+      return const Ok($val1);
+    }
+    // "false"
+    if (state.ch == 102 && state.startsWith("false")) {
+      state.readChar(state.position + 5, true);
+      parseS(state);
+      const $val2 = false;
+      return const Ok($val2);
+    }
+    // "{"
+    if (state.ch == 123) {
+      final $object = parseObject(state);
+      if ($object != null) {
+        return $object;
       }
     }
+    // "["
+    if (state.ch == 91) {
+      final $array = parseArray(state);
+      if ($array != null) {
+        return $array;
+      }
+    }
+    // ["]
+    if (state.ch == 34) {
+      final $string = parseString(state);
+      if ($string != null) {
+        return $string;
+      }
+    }
+    final $number = parseNumber(state);
+    if ($number != null) {
+      return $number;
+    }
+    state.errorExpected(const ['string', 'number', 'array', 'object', 'null', 'boolean value']);
+    return null;
   }
 
   /// [void] **S**

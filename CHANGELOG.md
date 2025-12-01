@@ -2,6 +2,7 @@
 
 - A small change (improvement) in the token parsing algorithm and in the algorithm for the "nextToken()" function.
 - Fixed a bug in the code generation of the `@match` expression.
+- Minor changes (improvements) in code generation algorithms.
 
 ## 2.0.0
 

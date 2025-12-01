@@ -107,94 +107,90 @@ class JsonTokenizer {
       final $pos = state.position;
       final $c = state.ch;
       parseS(state);
-      Result<Token>? $res;
       final int start = state.position;
       // ":"
       if (state.ch == 58) {
         state.nextChar();
         final $val = _token(start, state.position, TokenKind.colon, ':');
-        $res = Ok($val);
-      } else {
-        // ","
-        if (state.ch == 44) {
-          state.nextChar();
-          final $val1 = _token(start, state.position, TokenKind.comma, ',');
-          $res = Ok($val1);
-        } else {
-          // "{"
-          if (state.ch == 123) {
-            state.nextChar();
-            final $val2 = _token(start, state.position, TokenKind.openBrace, '\u007B');
-            $res = Ok($val2);
-          } else {
-            // "}"
-            if (state.ch == 125) {
-              state.nextChar();
-              final $val3 = _token(start, state.position, TokenKind.closeBrace, '\u007D');
-              $res = Ok($val3);
-            } else {
-              // "["
-              if (state.ch == 91) {
-                state.nextChar();
-                final $val4 = _token(start, state.position, TokenKind.openBracket, '[');
-                $res = Ok($val4);
-              } else {
-                // "]"
-                if (state.ch == 93) {
-                  state.nextChar();
-                  final $val5 = _token(start, state.position, TokenKind.closeBracket, ']');
-                  $res = Ok($val5);
-                } else {
-                  // "null"
-                  if (state.ch == 110 && state.startsWith("null")) {
-                    state.readChar(state.position + 4, true);
-                    final $val6 = _token(start, state.position, TokenKind.null$, null);
-                    $res = Ok($val6);
-                  } else {
-                    // "true"
-                    if (state.ch == 116 && state.startsWith("true")) {
-                      state.readChar(state.position + 4, true);
-                      final $val7 = _token(start, state.position, TokenKind.true$, true);
-                      $res = Ok($val7);
-                    } else {
-                      // "false"
-                      if (state.ch == 102 && state.startsWith("false")) {
-                        state.readChar(state.position + 5, true);
-                        final $val8 = _token(start, state.position, TokenKind.false$, false);
-                        $res = Ok($val8);
-                      } else {
-                        // ["]
-                        if (state.ch == 34) {
-                          final $string = parseString(state);
-                          if ($string != null) {
-                            final v = $string.$1;
-                            final $val9 = _token(start, state.position, TokenKind.string, v);
-                            $res = Ok($val9);
-                          }
-                        }
-                        final $number = parseNumber(state);
-                        if ($number != null) {
-                          final v = $number.$1;
-                          final $val10 = _token(start, state.position, TokenKind.number, v);
-                          $res = Ok($val10);
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
+        $list.add($val);
+        continue;
+      }
+      // ","
+      if (state.ch == 44) {
+        state.nextChar();
+        final $val1 = _token(start, state.position, TokenKind.comma, ',');
+        $list.add($val1);
+        continue;
+      }
+      // "{"
+      if (state.ch == 123) {
+        state.nextChar();
+        final $val2 = _token(start, state.position, TokenKind.openBrace, '\u007B');
+        $list.add($val2);
+        continue;
+      }
+      // "}"
+      if (state.ch == 125) {
+        state.nextChar();
+        final $val3 = _token(start, state.position, TokenKind.closeBrace, '\u007D');
+        $list.add($val3);
+        continue;
+      }
+      // "["
+      if (state.ch == 91) {
+        state.nextChar();
+        final $val4 = _token(start, state.position, TokenKind.openBracket, '[');
+        $list.add($val4);
+        continue;
+      }
+      // "]"
+      if (state.ch == 93) {
+        state.nextChar();
+        final $val5 = _token(start, state.position, TokenKind.closeBracket, ']');
+        $list.add($val5);
+        continue;
+      }
+      // "null"
+      if (state.ch == 110 && state.startsWith("null")) {
+        state.readChar(state.position + 4, true);
+        final $val6 = _token(start, state.position, TokenKind.null$, null);
+        $list.add($val6);
+        continue;
+      }
+      // "true"
+      if (state.ch == 116 && state.startsWith("true")) {
+        state.readChar(state.position + 4, true);
+        final $val7 = _token(start, state.position, TokenKind.true$, true);
+        $list.add($val7);
+        continue;
+      }
+      // "false"
+      if (state.ch == 102 && state.startsWith("false")) {
+        state.readChar(state.position + 5, true);
+        final $val8 = _token(start, state.position, TokenKind.false$, false);
+        $list.add($val8);
+        continue;
+      }
+      // ["]
+      if (state.ch == 34) {
+        final $string = parseString(state);
+        if ($string != null) {
+          final v = $string.$1;
+          final $val9 = _token(start, state.position, TokenKind.string, v);
+          $list.add($val9);
+          continue;
         }
       }
-      if ($res != null) {
-        $list.add($res.$1);
+      final $number = parseNumber(state);
+      if ($number != null) {
+        final v = $number.$1;
+        final $val10 = _token(start, state.position, TokenKind.number, v);
+        $list.add($val10);
         continue;
-      } else {
-        state.ch = $c;
-        state.position = $pos;
-        break;
       }
+      state.ch = $c;
+      state.position = $pos;
+      break;
     }
     parseS(state);
     return Ok($list);
@@ -242,63 +238,55 @@ class JsonTokenizer {
       state.nextChar();
       const $val = '"';
       return const Ok($val);
-    } else {
-      // [\\]
-      if (state.ch == 92) {
-        state.nextChar();
-        const $val1 = '\\';
-        return const Ok($val1);
-      } else {
-        // [/]
-        if (state.ch == 47) {
-          state.nextChar();
-          const $val2 = '/';
-          return const Ok($val2);
-        } else {
-          // [b]
-          if (state.ch == 98) {
-            state.nextChar();
-            const $val3 = '\b';
-            return const Ok($val3);
-          } else {
-            // [f]
-            if (state.ch == 102) {
-              state.nextChar();
-              const $val4 = '\f';
-              return const Ok($val4);
-            } else {
-              // [n]
-              if (state.ch == 110) {
-                state.nextChar();
-                const $val5 = '\n';
-                return const Ok($val5);
-              } else {
-                // [r]
-                if (state.ch == 114) {
-                  state.nextChar();
-                  const $val6 = '\r';
-                  return const Ok($val6);
-                } else {
-                  // [t]
-                  if (state.ch == 116) {
-                    state.nextChar();
-                    const $val7 = '\t';
-                    return const Ok($val7);
-                  } else {
-                    if (state.position == state.length) {
-                      state.errorExpected('escape character');
-                    } else {
-                      state.error('Illegal escape character');
-                    }
-                    return null;
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
     }
+    // [\\]
+    if (state.ch == 92) {
+      state.nextChar();
+      const $val1 = '\\';
+      return const Ok($val1);
+    }
+    // [/]
+    if (state.ch == 47) {
+      state.nextChar();
+      const $val2 = '/';
+      return const Ok($val2);
+    }
+    // [b]
+    if (state.ch == 98) {
+      state.nextChar();
+      const $val3 = '\b';
+      return const Ok($val3);
+    }
+    // [f]
+    if (state.ch == 102) {
+      state.nextChar();
+      const $val4 = '\f';
+      return const Ok($val4);
+    }
+    // [n]
+    if (state.ch == 110) {
+      state.nextChar();
+      const $val5 = '\n';
+      return const Ok($val5);
+    }
+    // [r]
+    if (state.ch == 114) {
+      state.nextChar();
+      const $val6 = '\r';
+      return const Ok($val6);
+    }
+    // [t]
+    if (state.ch == 116) {
+      state.nextChar();
+      const $val7 = '\t';
+      return const Ok($val7);
+    }
+    if (state.position == state.length) {
+      state.errorExpected('escape character');
+    } else {
+      state.error('Illegal escape character');
+    }
+    return null;
   }
 
   /// [String] **EscapeUnicode**
@@ -386,9 +374,8 @@ class JsonTokenizer {
     final $escapeC = parseEscapeC(state);
     if ($escapeC != null) {
       return $escapeC;
-    } else {
-      return null;
     }
+    return null;
   }
 
   /// [String] **String**
@@ -439,22 +426,21 @@ class JsonTokenizer {
           final $str = state.substring($pos1, state.position);
           $list.add($str);
           continue;
-        } else {
-          final $c2 = state.ch;
-          // [\\]
-          if (state.ch == 92) {
-            state.nextChar();
-            final $escaped = parseEscaped(state);
-            if ($escaped != null) {
-              $list.add($escaped.$1);
-              continue;
-            } else {
-              state.ch = $c2;
-              state.position = $pos1;
-            }
-          }
-          break;
         }
+        final $c2 = state.ch;
+        // [\\]
+        if (state.ch == 92) {
+          state.nextChar();
+          final $escaped = parseEscaped(state);
+          if ($escaped != null) {
+            $list.add($escaped.$1);
+            continue;
+          } else {
+            state.ch = $c2;
+            state.position = $pos1;
+          }
+        }
+        break;
       }
       final p = $list;
       // ["]

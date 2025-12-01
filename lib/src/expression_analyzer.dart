@@ -27,6 +27,7 @@ class ExpressionAnalyzer implements Visitor<void> {
         final expression = production.expression;
         _name = production.name;
         _setIsVoid(expression, isVoid);
+        _setIsReturn(expression, true);
         expression.accept(this);
       }
 
@@ -102,6 +103,7 @@ ${unusedProductions.join('\n')}''');
   @override
   void visitGroup(GroupExpression node) {
     final child = node.expression;
+    _setIsReturn(child, node.isReturn);
     child.accept(this);
     _setIsAlwaysSuccessful(node, child.isAlwaysSuccessful);
     _setCanChangePosition(node, child.canChangePosition);
@@ -146,6 +148,7 @@ ${unusedProductions.join('\n')}''');
   @override
   void visitOneOrMore(OneOrMoreExpression node) {
     final child = node.expression;
+    _setIsReturn(child, true);
     child.accept(this);
     _setIsAlwaysSuccessful(node, child.isAlwaysSuccessful);
     _setCanChangePosition(node, child.canChangePosition);
@@ -177,6 +180,7 @@ ${unusedProductions.join('\n')}''');
     for (var i = 0; i < children.length; i++) {
       final child = children[i];
       _setIsVoid(child, node.isVoid);
+      _setIsReturn(child, node.isReturn);
       child.accept(this);
       acceptancePoints += child.acceptancePoints;
       if (i == children.length - 1) {
@@ -240,6 +244,7 @@ ${unusedProductions.join('\n')}''');
     final children = node.expressions;
     final last = children.last;
     final semanticValues = <String>{};
+    _setIsReturn(last, node.isReturn);
     for (final child in children) {
       child.accept(this);
       final semanticValue = child.semanticValue;
@@ -298,6 +303,7 @@ Production: $_name''');
     final min = range.$1;
     final max = range.$2;
     final isAlwaysSuccessful = min == 0;
+    _setIsReturn(child, true);
     child.accept(this);
     _setIsAlwaysSuccessful(
       node,
@@ -315,6 +321,7 @@ Production: $_name''');
   @override
   void visitZeroOrMore(ZeroOrMoreExpression node) {
     final child = node.expression;
+    _setIsReturn(child, true);
     child.accept(this);
     _setIsAlwaysSuccessful(node, true);
     _setCanChangePosition(node, child.canChangePosition);
@@ -362,6 +369,13 @@ Repetition expression source:\n${node.print()}''');
     if (node.isComplete != isComplete) {
       _hasChanges = true;
       node.isComplete = isComplete;
+    }
+  }
+
+  void _setIsReturn(Expression node, bool isReturn) {
+    if (node.isReturn != isReturn) {
+      _hasChanges = true;
+      node.isReturn = isReturn;
     }
   }
 

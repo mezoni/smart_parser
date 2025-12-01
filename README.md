@@ -88,23 +88,20 @@ Result<String>? parseEscape(State state) {
     state.nextChar();
     const $val = '\n';
     return const Ok($val);
-  } else {
-    // "r"
-    if (state.ch == 114) {
-      state.nextChar();
-      const $val1 = '\r';
-      return const Ok($val1);
-    } else {
-      // "t"
-      if (state.ch == 116) {
-        state.nextChar();
-        const $val2 = '\t';
-        return const Ok($val2);
-      } else {
-        return null;
-      }
-    }
   }
+  // "r"
+  if (state.ch == 114) {
+    state.nextChar();
+    const $val1 = '\r';
+    return const Ok($val1);
+  }
+  // "t"
+  if (state.ch == 116) {
+    state.nextChar();
+    const $val2 = '\t';
+    return const Ok($val2);
+  }
+  return null;
 }
 ```
 
@@ -162,37 +159,32 @@ Result<Token>? parsePunctuation(State state) {
     state.nextChar();
     final $val = _token(start, state.position, ",", tokenKind.comma);
     return Ok($val);
-  } else {
-    // "}"
-    if (state.ch == 125) {
-      state.nextChar();
-      final $val1 = _token(start, state.position, "\u007B", tokenKind.openBrace);
-      return Ok($val1);
-    } else {
-      // "{"
-      if (state.ch == 123) {
-        state.nextChar();
-        final $val2 = _token(start, state.position, "\u007D", tokenKind.closeBrace);
-        return Ok($val2);
-      } else {
-        // ":"
-        if (state.ch == 58) {
-          state.nextChar();
-          final $val3 = _token(start, state.position, ":", tokenKind.colon);
-          return Ok($val3);
-        } else {
-          // "=>"
-          if (state.ch == 61 && state.startsWith("=>")) {
-            state.readChar(state.position + 2, true);
-            final $val4 = _token(start, state.position, "=>", tokenKind.rightArrow);
-            return Ok($val4);
-          } else {
-            return null;
-          }
-        }
-      }
-    }
   }
+  // "}"
+  if (state.ch == 125) {
+    state.nextChar();
+    final $val1 = _token(start, state.position, "\u007B", tokenKind.openBrace);
+    return Ok($val1);
+  }
+  // "{"
+  if (state.ch == 123) {
+    state.nextChar();
+    final $val2 = _token(start, state.position, "\u007D", tokenKind.closeBrace);
+    return Ok($val2);
+  }
+  // ":"
+  if (state.ch == 58) {
+    state.nextChar();
+    final $val3 = _token(start, state.position, ":", tokenKind.colon);
+    return Ok($val3);
+  }
+  // "=>"
+  if (state.ch == 61 && state.startsWith("=>")) {
+    state.readChar(state.position + 2, true);
+    final $val4 = _token(start, state.position, "=>", tokenKind.rightArrow);
+    return Ok($val4);
+  }
+  return null;
 }
 ```
 
@@ -869,25 +861,19 @@ Result<int>? parseAB(State state) {
   // [a]
   if (state.ch == 97) {
     state.nextChar();
-    Result<int>? $res;
     // [b]
     if (state.ch == 98) {
       state.nextChar();
-      $res = const Ok(98);
-    } else {
-      // [c]
-      if (state.ch == 99) {
-        state.nextChar();
-        $res = const Ok(99);
-      }
+      return const Ok(98);
     }
-    if ($res != null) {
-      return $res;
-    } else {
-      state.ch = $c;
-      state.position = $pos;
-      return null;
+    // [c]
+    if (state.ch == 99) {
+      state.nextChar();
+      return const Ok(99);
     }
+    state.ch = $c;
+    state.position = $pos;
+    return null;
   } else {
     return null;
   }
@@ -1296,16 +1282,14 @@ Result<List<int>>? parseOneOrMore(State state) {
       state.nextChar();
       $list.add(97);
       continue;
-    } else {
-      // [b]
-      if (state.ch == 98) {
-        state.nextChar();
-        $list.add(98);
-        continue;
-      } else {
-        break;
-      }
     }
+    // [b]
+    if (state.ch == 98) {
+      state.nextChar();
+      $list.add(98);
+      continue;
+    }
+    break;
   }
   if ($list.isNotEmpty) {
     return Ok($list);
@@ -1339,16 +1323,14 @@ Result<void>? parseOneOrMore(State state) {
       state.nextChar();
       $ok = true;
       continue;
-    } else {
-      // [b]
-      if (state.ch == 98) {
-        state.nextChar();
-        $ok = true;
-        continue;
-      } else {
-        break;
-      }
     }
+    // [b]
+    if (state.ch == 98) {
+      state.nextChar();
+      $ok = true;
+      continue;
+    }
+    break;
   }
   if ($ok) {
     return Result.none;
@@ -1584,15 +1566,13 @@ Result<int>? parseAOrB(State state) {
   if (state.ch == 97) {
     state.nextChar();
     return const Ok(97);
-  } else {
-    // [b]
-    if (state.ch == 98) {
-      state.nextChar();
-      return const Ok(98);
-    } else {
-      return null;
-    }
   }
+  // [b]
+  if (state.ch == 98) {
+    state.nextChar();
+    return const Ok(98);
+  }
+  return null;
 }
 ```
 
@@ -1620,15 +1600,13 @@ Result<void>? parseAOrB(State state) {
   if (state.ch == 97) {
     state.nextChar();
     return Result.none;
-  } else {
-    // [b]
-    if (state.ch == 98) {
-      state.nextChar();
-      return Result.none;
-    } else {
-      return null;
-    }
   }
+  // [b]
+  if (state.ch == 98) {
+    state.nextChar();
+    return Result.none;
+  }
+  return null;
 }
 ```
 
@@ -1658,15 +1636,13 @@ Result<int>? parseAOrB(State state) {
   if (state.ch == 97) {
     state.nextChar();
     return const Ok(97);
-  } else {
-    // [b]
-    if (state.ch == 98) {
-      state.nextChar();
-      return const Ok(98);
-    } else {
-      return null;
-    }
   }
+  // [b]
+  if (state.ch == 98) {
+    state.nextChar();
+    return const Ok(98);
+  }
+  return null;
 }
 ```
 
@@ -1694,15 +1670,13 @@ Result<void>? parseAOrB(State state) {
   if (state.ch == 97) {
     state.nextChar();
     return Result.none;
-  } else {
-    // [b]
-    if (state.ch == 98) {
-      state.nextChar();
-      return Result.none;
-    } else {
-      return null;
-    }
   }
+  // [b]
+  if (state.ch == 98) {
+    state.nextChar();
+    return Result.none;
+  }
+  return null;
 }
 ```
 
@@ -1887,16 +1861,14 @@ Result<List<int>> parseOneOrMore(State state) {
       state.nextChar();
       $list.add(97);
       continue;
-    } else {
-      // [b]
-      if (state.ch == 98) {
-        state.nextChar();
-        $list.add(98);
-        continue;
-      } else {
-        break;
-      }
     }
+    // [b]
+    if (state.ch == 98) {
+      state.nextChar();
+      $list.add(98);
+      continue;
+    }
+    break;
   }
   return Ok($list);
 }
@@ -1924,15 +1896,13 @@ Result<void> parseOneOrMore(State state) {
     if (state.ch == 97) {
       state.nextChar();
       continue;
-    } else {
-      // [b]
-      if (state.ch == 98) {
-        state.nextChar();
-        continue;
-      } else {
-        break;
-      }
     }
+    // [b]
+    if (state.ch == 98) {
+      state.nextChar();
+      continue;
+    }
+    break;
   }
   return Result.none;
 }

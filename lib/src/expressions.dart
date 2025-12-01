@@ -67,6 +67,8 @@ abstract class Expression {
 
   bool isComplete = false;
 
+  bool isReturn = false;
+
   int rejectionPoints = 1;
 
   bool isVoid = false;

@@ -7763,27 +7763,23 @@ class _TestParser {
     // [a]
     if (state.ch == 97) {
       state.nextChar();
-      Result<String>? $res;
       final $pos1 = state.position;
       // [b]
       if (state.ch == 98) {
         state.nextChar();
         final $str = state.substring($pos1, state.position);
-        $res = Ok($str);
+        return Ok($str);
       } else {
         // [c]
         if (state.ch == 99) {
           state.nextChar();
           final $str1 = state.substring($pos1, state.position);
-          $res = Ok($str1);
+          return Ok($str1);
+        } else {
+          state.ch = $c;
+          state.position = $pos;
+          return null;
         }
-      }
-      if ($res != null) {
-        return $res;
-      } else {
-        state.ch = $c;
-        state.position = $pos;
-        return null;
       }
     } else {
       return null;
@@ -7802,27 +7798,23 @@ class _TestParser {
     // [a]
     if (state.ch == 97) {
       state.nextChar();
-      Result<String>? $res;
       final $pos1 = state.position;
       // [b]
       if (state.ch == 98) {
         state.nextChar();
         final $str = state.substring($pos1, state.position);
-        $res = Ok($str);
+        return Result.none;
       } else {
         // [c]
         if (state.ch == 99) {
           state.nextChar();
           final $str1 = state.substring($pos1, state.position);
-          $res = Ok($str1);
+          return Result.none;
+        } else {
+          state.ch = $c;
+          state.position = $pos;
+          return null;
         }
-      }
-      if ($res != null) {
-        return Result.none;
-      } else {
-        state.ch = $c;
-        state.position = $pos;
-        return null;
       }
     } else {
       return null;
@@ -8295,15 +8287,13 @@ class _TestParser {
     if (state.ch == 97) {
       state.nextChar();
       return const Ok(97);
-    } else {
-      // [z]
-      if (state.ch == 122) {
-        state.nextChar();
-        return const Ok(122);
-      } else {
-        return null;
-      }
     }
+    // [z]
+    if (state.ch == 122) {
+      state.nextChar();
+      return const Ok(122);
+    }
+    return null;
   }
 
   /// [void] **GroupVoid0**
@@ -8316,15 +8306,13 @@ class _TestParser {
     if (state.ch == 97) {
       state.nextChar();
       return Result.none;
-    } else {
-      // [z]
-      if (state.ch == 122) {
-        state.nextChar();
-        return Result.none;
-      } else {
-        return null;
-      }
     }
+    // [z]
+    if (state.ch == 122) {
+      state.nextChar();
+      return Result.none;
+    }
+    return null;
   }
 
   /// [String] **Literal0**
@@ -8785,16 +8773,14 @@ class _TestParser {
         state.nextChar();
         $list.add(97);
         continue;
-      } else {
-        // [z]
-        if (state.ch == 122) {
-          state.nextChar();
-          $list.add(122);
-          continue;
-        } else {
-          break;
-        }
       }
+      // [z]
+      if (state.ch == 122) {
+        state.nextChar();
+        $list.add(122);
+        continue;
+      }
+      break;
     }
     if ($list.isNotEmpty) {
       return Ok($list);
@@ -8817,16 +8803,14 @@ class _TestParser {
         state.nextChar();
         $ok = true;
         continue;
-      } else {
-        // [z]
-        if (state.ch == 122) {
-          state.nextChar();
-          $ok = true;
-          continue;
-        } else {
-          break;
-        }
       }
+      // [z]
+      if (state.ch == 122) {
+        state.nextChar();
+        $ok = true;
+        continue;
+      }
+      break;
     }
     if ($ok) {
       return Result.none;
@@ -9379,16 +9363,14 @@ class _TestParser {
         state.nextChar();
         $list.add(97);
         continue;
-      } else {
-        // [z]
-        if (state.ch == 122) {
-          state.nextChar();
-          $list.add(122);
-          continue;
-        } else {
-          break;
-        }
       }
+      // [z]
+      if (state.ch == 122) {
+        state.nextChar();
+        $list.add(122);
+        continue;
+      }
+      break;
     }
     return Ok($list);
   }
@@ -9407,15 +9389,13 @@ class _TestParser {
       if (state.ch == 97) {
         state.nextChar();
         continue;
-      } else {
-        // [z]
-        if (state.ch == 122) {
-          state.nextChar();
-          continue;
-        } else {
-          break;
-        }
       }
+      // [z]
+      if (state.ch == 122) {
+        state.nextChar();
+        continue;
+      }
+      break;
     }
     return Result.none;
   }
@@ -9490,16 +9470,14 @@ class _TestParser {
         state.nextChar();
         $list.add(97);
         continue;
-      } else {
-        // [z]
-        if (state.ch == 122) {
-          state.nextChar();
-          $list.add(122);
-          continue;
-        } else {
-          break;
-        }
       }
+      // [z]
+      if (state.ch == 122) {
+        state.nextChar();
+        $list.add(122);
+        continue;
+      }
+      break;
     }
     if ($list.isNotEmpty) {
       return Ok($list);
@@ -9524,16 +9502,14 @@ class _TestParser {
         state.nextChar();
         $ok = true;
         continue;
-      } else {
-        // [z]
-        if (state.ch == 122) {
-          state.nextChar();
-          $ok = true;
-          continue;
-        } else {
-          break;
-        }
       }
+      // [z]
+      if (state.ch == 122) {
+        state.nextChar();
+        $ok = true;
+        continue;
+      }
+      break;
     }
     if ($ok) {
       return Result.none;
@@ -9622,16 +9598,14 @@ class _TestParser {
         state.nextChar();
         $list.add(97);
         continue;
-      } else {
-        // [z]
-        if (state.ch == 122) {
-          state.nextChar();
-          $list.add(122);
-          continue;
-        } else {
-          break;
-        }
       }
+      // [z]
+      if (state.ch == 122) {
+        state.nextChar();
+        $list.add(122);
+        continue;
+      }
+      break;
     }
     if ($list.length >= 2) {
       return Ok($list);
@@ -9660,16 +9634,14 @@ class _TestParser {
         state.nextChar();
         $cnt++;
         continue;
-      } else {
-        // [z]
-        if (state.ch == 122) {
-          state.nextChar();
-          $cnt++;
-          continue;
-        } else {
-          break;
-        }
       }
+      // [z]
+      if (state.ch == 122) {
+        state.nextChar();
+        $cnt++;
+        continue;
+      }
+      break;
     }
     if ($cnt >= 2) {
       return Result.none;
@@ -10100,16 +10072,14 @@ class _TestParser {
         state.nextChar();
         $list.add(97);
         continue;
-      } else {
-        // [z]
-        if (state.ch == 122) {
-          state.nextChar();
-          $list.add(122);
-          continue;
-        } else {
-          break;
-        }
       }
+      // [z]
+      if (state.ch == 122) {
+        state.nextChar();
+        $list.add(122);
+        continue;
+      }
+      break;
     }
     return Ok($list);
   }
@@ -10126,15 +10096,13 @@ class _TestParser {
       if (state.ch == 97) {
         state.nextChar();
         continue;
-      } else {
-        // [z]
-        if (state.ch == 122) {
-          state.nextChar();
-          continue;
-        } else {
-          break;
-        }
       }
+      // [z]
+      if (state.ch == 122) {
+        state.nextChar();
+        continue;
+      }
+      break;
     }
     return Result.none;
   }
@@ -10376,12 +10344,11 @@ class _TestParser {
       $res1 = true;
     }
     if ($res1) {
-      Result<String>? $res2;
       final $ok2 = end != -1;
       if ($ok2) {
         state.readChar(end, true);
         final $str = state.substring($pos, state.position);
-        $res2 = Ok($str);
+        return Ok($str);
       } else {
         final $ok3 = $c <= 90 ? $c >= 65 : $c >= 97 && $c <= 122;
         // [a-zA-Z]
@@ -10400,13 +10367,10 @@ class _TestParser {
             }
           }
           final $str1 = state.substring($pos, state.position);
-          $res2 = Ok($str1);
+          return Ok($str1);
+        } else {
+          return null;
         }
-      }
-      if ($res2 != null) {
-        return $res2;
-      } else {
-        return null;
       }
     } else {
       return null;
@@ -10494,12 +10458,11 @@ class _TestParser {
       $res1 = true;
     }
     if ($res1) {
-      Result<String>? $res2;
       final $ok2 = end != -1;
       if ($ok2) {
         state.readChar(end, true);
         final $str = state.substring($pos, state.position);
-        $res2 = Ok($str);
+        return Result.none;
       } else {
         final $ok3 = $c <= 90 ? $c >= 65 : $c >= 97 && $c <= 122;
         // [a-zA-Z]
@@ -10518,13 +10481,10 @@ class _TestParser {
             }
           }
           final $str1 = state.substring($pos, state.position);
-          $res2 = Ok($str1);
+          return Result.none;
+        } else {
+          return null;
         }
-      }
-      if ($res2 != null) {
-        return Result.none;
-      } else {
-        return null;
       }
     } else {
       return null;

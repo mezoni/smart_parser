@@ -679,46 +679,124 @@ class ExpressionGenerator implements Visitor<BuildResult> {
       return res;
     }
 
+    for (var i = 0; i < children.length - 1; i++) {
+      final child = children[i];
+      if (child.isAlwaysSuccessful) {
+        _wrongExpression(
+          node,
+          'Not the last expression always succeeds',
+          'The subsequent expression(s) will never be tried',
+          [],
+        );
+      }
+    }
+
     final data = cache.data;
     final code = Code();
     final successes = <Success>[];
     final failures = <Code>[];
     var body = code.add(Code());
-    for (var i = 0; i < children.length; i++) {
-      cache.restore(data);
-      final child = children[i];
-      var res = child.accept(this);
-      if (child is SequenceExpression) {
-        res = _combineSequence(child, res);
-      } else {
-        res = _combine(child, res, true);
-      }
-
-      if (res.failures.length > 1) {
-        throw StateError('Internal error');
-      }
-
-      body.add(res.code);
-      successes.addAll(res.successes);
-      final childFailures = res.failures;
-      final failure = childFailures.isNotEmpty ? childFailures.first : null;
-      if (failure == null) {
-        if (i != children.length - 1) {
-          _wrongExpression(
-            node,
-            'Not the last expression always succeeds',
-            'The subsequent expression(s) will never be tried',
-            [],
-          );
+    if (node.isReturn) {
+      for (var i = 0; i < children.length; i++) {
+        cache.restore(data);
+        final child = children[i];
+        final res = child.accept(this);
+        body.add(res.code);
+        successes.addAll(res.successes);
+        if (i == children.length - 1) {
+          if (!child.isAlwaysSuccessful) {
+            failures.add(code.add(Code()));
+          }
         }
-      } else {
-        body = failure;
+      }
+    } else {
+      BuildResult combine(Expression node) {
+        final res = node.accept(this);
+        var needCombine = false;
+        if (res.successes.length > 1) {
+          needCombine = true;
+        }
+
+        if (res.failures.length > 1) {
+          needCombine = true;
+        }
+
+        if (!needCombine) {
+          return res;
+        }
+
+        final isVoid = node.isVoid;
+        final isConst = node.isVoid;
+        final code = Code();
+        final succeeds = Code();
+        final fails = Code();
+        var result = _none;
+        var value = _noneValue;
+        final variable = _getSuggestedName('res');
+        if (!node.isVoid) {
+          final type = node.type;
+          code.declare('Result<$type>?', variable);
+          result = variable;
+          value = '$result.\$1';
+        } else {
+          code.declare('var', variable, 'false');
+        }
+
+        for (final success in res.successes) {
+          success.succeeds((code) {
+            if (!isVoid) {
+              code.assign(variable, success.result);
+            } else {
+              code.assign(variable, 'true');
+            }
+          });
+        }
+
+        final isTrue = isVoid ? variable : '$variable != null';
+        final isFalse = isVoid ? '!$variable' : '$variable == null';
+        final handler = code.ifElse(isTrue, isFalse);
+        handler.ifBlock((code) {
+          code.add(succeeds);
+        });
+
+        handler.elseBlock((code) {
+          code.add(fails);
+        });
+
+        return BuildResult(
+          code: code,
+          successes: [
+            Success(
+              succeeds: succeeds,
+              isConst: isConst,
+              result: result,
+              value: value,
+            ),
+          ],
+          failures: [fails],
+        );
       }
 
-      if (i == children.length - 1) {
-        if (failure != null) {
-          final fails = failure.add(Code());
-          failures.add(fails);
+      for (var i = 0; i < children.length; i++) {
+        cache.restore(data);
+        final child = children[i];
+        final res = combine(child);
+        if (res.successes.length > 1) {
+          throw StateError('Internal error');
+        }
+
+        if (res.failures.length > 1) {
+          throw StateError('Internal error');
+        }
+
+        body.add(res.code);
+        successes.addAll(res.successes);
+        if (res.failures.isNotEmpty) {
+          final failure = res.failures.first;
+          body = failure;
+          if (i == children.length - 1) {
+            failures.add(failure);
+          }
         }
       }
     }
@@ -907,42 +985,101 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     final usePosition = childrenThatRestorePosition.isNotEmpty;
     final code = Code();
     final failures = <Code>[];
-    final succeeds = Code();
-    final results = <BuildResult>[];
+    final successes = <Success>[];
+    final buildResults = <BuildResult>[];
     final res2Child = <BuildResult, Expression>{};
-    var isConst = isVoid;
-    var result = _none;
-    var value = _noneValue;
     final state = _saveState(usePosition, code);
+    BuildResult combine(Expression node) {
+      final res = node.accept(this);
+      if (res.successes.length < 2) {
+        return res;
+      }
+
+      final isVoid = node.isVoid;
+      final code = Code();
+      final fails = Code();
+      final succeeds = Code();
+      final isConst = isVoid;
+      final variable = _allocate('res');
+      final result = variable;
+      final value = '$result.\$1';
+      if (!isVoid) {
+        final type = node.type;
+        code.declare('Result<$type>?', variable);
+      } else {
+        code.declare('var', variable, 'false');
+      }
+
+      code.add(res.code);
+      for (final success in res.successes) {
+        success.succeeds((code) {
+          if (!isVoid) {
+            code.assign(variable, success.result);
+          } else {
+            code.assign(variable, 'true');
+          }
+        });
+      }
+
+      final isTrue = isVoid ? variable : '$variable != null';
+      final isFalse = isVoid ? variable : '$variable == null';
+      final handler = code.ifElse(isTrue, isFalse);
+      handler.ifBlock((code) {
+        code.add(succeeds);
+      });
+
+      handler.ifBlock((code) {
+        code.add(fails);
+      });
+
+      return BuildResult(
+        code: code,
+        successes: [
+          Success(
+            succeeds: succeeds,
+            isConst: isConst,
+            result: result,
+            value: value,
+          ),
+        ],
+        failures: [fails],
+      );
+    }
+
+    final isConsts = <bool>[];
+    final results = <String>[];
+    final values = <String>[];
     for (var i = 0; i < children.length; i++) {
       final child = children[i];
       var res = child.accept(this);
-      res = _combine(child, res);
-      if (res.successes.length > 1) {
-        _internalError();
+      if (i != children.length - 1 || !child.isReturn) {
+        res = _combine(child, res);
+        if (res.successes.length > 1) {
+          _internalError();
+        }
       }
 
-      results.add(res);
+      buildResults.add(res);
       res2Child[res] = child;
+      final semanticValue = child.semanticValue;
+      if (semanticValue == '\$') {
+        for (final success in res.successes) {
+          isConsts.add(success.isConst);
+          results.add(success.result);
+          values.add(success.value);
+        }
+      }
     }
 
     var body = code.add(Code());
     for (var i = 0; i < children.length; i++) {
       final child = children[i];
-      final res = results[i];
+      final res = buildResults[i];
       body.add(res.code);
-      final successes = res.successes;
-      final success = successes.first;
-      success.succeeds((code) {
-        final semanticValue = child.semanticValue;
-        if (semanticValue != null) {
-          if (semanticValue == '\$') {
-            if (!isVoid) {
-              isConst = success.isConst;
-              result = success.result;
-              value = success.value;
-            }
-          } else {
+      for (final success in res.successes) {
+        success.succeeds((code) {
+          final semanticValue = child.semanticValue;
+          if (semanticValue != null && semanticValue != '\$') {
             _declareResult(
               code,
               isConst: success.isConst,
@@ -950,8 +1087,8 @@ class ExpressionGenerator implements Visitor<BuildResult> {
               variable: semanticValue,
             );
           }
-        }
-      });
+        });
+      }
 
       failures.addAll(res.failures);
       for (final failure in res.failures) {
@@ -963,26 +1100,35 @@ class ExpressionGenerator implements Visitor<BuildResult> {
         });
       }
 
-      body = success.succeeds;
-      if (i == children.length - 1) {
-        success.succeeds((code) {
-          code.add(succeeds);
-        });
+      if (i != children.length - 1) {
+        if (res.successes.length > 1) {
+          _internalError();
+        }
+
+        final success = res.successes.first;
+        body = success.succeeds;
+      } else {
+        successes.addAll(res.successes);
+        final isSingleResult = results.length == 1;
+        for (var i = 0; i < successes.length; i++) {
+          final success = successes[i];
+          success.succeeds((code) {
+            if (isVoid || results.isEmpty) {
+              success.isConst = true;
+              success.result = _none;
+              success.value = _noneValue;
+            } else {
+              final index = isSingleResult ? 0 : i;
+              success.isConst = isConsts[index];
+              success.result = results[index];
+              success.value = values[index];
+            }
+          });
+        }
       }
     }
 
-    return BuildResult(
-      code: code,
-      successes: [
-        Success(
-          succeeds: succeeds,
-          isConst: isConst,
-          result: result,
-          value: value,
-        ),
-      ],
-      failures: failures,
-    );
+    return BuildResult(code: code, successes: successes, failures: failures);
   }
 
   @override
@@ -1271,8 +1417,19 @@ class ExpressionGenerator implements Visitor<BuildResult> {
 
     final code = Code();
     final fails = Code();
+    final variable = _allocate('ok');
+    code.declare('var', variable, 'false');
     code.add(res.code);
-    code.add(fails);
+    for (final success in res.successes) {
+      success.succeeds((code) {
+        code.assign(variable, 'true');
+      });
+    }
+
+    code.if$('!$variable', (code) {
+      code.add(fails);
+    });
+
     return BuildResult(code: code, successes: res.successes, failures: [fails]);
   }
 
