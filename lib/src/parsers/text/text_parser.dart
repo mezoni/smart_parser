@@ -968,7 +968,6 @@ class TextParser {
             return null;
           }
         } else {
-          state.errorExpected('string value');
           state.ch = $c;
           state.position = $pos;
           return null;
@@ -1144,7 +1143,7 @@ class TextParser {
     if ($decValue != null) {
       final m = $decValue.$1;
       parseS(state);
-      int? $res;
+      int? $val;
       final $pos = state.position;
       final $c = state.ch;
       // ','
@@ -1154,19 +1153,19 @@ class TextParser {
         final $decValue1 = parseDecValue1(state);
         if ($decValue1 != null) {
           parseS(state);
-          $res = $decValue1.$1;
+          $val = $decValue1.$1;
         } else {
           state.ch = $c;
           state.position = $pos;
-          $res = null;
+          $val = null;
         }
       } else {
         state.errorExpected(',');
-        $res = null;
+        $val = null;
       }
-      final n = $res;
-      final $val = (m, n);
-      return Ok($val);
+      final n = $val;
+      final $val1 = (m, n);
+      return Ok($val1);
     } else {
       return null;
     }

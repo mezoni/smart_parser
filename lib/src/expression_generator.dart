@@ -691,6 +691,15 @@ class ExpressionGenerator implements Visitor<BuildResult> {
       }
     }
 
+    final alternatives = _choiceAlternatives(node);
+    if (alternatives.isNotEmpty) {
+      final res = _optimizeTokenChoice(node, alternatives);
+      if (res != null) {
+        return res;
+      }
+    }
+
+    final isVoid = node.isVoid;
     final data = cache.data;
     final code = Code();
     final successes = <Success>[];
@@ -725,8 +734,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
           return res;
         }
 
-        final isVoid = node.isVoid;
-        final isConst = node.isVoid;
+        final isConst = isVoid;
         final code = Code();
         final succeeds = Code();
         final fails = Code();
@@ -997,6 +1005,45 @@ class ExpressionGenerator implements Visitor<BuildResult> {
       }
 
       final isVoid = node.isVoid;
+      if (node.isAlwaysSuccessful) {
+        final code = Code();
+        final succeeds = Code();
+        final isConst = isVoid;
+        var result = _none;
+        var value = _noneValue;
+        var variable = _invalid;
+        if (!isVoid) {
+          final type = node.type;
+          variable = _getSuggestedName('val');
+          value = variable;
+          result = 'Ok($value)';
+          code.declare(type, variable);
+        }
+
+        for (final success in res.successes) {
+          success.succeeds((code) {
+            if (!isVoid) {
+              code.assign(variable, success.value);
+            }
+          });
+        }
+
+        code.add(res.code);
+        code.add(succeeds);
+        return BuildResult(
+          code: code,
+          successes: [
+            Success(
+              succeeds: succeeds,
+              isConst: isConst,
+              result: result,
+              value: value,
+            ),
+          ],
+          failures: const [],
+        );
+      }
+
       final code = Code();
       final fails = Code();
       final succeeds = Code();
@@ -1029,7 +1076,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
         code.add(succeeds);
       });
 
-      handler.ifBlock((code) {
+      handler.elseBlock((code) {
         code.add(fails);
       });
 
@@ -1052,12 +1099,14 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     final values = <String>[];
     for (var i = 0; i < children.length; i++) {
       final child = children[i];
-      var res = child.accept(this);
+      final BuildResult res;
       if (i != children.length - 1 || !child.isReturn) {
-        res = _combine(child, res);
+        res = combine(child);
         if (res.successes.length > 1) {
           _internalError();
         }
+      } else {
+        res = child.accept(this);
       }
 
       buildResults.add(res);
@@ -1301,137 +1350,28 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     return '1';
   }
 
-  BuildResult _combine(
-    Expression node,
-    BuildResult res, [
-    bool combineFailures = false,
-  ]) {
-    final successes = res.successes;
-    var needCombine = false;
-    if (successes.length > 1) {
-      needCombine = true;
-    }
-
-    if (combineFailures && res.failures.length > 1) {
-      needCombine = true;
-    }
-
-    if (!needCombine) {
-      return res;
-    }
-
-    final isVoid = node.isVoid;
-    final code = Code();
-    final succeeds = Code();
-    final fails = Code();
-    final isConst = isVoid;
-    var result = _none;
-    var value = _noneValue;
-    final variable = _getSuggestedName('res');
-    if (node.isAlwaysSuccessful) {
-      if (!isVoid) {
-        final type = node.type;
-        value = variable;
-        result = 'Ok($value)';
-        code.declare(type, variable);
-      }
-
-      code.add(res.code);
-      for (final success in successes) {
-        success.succeeds((code) {
-          if (!isVoid) {
-            code.assign(variable, success.value);
+  List<Expression> _choiceAlternatives(OrderedChoiceExpression node) {
+    final children = node.expressions;
+    final alternatives = <Expression>[];
+    for (final sequence in children) {
+      if (sequence is SequenceExpression) {
+        final expressions = sequence.expressions;
+        if (expressions.length == 1 &&
+            sequence.errorHandler == null &&
+            sequence.semanticValue == null) {
+          final first = expressions.first;
+          if (first.errorHandler == null && first.semanticValue == null) {
+            alternatives.add(first);
           }
-        });
-      }
-
-      code.add(succeeds);
-      _addErrorHandler(node, const []);
-      return BuildResult(
-        code: code,
-        successes: [
-          Success(
-            succeeds: succeeds,
-            isConst: isConst,
-            result: result,
-            value: value,
-          ),
-        ],
-        failures: const [],
-      );
-    }
-
-    if (!isVoid) {
-      final type = node.type;
-      result = variable;
-      value = '$result.\$1';
-      code.declare('Result<$type>?', variable);
-    } else {
-      code.declare('var', variable, 'false');
-    }
-
-    code.add(res.code);
-    for (final success in successes) {
-      success.succeeds((code) {
-        if (!isVoid) {
-          code.assign(variable, success.result);
-        } else {
-          code.assign(variable, 'true');
         }
-      });
+      }
     }
 
-    final isTrue = isVoid ? variable : '$variable != null';
-    final isFalse = isVoid ? '!$variable' : '$variable == null';
-    final handler = code.ifElse(isTrue, isFalse);
-    handler.ifBlock((code) {
-      code.add(succeeds);
-    });
-
-    handler.elseBlock((code) {
-      _addErrorHandler(node, [code]);
-      code.add(fails);
-    });
-
-    return BuildResult(
-      code: code,
-      successes: [
-        Success(
-          succeeds: succeeds,
-          isConst: isConst,
-          result: result,
-          value: value,
-        ),
-      ],
-      failures: [fails],
-    );
-  }
-
-  BuildResult _combineSequence(SequenceExpression node, BuildResult res) {
-    if (res.successes.length > 1) {
-      _internalError();
+    if (alternatives.length == children.length) {
+      return alternatives;
+    } else {
+      return const [];
     }
-
-    if (res.failures.length < 2) {
-      return res;
-    }
-
-    final code = Code();
-    final fails = Code();
-    final variable = _allocate('ok');
-    code.declare('var', variable, 'false');
-    code.add(res.code);
-    for (final success in res.successes) {
-      success.succeeds((code) {
-        code.assign(variable, 'true');
-      });
-    }
-
-    code.if$('!$variable', (code) {
-      code.add(fails);
-    });
-
-    return BuildResult(code: code, successes: res.successes, failures: [fails]);
   }
 
   ({bool isConst, String result}) _declareResult(
@@ -1533,6 +1473,70 @@ class ExpressionGenerator implements Visitor<BuildResult> {
 
   Never _internalError() {
     throw StateError('Internal error');
+  }
+
+  BuildResult? _optimizeTokenChoice(
+    OrderedChoiceExpression node,
+    List<Expression> alternatives,
+  ) {
+    if (alternatives.isEmpty) {
+      return null;
+    }
+
+    final tokens = alternatives.whereType<TokenExpression>().toList();
+    if (tokens.length != alternatives.length) {
+      return null;
+    }
+
+    final isVoid = node.isVoid;
+    final code = Code();
+    final succeeds = Code();
+    final fails = Code();
+    final token = options.getToken;
+    final tokenKind = options.getTokenKind.replaceAll('{{0}}', token);
+    final kind = _allocate('kind');
+    final isConst = isVoid;
+    var result = _none;
+    var value = _noneValue;
+    code.declare('final', kind, tokenKind);
+    final isTrue = tokens
+        .map(
+          (e) =>
+              '$kind == ${options.getTokenKindValue.replaceAll('{{0}}', e.name)}',
+        )
+        .join(' || ');
+    final handler = code.ifElse(isTrue);
+    handler.ifBlock((code) {
+      final nextToken = options.getNextToken;
+      if (!isVoid) {
+        final variable = _getSuggestedName('tok');
+        code.declare('final', variable, nextToken);
+        value = variable;
+        result = 'Ok($value)';
+      } else {
+        code.stmt(nextToken);
+      }
+
+      code.add(succeeds);
+    });
+
+    handler.elseBlock((code) {
+      code.add(fails);
+      _addErrorHandler(node, [fails]);
+    });
+
+    return BuildResult(
+      code: code,
+      successes: [
+        Success(
+          succeeds: succeeds,
+          isConst: isConst,
+          result: result,
+          value: value,
+        ),
+      ],
+      failures: [fails],
+    );
   }
 
   void _restoreState(bool condition, Code code, List<String> state) {

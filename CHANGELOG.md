@@ -1,3 +1,8 @@
+## 2.0.3
+
+- Optimized the generation codes for the expression `OrderedChoiceExpression` in the case where all alternatives are `TokenChoiceExpression` expressions.
+- Fixed a bug in the code generation of the `SequenceExpression` expression.
+
 ## 2.0.2
 
 - Fixed a bug in the code generation of the `OrderedChoiceExpression` expression.

@@ -671,7 +671,6 @@ class JsonParser {
       final $val1 = flag && s.length <= 18 ? int.parse(s) : num.parse(s);
       return Ok($val1);
     } else {
-      state.errorExpected('digit');
       state.ch = $c;
       state.position = $pos;
       return null;

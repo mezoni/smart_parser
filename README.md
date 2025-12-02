@@ -2,7 +2,7 @@
 
 All in one, a generator of recursive descent PEG parsers, tokenizers, and token stream parsers.
 
-Version: 2.0.2
+Version: 2.0.3
 
 [![Pub Package](https://img.shields.io/pub/v/smart_parser.svg)](https://pub.dev/packages/smart_parser)
 [![GitHub Issues](https://img.shields.io/github/issues/mezoni/smart_parser.svg)](https://github.com/mezoni/smart_parser/issues)

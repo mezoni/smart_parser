@@ -303,47 +303,42 @@ class JsonParser {
       final v = $tok;
       final $val = v.value;
       return Ok($val);
-    } else {
-      if (token.kind == TokenKind.number) {
-        final $tok1 = nextToken(state);
-        final v = $tok1;
-        final $val1 = v.value;
-        return Ok($val1);
-      } else {
-        if (token.kind == TokenKind.null$) {
-          nextToken(state);
-          const $val2 = null;
-          return const Ok($val2);
-        } else {
-          if (token.kind == TokenKind.true$) {
-            nextToken(state);
-            const $val3 = true;
-            return const Ok($val3);
-          } else {
-            if (token.kind == TokenKind.false$) {
-              nextToken(state);
-              const $val4 = false;
-              return const Ok($val4);
-            } else {
-              if (token.kind == TokenKind.openBrace) {
-                final $object = parseObject(state);
-                if ($object != null) {
-                  return $object;
-                }
-              }
-              if (token.kind == TokenKind.openBracket) {
-                final $array = parseArray(state);
-                if ($array != null) {
-                  return $array;
-                }
-              }
-              state.errorExpected(const ['string', 'number', 'array', 'object', 'null', 'boolean value']);
-              return null;
-            }
-          }
-        }
+    }
+    if (token.kind == TokenKind.number) {
+      final $tok1 = nextToken(state);
+      final v = $tok1;
+      final $val1 = v.value;
+      return Ok($val1);
+    }
+    if (token.kind == TokenKind.null$) {
+      nextToken(state);
+      const $val2 = null;
+      return const Ok($val2);
+    }
+    if (token.kind == TokenKind.true$) {
+      nextToken(state);
+      const $val3 = true;
+      return const Ok($val3);
+    }
+    if (token.kind == TokenKind.false$) {
+      nextToken(state);
+      const $val4 = false;
+      return const Ok($val4);
+    }
+    if (token.kind == TokenKind.openBrace) {
+      final $object = parseObject(state);
+      if ($object != null) {
+        return $object;
       }
     }
+    if (token.kind == TokenKind.openBracket) {
+      final $array = parseArray(state);
+      if ($array != null) {
+        return $array;
+      }
+    }
+    state.errorExpected(const ['string', 'number', 'array', 'object', 'null', 'boolean value']);
+    return null;
   }
 
 }
@@ -561,7 +556,7 @@ class State {
       for (var i = 1; i < lowerCase.length; i++) {
         ch = readChar(position + length, false);
         if (ch != lowerCase[i] && ch != upperCase[i]) {
-          break;
+          return -1;
         }
 
         length += charSize(ch);
