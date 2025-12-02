@@ -65,7 +65,7 @@ abstract class Expression {
 
   bool isAlwaysSuccessful = false;
 
-  bool isComplete = false;
+  bool isConst = false;
 
   bool isReturn = false;
 

@@ -91,8 +91,7 @@ class JsonParser {
           break;
         }
       }
-      final $val = l;
-      return Ok($val);
+      return Ok(l);
     } else {
       return null;
     }
@@ -119,8 +118,7 @@ class JsonParser {
       if (state.ch == 93) {
         state.nextChar();
         parseS(state);
-        final $val = e ?? [];
-        return Ok($val);
+        return Ok(e ?? []);
       } else {
         state.errorExpected(']');
         state.ch = $c;
@@ -154,8 +152,7 @@ class JsonParser {
         final $value = parseValue(state);
         if ($value != null) {
           final v = $value.$1;
-          final $val = MapEntry(k, v);
-          return Ok($val);
+          return Ok(MapEntry(k, v));
         } else {
           state.ch = $c;
           state.position = $pos;
@@ -217,8 +214,7 @@ class JsonParser {
           break;
         }
       }
-      final $val = m;
-      return Ok($val);
+      return Ok(m);
     } else {
       return null;
     }
@@ -245,8 +241,7 @@ class JsonParser {
       if (state.ch == 125) {
         state.nextChar();
         parseS(state);
-        final $val = m ?? {};
-        return Ok($val);
+        return Ok(m ?? {});
       } else {
         state.errorExpected('}');
         state.ch = $c;
@@ -298,50 +293,42 @@ class JsonParser {
     // ["]
     if (state.ch == 34) {
       state.nextChar();
-      const $val = '"';
-      return const Ok($val);
+      return const Ok('"');
     }
     // [\\]
     if (state.ch == 92) {
       state.nextChar();
-      const $val1 = '\\';
-      return const Ok($val1);
+      return const Ok('\\');
     }
     // [/]
     if (state.ch == 47) {
       state.nextChar();
-      const $val2 = '/';
-      return const Ok($val2);
+      return const Ok('/');
     }
     // [b]
     if (state.ch == 98) {
       state.nextChar();
-      const $val3 = '\b';
-      return const Ok($val3);
+      return const Ok('\b');
     }
     // [f]
     if (state.ch == 102) {
       state.nextChar();
-      const $val4 = '\f';
-      return const Ok($val4);
+      return const Ok('\f');
     }
     // [n]
     if (state.ch == 110) {
       state.nextChar();
-      const $val5 = '\n';
-      return const Ok($val5);
+      return const Ok('\n');
     }
     // [r]
     if (state.ch == 114) {
       state.nextChar();
-      const $val6 = '\r';
-      return const Ok($val6);
+      return const Ok('\r');
     }
     // [t]
     if (state.ch == 116) {
       state.nextChar();
-      const $val7 = '\t';
-      return const Ok($val7);
+      return const Ok('\t');
     }
     if (state.position == state.length) {
       state.errorExpected('escape character');
@@ -402,8 +389,7 @@ class JsonParser {
       if ($cnt >= 4) {
         final $str = state.substring($pos1, state.position);
         final s = $str;
-        final $val = String.fromCharCode(int.parse(s, radix: 16));
-        return Ok($val);
+        return Ok(String.fromCharCode(int.parse(s, radix: 16)));
       } else {
         state.ch = $c1;
         state.position = $pos1;
@@ -513,8 +499,7 @@ class JsonParser {
       if (state.ch == 34) {
         state.nextChar();
         parseS(state);
-        final $val = p.join();
-        return Ok($val);
+        return Ok(p.join());
       } else {
         state.error('Unterminated string', start: start);
         state.errorExpected('"');
@@ -668,8 +653,7 @@ class JsonParser {
       final $val = state.substring(start, state.position);
       final s = $val;
       parseS(state);
-      final $val1 = flag && s.length <= 18 ? int.parse(s) : num.parse(s);
-      return Ok($val1);
+      return Ok(flag && s.length <= 18 ? int.parse(s) : num.parse(s));
     } else {
       state.ch = $c;
       state.position = $pos;
@@ -708,22 +692,19 @@ class JsonParser {
     if (state.ch == 110 && state.startsWith("null")) {
       state.readChar(state.position + 4, true);
       parseS(state);
-      const $val = null;
-      return const Ok($val);
+      return const Ok(null);
     }
     // "true"
     if (state.ch == 116 && state.startsWith("true")) {
       state.readChar(state.position + 4, true);
       parseS(state);
-      const $val1 = true;
-      return const Ok($val1);
+      return const Ok(true);
     }
     // "false"
     if (state.ch == 102 && state.startsWith("false")) {
       state.readChar(state.position + 5, true);
       parseS(state);
-      const $val2 = false;
-      return const Ok($val2);
+      return const Ok(false);
     }
     // "{"
     if (state.ch == 123) {

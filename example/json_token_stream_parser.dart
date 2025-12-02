@@ -120,8 +120,7 @@ class JsonParser {
           break;
         }
       }
-      final $val = l;
-      return Ok($val);
+      return Ok(l);
     } else {
       return null;
     }
@@ -144,8 +143,7 @@ class JsonParser {
       final e = $elements?.$1;
       if (token.kind == TokenKind.closeBracket) {
         nextToken(state);
-        final $val = e ?? [];
-        return Ok($val);
+        return Ok(e ?? []);
       } else {
         state.errorExpected(']');
         restoreToken(state, $index);
@@ -176,8 +174,7 @@ class JsonParser {
         final $value = parseValue(state);
         if ($value != null) {
           final v = $value.$1;
-          final $val = MapEntry(k.value as String, v);
-          return Ok($val);
+          return Ok(MapEntry(k.value as String, v));
         } else {
           restoreToken(state, $index);
           return null;
@@ -234,8 +231,7 @@ class JsonParser {
           break;
         }
       }
-      final $val = m;
-      return Ok($val);
+      return Ok(m);
     } else {
       return null;
     }
@@ -258,8 +254,7 @@ class JsonParser {
       final m = $map?.$1;
       if (token.kind == TokenKind.closeBrace) {
         nextToken(state);
-        final $val = m ?? {};
-        return Ok($val);
+        return Ok(m ?? {});
       } else {
         state.errorExpected('\u007D');
         restoreToken(state, $index);
@@ -301,29 +296,24 @@ class JsonParser {
     if (token.kind == TokenKind.string) {
       final $tok = nextToken(state);
       final v = $tok;
-      final $val = v.value;
-      return Ok($val);
+      return Ok(v.value);
     }
     if (token.kind == TokenKind.number) {
       final $tok1 = nextToken(state);
       final v = $tok1;
-      final $val1 = v.value;
-      return Ok($val1);
+      return Ok(v.value);
     }
     if (token.kind == TokenKind.null$) {
       nextToken(state);
-      const $val2 = null;
-      return const Ok($val2);
+      return const Ok(null);
     }
     if (token.kind == TokenKind.true$) {
       nextToken(state);
-      const $val3 = true;
-      return const Ok($val3);
+      return const Ok(true);
     }
     if (token.kind == TokenKind.false$) {
       nextToken(state);
-      const $val4 = false;
-      return const Ok($val4);
+      return const Ok(false);
     }
     if (token.kind == TokenKind.openBrace) {
       final $object = parseObject(state);

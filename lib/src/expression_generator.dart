@@ -62,6 +62,8 @@ class ExpressionGenerator implements Visitor<BuildResult> {
 
   final Set<Expression> _insidePredicate = <Expression>{};
 
+  final Set<Expression> _noNeedToStoreValue = <Expression>{};
+
   String? suggestedName;
 
   ExpressionGenerator({
@@ -1106,6 +1108,15 @@ class ExpressionGenerator implements Visitor<BuildResult> {
           _internalError();
         }
       } else {
+        if (i == children.length - 1) {
+          if (child is ValueExpression) {
+            final semanticValue = child.semanticValue;
+            if (semanticValue == '\$' && child.errorHandler == null) {
+              _noNeedToStoreValue.add(child);
+            }
+          }
+        }
+
         res = child.accept(this);
       }
 
@@ -1234,30 +1245,32 @@ class ExpressionGenerator implements Visitor<BuildResult> {
 
   @override
   BuildResult visitValue(ValueExpression node) {
-    final source = node.source;
+    final source = node.source.trim();
     final valueType = node.valueType;
     final isVoid = node.isVoid;
+    final isConst = node.isConst;
     final code = Code();
     final succeeds = Code();
-    var isConst = false;
-    var result = _invalid;
-    var value = _invalid;
-    final variable = _getSuggestedName('val');
-    final (isConst: isConst2, result: result2) = _declareResult(
-      code,
-      isConst: false,
-      type: valueType,
-      value: source,
-      variable: variable,
-    );
-    if (!isVoid) {
-      isConst = isConst2;
-      result = result2;
-      value = variable;
+    var result = _none;
+    var value = _noneValue;
+    if (_noNeedToStoreValue.contains(node)) {
+      if (!isVoid) {
+        value = source;
+        result = isConst ? 'const Ok($value)' : 'Ok($value)';
+      }
     } else {
-      isConst = true;
-      result = _none;
-      value = _noneValue;
+      final variable = _getSuggestedName('val');
+      final result2 = _declareResult(
+        code,
+        isConst: isConst,
+        type: valueType,
+        value: source,
+        variable: variable,
+      );
+      if (!isVoid) {
+        result = result2;
+        value = variable;
+      }
     }
 
     code.add(succeeds);
@@ -1374,7 +1387,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     }
   }
 
-  ({bool isConst, String result}) _declareResult(
+  String _declareResult(
     Code code, {
     required bool isConst,
     String? type,
@@ -1395,12 +1408,6 @@ class ExpressionGenerator implements Visitor<BuildResult> {
       }
     }
 
-    if (type != null) {
-      if (type.startsWith('const')) {
-        isConst = true;
-      }
-    }
-
     type ??= 'final';
     if (!isConst) {
       if (!type.startsWith('final')) {
@@ -1410,7 +1417,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
 
     code.declare(type, variable, value.trim());
     final result = isConst ? 'const Ok($variable)' : 'Ok($variable)';
-    return (isConst: isConst, result: result);
+    return result;
   }
 
   String _getCachedValue(String name, String Function() f) {

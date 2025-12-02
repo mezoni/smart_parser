@@ -1,6 +1,10 @@
+## 2.0.4
+
+- Optimized code generation for the expression `SequenceExpression` in the case where the last expression of the sequence assigns the semantic value `\$` and returns the result.
+
 ## 2.0.3
 
-- Optimized the generation codes for the expression `OrderedChoiceExpression` in the case where all alternatives are `TokenChoiceExpression` expressions.
+- Optimized code generation for the expression `OrderedChoiceExpression` in the case where all alternatives are `TokenChoiceExpression` expressions.
 - Fixed a bug in the code generation of the `SequenceExpression` expression.
 
 ## 2.0.2

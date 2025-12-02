@@ -55,7 +55,7 @@ ${unusedProductions.join('\n')}''');
     _setCanChangePosition(node, false);
     _setAcceptancePoints(node, 1);
     _setRejectionPoints(node, 0);
-    _setIsComplete(node, true);
+    _setIsConst(node, true);
   }
 
   @override
@@ -67,7 +67,7 @@ ${unusedProductions.join('\n')}''');
     _setIsVoid(child, true);
     _setAcceptancePoints(node, child.acceptancePoints);
     _setRejectionPoints(node, child.rejectionPoints);
-    _setIsComplete(node, child.isComplete);
+    _setIsConst(node, true);
   }
 
   @override
@@ -76,7 +76,7 @@ ${unusedProductions.join('\n')}''');
     _setCanChangePosition(node, true);
     _setAcceptancePoints(node, 1);
     _setRejectionPoints(node, 1);
-    _setIsComplete(node, true);
+    _setIsConst(node, false);
   }
 
   @override
@@ -88,7 +88,7 @@ ${unusedProductions.join('\n')}''');
     _setIsVoid(child, true);
     _setAcceptancePoints(node, child.acceptancePoints);
     _setRejectionPoints(node, child.rejectionPoints);
-    _setIsComplete(node, child.isComplete);
+    _setIsConst(node, false);
   }
 
   @override
@@ -97,7 +97,7 @@ ${unusedProductions.join('\n')}''');
     _setCanChangePosition(node, true);
     _setAcceptancePoints(node, 1);
     _setRejectionPoints(node, 1);
-    _setIsComplete(node, true);
+    _setIsConst(node, true);
   }
 
   @override
@@ -110,7 +110,7 @@ ${unusedProductions.join('\n')}''');
     _setIsVoid(child, node.isVoid);
     _setAcceptancePoints(node, child.acceptancePoints);
     _setRejectionPoints(node, child.rejectionPoints);
-    _setIsComplete(node, child.isComplete);
+    _setIsConst(node, child.isConst);
   }
 
   @override
@@ -120,7 +120,7 @@ ${unusedProductions.join('\n')}''');
     _setCanChangePosition(node, text.isNotEmpty);
     _setAcceptancePoints(node, 1);
     _setRejectionPoints(node, text.isEmpty ? 0 : 1);
-    _setIsComplete(node, true);
+    _setIsConst(node, true);
   }
 
   @override
@@ -130,7 +130,7 @@ ${unusedProductions.join('\n')}''');
     _setCanChangePosition(node, text.isNotEmpty);
     _setAcceptancePoints(node, 1);
     _setRejectionPoints(node, text.isEmpty ? 0 : 1);
-    _setIsComplete(node, true);
+    _setIsConst(node, false);
   }
 
   @override
@@ -142,7 +142,7 @@ ${unusedProductions.join('\n')}''');
     _setIsVoid(child, true);
     _setAcceptancePoints(node, 1);
     _setRejectionPoints(node, 1);
-    _setIsComplete(node, true);
+    _setIsConst(node, true);
   }
 
   @override
@@ -155,9 +155,7 @@ ${unusedProductions.join('\n')}''');
     _setIsVoid(child, node.isVoid);
     _setAcceptancePoints(node, 1);
     _setRejectionPoints(node, 1);
-    _setIsComplete(node, true);
-
-    _checkInfiniteLoop(node);
+    _setIsConst(node, false);
   }
 
   @override
@@ -169,7 +167,7 @@ ${unusedProductions.join('\n')}''');
     _setIsVoid(child, node.isVoid);
     _setAcceptancePoints(node, 1);
     _setRejectionPoints(node, 0);
-    _setIsComplete(node, true);
+    _setIsConst(node, false);
   }
 
   @override
@@ -196,9 +194,9 @@ ${unusedProductions.join('\n')}''');
     _setRejectionPoints(node, rejectionPoints);
     if (children.length == 1) {
       final child = children.first;
-      _setIsComplete(node, child.isComplete);
+      _setIsConst(node, child.isConst);
     } else {
-      _setIsComplete(node, false);
+      _setIsConst(node, false);
     }
   }
 
@@ -208,7 +206,7 @@ ${unusedProductions.join('\n')}''');
     _setCanChangePosition(node, true);
     _setAcceptancePoints(node, 1);
     _setRejectionPoints(node, 0);
-    _setIsComplete(node, true);
+    _setIsConst(node, true);
   }
 
   @override
@@ -217,7 +215,7 @@ ${unusedProductions.join('\n')}''');
     _setCanChangePosition(node, false);
     _setAcceptancePoints(node, 1);
     _setRejectionPoints(node, 1);
-    _setIsComplete(node, true);
+    _setIsConst(node, true);
   }
 
   @override
@@ -236,7 +234,7 @@ ${unusedProductions.join('\n')}''');
 
     _setAcceptancePoints(node, 1);
     _setRejectionPoints(node, node.isAlwaysSuccessful ? 0 : 1);
-    _setIsComplete(node, true);
+    _setIsConst(node, false);
   }
 
   @override
@@ -265,8 +263,10 @@ Production: $_name''');
     if (children.length == 1) {
       final child = children.first;
       _setIsVoid(child, node.isVoid);
+      _setIsConst(node, child.isConst);
       rejectionPoints = child.rejectionPoints;
     } else {
+      _setIsConst(node, false);
       for (final child in children) {
         _setIsVoid(child, true);
         rejectionPoints += child.rejectionPoints;
@@ -275,7 +275,6 @@ Production: $_name''');
 
     _setAcceptancePoints(node, 1);
     _setRejectionPoints(node, rejectionPoints);
-    _setIsComplete(node, last.isComplete);
   }
 
   @override
@@ -284,16 +283,23 @@ Production: $_name''');
     _setCanChangePosition(node, true);
     _setAcceptancePoints(node, 1);
     _setRejectionPoints(node, 1);
-    _setIsComplete(node, true);
+    _setIsConst(node, false);
   }
 
   @override
   void visitValue(ValueExpression node) {
+    var valueType = node.valueType;
     _setIsAlwaysSuccessful(node, true);
     _setCanChangePosition(node, false);
     _setAcceptancePoints(node, 1);
     _setRejectionPoints(node, 0);
-    _setIsComplete(node, true);
+    var isConst = false;
+    if (valueType != null) {
+      valueType = valueType.trim();
+      isConst = valueType.startsWith('const');
+    }
+
+    _setIsConst(node, isConst);
   }
 
   @override
@@ -301,7 +307,6 @@ Production: $_name''');
     final child = node.expression;
     final range = node.range;
     final min = range.$1;
-    final max = range.$2;
     final isAlwaysSuccessful = min == 0;
     _setIsReturn(child, true);
     child.accept(this);
@@ -313,9 +318,7 @@ Production: $_name''');
     _setIsVoid(child, node.isVoid);
     _setAcceptancePoints(node, 1);
     _setRejectionPoints(node, min == 0 ? 0 : 1);
-    _setIsComplete(node, true);
-
-    _checkInfiniteLoop(node, max);
+    _setIsConst(node, false);
   }
 
   @override
@@ -328,20 +331,7 @@ Production: $_name''');
     _setIsVoid(child, node.isVoid);
     _setAcceptancePoints(node, 1);
     _setRejectionPoints(node, 0);
-    _setIsComplete(node, true);
-
-    _checkInfiniteLoop(node);
-  }
-
-  void _checkInfiniteLoop(SingleExpression node, [int? max]) {
-    final child = node.expression;
-    if (child.isAlwaysSuccessful && max == null) {
-      _warnings.add('''
-The child expression always succeeds and the maximum number of repetitions is not specified.
-The repetition will cause an infinite loop.
-Repetition expression: ${node.runtimeType}
-Repetition expression source:\n${node.print()}''');
-    }
+    _setIsConst(node, false);
   }
 
   void _setAcceptancePoints(Expression node, int acceptancePoints) {
@@ -365,10 +355,10 @@ Repetition expression source:\n${node.print()}''');
     }
   }
 
-  void _setIsComplete(Expression node, bool isComplete) {
-    if (node.isComplete != isComplete) {
+  void _setIsConst(Expression node, bool isConst) {
+    if (node.isConst != isConst) {
       _hasChanges = true;
-      node.isComplete = isComplete;
+      node.isConst = isConst;
     }
   }
 

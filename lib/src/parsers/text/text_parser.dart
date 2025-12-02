@@ -70,8 +70,7 @@ class TextParser {
         state.position = $pos;
         return null;
       } else {
-        final $val = Grammar(globals: g, members: m, productions: p);
-        return Ok($val);
+        return Ok(Grammar(globals: g, members: m, productions: p));
       }
     } else {
       state.ch = $c;
@@ -198,8 +197,7 @@ class TextParser {
             parseS(state);
             final end = state.position;
             final src = state.substring(start, end).trimRight();
-            final $val = Production(expression: e, name: i, sourceCode: src, type: t);
-            return Ok($val);
+            return Ok(Production(expression: e, name: i, sourceCode: src, type: t));
           } else {
             state.ch = $c;
             state.position = $pos;
@@ -239,8 +237,7 @@ class TextParser {
     if ($orderedChoice != null) {
       final e = $orderedChoice.$1;
       e.sourceCode = state.substring(pos, state.position).trimRight();
-      final $val = e;
-      return Ok($val);
+      return Ok(e);
     } else {
       state.errorExpected('expression');
       return null;
@@ -311,8 +308,7 @@ class TextParser {
           break;
         }
       }
-      final $val = OrderedChoiceExpression(expressions: l);
-      return Ok($val);
+      return Ok(OrderedChoiceExpression(expressions: l));
     } else {
       return null;
     }
@@ -346,8 +342,7 @@ class TextParser {
         final $errorHandler = parseErrorHandler(state);
         final h = $errorHandler?.$1;
         e.sourceCode = state.substring(pos, state.position).trimRight();
-        final Expression $val = e..errorHandler = h;
-        $list.add($val);
+        $list.add(e..errorHandler = h);
         continue;
       } else {
         break;
@@ -355,11 +350,10 @@ class TextParser {
     }
     if ($list.isNotEmpty) {
       final n = $list;
-      final $val1 = SequenceExpression(expressions: n);
-      final e = $val1;
+      final $val = SequenceExpression(expressions: n);
+      final e = $val;
       e.sourceCode = state.substring(pos, state.position).trimRight();
-      final $val2 = e;
-      return Ok($val2);
+      return Ok(e);
     } else {
       return null;
     }
@@ -428,8 +422,7 @@ class TextParser {
         if ($res1 != null) {
           final e = $res1.$1;
           e.semanticValue = n;
-          final $val = e;
-          return Ok($val);
+          return Ok(e);
         } else {
           state.ch = $c;
           state.position = $pos;
@@ -481,14 +474,12 @@ class TextParser {
       final $block = parseBlock(state);
       if ($block != null) {
         final b = $block.$1;
-        final $val = PredicateExpression(negate: true, predicate: b);
-        return Ok($val);
+        return Ok(PredicateExpression(negate: true, predicate: b));
       }
       final $suffix = parseSuffix(state);
       if ($suffix != null) {
         final s = $suffix.$1;
-        final $val1 = NotPredicateExpression(expression: s);
-        return Ok($val1);
+        return Ok(NotPredicateExpression(expression: s));
       }
       state.ch = $c;
       state.position = $pos;
@@ -500,14 +491,12 @@ class TextParser {
       final $block1 = parseBlock(state);
       if ($block1 != null) {
         final b = $block1.$1;
-        final $val2 = PredicateExpression(negate: false, predicate: b);
-        return Ok($val2);
+        return Ok(PredicateExpression(negate: false, predicate: b));
       }
       final $suffix1 = parseSuffix(state);
       if ($suffix1 != null) {
         final s = $suffix1.$1;
-        final $val3 = AndPredicateExpression(expression: s);
-        return Ok($val3);
+        return Ok(AndPredicateExpression(expression: s));
       }
       state.ch = $c;
       state.position = $pos;
@@ -546,25 +535,21 @@ class TextParser {
       if (state.ch == 42) {
         state.nextChar();
         parseS(state);
-        final $val = ZeroOrMoreExpression(expression: p);
-        return Ok($val);
+        return Ok(ZeroOrMoreExpression(expression: p));
       }
       // "+"
       if (state.ch == 43) {
         state.nextChar();
         parseS(state);
-        final $val1 = OneOrMoreExpression(expression: p);
-        return Ok($val1);
+        return Ok(OneOrMoreExpression(expression: p));
       }
       // "?"
       if (state.ch == 63) {
         state.nextChar();
         parseS(state);
-        final $val2 = OptionalExpression(expression: p);
-        return Ok($val2);
+        return Ok(OptionalExpression(expression: p));
       }
-      final $val3 = p;
-      return Ok($val3);
+      return Ok(p);
     } else {
       return null;
     }
@@ -647,8 +632,7 @@ class TextParser {
     if ($productionName != null) {
       final n = $productionName.$1;
       parseS(state);
-      final $val = ProductionExpression(name: n);
-      return Ok($val);
+      return Ok(ProductionExpression(name: n));
     } else {
       return null;
     }
@@ -665,8 +649,7 @@ class TextParser {
     final $block = parseBlock(state);
     if ($block != null) {
       final b = $block.$1;
-      final $val = ActionExpression(source: b);
-      return Ok($val);
+      return Ok(ActionExpression(source: b));
     } else {
       return null;
     }
@@ -688,8 +671,7 @@ class TextParser {
     final $block = parseBlock(state);
     if ($block != null) {
       final b = $block.$1;
-      final $val = ValueExpression(source: b, valueType: t);
-      return Ok($val);
+      return Ok(ValueExpression(source: b, valueType: t));
     } else {
       state.ch = $c;
       state.position = $pos;
@@ -709,8 +691,7 @@ class TextParser {
     if (state.ch == 46) {
       state.nextChar();
       parseS(state);
-      final $val = AnyCharacterExpression();
-      return Ok($val);
+      return Ok(AnyCharacterExpression());
     } else {
       return null;
     }
@@ -739,8 +720,7 @@ class TextParser {
         if (state.ch == 62) {
           state.nextChar();
           parseS(state);
-          final $val = CaptureExpression(expression: e);
-          return Ok($val);
+          return Ok(CaptureExpression(expression: e));
         } else {
           state.errorExpected('>');
           state.ch = $c;
@@ -815,8 +795,7 @@ class TextParser {
         if (state.ch == 93) {
           state.nextChar();
           parseS(state);
-          final $val = CharacterClassExpression(ranges: r, negate: negate);
-          return Ok($val);
+          return Ok(CharacterClassExpression(ranges: r, negate: negate));
         } else {
           state.errorExpected(']');
           state.ch = $c;
@@ -865,8 +844,7 @@ class TextParser {
           final $val = GroupExpression(expression: e);
           final g = $val;
           t != null ? g.type = t : null;
-          final $val1 = g;
-          return Ok($val1);
+          return Ok(g);
         } else {
           state.errorExpected(')');
           state.ch = $c;
@@ -899,14 +877,12 @@ class TextParser {
     final $sQString = parseSQString(state);
     if ($sQString != null) {
       final s = $sQString.$1;
-      final $val = LiteralExpression(text: s);
-      return Ok($val);
+      return Ok(LiteralExpression(text: s));
     }
     final $dQString = parseDQString(state);
     if ($dQString != null) {
       final s = $dQString.$1;
-      final $val1 = LiteralExpression(isPrimitive: true, text: s);
-      return Ok($val1);
+      return Ok(LiteralExpression(isPrimitive: true, text: s));
     }
     return null;
   }
@@ -959,8 +935,7 @@ class TextParser {
           if (state.ch == 41) {
             state.nextChar();
             parseS(state);
-            final $val = MatchExpression(quote: quote, text: s);
-            return Ok($val);
+            return Ok(MatchExpression(quote: quote, text: s));
           } else {
             state.errorExpected(')');
             state.ch = $c;
@@ -1012,8 +987,7 @@ class TextParser {
           if (state.ch == 41) {
             state.nextChar();
             parseS(state);
-            final $val = PositionExpression(action: b);
-            return Ok($val);
+            return Ok(PositionExpression(action: b));
           } else {
             state.errorExpected(')');
             state.ch = $c;
@@ -1083,8 +1057,7 @@ class TextParser {
                 if (state.ch == 125) {
                   state.nextChar();
                   parseS(state);
-                  final $val = WhileExpression(expression: e, range: r).setType(t);
-                  return Ok($val);
+                  return Ok(WhileExpression(expression: e, range: r).setType(t));
                 } else {
                   state.errorExpected('}');
                   state.ch = $c;
@@ -1164,8 +1137,7 @@ class TextParser {
         $val = null;
       }
       final n = $val;
-      final $val1 = (m, n);
-      return Ok($val1);
+      return Ok((m, n));
     } else {
       return null;
     }
@@ -1316,8 +1288,7 @@ class TextParser {
       if (state.ch == 34) {
         state.nextChar();
         parseS(state);
-        final $val = p.join();
-        return Ok($val);
+        return Ok(p.join());
       } else {
         state.errorExpected('"');
         state.ch = $c;
@@ -1383,8 +1354,7 @@ class TextParser {
       if (state.ch == 39) {
         state.nextChar();
         parseS(state);
-        final $val = p.join();
-        return Ok($val);
+        return Ok(p.join());
       } else {
         state.errorExpected('\'');
         state.ch = $c;
@@ -1466,8 +1436,7 @@ class TextParser {
             // ~{ state.error('Unterminated Unicode escape sequence'); }
             if (state.ch == 125) {
               state.nextChar();
-              final $val = String.fromCharCode(v);
-              return Ok($val);
+              return Ok(String.fromCharCode(v));
             } else {
               state.errorExpected('}');
               state.error('Unterminated Unicode escape sequence');
@@ -1488,68 +1457,57 @@ class TextParser {
       // "a"
       if (state.ch == 97) {
         state.nextChar();
-        const $val1 = '\u0007';
-        return const Ok($val1);
+        return const Ok('\u0007');
       }
       // "b"
       if (state.ch == 98) {
         state.nextChar();
-        const $val2 = '\b';
-        return const Ok($val2);
+        return const Ok('\b');
       }
       // "e"
       if (state.ch == 101) {
         state.nextChar();
-        const $val3 = '\u001B';
-        return const Ok($val3);
+        return const Ok('\u001B');
       }
       // "f"
       if (state.ch == 102) {
         state.nextChar();
-        const $val4 = '\f';
-        return const Ok($val4);
+        return const Ok('\f');
       }
       // "n"
       if (state.ch == 110) {
         state.nextChar();
-        const $val5 = '\n';
-        return const Ok($val5);
+        return const Ok('\n');
       }
       // "r"
       if (state.ch == 114) {
         state.nextChar();
-        const $val6 = '\r';
-        return const Ok($val6);
+        return const Ok('\r');
       }
       // "t"
       if (state.ch == 116) {
         state.nextChar();
-        const $val7 = '\t';
-        return const Ok($val7);
+        return const Ok('\t');
       }
       // "v"
       if (state.ch == 118) {
         state.nextChar();
-        const $val8 = '\v';
-        return const Ok($val8);
+        return const Ok('\v');
       }
       // "\\"
       if (state.ch == 92) {
         state.nextChar();
-        const $val9 = '\\';
-        return const Ok($val9);
+        return const Ok('\\');
       }
       // "\""
       if (state.ch == 34) {
         state.nextChar();
-        const $val10 = '"';
-        return const Ok($val10);
+        return const Ok('"');
       }
       // "'"
       if (state.ch == 39) {
         state.nextChar();
-        const $val11 = '\'';
-        return const Ok($val11);
+        return const Ok('\'');
       }
       state.error('Illegal escape character');
       state.ch = $c;
@@ -1671,92 +1629,77 @@ class TextParser {
       // "a"
       if (state.ch == 97) {
         state.nextChar();
-        const $val = 0x07;
-        return const Ok($val);
+        return const Ok(0x07);
       }
       // "b"
       if (state.ch == 98) {
         state.nextChar();
-        const $val1 = 0x08;
-        return const Ok($val1);
+        return const Ok(0x08);
       }
       // "e"
       if (state.ch == 101) {
         state.nextChar();
-        const $val2 = 0x1B;
-        return const Ok($val2);
+        return const Ok(0x1B);
       }
       // "f"
       if (state.ch == 102) {
         state.nextChar();
-        const $val3 = 0x0C;
-        return const Ok($val3);
+        return const Ok(0x0C);
       }
       // "n"
       if (state.ch == 110) {
         state.nextChar();
-        const $val4 = 0x0A;
-        return const Ok($val4);
+        return const Ok(0x0A);
       }
       // "r"
       if (state.ch == 114) {
         state.nextChar();
-        const $val5 = 0x0D;
-        return const Ok($val5);
+        return const Ok(0x0D);
       }
       // "t"
       if (state.ch == 116) {
         state.nextChar();
-        const $val6 = 0x09;
-        return const Ok($val6);
+        return const Ok(0x09);
       }
       // "v"
       if (state.ch == 118) {
         state.nextChar();
-        const $val7 = 0x0B;
-        return const Ok($val7);
+        return const Ok(0x0B);
       }
       // "-"
       if (state.ch == 45) {
         state.nextChar();
-        const $val8 = 0x2D;
-        return const Ok($val8);
+        return const Ok(0x2D);
       }
       // "["
       if (state.ch == 91) {
         state.nextChar();
-        const $val9 = 0x5B;
-        return const Ok($val9);
+        return const Ok(0x5B);
       }
       // "\\"
       if (state.ch == 92) {
         state.nextChar();
-        const $val10 = 0x5C;
-        return const Ok($val10);
+        return const Ok(0x5C);
       }
       // "]"
       if (state.ch == 93) {
         state.nextChar();
-        const $val11 = 0x5D;
-        return const Ok($val11);
+        return const Ok(0x5D);
       }
       // "^"
       if (state.ch == 94) {
         state.nextChar();
-        const $val12 = 0x5E;
-        return const Ok($val12);
+        return const Ok(0x5E);
       }
       // "{"
       if (state.ch == 123) {
         state.nextChar();
-        const $val13 = 0x7B;
-        return const Ok($val13);
+        return const Ok(0x7B);
       }
       // "}"
       if (state.ch == 125) {
         state.nextChar();
-        const $val14 = 0x7D;
-        return const Ok($val14);
+        return const Ok(0x7D);
       }
       state.error('Illegal escape character');
       state.ch = $c1;
@@ -1792,8 +1735,7 @@ class TextParser {
     if ($ok) {
       final $str = state.substring($pos, state.position);
       final n = $str;
-      final $val = int.parse(n);
-      return Ok($val);
+      return Ok(int.parse(n));
     } else {
       state.errorExpected('decimal number');
       return null;
@@ -1829,8 +1771,7 @@ class TextParser {
       }
       final $str = state.substring($pos, state.position);
       final n = $str;
-      final $val = int.parse(n);
-      return Ok($val);
+      return Ok(int.parse(n));
     } else {
       state.errorExpected('decimal number from 1');
       return null;
@@ -1864,8 +1805,7 @@ class TextParser {
     if ($ok) {
       final $str = state.substring($pos, state.position);
       final n = $str;
-      final $val = int.parse(n, radix: 16);
-      return Ok($val);
+      return Ok(int.parse(n, radix: 16));
     } else {
       state.errorExpected('hexadecimal number');
       return null;
@@ -1916,8 +1856,7 @@ class TextParser {
             // '}'
             if (state.ch == 125) {
               state.nextChar();
-              final $val = (s, e);
-              return Ok($val);
+              return Ok((s, e));
             } else {
               state.errorExpected('}');
               state.ch = $c;
@@ -1946,8 +1885,7 @@ class TextParser {
         // '}'
         if (state.ch == 125) {
           state.nextChar();
-          final $val1 = (n, n);
-          return Ok($val1);
+          return Ok((n, n));
         } else {
           state.errorExpected('}');
           state.ch = $c;
@@ -1967,8 +1905,7 @@ class TextParser {
         final $rangeChar1 = parseRangeChar(state);
         if ($rangeChar1 != null) {
           final e = $rangeChar1.$1;
-          final $val2 = (s, e);
-          return Ok($val2);
+          return Ok((s, e));
         } else {
           state.ch = $c;
           state.position = $pos;
@@ -1982,8 +1919,7 @@ class TextParser {
     final $rangeChar2 = parseRangeChar(state);
     if ($rangeChar2 != null) {
       final n = $rangeChar2.$1;
-      final $val3 = (n, n);
-      return Ok($val3);
+      return Ok((n, n));
     }
     return null;
   }

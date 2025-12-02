@@ -86,20 +86,17 @@ Result<String>? parseEscape(State state) {
   // "n"
   if (state.ch == 110) {
     state.nextChar();
-    const $val = '\n';
-    return const Ok($val);
+    return const Ok('\n');
   }
   // "r"
   if (state.ch == 114) {
     state.nextChar();
-    const $val1 = '\r';
-    return const Ok($val1);
+    return const Ok('\r');
   }
   // "t"
   if (state.ch == 116) {
     state.nextChar();
-    const $val2 = '\t';
-    return const Ok($val2);
+    return const Ok('\t');
   }
   return null;
 }
@@ -157,32 +154,27 @@ Result<Token>? parsePunctuation(State state) {
   // ","
   if (state.ch == 44) {
     state.nextChar();
-    final $val = _token(start, state.position, ",", tokenKind.comma);
-    return Ok($val);
+    return Ok(_token(start, state.position, ",", tokenKind.comma));
   }
   // "}"
   if (state.ch == 125) {
     state.nextChar();
-    final $val1 = _token(start, state.position, "\u007B", tokenKind.openBrace);
-    return Ok($val1);
+    return Ok(_token(start, state.position, "\u007B", tokenKind.openBrace));
   }
   // "{"
   if (state.ch == 123) {
     state.nextChar();
-    final $val2 = _token(start, state.position, "\u007D", tokenKind.closeBrace);
-    return Ok($val2);
+    return Ok(_token(start, state.position, "\u007D", tokenKind.closeBrace));
   }
   // ":"
   if (state.ch == 58) {
     state.nextChar();
-    final $val3 = _token(start, state.position, ":", tokenKind.colon);
-    return Ok($val3);
+    return Ok(_token(start, state.position, ":", tokenKind.colon));
   }
   // "=>"
   if (state.ch == 61 && state.startsWith("=>")) {
     state.readChar(state.position + 2, true);
-    final $val4 = _token(start, state.position, "=>", tokenKind.rightArrow);
-    return Ok($val4);
+    return Ok(_token(start, state.position, "=>", tokenKind.rightArrow));
   }
   return null;
 }
@@ -328,8 +320,7 @@ Result<String>? parseEscapeUnicode(State state) {
     if ($cnt >= 4) {
       final $str = state.substring($pos1, state.position);
       final s = $str;
-      final $val = String.fromCharCode(int.parse(s, radix: 16));
-      return Ok($val);
+      return Ok(String.fromCharCode(int.parse(s, radix: 16)));
     } else {
       state.ch = $c1;
       state.position = $pos1;
@@ -1505,8 +1496,7 @@ Dart code:
 Result<int?> parseOptional(State state) {
   final $p = parseP(state);
   final p = $p?.$1;
-  final $val = p ?? 41;
-  return Ok($val);
+  return Ok(p ?? 41);
 }
 ```
 
@@ -1716,8 +1706,7 @@ Result<(int, int)>? parseAB(State state) {
     if (state.ch == 98) {
       state.nextChar();
       const b = 98;
-      const $val = (a, b);
-      return const Ok($val);
+      return const Ok((a, b));
     } else {
       state.ch = $c;
       state.position = $pos;
@@ -1951,8 +1940,7 @@ Dart code:
 Result<List<int>> parseAction(State state) {
   final list = [];
   list.add(41);
-  final $val = list;
-  return Ok($val);
+  return Ok(list);
 }
 ```
 
@@ -2639,8 +2627,7 @@ Result<Sting>? parseDigit(State state) {
   if ($ok) {
     state.nextChar();
     final n = $c;
-    final $val = n - 48;
-    return Ok($val);
+    return Ok(n - 48);
   } else {
     return null;
   }
@@ -2749,8 +2736,7 @@ Result<Expression>? parsePrimary(State state) {
     if ($sequenceElement != null) {
       final e = $sequenceElement.$1;
       e.sourceCode = state.substring(pos, state.position).trimRight();
-      final Expression $val = e;
-      $list.add($val);
+      $list.add(e);
       continue;
     } else {
       break;

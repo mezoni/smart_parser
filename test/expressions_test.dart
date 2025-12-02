@@ -7556,8 +7556,7 @@ class _TestParser {
   /// ```
   Result<int> parseAction2(State state) {
     const x = 41;
-    const $val = x;
-    return const Ok($val);
+    return const Ok(x);
   }
 
   /// [void] **ActionVoid2**
@@ -7568,7 +7567,6 @@ class _TestParser {
   /// ```
   Result<void> parseActionVoid2(State state) {
     const x = 41;
-    const $val = x;
     return Result.none;
   }
 
@@ -9131,8 +9129,7 @@ class _TestParser {
         if ($ok2) {
           state.nextChar();
           final c = $c2;
-          final $val = a - 48 + b - 48 + c - 48;
-          return Ok($val);
+          return Ok(a - 48 + b - 48 + c - 48);
         } else {
           state.ch = $c;
           state.position = $pos;
@@ -9176,7 +9173,6 @@ class _TestParser {
         if ($ok2) {
           state.nextChar();
           final c = $c2;
-          final $val = a - 48 + b - 48 + c - 48;
           return Result.none;
         } else {
           state.ch = $c;
@@ -9213,8 +9209,7 @@ class _TestParser {
         // [c]
         if (state.ch == 99) {
           state.nextChar();
-          const $val = 'abc';
-          return const Ok($val);
+          return const Ok('abc');
         } else {
           state.ch = $c;
           state.position = $pos;
@@ -9250,7 +9245,6 @@ class _TestParser {
         // [c]
         if (state.ch == 99) {
           state.nextChar();
-          const $val = 'abc';
           return Result.none;
         } else {
           state.ch = $c;
