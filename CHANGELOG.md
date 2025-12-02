@@ -1,3 +1,7 @@
+## 2.0.2
+
+- Fixed a bug in the code generation of the `OrderedChoiceExpression` expression.
+
 ## 2.0.1
 
 - A small change (improvement) in the token parsing algorithm and in the algorithm for the "nextToken()" function.

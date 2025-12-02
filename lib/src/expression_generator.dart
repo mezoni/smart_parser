@@ -742,6 +742,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
           code.declare('var', variable, 'false');
         }
 
+        code.add(res.code);
         for (final success in res.successes) {
           success.succeeds((code) {
             if (!isVoid) {
