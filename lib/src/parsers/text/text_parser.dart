@@ -99,13 +99,12 @@ class TextParser {
       final index = state.indexOf('\u007D%');
       final $pos1 = state.position;
       state.readChar(index == -1 ? state.length : index, true);
-      final $str = state.substring($pos1, state.position);
+      final $globals = Ok(state.substring($pos1, state.position));
       // "}%"
-      // ~{ state.error('Unterminated globals section', position: start); }
       if (state.ch == 125 && state.startsWith("}%")) {
         state.readChar(state.position + 2, true);
         parseS(state);
-        return Ok($str);
+        return $globals;
       } else {
         state.error('Unterminated globals section', position: start);
         state.ch = $c;
@@ -137,13 +136,12 @@ class TextParser {
       final index = state.indexOf('%%');
       final $pos1 = state.position;
       state.readChar(index == -1 ? state.length : index, true);
-      final $str = state.substring($pos1, state.position);
+      final $members = Ok(state.substring($pos1, state.position));
       // "%%"
-      // ~{ state.error('Unterminated members section', position: start); }
       if (state.ch == 37 && state.startsWith("%%")) {
         state.readChar(state.position + 2, true);
         parseS(state);
-        return Ok($str);
+        return $members;
       } else {
         state.error('Unterminated members section', position: start);
         state.ch = $c;
@@ -396,8 +394,9 @@ class TextParser {
       // '\$'
       if (state.ch == 36) {
         state.nextChar();
+        const $0 = Ok('\$');
         parseS(state);
-        $res = const Ok('\$');
+        $res = $0;
       } else {
         state.errorExpected('\$');
       }
@@ -1209,12 +1208,12 @@ class TextParser {
         }
       }
       if ($ok) {
-        final $str = state.substring($pos1, state.position);
+        final $type = Ok(state.substring($pos1, state.position));
         // '`'
         if (state.ch == 96) {
           state.nextChar();
           parseS(state);
-          return Ok($str);
+          return $type;
         } else {
           state.errorExpected('`');
           state.ch = $c;
@@ -1270,8 +1269,7 @@ class TextParser {
           }
         }
         if ($ok) {
-          final $str = state.substring($pos1, state.position);
-          $list.add($str);
+          $list.add(state.substring($pos1, state.position));
           continue;
         }
         final $escaped = parseEscaped(state);
@@ -1336,8 +1334,7 @@ class TextParser {
           }
         }
         if ($ok) {
-          final $str = state.substring($pos1, state.position);
-          $list.add($str);
+          $list.add(state.substring($pos1, state.position));
           continue;
         }
         final $escaped = parseEscaped(state);
@@ -1431,7 +1428,6 @@ class TextParser {
           if ($hexValue != null) {
             final v = $hexValue.$1;
             // '}'
-            // ~{ state.error('Unterminated Unicode escape sequence'); }
             if (state.ch == 125) {
               state.nextChar();
               return Ok(String.fromCharCode(v));
@@ -1731,8 +1727,7 @@ class TextParser {
       }
     }
     if ($ok) {
-      final $str = state.substring($pos, state.position);
-      final n = $str;
+      final n = state.substring($pos, state.position);
       return Ok(int.parse(n));
     } else {
       state.errorExpected('decimal number');
@@ -1767,8 +1762,7 @@ class TextParser {
           break;
         }
       }
-      final $str = state.substring($pos, state.position);
-      final n = $str;
+      final n = state.substring($pos, state.position);
       return Ok(int.parse(n));
     } else {
       state.errorExpected('decimal number from 1');
@@ -1801,8 +1795,7 @@ class TextParser {
       }
     }
     if ($ok) {
-      final $str = state.substring($pos, state.position);
-      final n = $str;
+      final n = state.substring($pos, state.position);
       return Ok(int.parse(n, radix: 16));
     } else {
       state.errorExpected('hexadecimal number');
@@ -1946,12 +1939,12 @@ class TextParser {
           break;
         }
       }
-      final $str = state.substring($pos1, state.position);
+      final $block = Ok(state.substring($pos1, state.position));
       // '}'
       if (state.ch == 125) {
         state.nextChar();
         parseS(state);
-        return Ok($str);
+        return $block;
       } else {
         state.errorExpected('}');
         state.ch = $c;
@@ -2035,9 +2028,9 @@ class TextParser {
           break;
         }
       }
-      final $str = state.substring($pos, state.position);
+      final $variableName = Ok(state.substring($pos, state.position));
       parseS(state);
-      return Ok($str);
+      return $variableName;
     } else {
       return null;
     }
@@ -2069,9 +2062,9 @@ class TextParser {
           break;
         }
       }
-      final $str = state.substring($pos, state.position);
+      final $productionName = Ok(state.substring($pos, state.position));
       parseS(state);
-      return Ok($str);
+      return $productionName;
     } else {
       return null;
     }

@@ -372,10 +372,6 @@ class JsonParser {
         final $c2 = state.ch;
         final $ok = $c2 <= 70 ? $c2 >= 65 || $c2 >= 48 && $c2 <= 57 : $c2 >= 97 && $c2 <= 102;
         // [a-fA-F0-9]
-        // ~{
-        //   end = state.position;
-        //   state.errorExpected('hexadecimal digit');
-        // }
         if ($ok) {
           state.nextChar();
           $cnt++;
@@ -387,8 +383,7 @@ class JsonParser {
         }
       }
       if ($cnt >= 4) {
-        final $str = state.substring($pos1, state.position);
-        final s = $str;
+        final s = state.substring($pos1, state.position);
         return Ok(String.fromCharCode(int.parse(s, radix: 16)));
       } else {
         state.ch = $c1;
@@ -471,8 +466,7 @@ class JsonParser {
           }
         }
         if ($ok) {
-          final $str = state.substring($pos1, state.position);
-          $list.add($str);
+          $list.add(state.substring($pos1, state.position));
           continue;
         }
         final $c2 = state.ch;
@@ -492,10 +486,6 @@ class JsonParser {
       }
       final p = $list;
       // ["]
-      // ~{
-      //   state.error('Unterminated string', start: start);
-      //   state.errorExpected('"');
-      // }
       if (state.ch == 34) {
         state.nextChar();
         parseS(state);

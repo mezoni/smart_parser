@@ -7523,7 +7523,7 @@ class _TestParser {
   ///   $ = `const` { 41 }
   /// ```
   Result<void> parseActionVoid0(State state) {
-    const $actionVoid0 = 41;
+    const $actionVoid0 = Ok(41);
     return Result.none;
   }
 
@@ -7542,7 +7542,7 @@ class _TestParser {
   ///   $ = `const int` { 41 }
   /// ```
   Result<void> parseActionVoid1(State state) {
-    const int $actionVoid1 = 41;
+    const $actionVoid1 = Ok(41);
     return Result.none;
   }
 
@@ -7565,7 +7565,7 @@ class _TestParser {
   /// ```
   Result<void> parseActionVoid2(State state) {
     const x = 41;
-    const $res = x;
+    const $actionVoid2 = Ok(x);
     return Result.none;
   }
 
@@ -7603,6 +7603,7 @@ class _TestParser {
       // 'abcd'
       if (state.ch == 97 && state.startsWith('abcd')) {
         state.readChar(state.position + 4, true);
+        const $andPredicateVoid0 = Ok('abcd');
         return Result.none;
       } else {
         state.errorExpected('abcd');
@@ -7666,8 +7667,7 @@ class _TestParser {
     // [a]
     if (state.ch == 97) {
       state.nextChar();
-      final $capture0 = state.substring($pos, state.position);
-      return Ok($capture0);
+      return Ok(state.substring($pos, state.position));
     } else {
       return null;
     }
@@ -7713,14 +7713,12 @@ class _TestParser {
     // [a]
     if (state.ch == 97) {
       state.nextChar();
-      final $capture2 = state.substring($pos, state.position);
-      return Ok($capture2);
+      return Ok(state.substring($pos, state.position));
     } else {
       // [b]
       if (state.ch == 98) {
         state.nextChar();
-        final $str = state.substring($pos, state.position);
-        return Ok($str);
+        return Ok(state.substring($pos, state.position));
       } else {
         return null;
       }
@@ -7764,14 +7762,12 @@ class _TestParser {
       // [b]
       if (state.ch == 98) {
         state.nextChar();
-        final $str = state.substring($pos1, state.position);
-        return Ok($str);
+        return Ok(state.substring($pos1, state.position));
       } else {
         // [c]
         if (state.ch == 99) {
           state.nextChar();
-          final $str1 = state.substring($pos1, state.position);
-          return Ok($str1);
+          return Ok(state.substring($pos1, state.position));
         } else {
           state.ch = $c;
           state.position = $pos;
@@ -7799,13 +7795,13 @@ class _TestParser {
       // [b]
       if (state.ch == 98) {
         state.nextChar();
-        final $str = state.substring($pos1, state.position);
+        final $captureVoid3 = Ok(state.substring($pos1, state.position));
         return Result.none;
       } else {
         // [c]
         if (state.ch == 99) {
           state.nextChar();
-          final $str1 = state.substring($pos1, state.position);
+          final $captureVoid31 = Ok(state.substring($pos1, state.position));
           return Result.none;
         } else {
           state.ch = $c;
@@ -8546,6 +8542,7 @@ class _TestParser {
       // 'ab'
       if (state.ch == 97 && state.startsWith('ab')) {
         state.readChar(state.position + 2, true);
+        const $notPredicateVoid0 = Ok('ab');
         return Result.none;
       } else {
         state.errorExpected('ab');
@@ -8566,6 +8563,7 @@ class _TestParser {
     // 'abc'
     if (state.ch == 97 && state.startsWith('abc')) {
       state.readChar(state.position + 3, true);
+      const $notPredicate1 = Ok('abc');
       // '=>'
       if (state.ch == 61 && state.startsWith('=>')) {
         state.ch = $c;
@@ -8573,7 +8571,7 @@ class _TestParser {
         return null;
       } else {
         state.errorExpected('=>');
-        return const Ok('abc');
+        return $notPredicate1;
       }
     } else {
       state.errorExpected('abc');
@@ -8593,6 +8591,7 @@ class _TestParser {
     // 'abc'
     if (state.ch == 97 && state.startsWith('abc')) {
       state.readChar(state.position + 3, true);
+      const $notPredicateVoid1 = Ok('abc');
       // '=>'
       if (state.ch == 61 && state.startsWith('=>')) {
         state.ch = $c;
@@ -8641,19 +8640,19 @@ class _TestParser {
       state.ch = $c;
       state.position = $pos;
       state.predicate--;
-      final $list = <int>[];
+      final $notPredicate2 = <int>[];
       // (0)
       while (true) {
         // [a]
         if (state.ch == 97) {
           state.nextChar();
-          $list.add(97);
+          $notPredicate2.add(97);
           continue;
         } else {
           break;
         }
       }
-      return Ok($list);
+      return Ok($notPredicate2);
     }
   }
 
@@ -8690,18 +8689,19 @@ class _TestParser {
       state.ch = $c;
       state.position = $pos;
       state.predicate--;
-      final $list = <int>[];
+      final $notPredicateVoid2 = <int>[];
       // (0)
       while (true) {
         // [a]
         if (state.ch == 97) {
           state.nextChar();
-          $list.add(97);
+          $notPredicateVoid2.add(97);
           continue;
         } else {
           break;
         }
       }
+      final $notPredicateVoid21 = Ok($notPredicateVoid2);
       return Result.none;
     }
   }
@@ -8712,20 +8712,20 @@ class _TestParser {
   ///   [a]+
   /// ```
   Result<List<int>>? parseOneOrMore0(State state) {
-    final $list = <int>[];
+    final $oneOrMore0 = <int>[];
     // (1)
     while (true) {
       // [a]
       if (state.ch == 97) {
         state.nextChar();
-        $list.add(97);
+        $oneOrMore0.add(97);
         continue;
       } else {
         break;
       }
     }
-    if ($list.isNotEmpty) {
-      return Ok($list);
+    if ($oneOrMore0.isNotEmpty) {
+      return Ok($oneOrMore0);
     } else {
       return null;
     }
@@ -8762,25 +8762,25 @@ class _TestParser {
   ///   ([a] / [z])+
   /// ```
   Result<List<int>>? parseOneOrMore1(State state) {
-    final $list = <int>[];
+    final $oneOrMore1 = <int>[];
     // (1)
     while (true) {
       // [a]
       if (state.ch == 97) {
         state.nextChar();
-        $list.add(97);
+        $oneOrMore1.add(97);
         continue;
       }
       // [z]
       if (state.ch == 122) {
         state.nextChar();
-        $list.add(122);
+        $oneOrMore1.add(122);
         continue;
       }
       break;
     }
-    if ($list.isNotEmpty) {
-      return Ok($list);
+    if ($oneOrMore1.isNotEmpty) {
+      return Ok($oneOrMore1);
     } else {
       return null;
     }
@@ -8925,6 +8925,7 @@ class _TestParser {
       // [b]
       if (state.ch == 98) {
         state.nextChar();
+        const $0 = Ok(98);
         return Result.none;
       } else {
         state.ch = $c;
@@ -8947,10 +8948,11 @@ class _TestParser {
     // [a]
     if (state.ch == 97) {
       state.nextChar();
+      const $0 = Ok(97);
       // [b]
       if (state.ch == 98) {
         state.nextChar();
-        return const Ok(97);
+        return $0;
       } else {
         state.ch = $c;
         state.position = $pos;
@@ -8972,6 +8974,7 @@ class _TestParser {
     // [a]
     if (state.ch == 97) {
       state.nextChar();
+      const $0 = Ok(97);
       // [b]
       if (state.ch == 98) {
         state.nextChar();
@@ -9036,6 +9039,7 @@ class _TestParser {
     // [c]
     if (state.ch == 99) {
       state.nextChar();
+      const $optionalVoid4 = Ok(99);
       return Result.none;
     } else {
       state.ch = $c;
@@ -9172,7 +9176,7 @@ class _TestParser {
         if ($ok2) {
           state.nextChar();
           final c = $c2;
-          final $res = a - 48 + b - 48 + c - 48;
+          final $sequenceVoid0 = Ok(a - 48 + b - 48 + c - 48);
           return Result.none;
         } else {
           state.ch = $c;
@@ -9245,7 +9249,7 @@ class _TestParser {
         // [c]
         if (state.ch == 99) {
           state.nextChar();
-          const $res = 'abc';
+          const $sequenceVoid1 = Ok('abc');
           return Result.none;
         } else {
           state.ch = $c;
@@ -9270,7 +9274,6 @@ class _TestParser {
   /// ```
   Result<String>? parseSequence2(State state) {
     // "foo"
-    // ~{ state.errorExpected('foo'); }
     if (state.ch == 102 && state.startsWith("foo")) {
       state.readChar(state.position + 3, true);
       return const Ok("foo");
@@ -9288,7 +9291,6 @@ class _TestParser {
   /// ```
   Result<void>? parseSequenceVoid2(State state) {
     // "foo"
-    // ~{ state.errorExpected('foo'); }
     if (state.ch == 102 && state.startsWith("foo")) {
       state.readChar(state.position + 3, true);
       return Result.none;
@@ -9306,19 +9308,19 @@ class _TestParser {
   ///   }
   /// ```
   Result<List<int>> parseWhile0(State state) {
-    final $list = <int>[];
+    final $while0 = <int>[];
     // (0)
     while (true) {
       // [a]
       if (state.ch == 97) {
         state.nextChar();
-        $list.add(97);
+        $while0.add(97);
         continue;
       } else {
         break;
       }
     }
-    return Ok($list);
+    return Ok($while0);
   }
 
   /// [void] **WhileVoid0**
@@ -9350,24 +9352,24 @@ class _TestParser {
   ///   }
   /// ```
   Result<List<int>> parseWhile1(State state) {
-    final $list = <int>[];
+    final $while1 = <int>[];
     // (0)
     while (true) {
       // [a]
       if (state.ch == 97) {
         state.nextChar();
-        $list.add(97);
+        $while1.add(97);
         continue;
       }
       // [z]
       if (state.ch == 122) {
         state.nextChar();
-        $list.add(122);
+        $while1.add(122);
         continue;
       }
       break;
     }
-    return Ok($list);
+    return Ok($while1);
   }
 
   /// [void] **WhileVoid1**
@@ -9403,20 +9405,20 @@ class _TestParser {
   ///   }
   /// ```
   Result<List<int>>? parseWhile2(State state) {
-    final $list = <int>[];
+    final $while2 = <int>[];
     // (1)
     while (true) {
       // [a]
       if (state.ch == 97) {
         state.nextChar();
-        $list.add(97);
+        $while2.add(97);
         continue;
       } else {
         break;
       }
     }
-    if ($list.isNotEmpty) {
-      return Ok($list);
+    if ($while2.isNotEmpty) {
+      return Ok($while2);
     } else {
       return null;
     }
@@ -9457,25 +9459,25 @@ class _TestParser {
   ///   }
   /// ```
   Result<List<int>>? parseWhile3(State state) {
-    final $list = <int>[];
+    final $while3 = <int>[];
     // (1)
     while (true) {
       // [a]
       if (state.ch == 97) {
         state.nextChar();
-        $list.add(97);
+        $while3.add(97);
         continue;
       }
       // [z]
       if (state.ch == 122) {
         state.nextChar();
-        $list.add(122);
+        $while3.add(122);
         continue;
       }
       break;
     }
-    if ($list.isNotEmpty) {
-      return Ok($list);
+    if ($while3.isNotEmpty) {
+      return Ok($while3);
     } else {
       return null;
     }
@@ -9523,20 +9525,20 @@ class _TestParser {
   Result<List<int>>? parseWhile4(State state) {
     final $pos = state.position;
     final $c = state.ch;
-    final $list = <int>[];
+    final $while4 = <int>[];
     // (2)
     while (true) {
       // [a]
       if (state.ch == 97) {
         state.nextChar();
-        $list.add(97);
+        $while4.add(97);
         continue;
       } else {
         break;
       }
     }
-    if ($list.length >= 2) {
-      return Ok($list);
+    if ($while4.length >= 2) {
+      return Ok($while4);
     } else {
       state.ch = $c;
       state.position = $pos;
@@ -9585,25 +9587,25 @@ class _TestParser {
   Result<List<int>>? parseWhile5(State state) {
     final $pos = state.position;
     final $c = state.ch;
-    final $list = <int>[];
+    final $while5 = <int>[];
     // (2)
     while (true) {
       // [a]
       if (state.ch == 97) {
         state.nextChar();
-        $list.add(97);
+        $while5.add(97);
         continue;
       }
       // [z]
       if (state.ch == 122) {
         state.nextChar();
-        $list.add(122);
+        $while5.add(122);
         continue;
       }
       break;
     }
-    if ($list.length >= 2) {
-      return Ok($list);
+    if ($while5.length >= 2) {
+      return Ok($while5);
     } else {
       state.ch = $c;
       state.position = $pos;
@@ -9655,19 +9657,19 @@ class _TestParser {
   ///   }
   /// ```
   Result<List<int>> parseWhile6(State state) {
-    final $list = <int>[];
+    final $while6 = <int>[];
     // (0, 1)
-    while ($list.isEmpty) {
+    while ($while6.isEmpty) {
       // [a]
       if (state.ch == 97) {
         state.nextChar();
-        $list.add(97);
+        $while6.add(97);
         continue;
       } else {
         break;
       }
     }
-    return Ok($list);
+    return Ok($while6);
   }
 
   /// [void] **WhileVoid6**
@@ -9701,19 +9703,19 @@ class _TestParser {
   ///   }
   /// ```
   Result<List<int>> parseWhile7(State state) {
-    final $list = <int>[];
+    final $while7 = <int>[];
     // (0, 2)
-    while ($list.length < 2) {
+    while ($while7.length < 2) {
       // [a]
       if (state.ch == 97) {
         state.nextChar();
-        $list.add(97);
+        $while7.add(97);
         continue;
       } else {
         break;
       }
     }
-    return Ok($list);
+    return Ok($while7);
   }
 
   /// [void] **WhileVoid7**
@@ -9747,20 +9749,20 @@ class _TestParser {
   ///   }
   /// ```
   Result<List<int>>? parseWhile8(State state) {
-    final $list = <int>[];
+    final $while8 = <int>[];
     // (1, 1)
-    while ($list.isEmpty) {
+    while ($while8.isEmpty) {
       // [a]
       if (state.ch == 97) {
         state.nextChar();
-        $list.add(97);
+        $while8.add(97);
         continue;
       } else {
         break;
       }
     }
-    if ($list.isNotEmpty) {
-      return Ok($list);
+    if ($while8.isNotEmpty) {
+      return Ok($while8);
     } else {
       return null;
     }
@@ -9803,20 +9805,20 @@ class _TestParser {
   Result<List<int>>? parseWhile9(State state) {
     final $pos = state.position;
     final $c = state.ch;
-    final $list = <int>[];
+    final $while9 = <int>[];
     // (2, 2)
-    while ($list.length < 2) {
+    while ($while9.length < 2) {
       // [a]
       if (state.ch == 97) {
         state.nextChar();
-        $list.add(97);
+        $while9.add(97);
         continue;
       } else {
         break;
       }
     }
-    if ($list.length >= 2) {
-      return Ok($list);
+    if ($while9.length >= 2) {
+      return Ok($while9);
     } else {
       state.ch = $c;
       state.position = $pos;
@@ -9865,20 +9867,20 @@ class _TestParser {
   Result<List<int>>? parseWhile10(State state) {
     final $pos = state.position;
     final $c = state.ch;
-    final $list = <int>[];
+    final $while10 = <int>[];
     // (2, 3)
-    while ($list.length < 3) {
+    while ($while10.length < 3) {
       // [a]
       if (state.ch == 97) {
         state.nextChar();
-        $list.add(97);
+        $while10.add(97);
         continue;
       } else {
         break;
       }
     }
-    if ($list.length >= 2) {
-      return Ok($list);
+    if ($while10.length >= 2) {
+      return Ok($while10);
     } else {
       state.ch = $c;
       state.position = $pos;
@@ -9941,20 +9943,20 @@ class _TestParser {
       }
     }
     if ($res) {
-      final $list = <int>[];
+      final $while11 = <int>[];
       // (1)
       while (true) {
         // [c]
         if (state.ch == 99) {
           state.nextChar();
-          $list.add(99);
+          $while11.add(99);
           continue;
         } else {
           break;
         }
       }
-      if ($list.isNotEmpty) {
-        return Ok($list);
+      if ($while11.isNotEmpty) {
+        return Ok($while11);
       } else {
         state.ch = $c;
         state.position = $pos;
@@ -9989,19 +9991,20 @@ class _TestParser {
       }
     }
     if ($res) {
-      final $list = <int>[];
+      final $whileVoid11 = <int>[];
       // (1)
       while (true) {
         // [c]
         if (state.ch == 99) {
           state.nextChar();
-          $list.add(99);
+          $whileVoid11.add(99);
           continue;
         } else {
           break;
         }
       }
-      if ($list.isNotEmpty) {
+      if ($whileVoid11.isNotEmpty) {
+        final $whileVoid111 = Ok($whileVoid11);
         return Result.none;
       } else {
         state.ch = $c;
@@ -10019,19 +10022,19 @@ class _TestParser {
   ///   [a]*
   /// ```
   Result<List<int>> parseZeroOrMore0(State state) {
-    final $list = <int>[];
+    final $zeroOrMore0 = <int>[];
     // (0)
     while (true) {
       // [a]
       if (state.ch == 97) {
         state.nextChar();
-        $list.add(97);
+        $zeroOrMore0.add(97);
         continue;
       } else {
         break;
       }
     }
-    return Ok($list);
+    return Ok($zeroOrMore0);
   }
 
   /// [void] **ZeroOrMoreVoid0**
@@ -10059,24 +10062,24 @@ class _TestParser {
   ///   ([a] / [z])*
   /// ```
   Result<List<int>> parseZeroOrMore1(State state) {
-    final $list = <int>[];
+    final $zeroOrMore1 = <int>[];
     // (0)
     while (true) {
       // [a]
       if (state.ch == 97) {
         state.nextChar();
-        $list.add(97);
+        $zeroOrMore1.add(97);
         continue;
       }
       // [z]
       if (state.ch == 122) {
         state.nextChar();
-        $list.add(122);
+        $zeroOrMore1.add(122);
         continue;
       }
       break;
     }
-    return Ok($list);
+    return Ok($zeroOrMore1);
   }
 
   /// [void] **ZeroOrMoreVoid1**
@@ -10170,8 +10173,7 @@ class _TestParser {
             break;
           }
         }
-        final $str = state.substring($pos, state.position);
-        return Ok($str);
+        return Ok(state.substring($pos, state.position));
       } else {
         return null;
       }
@@ -10248,7 +10250,7 @@ class _TestParser {
             break;
           }
         }
-        final $str = state.substring($pos, state.position);
+        final $identifierVoid0 = Ok(state.substring($pos, state.position));
         return Result.none;
       } else {
         return null;
@@ -10342,8 +10344,7 @@ class _TestParser {
       final $ok2 = end != -1;
       if ($ok2) {
         state.readChar(end, true);
-        final $str = state.substring($pos, state.position);
-        return Ok($str);
+        return Ok(state.substring($pos, state.position));
       } else {
         final $ok3 = $c <= 90 ? $c >= 65 : $c >= 97 && $c <= 122;
         // [a-zA-Z]
@@ -10361,8 +10362,7 @@ class _TestParser {
               break;
             }
           }
-          final $str1 = state.substring($pos, state.position);
-          return Ok($str1);
+          return Ok(state.substring($pos, state.position));
         } else {
           return null;
         }
@@ -10456,7 +10456,7 @@ class _TestParser {
       final $ok2 = end != -1;
       if ($ok2) {
         state.readChar(end, true);
-        final $str = state.substring($pos, state.position);
+        final $identifierVoid1 = Ok(state.substring($pos, state.position));
         return Result.none;
       } else {
         final $ok3 = $c <= 90 ? $c >= 65 : $c >= 97 && $c <= 122;
@@ -10475,7 +10475,7 @@ class _TestParser {
               break;
             }
           }
-          final $str1 = state.substring($pos, state.position);
+          final $identifierVoid11 = Ok(state.substring($pos, state.position));
           return Result.none;
         } else {
           return null;

@@ -2,7 +2,7 @@
 
 All in one, a generator of recursive descent PEG parsers, tokenizers, and token stream parsers.
 
-Version: 2.0.5
+Version: 2.0.6
 
 [![Pub Package](https://img.shields.io/pub/v/smart_parser.svg)](https://pub.dev/packages/smart_parser)
 [![GitHub Issues](https://img.shields.io/github/issues/mezoni/smart_parser.svg)](https://github.com/mezoni/smart_parser/issues)
@@ -303,10 +303,6 @@ Result<String>? parseEscapeUnicode(State state) {
       final $c2 = state.ch;
       final $ok = $c2 <= 70 ? $c2 >= 65 || $c2 >= 48 && $c2 <= 57 : $c2 >= 97 && $c2 <= 102;
       // [a-fA-F0-9]
-      // ~{
-      //   end = state.position;
-      //   state.errorExpected('hexadecimal digit');
-      // }
       if ($ok) {
         state.nextChar();
         $cnt++;
@@ -318,8 +314,7 @@ Result<String>? parseEscapeUnicode(State state) {
       }
     }
     if ($cnt >= 4) {
-      final $str = state.substring($pos1, state.position);
-      final s = $str;
+      final s = state.substring($pos1, state.position);
       return Ok(String.fromCharCode(int.parse(s, radix: 16)));
     } else {
       state.ch = $c1;
@@ -504,10 +499,10 @@ Result<String>? parseAndPredicate(State state) {
   // [a-zA-Z]
   if ($ok) {
     state.nextChar();
-    final $str = state.substring($pos, state.position);
+    final $andPredicate = Ok(state.substring($pos, state.position));
     // "=>"
     if (state.ch == 61 && state.startsWith("=>")) {
-      return Ok($str);
+      return $andPredicate;
     } else {
       state.ch = $c;
       state.position = $pos;
@@ -906,10 +901,11 @@ Result<int>? parseAB(State state) {
     }
   }
   if ($res != null) {
+    final $aB = $res;
     // [a]
     if (state.ch == 97) {
       state.nextChar();
-      return $res;
+      return $aB;
     } else {
       state.ch = $c;
       state.position = $pos;
@@ -1061,7 +1057,6 @@ Dart code:
 /// ```
 Result<String>? parseFor(State state) {
   // "for"
-  // ~{ state.errorExpected('foo'); }
   if (state.ch == 102 && state.startsWith("for")) {
     state.readChar(state.position + 3, true);
     return const Ok("for");
@@ -1191,20 +1186,20 @@ Dart code:
 ///   [a]+
 /// ```
 Result<List<int>>? parseOneOrMore(State state) {
-  final $list = <int>[];
+  final $oneOrMore = <int>[];
   // (1)
   while (true) {
     // [a]
     if (state.ch == 97) {
       state.nextChar();
-      $list.add(97);
+      $oneOrMore.add(97);
       continue;
     } else {
       break;
     }
   }
-  if ($list.isNotEmpty) {
-    return Ok($list);
+  if ($oneOrMore.isNotEmpty) {
+    return Ok($oneOrMore);
   } else {
     return null;
   }
@@ -1265,25 +1260,25 @@ Dart code:
 ///   ([a] / [b])+
 /// ```
 Result<List<int>>? parseOneOrMore(State state) {
-  final $list = <int>[];
+  final $oneOrMore = <int>[];
   // (1)
   while (true) {
     // [a]
     if (state.ch == 97) {
       state.nextChar();
-      $list.add(97);
+      $oneOrMore.add(97);
       continue;
     }
     // [b]
     if (state.ch == 98) {
       state.nextChar();
-      $list.add(98);
+      $oneOrMore.add(98);
       continue;
     }
     break;
   }
-  if ($list.isNotEmpty) {
-    return Ok($list);
+  if ($oneOrMore.isNotEmpty) {
+    return Ok($oneOrMore);
   } else {
     return null;
   }
@@ -1778,19 +1773,19 @@ Dart code:
 ///   [a]*
 /// ```
 Result<List<int>> parseOneOrMore(State state) {
-  final $list = <int>[];
+  final $oneOrMore = <int>[];
   // (0)
   while (true) {
     // [a]
     if (state.ch == 97) {
       state.nextChar();
-      $list.add(97);
+      $oneOrMore.add(97);
       continue;
     } else {
       break;
     }
   }
-  return Ok($list);
+  return Ok($oneOrMore);
 }
 ```
 
@@ -1842,24 +1837,24 @@ Dart code:
 ///   ([a] / [b])*
 /// ```
 Result<List<int>> parseOneOrMore(State state) {
-  final $list = <int>[];
+  final $oneOrMore = <int>[];
   // (0)
   while (true) {
     // [a]
     if (state.ch == 97) {
       state.nextChar();
-      $list.add(97);
+      $oneOrMore.add(97);
       continue;
     }
     // [b]
     if (state.ch == 98) {
       state.nextChar();
-      $list.add(98);
+      $oneOrMore.add(98);
       continue;
     }
     break;
   }
-  return Ok($list);
+  return Ok($oneOrMore);
 }
 ```
 
@@ -2016,8 +2011,7 @@ Result<String>? parseDigits(State state) {
     }
   }
   if ($ok) {
-    final $digits = state.substring($pos, state.position);
-    return Ok($digits);
+    return Ok(state.substring($pos, state.position));
   } else {
     return null;
   }
@@ -2257,7 +2251,7 @@ Dart code:
 ///   }
 /// ```
 Result<List<int>> parseLetters(State state) {
-  final $list = <int>[];
+  final $letters = <int>[];
   // (0)
   while (true) {
     final $c = state.ch;
@@ -2265,13 +2259,13 @@ Result<List<int>> parseLetters(State state) {
     // [a-zA-Z]
     if ($ok) {
       state.nextChar();
-      $list.add($c);
+      $letters.add($c);
       continue;
     } else {
       break;
     }
   }
-  return Ok($list);
+  return Ok($letters);
 }
 ```
 
@@ -2333,7 +2327,7 @@ Dart code:
 ///   }
 /// ```
 Result<List<int>>? parseLetters(State state) {
-  final $list = <int>[];
+  final $letters = <int>[];
   // (1)
   while (true) {
     final $c = state.ch;
@@ -2341,14 +2335,14 @@ Result<List<int>>? parseLetters(State state) {
     // [a-zA-Z]
     if ($ok) {
       state.nextChar();
-      $list.add($c);
+      $letters.add($c);
       continue;
     } else {
       break;
     }
   }
-  if ($list.isNotEmpty) {
-    return Ok($list);
+  if ($letters.isNotEmpty) {
+    return Ok($letters);
   } else {
     return null;
   }
@@ -2421,22 +2415,22 @@ Dart code:
 Result<List<int>>? parseLetters(State state) {
   final $pos = state.position;
   final $c = state.ch;
-  final $list = <int>[];
+  final $letters = <int>[];
   // (2, 3)
-  while ($list.length < 3) {
+  while ($letters.length < 3) {
     final $c1 = state.ch;
     final $ok = $c1 <= 90 ? $c1 >= 65 : $c1 >= 97 && $c1 <= 122;
     // [a-zA-Z]
     if ($ok) {
       state.nextChar();
-      $list.add($c1);
+      $letters.add($c1);
       continue;
     } else {
       break;
     }
   }
-  if ($list.length >= 2) {
-    return Ok($list);
+  if ($letters.length >= 2) {
+    return Ok($letters);
   } else {
     state.ch = $c;
     state.position = $pos;
@@ -2515,22 +2509,22 @@ Dart code:
 Result<List<int>>? parseLetters(State state) {
   final $pos = state.position;
   final $c = state.ch;
-  final $list = <int>[];
+  final $letters = <int>[];
   // (4, 4)
-  while ($list.length < 4) {
+  while ($letters.length < 4) {
     final $c1 = state.ch;
     final $ok = $c1 <= 90 ? $c1 >= 65 : $c1 >= 97 && $c1 <= 122;
     // [a-zA-Z]
     if ($ok) {
       state.nextChar();
-      $list.add($c1);
+      $letters.add($c1);
       continue;
     } else {
       break;
     }
   }
-  if ($list.length >= 4) {
-    return Ok($list);
+  if ($letters.length >= 4) {
+    return Ok($letters);
   } else {
     state.ch = $c;
     state.position = $pos;
@@ -2727,7 +2721,7 @@ Dart code:
 ///   # ...
 /// ```
 Result<Expression>? parsePrimary(State state) {
-  final $list = <Expression>[];
+  final $primary = <Expression>[];
   // (1)
   while (true) {
     final pos = state.position;
@@ -2735,14 +2729,15 @@ Result<Expression>? parsePrimary(State state) {
     if ($sequenceElement != null) {
       final e = $sequenceElement.$1;
       e.sourceCode = state.substring(pos, state.position).trimRight();
-      $list.add(e);
+      $primary.add(e);
       continue;
     } else {
       break;
     }
   }
-  if ($list.isNotEmpty) {
-    return Ok($list);
+  if ($primary.isNotEmpty) {
+    final n = $primary;
+    return Ok($primary);
   } else {
     return null;
   }

@@ -60,7 +60,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
 
   final String productionName;
 
-  String? suggestedName;
+  final Map<Expression, String> suggestedNames = {};
 
   final Set<Expression> _insidePredicate = <Expression>{};
 
@@ -69,11 +69,10 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     required this.cache,
     required this.options,
     required this.productionName,
-    this.suggestedName,
   });
 
   BuildResult generate(Expression expression) {
-    return expression.accept(this);
+    return _generate(expression);
   }
 
   @override
@@ -117,7 +116,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
         child is TokenExpression) {
       _insidePredicate.add(child);
       cache.clone();
-      final res = child.accept(this);
+      final res = _generate(child);
       cache.restore(data);
       final successes = res.successes;
       final success = successes.first;
@@ -133,7 +132,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     code.stmt('state.predicate++');
     final state = _saveState(usePosition, code);
     cache.clone();
-    final res = child.accept(this);
+    final res = _generate(child);
     cache.restore(data);
     code.add(res.code);
     for (final success in res.successes) {
@@ -169,7 +168,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     handler.ifBlock((code) {
       var variable = _invalid;
       if (!isVoid) {
-        variable = _getSuggestedName('any');
+        variable = _getSuggestedName(node, 'any');
         code.declare('final', variable, 'state.ch');
         value = variable;
         result = 'Ok($value)';
@@ -207,20 +206,15 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     final isVoid = node.isVoid;
     final code = Code();
     final pos = isVoid ? _invalid : _getPosition(code);
-    final res = child.accept(this);
+    _copySuggestedName(node, child);
+    final res = _generate(child);
     code.add(res.code);
     for (final success in res.successes) {
       success.succeeds((code) {
         if (isVoid) {
           _setVoidResult(success);
         } else {
-          final variable = _getSuggestedName('str');
-          code.declare(
-            'final',
-            variable,
-            'state.substring($pos, state.position)',
-          );
-          final value = variable;
+          final value = 'state.substring($pos, state.position)';
           final result = 'Ok($value)';
           success.isConst = false;
           success.result = result;
@@ -252,7 +246,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     if (charCode != null) {
       cache.clear();
       isConst = true;
-      _addNodeSourceToComment(node, code);
+      _addNodeSourceToComment(node, code, false);
       final handler = code.ifElse('state.ch == $charCode');
       handler.ifBlock((code) {
         if (!isVoid) {
@@ -283,7 +277,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
         negate: negate,
       ).generate();
       code.declare('final', ok, predicate);
-      _addNodeSourceToComment(node, code);
+      _addNodeSourceToComment(node, code, false);
       final handler = code.ifElse(ok);
       handler.ifBlock((code) {
         if (!isVoid) {
@@ -322,7 +316,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
   @override
   BuildResult visitGroup(GroupExpression node) {
     final child = node.expression;
-    final res = child.accept(this);
+    final res = _generate(child);
     _addErrorHandler(node, res.failures);
     return res;
   }
@@ -355,7 +349,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
       final test = runes.length == 1
           ? 'state.ch == $firstRune'
           : 'state.ch == $firstRune && state.startsWith($escaped)';
-      _addNodeSourceToComment(node, code);
+      _addNodeSourceToComment(node, code, false);
       final handler = code.ifElse(test);
       handler.ifBlock((code) {
         if (!_insidePredicate.contains(node)) {
@@ -415,7 +409,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     var value = _noneValue;
     var variable = _invalid;
     final length = _allocate('length');
-    _addNodeSourceToComment(node, code);
+    _addNodeSourceToComment(node, code, false);
     code.declare(
       'final',
       length,
@@ -428,7 +422,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
       if (!_insidePredicate.contains(node)) {
         if (!isVoid) {
           final start = _allocate('start');
-          variable = _getSuggestedName('str');
+          variable = _getSuggestedName(node, 'str');
           code.declare('final', start, 'state.position');
           code.stmt('state.readChar($start + $length, true)');
           code.declare(
@@ -484,7 +478,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
         child is TokenExpression) {
       _insidePredicate.add(child);
       cache.clone();
-      final res = child.accept(this);
+      final res = _generate(child);
       code.add(res.code);
       final successes = <Success>[];
       final failures = <Code>[];
@@ -512,7 +506,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     code.stmt('state.predicate++');
     final state = _saveState(usePosition, code);
     cache.clone();
-    final res = child.accept(this);
+    final res = _generate(child);
     cache.restore(data);
     code.add(res.code);
     final successes = <Success>[];
@@ -565,6 +559,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     var result = _none;
     var value = _noneValue;
     final successes = <Success>[];
+    _copySuggestedName(node, child);
     if (child is ProductionExpression) {
       final name = child.name;
       final parse = 'parse$name(state)';
@@ -606,13 +601,13 @@ class ExpressionGenerator implements Visitor<BuildResult> {
         child is TokenExpression) {
       var variable = _invalid;
       if (!isVoid) {
-        variable = _getSuggestedName('opt');
+        variable = _getSuggestedName(node, 'opt');
         code.declare(type, variable);
         value = variable;
         result = 'Ok($value)';
       }
 
-      final res = child.accept(this);
+      final res = _generate(child);
       if (res.successes.length > 1) {
         _internalError();
       }
@@ -638,7 +633,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
       return BuildResult(code: code, successes: successes, failures: const []);
     }
 
-    final res = child.accept(this);
+    final res = _generate(child);
     code.add(res.code);
     for (final success in res.successes) {
       success.succeeds((code) {
@@ -672,10 +667,10 @@ class ExpressionGenerator implements Visitor<BuildResult> {
   @override
   BuildResult visitOrderedChoice(OrderedChoiceExpression node) {
     final children = node.expressions;
-
     if (children.length == 1) {
       final child = children.first;
-      final res = child.accept(this);
+      _copySuggestedName(node, child);
+      final res = _generate(child);
       _addErrorHandler(node, res.failures);
       return res;
     }
@@ -710,7 +705,8 @@ class ExpressionGenerator implements Visitor<BuildResult> {
       for (var i = 0; i < children.length; i++) {
         cache.restore(data);
         final child = children[i];
-        final res = child.accept(this);
+        _copySuggestedName(node, child);
+        final res = _generate(child);
         body.add(res.code);
         successes.addAll(res.successes);
         if (i == children.length - 1) {
@@ -733,7 +729,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
         }
 
         if (!needCombine) {
-          final res = node.accept(this);
+          final res = _generate(node);
           return res;
         }
 
@@ -743,7 +739,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
         final fails = Code();
         var result = _none;
         var value = _noneValue;
-        final variable = _getSuggestedName('res');
+        final variable = _getSuggestedName(node, 'res');
         if (!node.isVoid) {
           final type = node.type;
           code.declare('Result<$type>?', variable);
@@ -753,7 +749,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
           code.declare('var', variable, 'false');
         }
 
-        final res = node.accept(this);
+        final res = _generate(node);
         code.add(res.code);
         for (final success in res.successes) {
           success.succeeds((code) {
@@ -952,36 +948,17 @@ class ExpressionGenerator implements Visitor<BuildResult> {
   BuildResult visitSequence(SequenceExpression node) {
     final children = node.expressions;
     final isVoid = node.isVoid;
-    if (children.length > 1) {
-      suggestedName = null;
-    }
-
-    void declareSemanticValue(Expression node, Success success) {
-      final semanticValue = node.semanticValue;
-      if (node is ValueExpression) {
-        return;
-      }
-
-      if (semanticValue != null && semanticValue != '\$') {
-        _declareResult(
-          success.succeeds,
-          isConst: success.isConst,
-          value: success.value,
-          variable: semanticValue,
-        );
-      }
-    }
-
     if (children.length == 1) {
       final child = children.first;
-      final res = child.accept(this);
-      for (final success in res.successes) {
-        success.succeeds((code) {
-          declareSemanticValue(node, success);
-          if (isVoid) {
-            _setVoidResult(success);
-          }
-        });
+      _copySuggestedName(node, child);
+      final res = _generate(child);
+      _declareSemanticValue(child, res);
+      if (isVoid) {
+        for (final success in res.successes) {
+          success.isConst = true;
+          success.result = _none;
+          success.value = _noneValue;
+        }
       }
 
       return res;
@@ -1000,6 +977,11 @@ class ExpressionGenerator implements Visitor<BuildResult> {
       if (child.canChangePosition) {
         positionChanged = true;
       }
+
+      final semanticValue = child.semanticValue;
+      if (semanticValue == '\$') {
+        _copySuggestedName(node, child);
+      }
     }
 
     final usePosition = childrenThatRestorePosition.isNotEmpty;
@@ -1012,7 +994,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     BuildResult combine(Expression node) {
       final successCount = node.successCount;
       if (successCount < 2) {
-        final res = node.accept(this);
+        final res = _generate(node);
         return res;
       }
 
@@ -1026,15 +1008,14 @@ class ExpressionGenerator implements Visitor<BuildResult> {
         var variable = _invalid;
         if (!isVoid) {
           final type = node.type;
-          variable = _getSuggestedName('val');
+          variable = _getSuggestedName(node, 'val');
           value = variable;
           result = 'Ok($value)';
           code.declare(type, variable);
         }
 
-        final res = node.accept(this);
+        final res = _generate(node);
         code.add(res.code);
-
         for (final success in res.successes) {
           success.succeeds((code) {
             if (!isVoid) {
@@ -1072,7 +1053,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
         code.declare('var', variable, 'false');
       }
 
-      final res = node.accept(this);
+      final res = _generate(node);
       code.add(res.code);
       for (final success in res.successes) {
         success.succeeds((code) {
@@ -1121,9 +1102,10 @@ class ExpressionGenerator implements Visitor<BuildResult> {
           _internalError();
         }
       } else {
-        res = child.accept(this);
+        res = _generate(child);
       }
 
+      _declareSemanticValue(child, res);
       buildResults.add(res);
       res2Child[res] = child;
       final semanticValue = child.semanticValue;
@@ -1138,13 +1120,8 @@ class ExpressionGenerator implements Visitor<BuildResult> {
 
     var body = code.add(Code());
     for (var i = 0; i < children.length; i++) {
-      final child = children[i];
       final res = buildResults[i];
       body.add(res.code);
-      for (final success in res.successes) {
-        declareSemanticValue(child, success);
-      }
-
       failures.addAll(res.failures);
       for (final failure in res.failures) {
         failure((code) {
@@ -1206,7 +1183,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
       var variable = _invalid;
       if (!_insidePredicate.contains(node)) {
         if (!isVoid) {
-          variable = _getSuggestedName('tok');
+          variable = _getSuggestedName(node, 'tok');
           code.declare('final', variable, nextToken);
           value = variable;
           result = 'Ok($value)';
@@ -1241,9 +1218,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
   BuildResult visitValue(ValueExpression node) {
     final semanticValue = node.semanticValue;
     final source = node.source.trim();
-    final valueType = node.valueType;
     final isVoid = node.isVoid;
-    final parent = node.parent;
     final isConst = node.isConst;
     final code = Code();
     final succeeds = Code();
@@ -1257,24 +1232,9 @@ class ExpressionGenerator implements Visitor<BuildResult> {
       );
     }
 
-    if (node.isReturn && parent != null && !parent.isVoid) {
+    if (!isVoid) {
       value = source;
-      result = isConst ? 'const Ok($value)' : 'Ok($value)';
-    } else {
-      final variable = semanticValue != '\$'
-          ? semanticValue
-          : _getSuggestedName('res');
-      final result2 = _declareResult(
-        code,
-        isConst: isConst,
-        type: valueType,
-        value: source,
-        variable: variable,
-      );
-      if (!isVoid) {
-        result = result2;
-        value = variable;
-      }
+      result = node.isConst ? 'const Ok($value)' : 'Ok($value)';
     }
 
     code.add(succeeds);
@@ -1329,9 +1289,13 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     }
   }
 
-  void _addNodeSourceToComment(Expression node, Code code) {
-    const printer = Printer();
-    final source = node.accept(printer);
+  void _addNodeSourceToComment(
+    Expression node,
+    Code code,
+    bool withErrorHandler,
+  ) {
+    final printer = Printer(withErrorHandler: withErrorHandler);
+    final source = printer.print(node);
     final lines = const LineSplitter().convert(source);
     for (final line in lines) {
       code.writeln('// $line');
@@ -1391,7 +1355,66 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     }
   }
 
-  String _declareResult(
+  void _copySuggestedName(Expression parent, Expression child) {
+    final suggestedName = suggestedNames[parent];
+    if (suggestedName == null) {
+      return;
+    }
+
+    suggestedNames[child] = suggestedName;
+  }
+
+  void _declareSemanticValue(Expression node, BuildResult res) {
+    final semanticValue = node.semanticValue;
+    if (semanticValue == null) {
+      return;
+    }
+
+    final isDollar = semanticValue == '\$';
+    var needDeclare = true;
+    if (isDollar) {
+      final parent = node.parent;
+      if (parent is SequenceExpression) {
+        final children = parent.expressions;
+        final isLast = node.index == children.length - 1;
+        if (isLast) {
+          needDeclare = parent.isVoid;
+        } else {
+          if (node is ProductionExpression) {
+            needDeclare = false;
+          }
+        }
+      }
+    }
+
+    for (final success in res.successes) {
+      success.succeeds((code) {
+        if (needDeclare) {
+          if (isDollar) {
+            final variable = _getSuggestedName(node, '');
+            _declareVariable(
+              code,
+              isConst: success.isConst,
+              value: success.result,
+              variable: variable,
+            );
+            final result = variable;
+            success.result = result;
+            success.value = '$result.\$1';
+          } else {
+            _declareVariable(
+              code,
+              isConst: success.isConst,
+              value: success.value,
+              variable: semanticValue,
+            );
+          }
+        }
+      });
+    }
+  }
+
+  String _declareVariable(
     Code code, {
     required bool isConst,
     String? type,
@@ -1419,9 +1442,22 @@ class ExpressionGenerator implements Visitor<BuildResult> {
       }
     }
 
+    value = value.trim();
+    if (isConst) {
+      if (value.startsWith('const')) {
+        value = value.substring('const'.length);
+        value = value.trimRight();
+      }
+    }
+
     code.declare(type, variable, value.trim());
     final result = isConst ? 'const Ok($variable)' : 'Ok($variable)';
     return result;
+  }
+
+  BuildResult _generate(Expression node) {
+    final res = node.accept(this);
+    return res;
   }
 
   String _getCachedValue(String name, String Function() f) {
@@ -1464,10 +1500,10 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     });
   }
 
-  String _getSuggestedName(String name) {
+  String _getSuggestedName(Expression node, String name) {
+    final suggestedName = suggestedNames[node];
     if (suggestedName != null) {
-      name = suggestedName!;
-      suggestedName = null;
+      name = suggestedName;
     }
 
     return _allocate(name);
@@ -1520,7 +1556,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     handler.ifBlock((code) {
       final nextToken = options.getNextToken;
       if (!isVoid) {
-        final variable = _getSuggestedName('tok');
+        final variable = _getSuggestedName(node, 'tok');
         code.declare('final', variable, nextToken);
         value = variable;
         result = 'Ok($value)';
@@ -1651,7 +1687,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     switch (kind) {
       case list:
         final elementType = child.type;
-        variable = _allocate('list');
+        variable = _getSuggestedName(node, 'list');
         code.declare('final', variable, '<$elementType>[]');
         break;
       case counter:
@@ -1667,8 +1703,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     }
 
     cache.clear();
-    final res = child.accept(this);
-
+    final res = _generate(child);
     cache.clear();
     for (final success in res.successes) {
       success.succeeds((code) {
@@ -1812,7 +1847,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     List<String> details = const [],
   ]) {
     const printer = Printer();
-    final printed = node.accept(printer);
+    final printed = printer.print(node);
     final lines = <String>[
       'Not a well-formed expression \'${node.runtimeType}\'',
       cause,

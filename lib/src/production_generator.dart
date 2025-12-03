@@ -18,15 +18,15 @@ class ProductionGenerator {
     final type = production.type;
     final allocator = Allocator();
     final cache = Cache();
-    final suggestedName = camelize(name);
     final expressionGenerator = ExpressionGenerator(
       allocator: allocator,
       cache: cache,
       options: options,
       productionName: name,
-      suggestedName: suggestedName,
     );
 
+    final suggestedName = camelize(name);
+    expressionGenerator.suggestedNames[expression] = suggestedName;
     final res = expressionGenerator.generate(expression);
     for (final success in res.successes) {
       success.succeeds((code) {

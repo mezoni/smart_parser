@@ -30,30 +30,36 @@ String _action(String code) {
 }
 
 class Printer implements Visitor<String> {
-  const Printer();
+  final bool withErrorHandler;
+
+  const Printer({this.withErrorHandler = true});
+
+  String print(Expression expression) {
+    return expression.accept(this);
+  }
 
   @override
   String visitAction(ActionExpression node) {
     final source = node.source;
-    return _action(source).addErrorHandler(node);
+    return _action(source).addErrorHandler(node, withErrorHandler);
   }
 
   @override
   String visitAndPredicate(AndPredicateExpression node) {
     final child = node.expression;
     final code = child.accept(this);
-    return '&$code'.addErrorHandler(node);
+    return '&$code'.addErrorHandler(node, withErrorHandler);
   }
 
   @override
   String visitAnyCharacter(AnyCharacterExpression node) {
-    return '.'.addErrorHandler(node);
+    return '.'.addErrorHandler(node, withErrorHandler);
   }
 
   @override
   String visitCapture(CaptureExpression node) {
     final child = node.expression;
-    return _enclose(child, '<', '>').addErrorHandler(node);
+    return _enclose(child, '<', '>').addErrorHandler(node, withErrorHandler);
   }
 
   @override
@@ -121,13 +127,13 @@ class Printer implements Visitor<String> {
     }
 
     buffer.write(']');
-    return buffer.toString().addErrorHandler(node);
+    return buffer.toString().addErrorHandler(node, withErrorHandler);
   }
 
   @override
   String visitGroup(GroupExpression node) {
     final child = node.expression;
-    return _enclose(child, '(', ')').addErrorHandler(node);
+    return _enclose(child, '(', ')').addErrorHandler(node, withErrorHandler);
   }
 
   @override
@@ -136,7 +142,7 @@ class Printer implements Visitor<String> {
     final text = node.text;
     final quote = isPrimitive ? '"' : '\'';
     final escaped = escapeString(text, quote);
-    return escaped.addErrorHandler(node);
+    return escaped.addErrorHandler(node, withErrorHandler);
   }
 
   @override
@@ -144,28 +150,28 @@ class Printer implements Visitor<String> {
     final text = node.text;
     final quote = node.quote;
     final escaped = escapeString(text, quote);
-    return '@match($escaped)'.addErrorHandler(node);
+    return '@match($escaped)'.addErrorHandler(node, withErrorHandler);
   }
 
   @override
   String visitNotPredicate(NotPredicateExpression node) {
     final child = node.expression;
     final code = child.accept(this);
-    return '!$code'.addErrorHandler(node);
+    return '!$code'.addErrorHandler(node, withErrorHandler);
   }
 
   @override
   String visitOneOrMore(OneOrMoreExpression node) {
     final child = node.expression;
     final code = child.accept(this);
-    return '$code+'.addErrorHandler(node);
+    return '$code+'.addErrorHandler(node, withErrorHandler);
   }
 
   @override
   String visitOptional(OptionalExpression node) {
     final child = node.expression;
     final code = child.accept(this);
-    return '$code?'.addErrorHandler(node);
+    return '$code?'.addErrorHandler(node, withErrorHandler);
   }
 
   @override
@@ -178,9 +184,9 @@ class Printer implements Visitor<String> {
     }
 
     if (sources.any((e) => const LineSplitter().convert(e).length > 1)) {
-      return sources.join('\n/\n').addErrorHandler(node);
+      return sources.join('\n/\n').addErrorHandler(node, withErrorHandler);
     } else {
-      return sources.join(' / ').addErrorHandler(node);
+      return sources.join(' / ').addErrorHandler(node, withErrorHandler);
     }
   }
 
@@ -188,7 +194,7 @@ class Printer implements Visitor<String> {
   String visitPosition(PositionExpression node) {
     final action = node.action;
     final code = _action(action);
-    return '@position($code)'.addErrorHandler(node);
+    return '@position($code)'.addErrorHandler(node, withErrorHandler);
   }
 
   @override
@@ -196,13 +202,13 @@ class Printer implements Visitor<String> {
     final negate = node.negate;
     final predicate = node.predicate;
     final code = _action(predicate);
-    return negate ? '!$code' : '&$code'.addErrorHandler(node);
+    return negate ? '!$code' : '&$code'.addErrorHandler(node, withErrorHandler);
   }
 
   @override
   String visitProduction(ProductionExpression node) {
     final name = node.name;
-    return name.addErrorHandler(node);
+    return name.addErrorHandler(node, withErrorHandler);
   }
 
   @override
@@ -225,13 +231,13 @@ class Printer implements Visitor<String> {
       source.add('~$code');
     }
 
-    return source.join('\n').addErrorHandler(node);
+    return source.join('\n').addErrorHandler(node, withErrorHandler);
   }
 
   @override
   String visitToken(TokenExpression node) {
     final name = node.name;
-    return '.$name'.addErrorHandler(node);
+    return '.$name'.addErrorHandler(node, withErrorHandler);
   }
 
   @override
@@ -243,7 +249,7 @@ class Printer implements Visitor<String> {
       code = '`$valueType` $code';
     }
 
-    return code.addErrorHandler(node);
+    return code.addErrorHandler(node, withErrorHandler);
   }
 
   @override
@@ -262,14 +268,14 @@ class Printer implements Visitor<String> {
 @while ($q) {
   $code
 }'''
-        .addErrorHandler(node);
+        .addErrorHandler(node, withErrorHandler);
   }
 
   @override
   String visitZeroOrMore(ZeroOrMoreExpression node) {
     final child = node.expression;
     final code = child.accept(this);
-    return '$code*'.addErrorHandler(node);
+    return '$code*'.addErrorHandler(node, withErrorHandler);
   }
 
   String _enclose(Expression node, String open, String close) {
@@ -287,7 +293,11 @@ class Printer implements Visitor<String> {
 }
 
 extension on String {
-  String addErrorHandler(Expression node) {
+  String addErrorHandler(Expression node, bool withErrorHandler) {
+    if (!withErrorHandler) {
+      return this;
+    }
+
     final errorHandler = node.errorHandler;
     final source = <String>[];
     source.add(this);

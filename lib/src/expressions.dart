@@ -63,6 +63,8 @@ abstract class Expression {
 
   int failureCount = 1;
 
+  int index = 0;
+
   bool isAlwaysSuccessful = false;
 
   bool isConst = false;

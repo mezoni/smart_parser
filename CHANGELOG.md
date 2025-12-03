@@ -1,3 +1,7 @@
+## 2.0.6
+
+- Optimized generation of semantic value code.
+
 ## 2.0.5
 
 Optimized code generation for the expression `SequenceExpression`.

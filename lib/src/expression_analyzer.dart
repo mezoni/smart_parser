@@ -276,6 +276,7 @@ Production: $_name''');
     _setIsLatest(last, node.isLatest);
     if (children.length == 1) {
       final child = children.first;
+      child.index = 0;
       _setIsVoid(child, node.isVoid);
       _setParent(child, node);
       child.accept(this);
@@ -285,7 +286,9 @@ Production: $_name''');
     } else {
       var failureCount = 0;
       _setIsConst(node, false);
-      for (final child in children) {
+      for (var i = 0; i < children.length; i++) {
+        final child = children[i];
+        child.index = i;
         _setIsVoid(child, true);
         _setParent(child, node);
         child.accept(this);
