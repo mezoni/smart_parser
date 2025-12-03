@@ -64,10 +64,6 @@ class ExpressionGenerator implements Visitor<BuildResult> {
 
   final Set<Expression> _insidePredicate = <Expression>{};
 
-  String? _resultVariable;
-
-  String? _valueVariable;
-
   ExpressionGenerator({
     required this.allocator,
     required this.cache,
@@ -725,14 +721,14 @@ class ExpressionGenerator implements Visitor<BuildResult> {
       }
     } else {
       BuildResult combine(Expression node) {
-        final rejectionPoints = node.failureCount;
-        final acceptancePoints = node.successCount;
+        final failureCount = node.failureCount;
+        final successCount = node.successCount;
         var needCombine = false;
-        if (acceptancePoints > 1) {
+        if (successCount > 1) {
           needCombine = true;
         }
 
-        if (rejectionPoints > 1) {
+        if (failureCount > 1) {
           needCombine = true;
         }
 
@@ -1014,8 +1010,9 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     final res2Child = <BuildResult, Expression>{};
     final state = _saveState(usePosition, code);
     BuildResult combine(Expression node) {
-      final res = node.accept(this);
-      if (res.successes.length < 2) {
+      final successCount = node.successCount;
+      if (successCount < 2) {
+        final res = node.accept(this);
         return res;
       }
 
@@ -1035,6 +1032,9 @@ class ExpressionGenerator implements Visitor<BuildResult> {
           code.declare(type, variable);
         }
 
+        final res = node.accept(this);
+        code.add(res.code);
+
         for (final success in res.successes) {
           success.succeeds((code) {
             if (!isVoid) {
@@ -1043,7 +1043,6 @@ class ExpressionGenerator implements Visitor<BuildResult> {
           });
         }
 
-        code.add(res.code);
         code.add(succeeds);
         return BuildResult(
           code: code,
@@ -1073,6 +1072,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
         code.declare('var', variable, 'false');
       }
 
+      final res = node.accept(this);
       code.add(res.code);
       for (final success in res.successes) {
         success.succeeds((code) {
@@ -1344,21 +1344,6 @@ class ExpressionGenerator implements Visitor<BuildResult> {
 
   String _allocateIf(bool cond, [String name = '']) {
     return !cond ? _invalid : allocator.allocate(name);
-  }
-
-  BuildResult _build(
-    Expression node, {
-    String? resultVariable,
-    String? valueVariable,
-  }) {
-    final resultVariable_ = _resultVariable;
-    final valueVariable_ = _valueVariable;
-    _resultVariable = resultVariable;
-    _valueVariable = valueVariable;
-    final res = node.accept(this);
-    _resultVariable = resultVariable_;
-    _valueVariable = valueVariable_;
-    return res;
   }
 
   String _charSize(String name, List<(int, int)> ranges, bool negate) {

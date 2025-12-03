@@ -145,7 +145,7 @@ ${unusedProductions.join('\n')}''');
     child.accept(this);
     _setIsAlwaysSuccessful(node, false);
     _setCanChangePosition(node, false);
-    _setSuccessCount(node, 1);
+    _setSuccessCount(node, child.failureCount);
     _setFailureCount(node, 1);
     _setIsConst(node, true);
   }
@@ -172,7 +172,18 @@ ${unusedProductions.join('\n')}''');
     child.accept(this);
     _setIsAlwaysSuccessful(node, true);
     _setCanChangePosition(node, child.canChangePosition);
-    _setSuccessCount(node, 1);
+    if (child is ProductionExpression) {
+      _setSuccessCount(node, 1);
+    } else if (child is AnyCharacterExpression ||
+        child is CharacterClassExpression ||
+        child is LiteralExpression ||
+        child is MatchExpression ||
+        child is TokenExpression) {
+      _setSuccessCount(node, 1);
+    } else {
+      _setSuccessCount(node, child.successCount + child.failureCount);
+    }
+
     _setFailureCount(node, 0);
     _setIsConst(node, false);
   }
@@ -191,17 +202,13 @@ ${unusedProductions.join('\n')}''');
       _setParent(child, node);
       child.accept(this);
       successCount += child.successCount;
-      if (i == children.length - 1) {
-        if (!child.isAlwaysSuccessful) {
-          failureCount++;
-        }
-      }
+      failureCount += child.failureCount;
     }
 
-    _setIsAlwaysSuccessful(node, children.any((e) => e.isAlwaysSuccessful));
-    _setCanChangePosition(node, children.any((e) => e.canChangePosition));
     _setSuccessCount(node, successCount);
     _setFailureCount(node, failureCount);
+    _setIsAlwaysSuccessful(node, children.any((e) => e.isAlwaysSuccessful));
+    _setCanChangePosition(node, children.any((e) => e.canChangePosition));
     if (children.length == 1) {
       final child = children.first;
       _setIsConst(node, child.isConst);
@@ -265,7 +272,6 @@ Production: $_name''');
     }
 
     final isNotAlwaysSuccessful = children.any((e) => !e.isAlwaysSuccessful);
-    var failureCount = 0;
     _setIsReturn(last, node.isReturn);
     _setIsLatest(last, node.isLatest);
     if (children.length == 1) {
@@ -274,8 +280,10 @@ Production: $_name''');
       _setParent(child, node);
       child.accept(this);
       _setIsConst(node, child.isConst);
-      failureCount = child.failureCount;
+      _setSuccessCount(node, child.successCount);
+      _setFailureCount(node, child.failureCount);
     } else {
+      var failureCount = 0;
       _setIsConst(node, false);
       for (final child in children) {
         _setIsVoid(child, true);
@@ -283,12 +291,13 @@ Production: $_name''');
         child.accept(this);
         failureCount += child.failureCount;
       }
+
+      _setSuccessCount(node, last.successCount);
+      _setFailureCount(node, failureCount);
     }
 
     _setIsAlwaysSuccessful(node, !isNotAlwaysSuccessful);
     _setCanChangePosition(node, children.any((e) => e.canChangePosition));
-    _setSuccessCount(node, 1);
-    _setFailureCount(node, failureCount);
   }
 
   @override

@@ -10119,23 +10119,23 @@ class _TestParser {
   ///   >
   /// ```
   Result<String>? parseIdentifier0(State state) {
-    var $res1 = false;
+    var $res = false;
     state.predicate++;
     final $pos = state.position;
     final $c = state.ch;
-    var $res = false;
+    var $res1 = false;
     // "foreach"
     if (state.ch == 102 && state.startsWith("foreach")) {
       state.readChar(state.position + 7, true);
-      $res = true;
+      $res1 = true;
     } else {
       // "for"
       if (state.ch == 102 && state.startsWith("for")) {
         state.readChar(state.position + 3, true);
-        $res = true;
+        $res1 = true;
       }
     }
-    if ($res) {
+    if ($res1) {
       final $c1 = state.ch;
       final $ok = $c1 <= 90 ? $c1 >= 65 || $c1 >= 48 && $c1 <= 57 : $c1 >= 97 && $c1 <= 122;
       // [a-zA-Z0-9]
@@ -10143,7 +10143,7 @@ class _TestParser {
         state.ch = $c;
         state.position = $pos;
         state.predicate--;
-        $res1 = true;
+        $res = true;
       } else {
         state.ch = $c;
         state.position = $pos;
@@ -10151,9 +10151,9 @@ class _TestParser {
       }
     } else {
       state.predicate--;
-      $res1 = true;
+      $res = true;
     }
-    if ($res1) {
+    if ($res) {
       final $ok1 = $c <= 90 ? $c >= 65 : $c >= 97 && $c <= 122;
       // [a-zA-Z]
       if ($ok1) {
@@ -10197,23 +10197,23 @@ class _TestParser {
   ///   >
   /// ```
   Result<void>? parseIdentifierVoid0(State state) {
-    var $res1 = false;
+    var $res = false;
     state.predicate++;
     final $pos = state.position;
     final $c = state.ch;
-    var $res = false;
+    var $res1 = false;
     // "foreach"
     if (state.ch == 102 && state.startsWith("foreach")) {
       state.readChar(state.position + 7, true);
-      $res = true;
+      $res1 = true;
     } else {
       // "for"
       if (state.ch == 102 && state.startsWith("for")) {
         state.readChar(state.position + 3, true);
-        $res = true;
+        $res1 = true;
       }
     }
-    if ($res) {
+    if ($res1) {
       final $c1 = state.ch;
       final $ok = $c1 <= 90 ? $c1 >= 65 || $c1 >= 48 && $c1 <= 57 : $c1 >= 97 && $c1 <= 122;
       // [a-zA-Z0-9]
@@ -10221,7 +10221,7 @@ class _TestParser {
         state.ch = $c;
         state.position = $pos;
         state.predicate--;
-        $res1 = true;
+        $res = true;
       } else {
         state.ch = $c;
         state.position = $pos;
@@ -10229,9 +10229,9 @@ class _TestParser {
       }
     } else {
       state.predicate--;
-      $res1 = true;
+      $res = true;
     }
-    if ($res1) {
+    if ($res) {
       final $ok1 = $c <= 90 ? $c >= 65 : $c >= 97 && $c <= 122;
       // [a-zA-Z]
       if ($ok1) {
@@ -10285,23 +10285,23 @@ class _TestParser {
   /// ```
   Result<String>? parseIdentifier1(State state) {
     var end = -1;
-    var $res1 = false;
+    var $res = false;
     state.predicate++;
     final $pos = state.position;
     final $c = state.ch;
-    var $res = false;
+    var $res1 = false;
     // "foreach"
     if (state.ch == 102 && state.startsWith("foreach")) {
       state.readChar(state.position + 7, true);
-      $res = true;
+      $res1 = true;
     } else {
       // "for"
       if (state.ch == 102 && state.startsWith("for")) {
         state.readChar(state.position + 3, true);
-        $res = true;
+        $res1 = true;
       }
     }
-    if ($res) {
+    if ($res1) {
       state.predicate++;
       final $pos1 = state.position;
       final $c1 = state.ch;
@@ -10327,7 +10327,7 @@ class _TestParser {
         state.ch = $c;
         state.position = $pos;
         state.predicate--;
-        $res1 = true;
+        $res = true;
       } else {
         state.predicate--;
         state.ch = $c;
@@ -10336,9 +10336,9 @@ class _TestParser {
       }
     } else {
       state.predicate--;
-      $res1 = true;
+      $res = true;
     }
-    if ($res1) {
+    if ($res) {
       final $ok2 = end != -1;
       if ($ok2) {
         state.readChar(end, true);
@@ -10399,23 +10399,23 @@ class _TestParser {
   /// ```
   Result<void>? parseIdentifierVoid1(State state) {
     var end = -1;
-    var $res1 = false;
+    var $res = false;
     state.predicate++;
     final $pos = state.position;
     final $c = state.ch;
-    var $res = false;
+    var $res1 = false;
     // "foreach"
     if (state.ch == 102 && state.startsWith("foreach")) {
       state.readChar(state.position + 7, true);
-      $res = true;
+      $res1 = true;
     } else {
       // "for"
       if (state.ch == 102 && state.startsWith("for")) {
         state.readChar(state.position + 3, true);
-        $res = true;
+        $res1 = true;
       }
     }
-    if ($res) {
+    if ($res1) {
       state.predicate++;
       final $pos1 = state.position;
       final $c1 = state.ch;
@@ -10441,7 +10441,7 @@ class _TestParser {
         state.ch = $c;
         state.position = $pos;
         state.predicate--;
-        $res1 = true;
+        $res = true;
       } else {
         state.predicate--;
         state.ch = $c;
@@ -10450,9 +10450,9 @@ class _TestParser {
       }
     } else {
       state.predicate--;
-      $res1 = true;
+      $res = true;
     }
-    if ($res1) {
+    if ($res) {
       final $ok2 = end != -1;
       if ($ok2) {
         state.readChar(end, true);
