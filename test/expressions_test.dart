@@ -7514,8 +7514,7 @@ class _TestParser {
   ///   $ = `const` { 41 }
   /// ```
   Result<int> parseAction0(State state) {
-    const $action0 = 41;
-    return const Ok($action0);
+    return const Ok(41);
   }
 
   /// [void] **ActionVoid0**
@@ -7534,8 +7533,7 @@ class _TestParser {
   ///   $ = `const int` { 41 }
   /// ```
   Result<int> parseAction1(State state) {
-    const int $action1 = 41;
-    return const Ok($action1);
+    return const Ok(41);
   }
 
   /// [void] **ActionVoid1**
@@ -7567,6 +7565,7 @@ class _TestParser {
   /// ```
   Result<void> parseActionVoid2(State state) {
     const x = 41;
+    const $res = x;
     return Result.none;
   }
 
@@ -9173,6 +9172,7 @@ class _TestParser {
         if ($ok2) {
           state.nextChar();
           final c = $c2;
+          final $res = a - 48 + b - 48 + c - 48;
           return Result.none;
         } else {
           state.ch = $c;
@@ -9245,6 +9245,7 @@ class _TestParser {
         // [c]
         if (state.ch == 99) {
           state.nextChar();
+          const $res = 'abc';
           return Result.none;
         } else {
           state.ch = $c;

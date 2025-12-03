@@ -57,25 +57,29 @@ class CharacterClassExpression extends Expression {
 abstract class Expression {
   static const String defaultType = 'void';
 
-  int acceptancePoints = 1;
-
   bool canChangePosition = true;
 
   String? errorHandler;
+
+  int failureCount = 1;
 
   bool isAlwaysSuccessful = false;
 
   bool isConst = false;
 
+  bool isLatest = false;
+
   bool isReturn = false;
 
-  int rejectionPoints = 1;
-
   bool isVoid = false;
+
+  Expression? parent;
 
   String? semanticValue;
 
   String? sourceCode;
+
+  int successCount = 1;
 
   String type = defaultType;
 

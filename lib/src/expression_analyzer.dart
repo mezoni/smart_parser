@@ -28,6 +28,7 @@ class ExpressionAnalyzer implements Visitor<void> {
         _name = production.name;
         _setIsVoid(expression, isVoid);
         _setIsReturn(expression, true);
+        _setIsLatest(expression, true);
         expression.accept(this);
       }
 
@@ -53,20 +54,21 @@ ${unusedProductions.join('\n')}''');
   void visitAction(ActionExpression node) {
     _setIsAlwaysSuccessful(node, true);
     _setCanChangePosition(node, false);
-    _setAcceptancePoints(node, 1);
-    _setRejectionPoints(node, 0);
+    _setSuccessCount(node, 1);
+    _setFailureCount(node, 0);
     _setIsConst(node, true);
   }
 
   @override
   void visitAndPredicate(AndPredicateExpression node) {
     final child = node.expression;
+    _setParent(child, node);
+    _setIsVoid(child, true);
     child.accept(this);
     _setIsAlwaysSuccessful(node, child.isAlwaysSuccessful);
     _setCanChangePosition(node, false);
-    _setIsVoid(child, true);
-    _setAcceptancePoints(node, child.acceptancePoints);
-    _setRejectionPoints(node, child.rejectionPoints);
+    _setSuccessCount(node, child.successCount);
+    _setFailureCount(node, child.failureCount);
     _setIsConst(node, true);
   }
 
@@ -74,20 +76,21 @@ ${unusedProductions.join('\n')}''');
   void visitAnyCharacter(AnyCharacterExpression node) {
     _setIsAlwaysSuccessful(node, false);
     _setCanChangePosition(node, true);
-    _setAcceptancePoints(node, 1);
-    _setRejectionPoints(node, 1);
+    _setSuccessCount(node, 1);
+    _setFailureCount(node, 1);
     _setIsConst(node, false);
   }
 
   @override
   void visitCapture(CaptureExpression node) {
     final child = node.expression;
+    _setIsVoid(child, true);
+    _setParent(child, node);
     child.accept(this);
     _setIsAlwaysSuccessful(node, child.isAlwaysSuccessful);
     _setCanChangePosition(node, child.canChangePosition);
-    _setIsVoid(child, true);
-    _setAcceptancePoints(node, child.acceptancePoints);
-    _setRejectionPoints(node, child.rejectionPoints);
+    _setSuccessCount(node, child.successCount);
+    _setFailureCount(node, child.failureCount);
     _setIsConst(node, false);
   }
 
@@ -95,8 +98,8 @@ ${unusedProductions.join('\n')}''');
   void visitCharacterClass(CharacterClassExpression node) {
     _setIsAlwaysSuccessful(node, false);
     _setCanChangePosition(node, true);
-    _setAcceptancePoints(node, 1);
-    _setRejectionPoints(node, 1);
+    _setSuccessCount(node, 1);
+    _setFailureCount(node, 1);
     _setIsConst(node, true);
   }
 
@@ -104,12 +107,13 @@ ${unusedProductions.join('\n')}''');
   void visitGroup(GroupExpression node) {
     final child = node.expression;
     _setIsReturn(child, node.isReturn);
+    _setIsVoid(child, node.isVoid);
+    _setParent(child, node);
     child.accept(this);
     _setIsAlwaysSuccessful(node, child.isAlwaysSuccessful);
     _setCanChangePosition(node, child.canChangePosition);
-    _setIsVoid(child, node.isVoid);
-    _setAcceptancePoints(node, child.acceptancePoints);
-    _setRejectionPoints(node, child.rejectionPoints);
+    _setSuccessCount(node, child.successCount);
+    _setFailureCount(node, child.failureCount);
     _setIsConst(node, child.isConst);
   }
 
@@ -118,8 +122,8 @@ ${unusedProductions.join('\n')}''');
     final text = node.text;
     _setIsAlwaysSuccessful(node, text.isEmpty);
     _setCanChangePosition(node, text.isNotEmpty);
-    _setAcceptancePoints(node, 1);
-    _setRejectionPoints(node, text.isEmpty ? 0 : 1);
+    _setSuccessCount(node, 1);
+    _setFailureCount(node, text.isEmpty ? 0 : 1);
     _setIsConst(node, true);
   }
 
@@ -128,20 +132,21 @@ ${unusedProductions.join('\n')}''');
     final text = node.text;
     _setIsAlwaysSuccessful(node, text.isEmpty);
     _setCanChangePosition(node, text.isNotEmpty);
-    _setAcceptancePoints(node, 1);
-    _setRejectionPoints(node, text.isEmpty ? 0 : 1);
+    _setSuccessCount(node, 1);
+    _setFailureCount(node, text.isEmpty ? 0 : 1);
     _setIsConst(node, false);
   }
 
   @override
   void visitNotPredicate(NotPredicateExpression node) {
     final child = node.expression;
+    _setIsVoid(child, true);
+    _setParent(child, node);
     child.accept(this);
     _setIsAlwaysSuccessful(node, false);
     _setCanChangePosition(node, false);
-    _setIsVoid(child, true);
-    _setAcceptancePoints(node, 1);
-    _setRejectionPoints(node, 1);
+    _setSuccessCount(node, 1);
+    _setFailureCount(node, 1);
     _setIsConst(node, true);
   }
 
@@ -149,49 +154,54 @@ ${unusedProductions.join('\n')}''');
   void visitOneOrMore(OneOrMoreExpression node) {
     final child = node.expression;
     _setIsReturn(child, true);
+    _setIsVoid(child, node.isVoid);
+    _setParent(child, node);
     child.accept(this);
     _setIsAlwaysSuccessful(node, child.isAlwaysSuccessful);
     _setCanChangePosition(node, child.canChangePosition);
-    _setIsVoid(child, node.isVoid);
-    _setAcceptancePoints(node, 1);
-    _setRejectionPoints(node, 1);
+    _setSuccessCount(node, 1);
+    _setFailureCount(node, 1);
     _setIsConst(node, false);
   }
 
   @override
   void visitOptional(OptionalExpression node) {
     final child = node.expression;
+    _setIsVoid(child, node.isVoid);
+    _setParent(child, node);
     child.accept(this);
     _setIsAlwaysSuccessful(node, true);
     _setCanChangePosition(node, child.canChangePosition);
-    _setIsVoid(child, node.isVoid);
-    _setAcceptancePoints(node, 1);
-    _setRejectionPoints(node, 0);
+    _setSuccessCount(node, 1);
+    _setFailureCount(node, 0);
     _setIsConst(node, false);
   }
 
   @override
   void visitOrderedChoice(OrderedChoiceExpression node) {
     final children = node.expressions;
-    var acceptancePoints = 0;
-    var rejectionPoints = 0;
+    final last = children.last;
+    var successCount = 0;
+    var failureCount = 0;
+    _setIsLatest(last, node.isLatest);
     for (var i = 0; i < children.length; i++) {
       final child = children[i];
       _setIsVoid(child, node.isVoid);
       _setIsReturn(child, node.isReturn);
+      _setParent(child, node);
       child.accept(this);
-      acceptancePoints += child.acceptancePoints;
+      successCount += child.successCount;
       if (i == children.length - 1) {
         if (!child.isAlwaysSuccessful) {
-          rejectionPoints++;
+          failureCount++;
         }
       }
     }
 
     _setIsAlwaysSuccessful(node, children.any((e) => e.isAlwaysSuccessful));
     _setCanChangePosition(node, children.any((e) => e.canChangePosition));
-    _setAcceptancePoints(node, acceptancePoints);
-    _setRejectionPoints(node, rejectionPoints);
+    _setSuccessCount(node, successCount);
+    _setFailureCount(node, failureCount);
     if (children.length == 1) {
       final child = children.first;
       _setIsConst(node, child.isConst);
@@ -204,8 +214,8 @@ ${unusedProductions.join('\n')}''');
   void visitPosition(PositionExpression node) {
     _setIsAlwaysSuccessful(node, true);
     _setCanChangePosition(node, true);
-    _setAcceptancePoints(node, 1);
-    _setRejectionPoints(node, 0);
+    _setSuccessCount(node, 1);
+    _setFailureCount(node, 0);
     _setIsConst(node, true);
   }
 
@@ -213,8 +223,8 @@ ${unusedProductions.join('\n')}''');
   void visitPredicate(PredicateExpression node) {
     _setIsAlwaysSuccessful(node, false);
     _setCanChangePosition(node, false);
-    _setAcceptancePoints(node, 1);
-    _setRejectionPoints(node, 1);
+    _setSuccessCount(node, 1);
+    _setFailureCount(node, 1);
     _setIsConst(node, true);
   }
 
@@ -232,8 +242,8 @@ ${unusedProductions.join('\n')}''');
       _setCanChangePosition(node, expression.canChangePosition);
     }
 
-    _setAcceptancePoints(node, 1);
-    _setRejectionPoints(node, node.isAlwaysSuccessful ? 0 : 1);
+    _setSuccessCount(node, 1);
+    _setFailureCount(node, node.isAlwaysSuccessful ? 0 : 1);
     _setIsConst(node, false);
   }
 
@@ -242,9 +252,7 @@ ${unusedProductions.join('\n')}''');
     final children = node.expressions;
     final last = children.last;
     final semanticValues = <String>{};
-    _setIsReturn(last, node.isReturn);
     for (final child in children) {
-      child.accept(this);
       final semanticValue = child.semanticValue;
       if (semanticValue != null) {
         if (!semanticValues.add(semanticValue)) {
@@ -257,32 +265,38 @@ Production: $_name''');
     }
 
     final isNotAlwaysSuccessful = children.any((e) => !e.isAlwaysSuccessful);
-    _setIsAlwaysSuccessful(node, !isNotAlwaysSuccessful);
-    _setCanChangePosition(node, children.any((e) => e.canChangePosition));
-    var rejectionPoints = 0;
+    var failureCount = 0;
+    _setIsReturn(last, node.isReturn);
+    _setIsLatest(last, node.isLatest);
     if (children.length == 1) {
       final child = children.first;
       _setIsVoid(child, node.isVoid);
+      _setParent(child, node);
+      child.accept(this);
       _setIsConst(node, child.isConst);
-      rejectionPoints = child.rejectionPoints;
+      failureCount = child.failureCount;
     } else {
       _setIsConst(node, false);
       for (final child in children) {
         _setIsVoid(child, true);
-        rejectionPoints += child.rejectionPoints;
+        _setParent(child, node);
+        child.accept(this);
+        failureCount += child.failureCount;
       }
     }
 
-    _setAcceptancePoints(node, 1);
-    _setRejectionPoints(node, rejectionPoints);
+    _setIsAlwaysSuccessful(node, !isNotAlwaysSuccessful);
+    _setCanChangePosition(node, children.any((e) => e.canChangePosition));
+    _setSuccessCount(node, 1);
+    _setFailureCount(node, failureCount);
   }
 
   @override
   void visitToken(TokenExpression node) {
     _setIsAlwaysSuccessful(node, false);
     _setCanChangePosition(node, true);
-    _setAcceptancePoints(node, 1);
-    _setRejectionPoints(node, 1);
+    _setSuccessCount(node, 1);
+    _setFailureCount(node, 1);
     _setIsConst(node, false);
   }
 
@@ -291,8 +305,8 @@ Production: $_name''');
     var valueType = node.valueType;
     _setIsAlwaysSuccessful(node, true);
     _setCanChangePosition(node, false);
-    _setAcceptancePoints(node, 1);
-    _setRejectionPoints(node, 0);
+    _setSuccessCount(node, 1);
+    _setFailureCount(node, 0);
     var isConst = false;
     if (valueType != null) {
       valueType = valueType.trim();
@@ -309,15 +323,16 @@ Production: $_name''');
     final min = range.$1;
     final isAlwaysSuccessful = min == 0;
     _setIsReturn(child, true);
+    _setIsVoid(child, node.isVoid);
+    _setParent(child, node);
     child.accept(this);
     _setIsAlwaysSuccessful(
       node,
       child.isAlwaysSuccessful || isAlwaysSuccessful,
     );
     _setCanChangePosition(node, child.canChangePosition);
-    _setIsVoid(child, node.isVoid);
-    _setAcceptancePoints(node, 1);
-    _setRejectionPoints(node, min == 0 ? 0 : 1);
+    _setSuccessCount(node, 1);
+    _setFailureCount(node, min == 0 ? 0 : 1);
     _setIsConst(node, false);
   }
 
@@ -325,26 +340,27 @@ Production: $_name''');
   void visitZeroOrMore(ZeroOrMoreExpression node) {
     final child = node.expression;
     _setIsReturn(child, true);
+    _setIsVoid(child, node.isVoid);
+    _setParent(child, node);
     child.accept(this);
     _setIsAlwaysSuccessful(node, true);
     _setCanChangePosition(node, child.canChangePosition);
-    _setIsVoid(child, node.isVoid);
-    _setAcceptancePoints(node, 1);
-    _setRejectionPoints(node, 0);
+    _setSuccessCount(node, 1);
+    _setFailureCount(node, 0);
     _setIsConst(node, false);
-  }
-
-  void _setAcceptancePoints(Expression node, int acceptancePoints) {
-    if (node.acceptancePoints != acceptancePoints) {
-      _hasChanges = true;
-      node.acceptancePoints = acceptancePoints;
-    }
   }
 
   void _setCanChangePosition(Expression node, bool canChangePosition) {
     if (node.canChangePosition != canChangePosition) {
       _hasChanges = true;
       node.canChangePosition = canChangePosition;
+    }
+  }
+
+  void _setFailureCount(Expression node, int failureCount) {
+    if (node.failureCount != failureCount) {
+      _hasChanges = true;
+      node.failureCount = failureCount;
     }
   }
 
@@ -359,6 +375,13 @@ Production: $_name''');
     if (node.isConst != isConst) {
       _hasChanges = true;
       node.isConst = isConst;
+    }
+  }
+
+  void _setIsLatest(Expression node, bool isLatest) {
+    if (node.isLatest != isLatest) {
+      _hasChanges = true;
+      node.isLatest = isLatest;
     }
   }
 
@@ -378,10 +401,17 @@ Production: $_name''');
     }
   }
 
-  void _setRejectionPoints(Expression node, int rejectionPoints) {
-    if (node.rejectionPoints != rejectionPoints) {
+  void _setParent(Expression node, Expression parent) {
+    if (node.parent != parent) {
       _hasChanges = true;
-      node.rejectionPoints = rejectionPoints;
+      node.parent = parent;
+    }
+  }
+
+  void _setSuccessCount(Expression node, int successCount) {
+    if (node.successCount != successCount) {
+      _hasChanges = true;
+      node.successCount = successCount;
     }
   }
 }

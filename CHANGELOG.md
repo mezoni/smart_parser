@@ -1,3 +1,8 @@
+## 2.0.5
+
+Optimized code generation for the expression `SequenceExpression`.
+Optimized code generation for the expression `ValueExpression`.
+
 ## 2.0.4
 
 - Optimized code generation for the expression `SequenceExpression` in the case where the last expression of the sequence assigns the semantic value `\$` and returns the result.

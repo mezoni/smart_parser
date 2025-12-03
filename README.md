@@ -2,7 +2,7 @@
 
 All in one, a generator of recursive descent PEG parsers, tokenizers, and token stream parsers.
 
-Version: 2.0.4
+Version: 2.0.5
 
 [![Pub Package](https://img.shields.io/pub/v/smart_parser.svg)](https://pub.dev/packages/smart_parser)
 [![GitHub Issues](https://img.shields.io/github/issues/mezoni/smart_parser.svg)](https://github.com/mezoni/smart_parser/issues)
@@ -2678,8 +2678,7 @@ Result<String>? parseFor(State state) {
       // [rR]
       if ($ok2) {
         state.nextChar();
-        const $val = 'FOR';
-        return const Ok($val);
+        return const Ok('FOR');
       } else {
         state.ch = $c;
         state.position = $pos;
@@ -2743,7 +2742,6 @@ Result<Expression>? parsePrimary(State state) {
     }
   }
   if ($list.isNotEmpty) {
-    final n = $list;
     return Ok($list);
   } else {
     return null;

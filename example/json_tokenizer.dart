@@ -581,8 +581,7 @@ class JsonTokenizer {
           state.position = $pos2;
         }
       }
-      final $val = state.substring(start, state.position);
-      final s = $val;
+      final s = state.substring(start, state.position);
       parseS(state);
       return Ok(flag && s.length <= 18 ? int.parse(s) : num.parse(s));
     } else {

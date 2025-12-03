@@ -60,11 +60,13 @@ class ExpressionGenerator implements Visitor<BuildResult> {
 
   final String productionName;
 
+  String? suggestedName;
+
   final Set<Expression> _insidePredicate = <Expression>{};
 
-  final Set<Expression> _noNeedToStoreValue = <Expression>{};
+  String? _resultVariable;
 
-  String? suggestedName;
+  String? _valueVariable;
 
   ExpressionGenerator({
     required this.allocator,
@@ -674,6 +676,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
   @override
   BuildResult visitOrderedChoice(OrderedChoiceExpression node) {
     final children = node.expressions;
+
     if (children.length == 1) {
       final child = children.first;
       final res = child.accept(this);
@@ -722,17 +725,19 @@ class ExpressionGenerator implements Visitor<BuildResult> {
       }
     } else {
       BuildResult combine(Expression node) {
-        final res = node.accept(this);
+        final rejectionPoints = node.failureCount;
+        final acceptancePoints = node.successCount;
         var needCombine = false;
-        if (res.successes.length > 1) {
+        if (acceptancePoints > 1) {
           needCombine = true;
         }
 
-        if (res.failures.length > 1) {
+        if (rejectionPoints > 1) {
           needCombine = true;
         }
 
         if (!needCombine) {
+          final res = node.accept(this);
           return res;
         }
 
@@ -752,6 +757,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
           code.declare('var', variable, 'false');
         }
 
+        final res = node.accept(this);
         code.add(res.code);
         for (final success in res.successes) {
           success.succeeds((code) {
@@ -920,9 +926,9 @@ class ExpressionGenerator implements Visitor<BuildResult> {
         final isFalse = '$variable == null';
         final handler = code.ifElse(isTrue, isFalse);
         handler.ifBlock((code) {
-          code.add(succeeds);
           result = variable;
           value = '$result.\$1';
+          code.add(succeeds);
         });
 
         handler.elseBlock((code) {
@@ -954,21 +960,28 @@ class ExpressionGenerator implements Visitor<BuildResult> {
       suggestedName = null;
     }
 
+    void declareSemanticValue(Expression node, Success success) {
+      final semanticValue = node.semanticValue;
+      if (node is ValueExpression) {
+        return;
+      }
+
+      if (semanticValue != null && semanticValue != '\$') {
+        _declareResult(
+          success.succeeds,
+          isConst: success.isConst,
+          value: success.value,
+          variable: semanticValue,
+        );
+      }
+    }
+
     if (children.length == 1) {
       final child = children.first;
-      final semanticValue = child.semanticValue;
       final res = child.accept(this);
       for (final success in res.successes) {
         success.succeeds((code) {
-          if (semanticValue != null && semanticValue != '\$') {
-            _declareResult(
-              code,
-              isConst: success.isConst,
-              value: success.value,
-              variable: semanticValue,
-            );
-          }
-
+          declareSemanticValue(node, success);
           if (isVoid) {
             _setVoidResult(success);
           }
@@ -1108,15 +1121,6 @@ class ExpressionGenerator implements Visitor<BuildResult> {
           _internalError();
         }
       } else {
-        if (i == children.length - 1) {
-          if (child is ValueExpression) {
-            final semanticValue = child.semanticValue;
-            if (semanticValue == '\$' && child.errorHandler == null) {
-              _noNeedToStoreValue.add(child);
-            }
-          }
-        }
-
         res = child.accept(this);
       }
 
@@ -1138,17 +1142,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
       final res = buildResults[i];
       body.add(res.code);
       for (final success in res.successes) {
-        success.succeeds((code) {
-          final semanticValue = child.semanticValue;
-          if (semanticValue != null && semanticValue != '\$') {
-            _declareResult(
-              code,
-              isConst: success.isConst,
-              value: success.value,
-              variable: semanticValue,
-            );
-          }
-        });
+        declareSemanticValue(child, success);
       }
 
       failures.addAll(res.failures);
@@ -1245,21 +1239,31 @@ class ExpressionGenerator implements Visitor<BuildResult> {
 
   @override
   BuildResult visitValue(ValueExpression node) {
+    final semanticValue = node.semanticValue;
     final source = node.source.trim();
     final valueType = node.valueType;
     final isVoid = node.isVoid;
+    final parent = node.parent;
     final isConst = node.isConst;
     final code = Code();
     final succeeds = Code();
     var result = _none;
     var value = _noneValue;
-    if (_noNeedToStoreValue.contains(node)) {
-      if (!isVoid) {
-        value = source;
-        result = isConst ? 'const Ok($value)' : 'Ok($value)';
-      }
+    if (semanticValue == null) {
+      _wrongExpression(
+        node,
+        'The expression \'ValueExpression\' must have a semantic value',
+        'It is impossible to assign semantic value',
+      );
+    }
+
+    if (node.isReturn && parent != null && !parent.isVoid) {
+      value = source;
+      result = isConst ? 'const Ok($value)' : 'Ok($value)';
     } else {
-      final variable = _getSuggestedName('val');
+      final variable = semanticValue != '\$'
+          ? semanticValue
+          : _getSuggestedName('res');
       final result2 = _declareResult(
         code,
         isConst: isConst,
@@ -1340,6 +1344,21 @@ class ExpressionGenerator implements Visitor<BuildResult> {
 
   String _allocateIf(bool cond, [String name = '']) {
     return !cond ? _invalid : allocator.allocate(name);
+  }
+
+  BuildResult _build(
+    Expression node, {
+    String? resultVariable,
+    String? valueVariable,
+  }) {
+    final resultVariable_ = _resultVariable;
+    final valueVariable_ = _valueVariable;
+    _resultVariable = resultVariable;
+    _valueVariable = valueVariable;
+    final res = node.accept(this);
+    _resultVariable = resultVariable_;
+    _valueVariable = valueVariable_;
+    return res;
   }
 
   String _charSize(String name, List<(int, int)> ranges, bool negate) {

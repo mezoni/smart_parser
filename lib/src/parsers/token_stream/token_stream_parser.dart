@@ -350,8 +350,7 @@ class TokenStreamParser {
     }
     if ($list.isNotEmpty) {
       final n = $list;
-      final $val = SequenceExpression(expressions: n);
-      final e = $val;
+      final e = SequenceExpression(expressions: n);
       e.sourceCode = state.substring(pos, state.position).trimRight();
       return Ok(e);
     } else {
@@ -677,8 +676,7 @@ class TokenStreamParser {
         if (state.ch == 41) {
           state.nextChar();
           parseS(state);
-          final $val = GroupExpression(expression: e);
-          final g = $val;
+          final g = GroupExpression(expression: e);
           t != null ? g.type = t : null;
           return Ok(g);
         } else {
