@@ -5,6 +5,7 @@
 Version: {{version}}
 
 [![Pub Package](https://img.shields.io/pub/v/smart_parser.svg)](https://pub.dev/packages/smart_parser)
+[![Pub Monthly Downloads](https://img.shields.io/pub/dm/smart_parser.svg)](https://pub.dev/packages/smart_parser/score)
 [![GitHub Issues](https://img.shields.io/github/issues/mezoni/smart_parser.svg)](https://github.com/mezoni/smart_parser/issues)
 [![GitHub Forks](https://img.shields.io/github/forks/mezoni/smart_parser.svg)](https://github.com/mezoni/smart_parser/forks)
 [![GitHub Stars](https://img.shields.io/github/stars/mezoni/v.svg)](https://github.com/mezoni/smart_parser/stargazers)
@@ -31,8 +32,8 @@ Version: {{version}}
   - [Expression `Action`](#expression-action)
   - [Expression `Capture`](#expression-capture)
   - [Expression `Predicate`](#expression-predicate)
-  - [Meta expression `@position`](#meta-expression-position)
   - [Meta expression `@match`](#meta-expression-match)
+  - [Meta expression `@position`](#meta-expression-position)
   - [Meta expression `@while`](#meta-expression-while)
   - [Semantic values](#semantic-values)
   - [Generating token stream parsers](#generating-token-stream-parsers)
@@ -227,8 +228,8 @@ The following additional parsing expressions are supported:
 
 The following parsing meta-expressions are supported:
 
-- @position
 - @match
+- @position
 - @while
 
 Additional features:
@@ -781,21 +782,6 @@ START
 END
 ```
 
-## Meta expression `@position`
-
-The `Position` meta expression `@position(n)` changes the parsing position to `n`, then succeeds and does not return any value.
-
-Example of input data scanning.
-
-```dart
-START
-`String` EndTag =>
-  { final index = state.indexOf('-->'); }
-  @position({ index != -1 ? index : state.length })
-  $ = '-->'
-END
-```
-
 ## Meta expression `@match`
 
 The `Match` meta expression `@match(s)` consumes the string in a case-insensitive manner and returns this string.
@@ -813,6 +799,21 @@ END
 START
 `void` For =>
   @match('for')
+END
+```
+
+## Meta expression `@position`
+
+The `Position` meta expression `@position(n)` changes the parsing position to `n`, then succeeds and does not return any value.
+
+Example of input data scanning.
+
+```dart
+START
+`String` EndTag =>
+  { final index = state.indexOf('-->'); }
+  @position({ index != -1 ? index : state.length })
+  $ = '-->'
 END
 ```
 
@@ -1131,10 +1132,10 @@ void restoreToken(State state, int index) {
 To implement data parsing from files, it is necessary to extend the `State` class.  
 The following class members must be overridden:
 
+- `charAt`
 - `charSize`
 - `indexOf`
 - `length`
-- `nextChar`
 - `startsWith`
 - `strlen`
 - `substring`

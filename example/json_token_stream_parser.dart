@@ -73,11 +73,10 @@ class JsonParser {
       final $ok = token.kind == TokenKind.eof;
       if ($ok) {
         return $value;
-      } else {
-        state.errorExpected('enf of file');
-        restoreToken(state, $index);
-        return null;
       }
+      state.errorExpected('enf of file');
+      restoreToken(state, $index);
+      return null;
     } else {
       return null;
     }
@@ -391,7 +390,31 @@ class State {
   final List<int?> _starts = List.filled(_maxErrorCount, null);
 
   State(String input) : _input = input, length = input.length {
-    readChar(0, true);
+    readChar(0);
+  }
+
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int charAt(int position) {
+    if (position < length) {
+      final ch = _input.codeUnitAt(position);
+      if (ch < 0xd800) {
+        return ch;
+      }
+
+      if (ch < 0xe000) {
+        final c = _input.codeUnitAt(position + 1);
+        if ((c & 0xfc00) == 0xdc00) {
+          return 0x10000 + ((ch & 0x3ff) << 10) + (c & 0x3ff);
+        }
+
+        throw FormatException('Invalid UTF-16 character', this, position);
+      }
+
+      return ch;
+    }
+
+    return -1;
   }
 
   @pragma('vm:prefer-inline')
@@ -529,99 +552,29 @@ class State {
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  @pragma('vm:unsafe:no-interrupts')
-  /// Intended for internal use only.
-  int match(List<int> lowerCase, List<int> upperCase) {
-    if (lowerCase.length != upperCase.length) {
-      throw ArgumentError('The lengths of the lists do not match');
-    }
-
-    if (upperCase.isEmpty) {
-      return 0;
-    }
-
-    var ch = this.ch;
-    if (ch == lowerCase[0] || ch == upperCase[0]) {
-      var length = charSize(ch);
-      for (var i = 1; i < lowerCase.length; i++) {
-        ch = readChar(position + length, false);
-        if (ch != lowerCase[i] && ch != upperCase[i]) {
-          return -1;
-        }
-
-        length += charSize(ch);
-      }
-
-      return length;
-    }
-
-    return -1;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
   /// Reads the next character, advances the position to the next character and
   /// returns that character.
   int nextChar() {
-    if (position >= length) {
-      return ch = -1;
-    }
-
-    position += charSize(ch);
-    if (predicate == 0 && farthestPosition < position) {
-      farthestPosition = position;
-    }
-
     if (position < length) {
-      if ((ch = _input.codeUnitAt(position)) < 0xd800) {
-        return ch;
+      position += charSize(ch);
+      if (predicate == 0 && farthestPosition < position) {
+        farthestPosition = position;
       }
 
-      if (ch < 0xe000) {
-        final c = _input.codeUnitAt(position + 1);
-        if ((c & 0xfc00) == 0xdc00) {
-          return ch = 0x10000 + ((ch & 0x3ff) << 10) + (c & 0x3ff);
-        }
-
-        throw FormatException('Invalid UTF-16 character', this, position);
-      }
-
-      return ch;
-    } else {
-      return ch = -1;
+      return ch = charAt(position);
     }
+
+    return ch = -1;
   }
 
   /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  int readChar(int position, bool advance) {
-    var ch = -1;
-    l:
-    {
-      if (position < length) {
-        if ((ch = _input.codeUnitAt(position)) < 0xd800) {
-          break l;
-        }
-
-        if (ch < 0xe000) {
-          final c = _input.codeUnitAt(position + 1);
-          if ((c & 0xfc00) == 0xdc00) {
-            ch = 0x10000 + ((ch & 0x3ff) << 10) + (c & 0x3ff);
-            break l;
-          }
-
-          throw FormatException('Invalid UTF-16 character', this, position);
-        }
-      }
-    }
-
-    if (advance) {
-      this.position = position < length ? position : length;
-      this.ch = ch;
-      if (predicate == 0 && farthestPosition < position) {
-        farthestPosition = position;
-      }
+  int readChar(int position) {
+    ch = charAt(position);
+    this.position = position < length ? position : length;
+    if (predicate == 0 && farthestPosition < position) {
+      farthestPosition = position;
     }
 
     return ch;

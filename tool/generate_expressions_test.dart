@@ -469,6 +469,51 @@ Test _testCharacterClass() {
     }
   }
 
+  {
+    final production = test.addProduction('int', '''
+[a]
+---
+[b]''');
+    {
+      production.addSuccess('a', 1, '97');
+      production.addSuccess('b', 1, '98');
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('z', 0, [_errorSyntaxError(0, 0)]);
+    }
+  }
+
+  {
+    final production = test.addProduction('int', r'''
+$ = (
+  [a]
+  ---
+  [b]
+)
+[ ]''');
+    {
+      production.addSuccess('a ', 2, '97');
+      production.addSuccess('b ', 2, '98');
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('z', 0, [_errorSyntaxError(0, 0)]);
+    }
+  }
+
+  {
+    final production = test.addProduction('void', r'''
+(
+  [a]
+  ---
+  [b]
+)
+[ ]''');
+    {
+      production.addSuccess('a ', 2, 'null');
+      production.addSuccess('b ', 2, 'null');
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('z', 0, [_errorSyntaxError(0, 0)]);
+    }
+  }
+
   return test;
 }
 
@@ -596,6 +641,108 @@ Test _testLiteral() {
     }
   }
 
+  {
+    final production = test.addProduction('String', '''
+"abc"
+---
+"def"''');
+    {
+      production.addSuccess('abc', 3, escapeString('abc'));
+      production.addSuccess('def', 3, escapeString('def'));
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('a', 0, [_errorSyntaxError(0, 0)]);
+    }
+  }
+
+  {
+    final production = test.addProduction('String', r'''
+$ = (
+  "abc"
+  ---
+  "def"
+)
+[ ]''');
+    {
+      production.addSuccess('abc ', 4, escapeString('abc'));
+      production.addSuccess('def ', 4, escapeString('def'));
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('a', 0, [_errorSyntaxError(0, 0)]);
+    }
+  }
+
+  {
+    final production = test.addProduction('void', r'''
+(
+  "abc"
+  ---
+  "def"
+)
+[ ]''');
+    {
+      production.addSuccess('abc ', 4, 'null');
+      production.addSuccess('def ', 4, 'null');
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('a', 0, [_errorSyntaxError(0, 0)]);
+    }
+  }
+
+  {
+    final production = test.addProduction('String', """
+'abc'
+---
+'def'""");
+    {
+      production.addSuccess('abc', 3, escapeString('abc'));
+      production.addSuccess('def', 3, escapeString('def'));
+      production.addFailure('', 0, [
+        _errorExpected(0, ['abc', 'def']),
+      ]);
+      production.addFailure('a', 0, [
+        _errorExpected(0, ['abc', 'def']),
+      ]);
+    }
+  }
+
+  {
+    final production = test.addProduction('String', r'''
+$ = (
+  'abc'
+  ---
+  'def'
+)
+[ ]''');
+    {
+      production.addSuccess('abc ', 4, escapeString('abc'));
+      production.addSuccess('def ', 4, escapeString('def'));
+      production.addFailure('', 0, [
+        _errorExpected(0, ['abc', 'def']),
+      ]);
+      production.addFailure('a', 0, [
+        _errorExpected(0, ['abc', 'def']),
+      ]);
+    }
+  }
+
+  {
+    final production = test.addProduction('void', r'''
+(
+  'abc'
+  ---
+  'def'
+)
+[ ]''');
+    {
+      production.addSuccess('abc ', 4, 'null');
+      production.addSuccess('def ', 4, 'null');
+      production.addFailure('', 0, [
+        _errorExpected(0, ['abc', 'def']),
+      ]);
+      production.addFailure('a', 0, [
+        _errorExpected(0, ['abc', 'def']),
+      ]);
+    }
+  }
+
   return test;
 }
 
@@ -611,7 +758,7 @@ Test _testMatch() {
       production.addSuccess('fOr', 3, escapeString('fOr'));
       production.addSuccess('foR', 3, escapeString('foR'));
       production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
-      production.addFailure('z', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('fo', 0, [_errorSyntaxError(0, 0)]);
     }
   }
 
@@ -625,7 +772,84 @@ Test _testMatch() {
       production.addSuccess('fOr', 3, escapeString('fOr'));
       production.addSuccess('foR', 3, escapeString('foR'));
       production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
-      production.addFailure('z', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('fo', 0, [_errorSyntaxError(0, 0)]);
+    }
+  }
+
+  {
+    final production = test.addProduction('String', '''
+@match('for')
+~{ state.errorExpected('for'); }''');
+    {
+      production.addSuccess('FOR', 3, escapeString('FOR'));
+      production.addFailure('', 0, [
+        _errorExpected(0, ['for']),
+      ]);
+      production.addFailure('fo', 0, [
+        _errorExpected(0, ['for']),
+      ]);
+    }
+  }
+
+  {
+    final production = test.addProduction('void', '''
+& @match('for')''');
+    {
+      production.addSuccess('for', 0, 'null');
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('fo', 0, [_errorSyntaxError(0, 0)]);
+    }
+  }
+
+  {
+    final production = test.addProduction('void', '''
+! @match('for')''');
+    {
+      production.addFailure('for', 0, [_errorSyntaxError(0, 0)]);
+      production.addSuccess('', 0, 'null');
+      production.addSuccess('fo', 0, 'null');
+    }
+  }
+
+  {
+    final production = test.addProduction('String', '''
+@match('for')
+---
+@match('while')''');
+    {
+      production.addSuccess('FOR', 3, escapeString('FOR'));
+      production.addSuccess('WHILE', 5, escapeString('WHILE'));
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
+    }
+  }
+
+  {
+    final production = test.addProduction('String', r'''
+$ = (
+  @match('for')
+  ---
+  @match('while')
+)
+[ ]''');
+    {
+      production.addSuccess('FOR ', 4, escapeString('FOR'));
+      production.addSuccess('WHILE ', 6, escapeString('WHILE'));
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
+    }
+  }
+
+  {
+    final production = test.addProduction('void', r'''
+(
+  @match('for')
+  ---
+  @match('while')
+)
+[ ]''');
+    {
+      production.addSuccess('FOR ', 4, 'null');
+      production.addSuccess('WHILE ', 6, 'null');
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
     }
   }
 
@@ -783,6 +1007,27 @@ Test _testPredicate() {
 
   {
     final production = test.addProduction('void', '! { false }');
+    {
+      production.addSuccess('a', 0, 'null');
+      production.addSuccess('', 0, 'null');
+    }
+  }
+
+  {
+    final production = test.addProduction('void', '''
+! { false }
+[ ]''');
+    {
+      production.addSuccess(' ', 1, 'null');
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
+    }
+  }
+
+  {
+    final production = test.addProduction('void', '''
+! { true }
+---
+! { false }''');
     {
       production.addSuccess('a', 0, 'null');
       production.addSuccess('', 0, 'null');

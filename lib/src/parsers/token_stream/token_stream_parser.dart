@@ -59,9 +59,8 @@ class TokenStreamParser {
       if ($production != null) {
         $list.add($production.$1);
         continue;
-      } else {
-        break;
       }
+      break;
     }
     if ($list.isNotEmpty) {
       final p = $list;
@@ -94,15 +93,15 @@ class TokenStreamParser {
     final $c = state.ch;
     final start = state.position;
     // "%{"
-    if (state.ch == 37 && state.startsWith("%{")) {
-      state.readChar(state.position + 2, true);
+    if (state.ch == 37 && state.startsWith('%{')) {
+      state.readChar(state.position + 2);
       final index = state.indexOf('\u007D%');
       final $pos1 = state.position;
-      state.readChar(index == -1 ? state.length : index, true);
+      state.readChar(index == -1 ? state.length : index);
       final $globals = Ok(state.substring($pos1, state.position));
       // "}%"
-      if (state.ch == 125 && state.startsWith("}%")) {
-        state.readChar(state.position + 2, true);
+      if (state.ch == 125 && state.startsWith('}%')) {
+        state.readChar(state.position + 2);
         parseS(state);
         return $globals;
       } else {
@@ -131,15 +130,15 @@ class TokenStreamParser {
     final $c = state.ch;
     final start = state.position;
     // "%%"
-    if (state.ch == 37 && state.startsWith("%%")) {
-      state.readChar(state.position + 2, true);
+    if (state.ch == 37 && state.startsWith('%%')) {
+      state.readChar(state.position + 2);
       final index = state.indexOf('%%');
       final $pos1 = state.position;
-      state.readChar(index == -1 ? state.length : index, true);
+      state.readChar(index == -1 ? state.length : index);
       final $members = Ok(state.substring($pos1, state.position));
       // "%%"
-      if (state.ch == 37 && state.startsWith("%%")) {
-        state.readChar(state.position + 2, true);
+      if (state.ch == 37 && state.startsWith('%%')) {
+        state.readChar(state.position + 2);
         parseS(state);
         return $members;
       } else {
@@ -183,7 +182,7 @@ class TokenStreamParser {
         final i = $productionName.$1;
         // '=>'
         if (state.ch == 61 && state.startsWith('=>')) {
-          state.readChar(state.position + 2, true);
+          state.readChar(state.position + 2);
           parseS(state);
           final $expression = parseExpression(state);
           if ($expression != null) {
@@ -282,9 +281,8 @@ class TokenStreamParser {
               state.nextChar();
               $ok = true;
               continue;
-            } else {
-              break;
             }
+            break;
           }
           if ($ok) {
             $res = true;
@@ -720,9 +718,8 @@ class TokenStreamParser {
         if ($ok1) {
           state.nextChar();
           continue;
-        } else {
-          break;
         }
+        break;
       }
       final n = state.substring($pos, state.position);
       parseS(state);
@@ -754,8 +751,8 @@ class TokenStreamParser {
     final $type = parseType(state);
     final t = $type?.$1;
     // "@while"
-    if (state.ch == 64 && state.startsWith("@while")) {
-      state.readChar(state.position + 6, true);
+    if (state.ch == 64 && state.startsWith('@while')) {
+      state.readChar(state.position + 6);
       parseS(state);
       // '('
       if (state.ch == 40) {
@@ -882,11 +879,10 @@ class TokenStreamParser {
       final $block = parseBlock(state);
       if ($block != null) {
         return $block;
-      } else {
-        state.ch = $c;
-        state.position = $pos;
-        return null;
       }
+      state.ch = $c;
+      state.position = $pos;
+      return null;
     } else {
       return null;
     }
@@ -927,9 +923,8 @@ class TokenStreamParser {
             state.nextChar();
             $ok = true;
             continue;
-          } else {
-            break;
           }
+          break;
         }
       }
       if ($ok) {
@@ -989,9 +984,8 @@ class TokenStreamParser {
             state.nextChar();
             $ok = true;
             continue;
-          } else {
-            break;
           }
+          break;
         }
         if ($ok) {
           $list.add(state.substring($pos1, state.position));
@@ -1054,9 +1048,8 @@ class TokenStreamParser {
             state.nextChar();
             $ok = true;
             continue;
-          } else {
-            break;
           }
+          break;
         }
         if ($ok) {
           $list.add(state.substring($pos1, state.position));
@@ -1257,9 +1250,8 @@ class TokenStreamParser {
         state.nextChar();
         $ok = true;
         continue;
-      } else {
-        break;
       }
+      break;
     }
     if ($ok) {
       final n = state.substring($pos, state.position);
@@ -1293,9 +1285,8 @@ class TokenStreamParser {
         if ($ok1) {
           state.nextChar();
           continue;
-        } else {
-          break;
         }
+        break;
       }
       final n = state.substring($pos, state.position);
       return Ok(int.parse(n));
@@ -1325,9 +1316,8 @@ class TokenStreamParser {
         state.nextChar();
         $ok = true;
         continue;
-      } else {
-        break;
       }
+      break;
     }
     if ($ok) {
       final n = state.substring($pos, state.position);
@@ -1358,9 +1348,8 @@ class TokenStreamParser {
         final $blockBody = parseBlockBody(state);
         if ($blockBody != null) {
           continue;
-        } else {
-          break;
         }
+        break;
       }
       final $block = Ok(state.substring($pos1, state.position));
       // '}'
@@ -1401,19 +1390,17 @@ class TokenStreamParser {
         final $blockBody = parseBlockBody(state);
         if ($blockBody != null) {
           continue;
-        } else {
-          break;
         }
+        break;
       }
       // '}'
       if (state.ch == 125) {
         state.nextChar();
         return Result.none;
-      } else {
-        state.errorExpected('}');
-        state.ch = $c;
-        state.position = $pos;
       }
+      state.errorExpected('}');
+      state.ch = $c;
+      state.position = $pos;
     }
     // "}"
     if (!(state.ch == 125)) {
@@ -1447,9 +1434,8 @@ class TokenStreamParser {
         if ($ok1) {
           state.nextChar();
           continue;
-        } else {
-          break;
         }
+        break;
       }
       final $variableName = Ok(state.substring($pos, state.position));
       parseS(state);
@@ -1481,9 +1467,8 @@ class TokenStreamParser {
         if ($ok1) {
           state.nextChar();
           continue;
-        } else {
-          break;
         }
+        break;
       }
       final $productionName = Ok(state.substring($pos, state.position));
       parseS(state);
@@ -1549,9 +1534,8 @@ class TokenStreamParser {
           if (state.ch >= 0) {
             state.nextChar();
             continue;
-          } else {
-            break;
           }
+          break;
         }
       }
       parseEndOfLine(state);
@@ -1594,8 +1578,8 @@ class TokenStreamParser {
   /// ```
   Result<void>? parseEndOfLine(State state) {
     // "\r\n"
-    if (state.ch == 13 && state.startsWith("\r\n")) {
-      state.readChar(state.position + 2, true);
+    if (state.ch == 13 && state.startsWith('\r\n')) {
+      state.readChar(state.position + 2);
       return Result.none;
     }
     final $c = state.ch;
@@ -1668,7 +1652,31 @@ class State {
   final List<int?> _starts = List.filled(_maxErrorCount, null);
 
   State(String input) : _input = input, length = input.length {
-    readChar(0, true);
+    readChar(0);
+  }
+
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int charAt(int position) {
+    if (position < length) {
+      final ch = _input.codeUnitAt(position);
+      if (ch < 0xd800) {
+        return ch;
+      }
+
+      if (ch < 0xe000) {
+        final c = _input.codeUnitAt(position + 1);
+        if ((c & 0xfc00) == 0xdc00) {
+          return 0x10000 + ((ch & 0x3ff) << 10) + (c & 0x3ff);
+        }
+
+        throw FormatException('Invalid UTF-16 character', this, position);
+      }
+
+      return ch;
+    }
+
+    return -1;
   }
 
   @pragma('vm:prefer-inline')
@@ -1806,99 +1814,29 @@ class State {
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  @pragma('vm:unsafe:no-interrupts')
-  /// Intended for internal use only.
-  int match(List<int> lowerCase, List<int> upperCase) {
-    if (lowerCase.length != upperCase.length) {
-      throw ArgumentError('The lengths of the lists do not match');
-    }
-
-    if (upperCase.isEmpty) {
-      return 0;
-    }
-
-    var ch = this.ch;
-    if (ch == lowerCase[0] || ch == upperCase[0]) {
-      var length = charSize(ch);
-      for (var i = 1; i < lowerCase.length; i++) {
-        ch = readChar(position + length, false);
-        if (ch != lowerCase[i] && ch != upperCase[i]) {
-          return -1;
-        }
-
-        length += charSize(ch);
-      }
-
-      return length;
-    }
-
-    return -1;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
   /// Reads the next character, advances the position to the next character and
   /// returns that character.
   int nextChar() {
-    if (position >= length) {
-      return ch = -1;
-    }
-
-    position += charSize(ch);
-    if (predicate == 0 && farthestPosition < position) {
-      farthestPosition = position;
-    }
-
     if (position < length) {
-      if ((ch = _input.codeUnitAt(position)) < 0xd800) {
-        return ch;
+      position += charSize(ch);
+      if (predicate == 0 && farthestPosition < position) {
+        farthestPosition = position;
       }
 
-      if (ch < 0xe000) {
-        final c = _input.codeUnitAt(position + 1);
-        if ((c & 0xfc00) == 0xdc00) {
-          return ch = 0x10000 + ((ch & 0x3ff) << 10) + (c & 0x3ff);
-        }
-
-        throw FormatException('Invalid UTF-16 character', this, position);
-      }
-
-      return ch;
-    } else {
-      return ch = -1;
+      return ch = charAt(position);
     }
+
+    return ch = -1;
   }
 
   /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  int readChar(int position, bool advance) {
-    var ch = -1;
-    l:
-    {
-      if (position < length) {
-        if ((ch = _input.codeUnitAt(position)) < 0xd800) {
-          break l;
-        }
-
-        if (ch < 0xe000) {
-          final c = _input.codeUnitAt(position + 1);
-          if ((c & 0xfc00) == 0xdc00) {
-            ch = 0x10000 + ((ch & 0x3ff) << 10) + (c & 0x3ff);
-            break l;
-          }
-
-          throw FormatException('Invalid UTF-16 character', this, position);
-        }
-      }
-    }
-
-    if (advance) {
-      this.position = position < length ? position : length;
-      this.ch = ch;
-      if (predicate == 0 && farthestPosition < position) {
-        farthestPosition = position;
-      }
+  int readChar(int position) {
+    ch = charAt(position);
+    this.position = position < length ? position : length;
+    if (predicate == 0 && farthestPosition < position) {
+      farthestPosition = position;
     }
 
     return ch;

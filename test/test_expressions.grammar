@@ -142,6 +142,40 @@
 `void` CharacterClassVoid13 =>
   [^\u{0}-\u{9}]
 
+`int` CharacterClass14 =>
+  [a]
+  ---
+  [b]
+
+`void` CharacterClassVoid14 =>
+  [a]
+  ---
+  [b]
+
+`int` CharacterClass15 =>
+  $ = (
+    [a]
+    ---
+    [b]
+  )
+  [ ]
+
+`void` CharacterClassVoid15 =>
+  $ = (
+    [a]
+    ---
+    [b]
+  )
+  [ ]
+
+`void` CharacterClass16 =>
+  (
+    [a]
+    ---
+    [b]
+  )
+  [ ]
+
 `int` Group0 =>
   ([a] / [z])
 
@@ -178,6 +212,74 @@
 `void` LiteralVoid4 =>
   "\r\n"
 
+`String` Literal5 =>
+  "abc"
+  ---
+  "def"
+
+`void` LiteralVoid5 =>
+  "abc"
+  ---
+  "def"
+
+`String` Literal6 =>
+  $ = (
+    "abc"
+    ---
+    "def"
+  )
+  [ ]
+
+`void` LiteralVoid6 =>
+  $ = (
+    "abc"
+    ---
+    "def"
+  )
+  [ ]
+
+`void` Literal7 =>
+  (
+    "abc"
+    ---
+    "def"
+  )
+  [ ]
+
+`String` Literal8 =>
+  'abc'
+  ---
+  'def'
+
+`void` LiteralVoid8 =>
+  'abc'
+  ---
+  'def'
+
+`String` Literal9 =>
+  $ = (
+    'abc'
+    ---
+    'def'
+  )
+  [ ]
+
+`void` LiteralVoid9 =>
+  $ = (
+    'abc'
+    ---
+    'def'
+  )
+  [ ]
+
+`void` Literal10 =>
+  (
+    'abc'
+    ---
+    'def'
+  )
+  [ ]
+
 `String` Match0 =>
   @match('for')
 
@@ -189,6 +291,54 @@
 
 `void` MatchVoid1 =>
   @match('FOR')
+
+`String` Match2 =>
+  @match('for')
+  ~{ state.errorExpected('for'); }
+
+`void` MatchVoid2 =>
+  @match('for')
+  ~{ state.errorExpected('for'); }
+
+`void` Match3 =>
+  & @match('for')
+
+`void` Match4 =>
+  ! @match('for')
+
+`String` Match5 =>
+  @match('for')
+  ---
+  @match('while')
+
+`void` MatchVoid5 =>
+  @match('for')
+  ---
+  @match('while')
+
+`String` Match6 =>
+  $ = (
+    @match('for')
+    ---
+    @match('while')
+  )
+  [ ]
+
+`void` MatchVoid6 =>
+  $ = (
+    @match('for')
+    ---
+    @match('while')
+  )
+  [ ]
+
+`void` Match7 =>
+  (
+    @match('for')
+    ---
+    @match('while')
+  )
+  [ ]
 
 `String` NotPredicate0 =>
   ! 'abc'
@@ -272,6 +422,15 @@
   ! { true }
 
 `void` Predicate3 =>
+  ! { false }
+
+`void` Predicate4 =>
+  ! { false }
+  [ ]
+
+`void` Predicate5 =>
+  ! { true }
+  ---
   ! { false }
 
 `int` Sequence0 =>

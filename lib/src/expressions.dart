@@ -69,9 +69,9 @@ abstract class Expression {
 
   bool isConst = false;
 
-  bool isLatest = false;
+  bool isEndPoint = false;
 
-  bool isReturn = false;
+  bool isLatest = false;
 
   bool isVoid = false;
 

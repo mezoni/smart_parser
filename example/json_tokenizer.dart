@@ -144,20 +144,20 @@ class JsonTokenizer {
         continue;
       }
       // "null"
-      if (state.ch == 110 && state.startsWith("null")) {
-        state.readChar(state.position + 4, true);
+      if (state.ch == 110 && state.startsWith('null')) {
+        state.readChar(state.position + 4);
         $tokens.add(_token(start, state.position, TokenKind.null$, null));
         continue;
       }
       // "true"
-      if (state.ch == 116 && state.startsWith("true")) {
-        state.readChar(state.position + 4, true);
+      if (state.ch == 116 && state.startsWith('true')) {
+        state.readChar(state.position + 4);
         $tokens.add(_token(start, state.position, TokenKind.true$, true));
         continue;
       }
       // "false"
-      if (state.ch == 102 && state.startsWith("false")) {
-        state.readChar(state.position + 5, true);
+      if (state.ch == 102 && state.startsWith('false')) {
+        state.readChar(state.position + 5);
         $tokens.add(_token(start, state.position, TokenKind.false$, false));
         continue;
       }
@@ -308,11 +308,10 @@ class JsonTokenizer {
           state.nextChar();
           $cnt++;
           continue;
-        } else {
-          end = state.position;
-          state.errorExpected('hexadecimal digit');
-          break;
         }
+        end = state.position;
+        state.errorExpected('hexadecimal digit');
+        break;
       }
       if ($cnt >= 4) {
         final s = state.substring($pos1, state.position);
@@ -370,7 +369,7 @@ class JsonTokenizer {
   ///     state.errorExpected('"');
   ///   }
   ///   S
-  ///   $ = { p.join() }
+  ///   $ = { p.length == 1 ? p[0] : p.isNotEmpty ? p.join() : '' }
   /// ```
   Result<String>? parseString(State state) {
     final $pos = state.position;
@@ -393,9 +392,8 @@ class JsonTokenizer {
             state.nextChar();
             $ok = true;
             continue;
-          } else {
-            break;
           }
+          break;
         }
         if ($ok) {
           $list.add(state.substring($pos1, state.position));
@@ -409,10 +407,9 @@ class JsonTokenizer {
           if ($escaped != null) {
             $list.add($escaped.$1);
             continue;
-          } else {
-            state.ch = $c2;
-            state.position = $pos1;
           }
+          state.ch = $c2;
+          state.position = $pos1;
         }
         break;
       }
@@ -421,7 +418,7 @@ class JsonTokenizer {
       if (state.ch == 34) {
         state.nextChar();
         parseS(state);
-        return Ok(p.join());
+        return Ok(p.length == 1 ? p[0] : p.isNotEmpty ? p.join() : '');
       } else {
         state.error('Unterminated string', start: start);
         state.errorExpected('"');
@@ -497,9 +494,8 @@ class JsonTokenizer {
           if ($ok1) {
             state.nextChar();
             continue;
-          } else {
-            break;
           }
+          break;
         }
         $res = true;
       } else {
@@ -522,9 +518,8 @@ class JsonTokenizer {
             state.nextChar();
             $ok2 = true;
             continue;
-          } else {
-            break;
           }
+          break;
         }
         if ($ok2) {
           flag = false;
@@ -558,9 +553,8 @@ class JsonTokenizer {
             state.nextChar();
             $ok6 = true;
             continue;
-          } else {
-            break;
           }
+          break;
         }
         if ($ok6) {
           flag = false;
@@ -596,9 +590,8 @@ class JsonTokenizer {
       if ($ok) {
         state.nextChar();
         continue;
-      } else {
-        break;
       }
+      break;
     }
     return Result.none;
   }
@@ -663,7 +656,31 @@ class State {
   final List<int?> _starts = List.filled(_maxErrorCount, null);
 
   State(String input) : _input = input, length = input.length {
-    readChar(0, true);
+    readChar(0);
+  }
+
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  int charAt(int position) {
+    if (position < length) {
+      final ch = _input.codeUnitAt(position);
+      if (ch < 0xd800) {
+        return ch;
+      }
+
+      if (ch < 0xe000) {
+        final c = _input.codeUnitAt(position + 1);
+        if ((c & 0xfc00) == 0xdc00) {
+          return 0x10000 + ((ch & 0x3ff) << 10) + (c & 0x3ff);
+        }
+
+        throw FormatException('Invalid UTF-16 character', this, position);
+      }
+
+      return ch;
+    }
+
+    return -1;
   }
 
   @pragma('vm:prefer-inline')
@@ -801,99 +818,29 @@ class State {
 
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  @pragma('vm:unsafe:no-interrupts')
-  /// Intended for internal use only.
-  int match(List<int> lowerCase, List<int> upperCase) {
-    if (lowerCase.length != upperCase.length) {
-      throw ArgumentError('The lengths of the lists do not match');
-    }
-
-    if (upperCase.isEmpty) {
-      return 0;
-    }
-
-    var ch = this.ch;
-    if (ch == lowerCase[0] || ch == upperCase[0]) {
-      var length = charSize(ch);
-      for (var i = 1; i < lowerCase.length; i++) {
-        ch = readChar(position + length, false);
-        if (ch != lowerCase[i] && ch != upperCase[i]) {
-          return -1;
-        }
-
-        length += charSize(ch);
-      }
-
-      return length;
-    }
-
-    return -1;
-  }
-
-  @pragma('vm:prefer-inline')
-  @pragma('dart2js:tryInline')
   /// Reads the next character, advances the position to the next character and
   /// returns that character.
   int nextChar() {
-    if (position >= length) {
-      return ch = -1;
-    }
-
-    position += charSize(ch);
-    if (predicate == 0 && farthestPosition < position) {
-      farthestPosition = position;
-    }
-
     if (position < length) {
-      if ((ch = _input.codeUnitAt(position)) < 0xd800) {
-        return ch;
+      position += charSize(ch);
+      if (predicate == 0 && farthestPosition < position) {
+        farthestPosition = position;
       }
 
-      if (ch < 0xe000) {
-        final c = _input.codeUnitAt(position + 1);
-        if ((c & 0xfc00) == 0xdc00) {
-          return ch = 0x10000 + ((ch & 0x3ff) << 10) + (c & 0x3ff);
-        }
-
-        throw FormatException('Invalid UTF-16 character', this, position);
-      }
-
-      return ch;
-    } else {
-      return ch = -1;
+      return ch = charAt(position);
     }
+
+    return ch = -1;
   }
 
   /// Intended for internal use only.
   @pragma('vm:prefer-inline')
   @pragma('dart2js:tryInline')
-  int readChar(int position, bool advance) {
-    var ch = -1;
-    l:
-    {
-      if (position < length) {
-        if ((ch = _input.codeUnitAt(position)) < 0xd800) {
-          break l;
-        }
-
-        if (ch < 0xe000) {
-          final c = _input.codeUnitAt(position + 1);
-          if ((c & 0xfc00) == 0xdc00) {
-            ch = 0x10000 + ((ch & 0x3ff) << 10) + (c & 0x3ff);
-            break l;
-          }
-
-          throw FormatException('Invalid UTF-16 character', this, position);
-        }
-      }
-    }
-
-    if (advance) {
-      this.position = position < length ? position : length;
-      this.ch = ch;
-      if (predicate == 0 && farthestPosition < position) {
-        farthestPosition = position;
-      }
+  int readChar(int position) {
+    ch = charAt(position);
+    this.position = position < length ? position : length;
+    if (predicate == 0 && farthestPosition < position) {
+      farthestPosition = position;
     }
 
     return ch;

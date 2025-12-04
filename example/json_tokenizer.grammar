@@ -152,7 +152,7 @@ Token _token(int start, int end, TokenKind kind, Object? value) {
     state.errorExpected('"');
   }
   S
-  $ = { p.join() }
+  $ = { p.length == 1 ? p[0] : p.isNotEmpty ? p.join() : '' }
 
 `num` Number =>
   {

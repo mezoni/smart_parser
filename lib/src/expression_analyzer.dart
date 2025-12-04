@@ -27,7 +27,7 @@ class ExpressionAnalyzer implements Visitor<void> {
         final expression = production.expression;
         _name = production.name;
         _setIsVoid(expression, isVoid);
-        _setIsReturn(expression, true);
+        _setIsEndPoint(expression, true);
         _setIsLatest(expression, true);
         expression.accept(this);
       }
@@ -106,7 +106,7 @@ ${unusedProductions.join('\n')}''');
   @override
   void visitGroup(GroupExpression node) {
     final child = node.expression;
-    _setIsReturn(child, node.isReturn);
+    _setIsEndPoint(child, node.isEndPoint);
     _setIsVoid(child, node.isVoid);
     _setParent(child, node);
     child.accept(this);
@@ -153,7 +153,7 @@ ${unusedProductions.join('\n')}''');
   @override
   void visitOneOrMore(OneOrMoreExpression node) {
     final child = node.expression;
-    _setIsReturn(child, true);
+    _setIsEndPoint(child, true);
     _setIsVoid(child, node.isVoid);
     _setParent(child, node);
     child.accept(this);
@@ -198,7 +198,7 @@ ${unusedProductions.join('\n')}''');
     for (var i = 0; i < children.length; i++) {
       final child = children[i];
       _setIsVoid(child, node.isVoid);
-      _setIsReturn(child, node.isReturn);
+      _setIsEndPoint(child, node.isEndPoint);
       _setParent(child, node);
       child.accept(this);
       successCount += child.successCount;
@@ -272,7 +272,7 @@ Production: $_name''');
     }
 
     final isNotAlwaysSuccessful = children.any((e) => !e.isAlwaysSuccessful);
-    _setIsReturn(last, node.isReturn);
+    _setIsEndPoint(last, node.isEndPoint);
     _setIsLatest(last, node.isLatest);
     if (children.length == 1) {
       final child = children.first;
@@ -334,7 +334,7 @@ Production: $_name''');
     final range = node.range;
     final min = range.$1;
     final isAlwaysSuccessful = min == 0;
-    _setIsReturn(child, true);
+    _setIsEndPoint(child, true);
     _setIsVoid(child, node.isVoid);
     _setParent(child, node);
     child.accept(this);
@@ -351,7 +351,7 @@ Production: $_name''');
   @override
   void visitZeroOrMore(ZeroOrMoreExpression node) {
     final child = node.expression;
-    _setIsReturn(child, true);
+    _setIsEndPoint(child, true);
     _setIsVoid(child, node.isVoid);
     _setParent(child, node);
     child.accept(this);
@@ -390,17 +390,17 @@ Production: $_name''');
     }
   }
 
+  void _setIsEndPoint(Expression node, bool isEndPoint) {
+    if (node.isEndPoint != isEndPoint) {
+      _hasChanges = true;
+      node.isEndPoint = isEndPoint;
+    }
+  }
+
   void _setIsLatest(Expression node, bool isLatest) {
     if (node.isLatest != isLatest) {
       _hasChanges = true;
       node.isLatest = isLatest;
-    }
-  }
-
-  void _setIsReturn(Expression node, bool isReturn) {
-    if (node.isReturn != isReturn) {
-      _hasChanges = true;
-      node.isReturn = isReturn;
     }
   }
 

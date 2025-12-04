@@ -142,7 +142,7 @@ const JsonParser();
     state.errorExpected('"');
   }
   S
-  $ = { p.join() }
+  $ = { p.length == 1 ? p[0] : p.isNotEmpty ? p.join() : '' }
 
 `num` Number =>
   {

@@ -1,11 +1,15 @@
+## 2.0.7
+
+- Optimized code generation for the expression `MatchExpression`.
+
 ## 2.0.6
 
 - Optimized generation of semantic value code.
 
 ## 2.0.5
 
-Optimized code generation for the expression `SequenceExpression`.
-Optimized code generation for the expression `ValueExpression`.
+- Optimized code generation for the expression `SequenceExpression`.
+- Optimized code generation for the expression `ValueExpression`.
 
 ## 2.0.4
 

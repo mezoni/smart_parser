@@ -5,6 +5,7 @@ All in one, a generator of recursive descent PEG parsers, tokenizers, and token 
 Version: 2.0.6
 
 [![Pub Package](https://img.shields.io/pub/v/smart_parser.svg)](https://pub.dev/packages/smart_parser)
+[![Pub Monthly Downloads](https://img.shields.io/pub/dm/smart_parser.svg)](https://pub.dev/packages/smart_parser/score)
 [![GitHub Issues](https://img.shields.io/github/issues/mezoni/smart_parser.svg)](https://github.com/mezoni/smart_parser/issues)
 [![GitHub Forks](https://img.shields.io/github/forks/mezoni/smart_parser.svg)](https://github.com/mezoni/smart_parser/forks)
 [![GitHub Stars](https://img.shields.io/github/stars/mezoni/v.svg)](https://github.com/mezoni/smart_parser/stargazers)
@@ -31,8 +32,8 @@ Version: 2.0.6
   - [Expression `Action`](#expression-action)
   - [Expression `Capture`](#expression-capture)
   - [Expression `Predicate`](#expression-predicate)
-  - [Meta expression `@position`](#meta-expression-position)
   - [Meta expression `@match`](#meta-expression-match)
+  - [Meta expression `@position`](#meta-expression-position)
   - [Meta expression `@while`](#meta-expression-while)
   - [Semantic values](#semantic-values)
   - [Generating token stream parsers](#generating-token-stream-parsers)
@@ -172,8 +173,8 @@ Result<Token>? parsePunctuation(State state) {
     return Ok(_token(start, state.position, ":", tokenKind.colon));
   }
   // "=>"
-  if (state.ch == 61 && state.startsWith("=>")) {
-    state.readChar(state.position + 2, true);
+  if (state.ch == 61 && state.startsWith('=>')) {
+    state.readChar(state.position + 2);
     return Ok(_token(start, state.position, "=>", tokenKind.rightArrow));
   }
   return null;
@@ -307,11 +308,10 @@ Result<String>? parseEscapeUnicode(State state) {
         state.nextChar();
         $cnt++;
         continue;
-      } else {
-        end = state.position;
-        state.errorExpected('hexadecimal digit');
-        break;
       }
+      end = state.position;
+      state.errorExpected('hexadecimal digit');
+      break;
     }
     if ($cnt >= 4) {
       final s = state.substring($pos1, state.position);
@@ -379,8 +379,8 @@ The following additional parsing expressions are supported:
 
 The following parsing meta-expressions are supported:
 
-- @position
 - @match
+- @position
 - @while
 
 Additional features:
@@ -412,9 +412,8 @@ Result<int>? parseAnyCharacter(State state) {
     final $anyCharacter = state.ch;
     state.nextChar();
     return Ok($anyCharacter);
-  } else {
-    return null;
   }
+  return null;
 }
 ```
 
@@ -437,9 +436,8 @@ Result<void>? parseAnyCharacter(State state) {
   if (state.ch >= 0) {
     state.nextChar();
     return Result.none;
-  } else {
-    return null;
   }
+  return null;
 }
 ```
 
@@ -501,7 +499,7 @@ Result<String>? parseAndPredicate(State state) {
     state.nextChar();
     final $andPredicate = Ok(state.substring($pos, state.position));
     // "=>"
-    if (state.ch == 61 && state.startsWith("=>")) {
+    if (state.ch == 61 && state.startsWith('=>')) {
       return $andPredicate;
     } else {
       state.ch = $c;
@@ -551,9 +549,8 @@ Result<int>? parseA(State state) {
   if (state.ch == 97) {
     state.nextChar();
     return const Ok(97);
-  } else {
-    return null;
   }
+  return null;
 }
 ```
 
@@ -577,9 +574,8 @@ Result<void>? parseA(State state) {
   if (state.ch == 97) {
     state.nextChar();
     return Result.none;
-  } else {
-    return null;
   }
+  return null;
 }
 ```
 
@@ -607,9 +603,8 @@ Result<int>? parseDigits(State state) {
   if ($ok) {
     state.nextChar();
     return Ok($c);
-  } else {
-    return null;
   }
+  return null;
 }
 ```
 
@@ -637,9 +632,8 @@ Result<int>? parseNotDigits(State state) {
   if ($ok) {
     state.nextChar();
     return Ok($c);
-  } else {
-    return null;
   }
+  return null;
 }
 ```
 
@@ -667,9 +661,8 @@ Result<int>? parseNotDigitsNotLetters(State state) {
   if ($ok) {
     state.nextChar();
     return Ok($c);
-  } else {
-    return null;
   }
+  return null;
 }
 ```
 
@@ -695,9 +688,8 @@ Result<int>? parseSpace(State state) {
   if (state.ch == 32) {
     state.nextChar();
     return const Ok(32);
-  } else {
-    return null;
   }
+  return null;
 }
 ```
 
@@ -725,9 +717,8 @@ Result<int>? parseDigits(State state) {
   if ($ok) {
     state.nextChar();
     return Ok($c);
-  } else {
-    return null;
   }
+  return null;
 }
 ```
 
@@ -753,9 +744,8 @@ Result<int>? parseSpace(State state) {
   if (state.ch == 32) {
     state.nextChar();
     return const Ok(32);
-  } else {
-    return null;
   }
+  return null;
 }
 ```
 
@@ -781,9 +771,8 @@ Result<int>? parseSpace(State state) {
   if (state.ch == 94) {
     state.nextChar();
     return const Ok(94);
-  } else {
-    return null;
   }
+  return null;
 }
 ```
 
@@ -807,9 +796,8 @@ Result<int>? parseSpace(State state) {
   if (state.ch == 123) {
     state.nextChar();
     return const Ok(123);
-  } else {
-    return null;
   }
+  return null;
 }
 ```
 
@@ -906,11 +894,10 @@ Result<int>? parseAB(State state) {
     if (state.ch == 97) {
       state.nextChar();
       return $aB;
-    } else {
-      state.ch = $c;
-      state.position = $pos;
-      return null;
     }
+    state.ch = $c;
+    state.position = $pos;
+    return null;
   } else {
     return null;
   }
@@ -945,12 +932,11 @@ Dart code:
 /// ```
 Result<String>? parseFor(State state) {
   // "for"
-  if (state.ch == 102 && state.startsWith("for")) {
-    state.readChar(state.position + 3, true);
-    return const Ok("for");
-  } else {
-    return null;
+  if (state.ch == 102 && state.startsWith('for')) {
+    state.readChar(state.position + 3);
+    return const Ok('for');
   }
+  return null;
 }
 ```
 
@@ -971,12 +957,11 @@ Dart code:
 /// ```
 Result<void>? parseFor(State state) {
   // "for"
-  if (state.ch == 102 && state.startsWith("for")) {
-    state.readChar(state.position + 3, true);
+  if (state.ch == 102 && state.startsWith('for')) {
+    state.readChar(state.position + 3);
     return Result.none;
-  } else {
-    return null;
   }
+  return null;
 }
 ```
 
@@ -1000,12 +985,11 @@ Dart code:
 Result<String>? parseFor(State state) {
   // 'for'
   if (state.ch == 102 && state.startsWith('for')) {
-    state.readChar(state.position + 3, true);
+    state.readChar(state.position + 3);
     return const Ok('for');
-  } else {
-    state.errorExpected('for');
-    return null;
   }
+  state.errorExpected('for');
+  return null;
 }
 ```
 
@@ -1027,12 +1011,11 @@ Dart code:
 Result<void>? parseFor(State state) {
   // 'for'
   if (state.ch == 102 && state.startsWith('for')) {
-    state.readChar(state.position + 3, true);
+    state.readChar(state.position + 3);
     return Result.none;
-  } else {
-    state.errorExpected('for');
-    return null;
   }
+  state.errorExpected('for');
+  return null;
 }
 ```
 
@@ -1057,13 +1040,12 @@ Dart code:
 /// ```
 Result<String>? parseFor(State state) {
   // "for"
-  if (state.ch == 102 && state.startsWith("for")) {
-    state.readChar(state.position + 3, true);
-    return const Ok("for");
-  } else {
-    state.errorExpected('foo');
-    return null;
+  if (state.ch == 102 && state.startsWith('for')) {
+    state.readChar(state.position + 3);
+    return const Ok('for');
   }
+  state.errorExpected('foo');
+  return null;
 }
 ```
 
@@ -1194,9 +1176,8 @@ Result<List<int>>? parseOneOrMore(State state) {
       state.nextChar();
       $oneOrMore.add(97);
       continue;
-    } else {
-      break;
     }
+    break;
   }
   if ($oneOrMore.isNotEmpty) {
     return Ok($oneOrMore);
@@ -1230,9 +1211,8 @@ Result<void>? parseOneOrMore(State state) {
       state.nextChar();
       $ok = true;
       continue;
-    } else {
-      break;
     }
+    break;
   }
   if ($ok) {
     return Result.none;
@@ -1740,11 +1720,10 @@ Result<void>? parseAB(State state) {
     if (state.ch == 98) {
       state.nextChar();
       return Result.none;
-    } else {
-      state.ch = $c;
-      state.position = $pos;
-      return null;
     }
+    state.ch = $c;
+    state.position = $pos;
+    return null;
   } else {
     return null;
   }
@@ -1781,9 +1760,8 @@ Result<List<int>> parseOneOrMore(State state) {
       state.nextChar();
       $oneOrMore.add(97);
       continue;
-    } else {
-      break;
     }
+    break;
   }
   return Ok($oneOrMore);
 }
@@ -1811,9 +1789,8 @@ Result<void> parseOneOrMore(State state) {
     if (state.ch == 97) {
       state.nextChar();
       continue;
-    } else {
-      break;
     }
+    break;
   }
   return Result.none;
 }
@@ -1967,9 +1944,8 @@ Result<void>? parseAction(State state) {
   final $ok = some_expression;
   if ($ok) {
     return Result.none;
-  } else {
-    return null;
   }
+  return null;
 }
 ```
 
@@ -2006,9 +1982,8 @@ Result<String>? parseDigits(State state) {
       state.nextChar();
       $ok = true;
       continue;
-    } else {
-      break;
     }
+    break;
   }
   if ($ok) {
     return Ok(state.substring($pos, state.position));
@@ -2044,9 +2019,8 @@ Result<void>? parseSkipDigits(State state) {
       state.nextChar();
       $ok = true;
       continue;
-    } else {
-      break;
     }
+    break;
   }
   if ($ok) {
     return Result.none;
@@ -2083,9 +2057,8 @@ Result<void>? parseAction(State state) {
   final $ok = some_expression;
   if ($ok) {
     return Result.none;
-  } else {
-    return null;
   }
+  return null;
 }
 ```
 
@@ -2110,9 +2083,79 @@ Result<void>? parseAction(State state) {
   final $ok = some_expression;
   if (!$ok) {
     return Result.none;
-  } else {
-    return null;
   }
+  return null;
+}
+```
+
+## Meta expression `@match`
+
+The `Match` meta expression `@match(s)` consumes the string in a case-insensitive manner and returns this string.
+
+Examples of the `@match` meta expression:
+
+Grammar code:
+
+```txt
+`String` For =>
+  @match('for')
+```
+
+Dart code:
+
+```dart
+/// [String] **For**
+/// ```txt
+/// `String` For =>
+///   @match('for')
+/// ```
+Result<String>? parseFor(State state) {
+  var $pos = state.position;
+  // @match('for')
+  if (state.ch == 102 || state.ch == 70) {
+    var $c = state.charAt($pos += 1);
+    if ($c == 111 || $c == 79) {
+      $c = state.charAt($pos += 1);
+      if ($c == 114 || $c == 82) {
+        final $for = state.substring(state.position, $pos += 1);
+        state.readChar($pos);
+        return Ok($for);
+      }
+    }
+  }
+  return null;
+}
+```
+
+Grammar code:
+
+```txt
+`void` For =>
+  @match('for')
+```
+
+Dart code:
+
+```dart
+/// [void] **For**
+/// ```txt
+/// `void` For =>
+///   @match('for')
+/// ```
+Result<void>? parseFor(State state) {
+  var $pos = state.position;
+  // @match('for')
+  if (state.ch == 102 || state.ch == 70) {
+    var $c = state.charAt($pos += 1);
+    if ($c == 111 || $c == 79) {
+      $c = state.charAt($pos += 1);
+      if ($c == 114 || $c == 82) {
+        state.readChar($pos += 1);
+        return Result.none;
+      }
+    }
+  }
+  return null;
 }
 ```
 
@@ -2145,79 +2188,16 @@ Result<String>? parseEndTag(State state) {
   final $pos = state.position;
   final $c = state.ch;
   final index = state.indexOf('-->');
-  state.readChar(index != -1 ? index : state.length, true);
+  state.readChar(index != -1 ? index : state.length);
   // '-->'
   if (state.ch == 45 && state.startsWith('-->')) {
-    state.readChar(state.position + 3, true);
+    state.readChar(state.position + 3);
     return const Ok('-->');
-  } else {
-    state.errorExpected('-->');
-    state.ch = $c;
-    state.position = $pos;
-    return null;
   }
-}
-```
-
-## Meta expression `@match`
-
-The `Match` meta expression `@match(s)` consumes the string in a case-insensitive manner and returns this string.
-
-Examples of the `@match` meta expression:
-
-Grammar code:
-
-```txt
-`String` For =>
-  @match('for')
-```
-
-Dart code:
-
-```dart
-/// [String] **For**
-/// ```txt
-/// `String` For =>
-///   @match('for')
-/// ```
-Result<String>? parseFor(State state) {
-  // @match('for')
-  final $length = state.match(const [102, 111, 114], const [70, 79, 82]);
-  if ($length >= 0) {
-    final $start = state.position;
-    state.readChar($start + $length, true);
-    final $for = state.substring($start, state.position);
-    return Ok($for);
-  } else {
-    return null;
-  }
-}
-```
-
-Grammar code:
-
-```txt
-`void` For =>
-  @match('for')
-```
-
-Dart code:
-
-```dart
-/// [void] **For**
-/// ```txt
-/// `void` For =>
-///   @match('for')
-/// ```
-Result<void>? parseFor(State state) {
-  // @match('for')
-  final $length = state.match(const [102, 111, 114], const [70, 79, 82]);
-  if ($length >= 0) {
-    state.readChar(state.position + $length, true);
-    return Result.none;
-  } else {
-    return null;
-  }
+  state.errorExpected('-->');
+  state.ch = $c;
+  state.position = $pos;
+  return null;
 }
 ```
 
@@ -2261,9 +2241,8 @@ Result<List<int>> parseLetters(State state) {
       state.nextChar();
       $letters.add($c);
       continue;
-    } else {
-      break;
     }
+    break;
   }
   return Ok($letters);
 }
@@ -2297,9 +2276,8 @@ Result<void> parseLetters(State state) {
     if ($ok) {
       state.nextChar();
       continue;
-    } else {
-      break;
     }
+    break;
   }
   return Result.none;
 }
@@ -2337,9 +2315,8 @@ Result<List<int>>? parseLetters(State state) {
       state.nextChar();
       $letters.add($c);
       continue;
-    } else {
-      break;
     }
+    break;
   }
   if ($letters.isNotEmpty) {
     return Ok($letters);
@@ -2379,9 +2356,8 @@ Result<void>? parseLetters(State state) {
       state.nextChar();
       $ok = true;
       continue;
-    } else {
-      break;
     }
+    break;
   }
   if ($ok) {
     return Result.none;
@@ -2425,9 +2401,8 @@ Result<List<int>>? parseLetters(State state) {
       state.nextChar();
       $letters.add($c1);
       continue;
-    } else {
-      break;
     }
+    break;
   }
   if ($letters.length >= 2) {
     return Ok($letters);
@@ -2471,9 +2446,8 @@ Result<void>? parseLetters(State state) {
       state.nextChar();
       $cnt++;
       continue;
-    } else {
-      break;
     }
+    break;
   }
   if ($cnt >= 2) {
     return Result.none;
@@ -2519,9 +2493,8 @@ Result<List<int>>? parseLetters(State state) {
       state.nextChar();
       $letters.add($c1);
       continue;
-    } else {
-      break;
     }
+    break;
   }
   if ($letters.length >= 4) {
     return Ok($letters);
@@ -2565,9 +2538,8 @@ Result<void>? parseLetters(State state) {
       state.nextChar();
       $cnt++;
       continue;
-    } else {
-      break;
     }
+    break;
   }
   if ($cnt >= 4) {
     return Result.none;
@@ -2912,10 +2884,10 @@ void restoreToken(State state, int index) {
 To implement data parsing from files, it is necessary to extend the `State` class.  
 The following class members must be overridden:
 
+- `charAt`
 - `charSize`
 - `indexOf`
 - `length`
-- `nextChar`
 - `startsWith`
 - `strlen`
 - `substring`

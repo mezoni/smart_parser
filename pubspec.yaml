@@ -1,6 +1,6 @@
 name: smart_parser
 description: All in one, a generator of recursive descent PEG parsers, tokenizers, and token stream parsers.
-version: 2.0.6
+version: 2.0.7
 homepage: https://github.com/mezoni/smart_parser
 topics:
   - parser-generator
