@@ -38,7 +38,8 @@ class ParserGenerator {
     classCode.writeln('// dart format off');
     classCode.writeln('class ${options.name} {');
     if (members != null) {
-      _writeText(classCode, members, '  ');
+      final lines = CodeBuilder.unindentText(members);
+      _writeText(classCode, lines.join('\n'), '  ');
       classCode.writeln();
     }
 

@@ -117,22 +117,24 @@ Sequence =>
 SequenceElement =>
   Action
   ----
-  n = (
-    VariableName
-    ---
-    $ = '$'
-    S
-  )
-  '=' S
-  e = (
-    Prefix
-    ----
-    Value
-  )
-  { e.semanticValue = n; }
+  v = (
+    $ = SemanticValue
+    '=' S
+  )?
+  t = Type?
+  e = Prefix
+  {
+    e.semanticValue = v;
+    e.explicitType = t;
+  }
   $ = { e }
-  ----
-  Prefix
+
+`String`
+SemanticValue =>
+  VariableName
+  ---
+  $ = '$'
+  S
 
 `Expression`
 Prefix =>
@@ -178,6 +180,8 @@ Primary =>
   (
     Symbol
     ----
+    Value
+    ----
     Group
     ----
     While
@@ -188,6 +192,7 @@ Primary =>
 `Expression`
 Symbol =>
   n = ProductionName S
+  ! '=>'
   $ = { ProductionExpression(name: n) }
 
 `Expression`
@@ -197,9 +202,8 @@ Action =>
 
 `Expression`
 Value =>
-  t = Type?
   b = Block
-  $ = { ValueExpression(source: b, valueType: t) }
+  $ = { ValueExpression(source: b) }
 
 `Expression`
 Group =>
@@ -213,7 +217,7 @@ Group =>
 
 `Expression`
 Token =>
-  n = <[$a-zA-Z] [$a-zA-Z0-9_]*>
+  n = <[$a-z] [$a-zA-Z0-9_]*>
   ~{ state.errorExpected('token name'); }
   S
   $ = { TokenExpression(name: n) }

@@ -23,41 +23,41 @@ Object? parse(String source) {
 
 // dart format off
 class JsonParser {
-    Token token;
+  Token token;
 
-    int index = 0;
+  int index = 0;
 
-    final List<Token> _tokens;
+  final List<Token> _tokens;
 
-    JsonParser(List<Token> tokens)
-      : _tokens = tokens,
-        token = tokens.isEmpty
-            ? throw ArgumentError('Must not be empty', 'tokens')
-            : tokens.first;
+  JsonParser(List<Token> tokens)
+    : _tokens = tokens,
+      token = tokens.isEmpty
+          ? throw ArgumentError('Must not be empty', 'tokens')
+          : tokens.first;
 
-    /// Advances the parsing position to the next token, if possible.
-    /// Sets this token as the current token.
-    /// Returns the token that was current when this method was called.
-    Token nextToken(State state) {
-      final token = this.token;
-      if (index < _tokens.length) {
-        this.token = _tokens[++index];
-        final start = this.token.start;
-        state.position = start;
-        if (state.farthestPosition < start) {
-          state.farthestPosition = start;
-        }
+  /// Advances the parsing position to the next token, if possible.
+  /// Sets this token as the current token.
+  /// Returns the token that was current when this method was called.
+  Token nextToken(State state) {
+    final token = this.token;
+    if (index < _tokens.length) {
+      this.token = _tokens[++index];
+      final start = this.token.start;
+      state.position = start;
+      if (state.farthestPosition < start) {
+        state.farthestPosition = start;
       }
-
-      return token;
     }
 
-    /// Restores the current token.
-    void restoreToken(State state, int index) {
-      this.index = index;
-      token = _tokens[index];
-      state.position = token.start;
-    }
+    return token;
+  }
+
+  /// Restores the current token.
+  void restoreToken(State state, int index) {
+    this.index = index;
+    token = _tokens[index];
+    state.position = token.start;
+  }
 
   /// [Object?] **Start**
   /// ```txt
@@ -67,19 +67,18 @@ class JsonParser {
   ///   ~{ state.errorExpected('enf of file'); }
   /// ```
   Result<Object?>? parseStart(State state) {
-    final $index = index;
-    final $value = parseValue(state);
-    if ($value != null) {
-      final $ok = token.kind == TokenKind.eof;
-      if ($ok) {
-        return $value;
+    final index$ = index;
+    final value$ = parseValue(state);
+    if (value$ != null) {
+      final isSuccess$ = token.kind == TokenKind.eof;
+      if (isSuccess$) {
+        return value$;
       }
       state.errorExpected('enf of file');
-      restoreToken(state, $index);
-      return null;
-    } else {
+      restoreToken(state, index$);
       return null;
     }
+    return null;
   }
 
   /// [List<Object?>] **Elements**
@@ -96,33 +95,31 @@ class JsonParser {
   ///   $ = { l }
   /// ```
   Result<List<Object?>>? parseElements(State state) {
-    final $value = parseValue(state);
-    if ($value != null) {
-      final v = $value.$1;
+    final value$ = parseValue(state);
+    if (value$ != null) {
+      final v = value$.$1;
       final l = [v];
       // (0)
       while (true) {
-        final $index = index;
+        final index$ = index;
         if (token.kind == TokenKind.comma) {
           nextToken(state);
-          final $value1 = parseValue(state);
-          if ($value1 != null) {
-            final v = $value1.$1;
+          final value$1 = parseValue(state);
+          if (value$1 != null) {
+            final v = value$1.$1;
             l.add(v);
             continue;
-          } else {
-            restoreToken(state, $index);
-            break;
           }
+          restoreToken(state, index$);
+          break;
         } else {
           state.errorExpected(',');
           break;
         }
       }
       return Ok(l);
-    } else {
-      return null;
     }
+    return null;
   }
 
   /// [List<Object?>] **Array**
@@ -135,17 +132,17 @@ class JsonParser {
   ///   $ = { e ?? [] }
   /// ```
   Result<List<Object?>>? parseArray(State state) {
-    final $index = index;
+    final index$ = index;
     if (token.kind == TokenKind.openBracket) {
       nextToken(state);
-      final $elements = parseElements(state);
-      final e = $elements?.$1;
+      final elements$ = parseElements(state);
+      final e = elements$?.$1;
       if (token.kind == TokenKind.closeBracket) {
         nextToken(state);
         return Ok(e ?? []);
       } else {
         state.errorExpected(']');
-        restoreToken(state, $index);
+        restoreToken(state, index$);
         return null;
       }
     } else {
@@ -164,23 +161,22 @@ class JsonParser {
   ///   $ = { MapEntry(k.value as String, v) }
   /// ```
   Result<MapEntry<String, Object?>>? parseKeyValue(State state) {
-    final $index = index;
+    final index$ = index;
     if (token.kind == TokenKind.string) {
-      final $tok = nextToken(state);
-      final k = $tok;
+      final token$ = nextToken(state);
+      final k = token$;
       if (token.kind == TokenKind.colon) {
         nextToken(state);
-        final $value = parseValue(state);
-        if ($value != null) {
-          final v = $value.$1;
+        final value$ = parseValue(state);
+        if (value$ != null) {
+          final v = value$.$1;
           return Ok(MapEntry(k.value as String, v));
-        } else {
-          restoreToken(state, $index);
-          return null;
         }
+        restoreToken(state, index$);
+        return null;
       } else {
         state.errorExpected(':');
-        restoreToken(state, $index);
+        restoreToken(state, index$);
         return null;
       }
     } else {
@@ -206,34 +202,32 @@ class JsonParser {
   ///   $ = { m }
   /// ```
   Result<Map<String, Object?>>? parseMap(State state) {
-    final $keyValue = parseKeyValue(state);
-    if ($keyValue != null) {
-      final v = $keyValue.$1;
+    final keyValue$ = parseKeyValue(state);
+    if (keyValue$ != null) {
+      final v = keyValue$.$1;
       final m = <String, Object?>{};
       m[v.key] = v.value;
       // (0)
       while (true) {
-        final $index = index;
+        final index$ = index;
         if (token.kind == TokenKind.comma) {
           nextToken(state);
-          final $keyValue1 = parseKeyValue(state);
-          if ($keyValue1 != null) {
-            final v = $keyValue1.$1;
+          final keyValue$1 = parseKeyValue(state);
+          if (keyValue$1 != null) {
+            final v = keyValue$1.$1;
             m[v.key] = v.value;
             continue;
-          } else {
-            restoreToken(state, $index);
-            break;
           }
+          restoreToken(state, index$);
+          break;
         } else {
           state.errorExpected(',');
           break;
         }
       }
       return Ok(m);
-    } else {
-      return null;
     }
+    return null;
   }
 
   /// [Map<String, Object?>] **Object**
@@ -246,17 +240,17 @@ class JsonParser {
   ///   $ = { m ?? {} }
   /// ```
   Result<Map<String, Object?>>? parseObject(State state) {
-    final $index = index;
+    final index$ = index;
     if (token.kind == TokenKind.openBrace) {
       nextToken(state);
-      final $map = parseMap(state);
-      final m = $map?.$1;
+      final map$ = parseMap(state);
+      final m = map$?.$1;
       if (token.kind == TokenKind.closeBrace) {
         nextToken(state);
         return Ok(m ?? {});
       } else {
         state.errorExpected('\u007D');
-        restoreToken(state, $index);
+        restoreToken(state, index$);
         return null;
       }
     } else {
@@ -293,41 +287,56 @@ class JsonParser {
   /// ```
   Result<Object?>? parseValue(State state) {
     if (token.kind == TokenKind.string) {
-      final $tok = nextToken(state);
-      final v = $tok;
+      final token$ = nextToken(state);
+      final v = token$;
       return Ok(v.value);
-    }
-    if (token.kind == TokenKind.number) {
-      final $tok1 = nextToken(state);
-      final v = $tok1;
-      return Ok(v.value);
-    }
-    if (token.kind == TokenKind.null$) {
-      nextToken(state);
-      return const Ok(null);
-    }
-    if (token.kind == TokenKind.true$) {
-      nextToken(state);
-      return const Ok(true);
-    }
-    if (token.kind == TokenKind.false$) {
-      nextToken(state);
-      return const Ok(false);
-    }
-    if (token.kind == TokenKind.openBrace) {
-      final $object = parseObject(state);
-      if ($object != null) {
-        return $object;
+    } else {
+      if (token.kind == TokenKind.number) {
+        final token$1 = nextToken(state);
+        final v = token$1;
+        return Ok(v.value);
+      } else {
+        if (token.kind == TokenKind.null$) {
+          nextToken(state);
+          return const Ok(null);
+        } else {
+          if (token.kind == TokenKind.true$) {
+            nextToken(state);
+            return const Ok(true);
+          } else {
+            if (token.kind == TokenKind.false$) {
+              nextToken(state);
+              return const Ok(false);
+            } else {
+              l$:
+              {
+                if (token.kind == TokenKind.openBrace) {
+                  final object$ = parseObject(state);
+                  if (object$ != null) {
+                    return object$;
+                  }
+                  break l$;
+                } else {
+                  break l$;
+                }
+              }
+              // l$:
+              if (token.kind == TokenKind.openBracket) {
+                final array$ = parseArray(state);
+                if (array$ != null) {
+                  return array$;
+                }
+                state.errorExpected(const ['string', 'number', 'array', 'object', 'null', 'boolean value']);
+                return null;
+              } else {
+                state.errorExpected(const ['string', 'number', 'array', 'object', 'null', 'boolean value']);
+                return null;
+              }
+            }
+          }
+        }
       }
     }
-    if (token.kind == TokenKind.openBracket) {
-      final $array = parseArray(state);
-      if ($array != null) {
-        return $array;
-      }
-    }
-    state.errorExpected(const ['string', 'number', 'array', 'object', 'null', 'boolean value']);
-    return null;
   }
 
 }

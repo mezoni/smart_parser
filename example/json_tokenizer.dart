@@ -39,20 +39,19 @@ class JsonTokenizer {
   ///   $ = { t }
   /// ```
   Result<List<Token>>? parseStart(State state) {
-    final $pos = state.position;
-    final $c = state.ch;
-    final $tokens = parseTokens(state);
-    final t = $tokens.$1;
-    final $ok = state.ch < 0;
-    if ($ok) {
+    final pos$ = state.position;
+    final c$ = state.ch;
+    final tokens$ = parseTokens(state);
+    final t = tokens$.$1;
+    final isSuccess$ = state.ch < 0;
+    if (isSuccess$) {
       final eof = _token(state.position, state.position, TokenKind.eof, null);
       t.add(eof);
       return Ok(t);
-    } else {
-      state.ch = $c;
-      state.position = $pos;
-      return null;
     }
+    state.ch = c$;
+    state.position = pos$;
+    return null;
   }
 
   /// [List<Token>] **Tokens**
@@ -100,89 +99,95 @@ class JsonTokenizer {
   ///   S
   /// ```
   Result<List<Token>> parseTokens(State state) {
-    final $tokens = <Token>[];
+    final tokens$ = <Token>[];
     // (0)
     while (true) {
-      final $pos = state.position;
-      final $c = state.ch;
+      final pos$ = state.position;
+      final c$ = state.ch;
       parseS(state);
       final int start = state.position;
       // ":"
       if (state.ch == 58) {
         state.nextChar();
-        $tokens.add(_token(start, state.position, TokenKind.colon, ':'));
+        tokens$.add(_token(start, state.position, TokenKind.colon, ':'));
         continue;
       }
       // ","
       if (state.ch == 44) {
         state.nextChar();
-        $tokens.add(_token(start, state.position, TokenKind.comma, ','));
+        tokens$.add(_token(start, state.position, TokenKind.comma, ','));
         continue;
       }
       // "{"
       if (state.ch == 123) {
         state.nextChar();
-        $tokens.add(_token(start, state.position, TokenKind.openBrace, '\u007B'));
+        tokens$.add(_token(start, state.position, TokenKind.openBrace, '\u007B'));
         continue;
       }
       // "}"
       if (state.ch == 125) {
         state.nextChar();
-        $tokens.add(_token(start, state.position, TokenKind.closeBrace, '\u007D'));
+        tokens$.add(_token(start, state.position, TokenKind.closeBrace, '\u007D'));
         continue;
       }
       // "["
       if (state.ch == 91) {
         state.nextChar();
-        $tokens.add(_token(start, state.position, TokenKind.openBracket, '['));
+        tokens$.add(_token(start, state.position, TokenKind.openBracket, '['));
         continue;
       }
       // "]"
       if (state.ch == 93) {
         state.nextChar();
-        $tokens.add(_token(start, state.position, TokenKind.closeBracket, ']'));
+        tokens$.add(_token(start, state.position, TokenKind.closeBracket, ']'));
         continue;
       }
       // "null"
       if (state.ch == 110 && state.startsWith('null')) {
         state.readChar(state.position + 4);
-        $tokens.add(_token(start, state.position, TokenKind.null$, null));
+        tokens$.add(_token(start, state.position, TokenKind.null$, null));
         continue;
       }
       // "true"
       if (state.ch == 116 && state.startsWith('true')) {
         state.readChar(state.position + 4);
-        $tokens.add(_token(start, state.position, TokenKind.true$, true));
+        tokens$.add(_token(start, state.position, TokenKind.true$, true));
         continue;
       }
       // "false"
       if (state.ch == 102 && state.startsWith('false')) {
         state.readChar(state.position + 5);
-        $tokens.add(_token(start, state.position, TokenKind.false$, false));
+        tokens$.add(_token(start, state.position, TokenKind.false$, false));
         continue;
       }
-      // ["]
-      if (state.ch == 34) {
-        final $string = parseString(state);
-        if ($string != null) {
-          final v = $string.$1;
-          $tokens.add(_token(start, state.position, TokenKind.string, v));
-          continue;
+      l$:
+      {
+        // ["]
+        if (state.ch == 34) {
+          final string$ = parseString(state);
+          if (string$ != null) {
+            final v = string$.$1;
+            tokens$.add(_token(start, state.position, TokenKind.string, v));
+            continue;
+          }
+          break l$;
         }
+        break l$;
       }
-      final $number = parseNumber(state);
-      if ($number != null) {
-        final v = $number.$1;
-        $tokens.add(_token(start, state.position, TokenKind.number, v));
+      // l$:
+      final number$ = parseNumber(state);
+      if (number$ != null) {
+        final v = number$.$1;
+        tokens$.add(_token(start, state.position, TokenKind.number, v));
         continue;
       }
-      state.ch = $c;
-      state.position = $pos;
+      state.ch = c$;
+      state.position = pos$;
       break;
     }
-    final $tokens1 = Ok($tokens);
+    final tokens$1 = Ok(tokens$);
     parseS(state);
-    return $tokens1;
+    return tokens$1;
   }
 
   /// [String] **EscapeC**
@@ -289,44 +294,43 @@ class JsonTokenizer {
   ///   $ = { String.fromCharCode(int.parse(s, radix: 16)) }
   /// ```
   Result<String>? parseEscapeUnicode(State state) {
-    final $pos = state.position;
-    final $c = state.ch;
+    final pos$ = state.position;
+    final c$ = state.ch;
     final start = state.position;
     // "u"
     if (state.ch == 117) {
       state.nextChar();
       var end = 0;
-      final $pos1 = state.position;
-      final $c1 = state.ch;
-      var $cnt = 0;
+      final pos$1 = state.position;
+      final c$1 = state.ch;
+      var count$ = 0;
       // (4, 4)
-      while ($cnt < 4) {
-        final $c2 = state.ch;
-        final $ok = $c2 <= 70 ? $c2 >= 65 || $c2 >= 48 && $c2 <= 57 : $c2 >= 97 && $c2 <= 102;
+      while (count$ < 4) {
         // [a-fA-F0-9]
-        if ($ok) {
+        final c$2 = state.ch;
+        final isSuccess$ = c$2 <= 70 ? c$2 >= 65 || c$2 >= 48 && c$2 <= 57 : c$2 >= 97 && c$2 <= 102;
+        if (isSuccess$) {
           state.nextChar();
-          $cnt++;
+          count$++;
           continue;
         }
         end = state.position;
         state.errorExpected('hexadecimal digit');
         break;
       }
-      if ($cnt >= 4) {
-        final s = state.substring($pos1, state.position);
+      if (count$ >= 4) {
+        final s = state.substring(pos$1, state.position);
         return Ok(String.fromCharCode(int.parse(s, radix: 16)));
       } else {
-        state.ch = $c1;
-        state.position = $pos1;
+        state.ch = c$1;
+        state.position = pos$1;
         state.error('Incorrect Unicode escape sequence', position: end, start: start, end: end);
-        state.ch = $c;
-        state.position = $pos;
+        state.ch = c$;
+        state.position = pos$;
         return null;
       }
-    } else {
-      return null;
     }
+    return null;
   }
 
   /// [String] **Escaped**
@@ -338,16 +342,22 @@ class JsonTokenizer {
   ///   EscapeC
   /// ```
   Result<String>? parseEscaped(State state) {
-    // "u"
-    if (state.ch == 117) {
-      final $escapeUnicode = parseEscapeUnicode(state);
-      if ($escapeUnicode != null) {
-        return $escapeUnicode;
+    l$:
+    {
+      // "u"
+      if (state.ch == 117) {
+        final escapeUnicode$ = parseEscapeUnicode(state);
+        if (escapeUnicode$ != null) {
+          return escapeUnicode$;
+        }
+        break l$;
       }
+      break l$;
     }
-    final $escapeC = parseEscapeC(state);
-    if ($escapeC != null) {
-      return $escapeC;
+    // l$:
+    final escapeC$ = parseEscapeC(state);
+    if (escapeC$ != null) {
+      return escapeC$;
     }
     return null;
   }
@@ -372,63 +382,64 @@ class JsonTokenizer {
   ///   $ = { p.length == 1 ? p[0] : p.isNotEmpty ? p.join() : '' }
   /// ```
   Result<String>? parseString(State state) {
-    final $pos = state.position;
-    final $c = state.ch;
+    final pos$ = state.position;
+    final c$ = state.ch;
     final start = state.position;
     // ["]
     if (state.ch == 34) {
       state.nextChar();
-      final $list = <String>[];
+      final list$ = <String>[];
       // (0)
       while (true) {
-        final $pos1 = state.position;
-        var $ok = false;
+        final pos$1 = state.position;
+        var isSuccess$ = false;
         // (1)
         while (true) {
-          final $c1 = state.ch;
-          final $ok1 = !($c1 <= 34 ? $c1 >= 34 || $c1 >= 0 && $c1 <= 31 : $c1 == 92) && !($c1 < 0);
           // [^{0-1f}"\\]
-          if ($ok1) {
+          final c$1 = state.ch;
+          final isSuccess$1 = !(c$1 <= 34 ? c$1 >= 34 || c$1 >= 0 && c$1 <= 31 : c$1 == 92) && !(c$1 < 0);
+          if (isSuccess$1) {
             state.nextChar();
-            $ok = true;
+            isSuccess$ = true;
             continue;
           }
           break;
         }
-        if ($ok) {
-          $list.add(state.substring($pos1, state.position));
+        if (isSuccess$) {
+          list$.add(state.substring(pos$1, state.position));
           continue;
-        }
-        final $c2 = state.ch;
-        // [\\]
-        if (state.ch == 92) {
-          state.nextChar();
-          final $escaped = parseEscaped(state);
-          if ($escaped != null) {
-            $list.add($escaped.$1);
-            continue;
+        } else {
+          final pos$2 = state.position;
+          final c$2 = state.ch;
+          // [\\]
+          if (state.ch == 92) {
+            state.nextChar();
+            final escaped$ = parseEscaped(state);
+            if (escaped$ != null) {
+              list$.add(escaped$.$1);
+              continue;
+            }
+            state.ch = c$2;
+            state.position = pos$2;
+            break;
           }
-          state.ch = $c2;
-          state.position = $pos1;
+          break;
         }
-        break;
       }
-      final p = $list;
+      final p = list$;
       // ["]
       if (state.ch == 34) {
         state.nextChar();
         parseS(state);
         return Ok(p.length == 1 ? p[0] : p.isNotEmpty ? p.join() : '');
-      } else {
-        state.error('Unterminated string', start: start);
-        state.errorExpected('"');
-        state.ch = $c;
-        state.position = $pos;
-        return null;
       }
-    } else {
+      state.error('Unterminated string', start: start);
+      state.errorExpected('"');
+      state.ch = c$;
+      state.position = pos$;
       return null;
     }
+    return null;
   }
 
   /// [num] **Number**
@@ -467,113 +478,137 @@ class JsonTokenizer {
   ///   $ = { flag && s.length <= 18 ? int.parse(s) : num.parse(s) }
   /// ```
   Result<num>? parseNumber(State state) {
-    final $pos = state.position;
-    final $c = state.ch;
+    final pos$ = state.position;
+    final c$ = state.ch;
     final start = state.position;
     var flag = true;
-    // [\-]
-    if (state.ch == 45) {
-      state.nextChar();
+    l$:
+    {
+      // [\-]
+      if (state.ch == 45) {
+        state.nextChar();
+        break l$;
+      }
+      break l$;
     }
-    var $res = false;
-    // [0]
-    if (state.ch == 48) {
-      state.nextChar();
-      $res = true;
-    } else {
-      final $c1 = state.ch;
-      final $ok = $c1 >= 49 && $c1 <= 57;
+    // l$:
+    l$1:
+    {
+      // [0]
+      if (state.ch == 48) {
+        state.nextChar();
+        break l$1;
+      }
       // [1-9]
-      if ($ok) {
+      final c$1 = state.ch;
+      final isSuccess$ = c$1 >= 49 && c$1 <= 57;
+      if (isSuccess$) {
         state.nextChar();
         // (0)
         while (true) {
-          final $c2 = state.ch;
-          final $ok1 = $c2 >= 48 && $c2 <= 57;
           // [0-9]
-          if ($ok1) {
+          final c$2 = state.ch;
+          final isSuccess$1 = c$2 >= 48 && c$2 <= 57;
+          if (isSuccess$1) {
             state.nextChar();
             continue;
           }
           break;
         }
-        $res = true;
-      } else {
-        state.errorExpected('digit');
+        break l$1;
       }
+      state.errorExpected('digit');
+      state.ch = c$;
+      state.position = pos$;
+      return null;
     }
-    if ($res) {
-      final $pos1 = state.position;
-      final $c3 = state.ch;
+    // l$1:
+    l$2:
+    {
+      final pos$1 = state.position;
+      final c$3 = state.ch;
       // [.]
       if (state.ch == 46) {
         state.nextChar();
-        var $ok2 = false;
+        var isSuccess$2 = false;
         // (1)
         while (true) {
-          final $c4 = state.ch;
-          final $ok3 = $c4 >= 48 && $c4 <= 57;
           // [0-9]
-          if ($ok3) {
+          final c$4 = state.ch;
+          final isSuccess$3 = c$4 >= 48 && c$4 <= 57;
+          if (isSuccess$3) {
             state.nextChar();
-            $ok2 = true;
+            isSuccess$2 = true;
             continue;
           }
           break;
         }
-        if ($ok2) {
+        if (isSuccess$2) {
           flag = false;
+          break l$2;
         } else {
           state.errorExpected('digit');
           state.error('Fractional part is missing a number');
           state.error('Malformed number', start: start, end: state.position);
-          state.ch = $c3;
-          state.position = $pos1;
+          state.ch = c$3;
+          state.position = pos$1;
+          break l$2;
         }
       }
-      final $pos2 = state.position;
-      final $c5 = state.ch;
-      final $ok4 = $c5 == 69 || $c5 == 101;
+      break l$2;
+    }
+    // l$2:
+    l$3:
+    {
+      final pos$2 = state.position;
+      final c$5 = state.ch;
       // [eE]
-      if ($ok4) {
+      final isSuccess$4 = c$5 == 69 || c$5 == 101;
+      if (isSuccess$4) {
         state.nextChar();
-        final $c6 = state.ch;
-        final $ok5 = $c6 == 43 || $c6 == 45;
-        // [\-+]
-        if ($ok5) {
-          state.nextChar();
+        l$4:
+        {
+          // [\-+]
+          final c$6 = state.ch;
+          final isSuccess$5 = c$6 == 43 || c$6 == 45;
+          if (isSuccess$5) {
+            state.nextChar();
+            break l$4;
+          }
+          break l$4;
         }
-        var $ok6 = false;
+        // l$4:
+        var isSuccess$6 = false;
         // (1)
         while (true) {
-          final $c7 = state.ch;
-          final $ok7 = $c7 >= 48 && $c7 <= 57;
           // [0-9]
-          if ($ok7) {
+          final c$7 = state.ch;
+          final isSuccess$7 = c$7 >= 48 && c$7 <= 57;
+          if (isSuccess$7) {
             state.nextChar();
-            $ok6 = true;
+            isSuccess$6 = true;
             continue;
           }
           break;
         }
-        if ($ok6) {
+        if (isSuccess$6) {
           flag = false;
+          break l$3;
         } else {
           state.errorExpected('digit');
           state.error('Exponent part is missing a number');
           state.error('Malformed number', start: start, end: state.position);
-          state.ch = $c5;
-          state.position = $pos2;
+          state.ch = c$5;
+          state.position = pos$2;
+          break l$3;
         }
       }
-      final s = state.substring(start, state.position);
-      parseS(state);
-      return Ok(flag && s.length <= 18 ? int.parse(s) : num.parse(s));
-    } else {
-      state.ch = $c;
-      state.position = $pos;
-      return null;
+      break l$3;
     }
+    // l$3:
+    final s = state.substring(start, state.position);
+    parseS(state);
+    return Ok(flag && s.length <= 18 ? int.parse(s) : num.parse(s));
   }
 
   /// [void] **S**
@@ -584,10 +619,10 @@ class JsonTokenizer {
   Result<void> parseS(State state) {
     // (0)
     while (true) {
-      final $c = state.ch;
-      final $ok = $c <= 13 ? $c >= 13 || $c >= 9 && $c <= 10 : $c == 32;
       // [\n\r\t ]
-      if ($ok) {
+      final c$ = state.ch;
+      final isSuccess$ = c$ <= 13 ? c$ >= 13 || c$ >= 9 && c$ <= 10 : c$ == 32;
+      if (isSuccess$) {
         state.nextChar();
         continue;
       }

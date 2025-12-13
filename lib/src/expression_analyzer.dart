@@ -174,12 +174,6 @@ ${unusedProductions.join('\n')}''');
     _setCanChangePosition(node, child.canChangePosition);
     if (child is ProductionExpression) {
       _setSuccessCount(node, 1);
-    } else if (child is AnyCharacterExpression ||
-        child is CharacterClassExpression ||
-        child is LiteralExpression ||
-        child is MatchExpression ||
-        child is TokenExpression) {
-      _setSuccessCount(node, 1);
     } else {
       _setSuccessCount(node, child.successCount + child.failureCount);
     }
@@ -314,15 +308,15 @@ Production: $_name''');
 
   @override
   void visitValue(ValueExpression node) {
-    var valueType = node.valueType;
+    var explicitType = node.explicitType;
     _setIsAlwaysSuccessful(node, true);
     _setCanChangePosition(node, false);
     _setSuccessCount(node, 1);
     _setFailureCount(node, 0);
     var isConst = false;
-    if (valueType != null) {
-      valueType = valueType.trim();
-      isConst = valueType.startsWith('const');
+    if (explicitType != null) {
+      explicitType = explicitType.trim();
+      isConst = explicitType.startsWith('const');
     }
 
     _setIsConst(node, isConst);

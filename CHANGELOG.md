@@ -1,3 +1,10 @@
+## 2.1.0
+
+- Renamed `Printer` class to `ExpressionPrinter`
+- Minor adjustments have been made to: `ExpressionAnalyzer`,  `ExpressionPrinter`, `ExpressionTypeResolver`, `GrammarGenerator`.
+- Change in local variable name generation.
+- The expression code generator has been refactored.
+
 ## 2.0.7
 
 - Optimized code generation for the expression `MatchExpression`.

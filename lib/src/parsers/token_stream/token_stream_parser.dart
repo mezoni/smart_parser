@@ -45,35 +45,34 @@ class TokenStreamParser {
   ///   $ = { Grammar(globals: g, members: m, productions: p) }
   /// ```
   Result<Grammar>? parseStart(State state) {
-    final $pos = state.position;
-    final $c = state.ch;
+    final pos$ = state.position;
+    final c$ = state.ch;
     parseS(state);
-    final $globals = parseGlobals(state);
-    final g = $globals?.$1;
-    final $members = parseMembers(state);
-    final m = $members?.$1;
-    final $list = <Production>[];
+    final globals$ = parseGlobals(state);
+    final g = globals$?.$1;
+    final members$ = parseMembers(state);
+    final m = members$?.$1;
+    final list$ = <Production>[];
     // (1)
     while (true) {
-      final $production = parseProduction(state);
-      if ($production != null) {
-        $list.add($production.$1);
+      final production$ = parseProduction(state);
+      if (production$ != null) {
+        list$.add(production$.$1);
         continue;
       }
       break;
     }
-    if ($list.isNotEmpty) {
-      final p = $list;
+    if (list$.isNotEmpty) {
+      final p = list$;
       if (state.ch >= 0) {
-        state.ch = $c;
-        state.position = $pos;
+        state.ch = c$;
+        state.position = pos$;
         return null;
-      } else {
-        return Ok(Grammar(globals: g, members: m, productions: p));
       }
+      return Ok(Grammar(globals: g, members: m, productions: p));
     } else {
-      state.ch = $c;
-      state.position = $pos;
+      state.ch = c$;
+      state.position = pos$;
       return null;
     }
   }
@@ -89,30 +88,28 @@ class TokenStreamParser {
   ///   "}%" ~{ state.error('Unterminated globals section', position: start); } S
   /// ```
   Result<String>? parseGlobals(State state) {
-    final $pos = state.position;
-    final $c = state.ch;
+    final pos$ = state.position;
+    final c$ = state.ch;
     final start = state.position;
     // "%{"
     if (state.ch == 37 && state.startsWith('%{')) {
       state.readChar(state.position + 2);
       final index = state.indexOf('\u007D%');
-      final $pos1 = state.position;
+      final pos$1 = state.position;
       state.readChar(index == -1 ? state.length : index);
-      final $globals = Ok(state.substring($pos1, state.position));
+      final globals$ = Ok(state.substring(pos$1, state.position));
       // "}%"
       if (state.ch == 125 && state.startsWith('}%')) {
         state.readChar(state.position + 2);
         parseS(state);
-        return $globals;
-      } else {
-        state.error('Unterminated globals section', position: start);
-        state.ch = $c;
-        state.position = $pos;
-        return null;
+        return globals$;
       }
-    } else {
+      state.error('Unterminated globals section', position: start);
+      state.ch = c$;
+      state.position = pos$;
       return null;
     }
+    return null;
   }
 
   /// [String] **Members**
@@ -126,30 +123,28 @@ class TokenStreamParser {
   ///   "%%" ~{ state.error('Unterminated members section', position: start); } S
   /// ```
   Result<String>? parseMembers(State state) {
-    final $pos = state.position;
-    final $c = state.ch;
+    final pos$ = state.position;
+    final c$ = state.ch;
     final start = state.position;
     // "%%"
     if (state.ch == 37 && state.startsWith('%%')) {
       state.readChar(state.position + 2);
       final index = state.indexOf('%%');
-      final $pos1 = state.position;
+      final pos$1 = state.position;
       state.readChar(index == -1 ? state.length : index);
-      final $members = Ok(state.substring($pos1, state.position));
+      final members$ = Ok(state.substring(pos$1, state.position));
       // "%%"
       if (state.ch == 37 && state.startsWith('%%')) {
         state.readChar(state.position + 2);
         parseS(state);
-        return $members;
-      } else {
-        state.error('Unterminated members section', position: start);
-        state.ch = $c;
-        state.position = $pos;
-        return null;
+        return members$;
       }
-    } else {
+      state.error('Unterminated members section', position: start);
+      state.ch = c$;
+      state.position = pos$;
       return null;
     }
+    return null;
   }
 
   /// [Production] **Production**
@@ -171,51 +166,53 @@ class TokenStreamParser {
   ///   $ = { Production(expression: e, name: i, sourceCode: src, type: t) }
   /// ```
   Result<Production>? parseProduction(State state) {
-    final $pos = state.position;
-    final $c = state.ch;
+    final pos$ = state.position;
+    final c$ = state.ch;
     final start = state.position;
-    final $type = parseType(state);
-    if ($type != null) {
-      final t = $type.$1;
-      final $productionName = parseProductionName(state);
-      if ($productionName != null) {
-        final i = $productionName.$1;
+    final type$ = parseType(state);
+    if (type$ != null) {
+      final t = type$.$1;
+      final productionName$ = parseProductionName(state);
+      if (productionName$ != null) {
+        final i = productionName$.$1;
         // '=>'
         if (state.ch == 61 && state.startsWith('=>')) {
           state.readChar(state.position + 2);
           parseS(state);
-          final $expression = parseExpression(state);
-          if ($expression != null) {
-            final e = $expression.$1;
-            // [;]
-            if (state.ch == 59) {
-              state.nextChar();
+          final expression$ = parseExpression(state);
+          if (expression$ != null) {
+            final e = expression$.$1;
+            l$:
+            {
+              // [;]
+              if (state.ch == 59) {
+                state.nextChar();
+                break l$;
+              }
+              break l$;
             }
+            // l$:
             parseS(state);
             final end = state.position;
             final src = state.substring(start, end).trimRight();
             return Ok(Production(expression: e, name: i, sourceCode: src, type: t));
-          } else {
-            state.ch = $c;
-            state.position = $pos;
-            return null;
           }
-        } else {
-          state.errorExpected('=>');
-          state.ch = $c;
-          state.position = $pos;
+          state.ch = c$;
+          state.position = pos$;
           return null;
         }
-      } else {
-        state.errorExpected('production name');
-        state.ch = $c;
-        state.position = $pos;
+        state.errorExpected('=>');
+        state.ch = c$;
+        state.position = pos$;
         return null;
       }
-    } else {
-      state.errorExpected('type');
+      state.errorExpected('production name');
+      state.ch = c$;
+      state.position = pos$;
       return null;
     }
+    state.errorExpected('type');
+    return null;
   }
 
   /// [Expression] **Expression**
@@ -230,15 +227,14 @@ class TokenStreamParser {
   /// ```
   Result<Expression>? parseExpression(State state) {
     final pos = state.position;
-    final $orderedChoice = parseOrderedChoice(state);
-    if ($orderedChoice != null) {
-      final e = $orderedChoice.$1;
+    final orderedChoice$ = parseOrderedChoice(state);
+    if (orderedChoice$ != null) {
+      final e = orderedChoice$.$1;
       e.sourceCode = state.substring(pos, state.position).trimRight();
       return Ok(e);
-    } else {
-      state.errorExpected('expression');
-      return null;
     }
+    state.errorExpected('expression');
+    return null;
   }
 
   /// [Expression] **OrderedChoice**
@@ -259,55 +255,53 @@ class TokenStreamParser {
   ///   $ = { OrderedChoiceExpression(expressions: l) }
   /// ```
   Result<Expression>? parseOrderedChoice(State state) {
-    final $sequence = parseSequence(state);
-    if ($sequence != null) {
-      final n = $sequence.$1;
+    final sequence$ = parseSequence(state);
+    if (sequence$ != null) {
+      final n = sequence$.$1;
       final l = [n];
       // (0)
       while (true) {
-        final $pos = state.position;
-        final $c = state.ch;
-        var $res = false;
-        // "/"
-        if (state.ch == 47) {
-          state.nextChar();
-          $res = true;
-        } else {
-          var $ok = false;
+        final pos$ = state.position;
+        final c$ = state.ch;
+        l$:
+        {
+          // "/"
+          if (state.ch == 47) {
+            state.nextChar();
+            break l$;
+          }
+          var isSuccess$ = false;
           // (1)
           while (true) {
             // "-"
             if (state.ch == 45) {
               state.nextChar();
-              $ok = true;
+              isSuccess$ = true;
               continue;
             }
             break;
           }
-          if ($ok) {
-            $res = true;
-          }
-        }
-        if ($res) {
-          parseS(state);
-          final $sequence1 = parseSequence(state);
-          if ($sequence1 != null) {
-            final n = $sequence1.$1;
-            l.add(n);
-            continue;
+          if (isSuccess$) {
+            break l$;
           } else {
-            state.ch = $c;
-            state.position = $pos;
             break;
           }
-        } else {
-          break;
         }
+        // l$:
+        parseS(state);
+        final sequence$1 = parseSequence(state);
+        if (sequence$1 != null) {
+          final n = sequence$1.$1;
+          l.add(n);
+          continue;
+        }
+        state.ch = c$;
+        state.position = pos$;
+        break;
       }
       return Ok(OrderedChoiceExpression(expressions: l));
-    } else {
-      return null;
     }
+    return null;
   }
 
   /// [Expression] **Sequence**
@@ -328,24 +322,23 @@ class TokenStreamParser {
   /// ```
   Result<Expression>? parseSequence(State state) {
     final pos = state.position;
-    final $list = <Expression>[];
+    final list$ = <Expression>[];
     // (1)
     while (true) {
       final pos = state.position;
-      final $sequenceElement = parseSequenceElement(state);
-      if ($sequenceElement != null) {
-        final e = $sequenceElement.$1;
-        final $errorHandler = parseErrorHandler(state);
-        final h = $errorHandler?.$1;
+      final sequenceElement$ = parseSequenceElement(state);
+      if (sequenceElement$ != null) {
+        final e = sequenceElement$.$1;
+        final errorHandler$ = parseErrorHandler(state);
+        final h = errorHandler$?.$1;
         e.sourceCode = state.substring(pos, state.position).trimRight();
-        $list.add(e..errorHandler = h);
+        list$.add(e..errorHandler = h);
         continue;
-      } else {
-        break;
       }
+      break;
     }
-    if ($list.isNotEmpty) {
-      final n = $list;
+    if (list$.isNotEmpty) {
+      final n = list$;
       final e = SequenceExpression(expressions: n);
       e.sourceCode = state.substring(pos, state.position).trimRight();
       return Ok(e);
@@ -360,79 +353,84 @@ class TokenStreamParser {
   /// SequenceElement =>
   ///   Action
   ///   ----
-  ///   n = (
-  ///     VariableName
-  ///     ---
-  ///     $ = '$'
-  ///     S
-  ///   )
-  ///   '=' S
-  ///   e = (
-  ///     Prefix
-  ///     ----
-  ///     Value
-  ///   )
-  ///   { e.semanticValue = n; }
+  ///   v = (
+  ///     $ = SemanticValue
+  ///     '=' S
+  ///   )?
+  ///   t = Type?
+  ///   e = Prefix
+  ///   {
+  ///     e.semanticValue = v;
+  ///     e.explicitType = t;
+  ///   }
   ///   $ = { e }
-  ///   ----
-  ///   Prefix
   /// ```
   Result<Expression>? parseSequenceElement(State state) {
-    final $action = parseAction(state);
-    if ($action != null) {
-      return $action;
+    final action$ = parseAction(state);
+    if (action$ != null) {
+      return action$;
     }
-    final $pos = state.position;
-    final $c = state.ch;
-    Result<String>? $res;
-    final $variableName = parseVariableName(state);
-    if ($variableName != null) {
-      $res = $variableName;
-    } else {
-      // '\$'
-      if (state.ch == 36) {
-        state.nextChar();
-        const $0 = Ok('\$');
-        parseS(state);
-        $res = $0;
-      } else {
-        state.errorExpected('\$');
-      }
-    }
-    if ($res != null) {
-      final n = $res.$1;
-      // '='
-      if (state.ch == 61) {
-        state.nextChar();
-        parseS(state);
-        Result<Expression>? $res1;
-        final $prefix = parsePrefix(state);
-        if ($prefix != null) {
-          $res1 = $prefix;
-        } else {
-          final $value = parseValue(state);
-          if ($value != null) {
-            $res1 = $value;
-          }
+    final pos$ = state.position;
+    final c$ = state.ch;
+    Result<String?>? result$;
+    l$:
+    {
+      final semanticValue$ = parseSemanticValue(state);
+      if (semanticValue$ != null) {
+        // '='
+        if (state.ch == 61) {
+          state.nextChar();
+          parseS(state);
+          result$ = semanticValue$;
+          break l$;
         }
-        if ($res1 != null) {
-          final e = $res1.$1;
-          e.semanticValue = n;
-          return Ok(e);
-        } else {
-          state.ch = $c;
-          state.position = $pos;
-        }
-      } else {
         state.errorExpected('=');
-        state.ch = $c;
-        state.position = $pos;
+        state.ch = c$;
+        state.position = pos$;
+        result$ = const Ok(null);
+        break l$;
       }
+      result$ = const Ok(null);
+      break l$;
     }
-    final $prefix1 = parsePrefix(state);
-    if ($prefix1 != null) {
-      return $prefix1;
+    // l$:
+    final v = result$.$1;
+    final type$ = parseType(state);
+    final t = type$?.$1;
+    final prefix$ = parsePrefix(state);
+    if (prefix$ != null) {
+      final e = prefix$.$1;
+      e.semanticValue = v;
+      e.explicitType = t;
+      return Ok(e);
     }
+    state.ch = c$;
+    state.position = pos$;
+    return null;
+  }
+
+  /// [String] **SemanticValue**
+  /// ```txt
+  /// `String`
+  /// SemanticValue =>
+  ///   VariableName
+  ///   ---
+  ///   $ = '$'
+  ///   S
+  /// ```
+  Result<String>? parseSemanticValue(State state) {
+    final variableName$ = parseVariableName(state);
+    if (variableName$ != null) {
+      return variableName$;
+    }
+    // '\$'
+    if (state.ch == 36) {
+      state.nextChar();
+      const semanticValue$ = Ok('\$');
+      parseS(state);
+      return semanticValue$;
+    }
+    state.errorExpected('\$');
     return null;
   }
 
@@ -461,45 +459,59 @@ class TokenStreamParser {
   ///   Suffix
   /// ```
   Result<Expression>? parsePrefix(State state) {
-    final $pos = state.position;
-    final $c = state.ch;
-    // "!"
-    if (state.ch == 33) {
-      state.nextChar();
-      parseS(state);
-      final $block = parseBlock(state);
-      if ($block != null) {
-        final b = $block.$1;
-        return Ok(PredicateExpression(negate: true, predicate: b));
+    l$:
+    {
+      final pos$ = state.position;
+      final c$ = state.ch;
+      // "!"
+      if (state.ch == 33) {
+        state.nextChar();
+        parseS(state);
+        final block$ = parseBlock(state);
+        if (block$ != null) {
+          final b = block$.$1;
+          return Ok(PredicateExpression(negate: true, predicate: b));
+        }
+        final suffix$ = parseSuffix(state);
+        if (suffix$ != null) {
+          final s = suffix$.$1;
+          return Ok(NotPredicateExpression(expression: s));
+        }
+        state.ch = c$;
+        state.position = pos$;
+        break l$;
       }
-      final $suffix = parseSuffix(state);
-      if ($suffix != null) {
-        final s = $suffix.$1;
-        return Ok(NotPredicateExpression(expression: s));
-      }
-      state.ch = $c;
-      state.position = $pos;
+      break l$;
     }
-    // "&"
-    if (state.ch == 38) {
-      state.nextChar();
-      parseS(state);
-      final $block1 = parseBlock(state);
-      if ($block1 != null) {
-        final b = $block1.$1;
-        return Ok(PredicateExpression(negate: false, predicate: b));
+    // l$:
+    l$1:
+    {
+      final pos$1 = state.position;
+      final c$1 = state.ch;
+      // "&"
+      if (state.ch == 38) {
+        state.nextChar();
+        parseS(state);
+        final block$1 = parseBlock(state);
+        if (block$1 != null) {
+          final b = block$1.$1;
+          return Ok(PredicateExpression(negate: false, predicate: b));
+        }
+        final suffix$1 = parseSuffix(state);
+        if (suffix$1 != null) {
+          final s = suffix$1.$1;
+          return Ok(AndPredicateExpression(expression: s));
+        }
+        state.ch = c$1;
+        state.position = pos$1;
+        break l$1;
       }
-      final $suffix1 = parseSuffix(state);
-      if ($suffix1 != null) {
-        final s = $suffix1.$1;
-        return Ok(AndPredicateExpression(expression: s));
-      }
-      state.ch = $c;
-      state.position = $pos;
+      break l$1;
     }
-    final $suffix2 = parseSuffix(state);
-    if ($suffix2 != null) {
-      return $suffix2;
+    // l$1:
+    final suffix$2 = parseSuffix(state);
+    if (suffix$2 != null) {
+      return suffix$2;
     }
     return null;
   }
@@ -524,9 +536,9 @@ class TokenStreamParser {
   ///   )
   /// ```
   Result<Expression>? parseSuffix(State state) {
-    final $primary = parsePrimary(state);
-    if ($primary != null) {
-      final p = $primary.$1;
+    final primary$ = parsePrimary(state);
+    if (primary$ != null) {
+      final p = primary$.$1;
       // "*"
       if (state.ch == 42) {
         state.nextChar();
@@ -545,10 +557,10 @@ class TokenStreamParser {
         parseS(state);
         return Ok(OptionalExpression(expression: p));
       }
+      // ""
       return Ok(p);
-    } else {
-      return null;
     }
+    return null;
   }
 
   /// [Expression] **Primary**
@@ -558,6 +570,8 @@ class TokenStreamParser {
   ///   (
   ///     Symbol
   ///     ----
+  ///     Value
+  ///     ----
   ///     Group
   ///     ----
   ///     While
@@ -566,21 +580,25 @@ class TokenStreamParser {
   ///   ) ~{ state.errorExpected('expression'); }
   /// ```
   Result<Expression>? parsePrimary(State state) {
-    final $symbol = parseSymbol(state);
-    if ($symbol != null) {
-      return $symbol;
+    final symbol$ = parseSymbol(state);
+    if (symbol$ != null) {
+      return symbol$;
     }
-    final $group = parseGroup(state);
-    if ($group != null) {
-      return $group;
+    final value$ = parseValue(state);
+    if (value$ != null) {
+      return value$;
     }
-    final $while = parseWhile(state);
-    if ($while != null) {
-      return $while;
+    final group$ = parseGroup(state);
+    if (group$ != null) {
+      return group$;
     }
-    final $token = parseToken(state);
-    if ($token != null) {
-      return $token;
+    final while$ = parseWhile(state);
+    if (while$ != null) {
+      return while$;
+    }
+    final token$ = parseToken(state);
+    if (token$ != null) {
+      return token$;
     }
     state.errorExpected('expression');
     return null;
@@ -591,17 +609,26 @@ class TokenStreamParser {
   /// `Expression`
   /// Symbol =>
   ///   n = ProductionName S
+  ///   ! '=>'
   ///   $ = { ProductionExpression(name: n) }
   /// ```
   Result<Expression>? parseSymbol(State state) {
-    final $productionName = parseProductionName(state);
-    if ($productionName != null) {
-      final n = $productionName.$1;
+    final pos$ = state.position;
+    final c$ = state.ch;
+    final productionName$ = parseProductionName(state);
+    if (productionName$ != null) {
+      final n = productionName$.$1;
       parseS(state);
+      // '=>'
+      if (state.ch == 61 && state.startsWith('=>')) {
+        state.ch = c$;
+        state.position = pos$;
+        return null;
+      }
+      state.errorExpected('=>');
       return Ok(ProductionExpression(name: n));
-    } else {
-      return null;
     }
+    return null;
   }
 
   /// [Expression] **Action**
@@ -612,37 +639,28 @@ class TokenStreamParser {
   ///   $ = { ActionExpression(source: b) }
   /// ```
   Result<Expression>? parseAction(State state) {
-    final $block = parseBlock(state);
-    if ($block != null) {
-      final b = $block.$1;
+    final block$ = parseBlock(state);
+    if (block$ != null) {
+      final b = block$.$1;
       return Ok(ActionExpression(source: b));
-    } else {
-      return null;
     }
+    return null;
   }
 
   /// [Expression] **Value**
   /// ```txt
   /// `Expression`
   /// Value =>
-  ///   t = Type?
   ///   b = Block
-  ///   $ = { ValueExpression(source: b, valueType: t) }
+  ///   $ = { ValueExpression(source: b) }
   /// ```
   Result<Expression>? parseValue(State state) {
-    final $pos = state.position;
-    final $c = state.ch;
-    final $type = parseType(state);
-    final t = $type?.$1;
-    final $block = parseBlock(state);
-    if ($block != null) {
-      final b = $block.$1;
-      return Ok(ValueExpression(source: b, valueType: t));
-    } else {
-      state.ch = $c;
-      state.position = $pos;
-      return null;
+    final block$ = parseBlock(state);
+    if (block$ != null) {
+      final b = block$.$1;
+      return Ok(ValueExpression(source: b));
     }
+    return null;
   }
 
   /// [Expression] **Group**
@@ -658,17 +676,17 @@ class TokenStreamParser {
   ///   $ = { g }
   /// ```
   Result<Expression>? parseGroup(State state) {
-    final $pos = state.position;
-    final $c = state.ch;
-    final $type = parseType(state);
-    final t = $type?.$1;
+    final pos$ = state.position;
+    final c$ = state.ch;
+    final type$ = parseType(state);
+    final t = type$?.$1;
     // "("
     if (state.ch == 40) {
       state.nextChar();
       parseS(state);
-      final $expression = parseExpression(state);
-      if ($expression != null) {
-        final e = $expression.$1;
+      final expression$ = parseExpression(state);
+      if (expression$ != null) {
+        final e = expression$.$1;
         // ')'
         if (state.ch == 41) {
           state.nextChar();
@@ -676,58 +694,54 @@ class TokenStreamParser {
           final g = GroupExpression(expression: e);
           t != null ? g.type = t : null;
           return Ok(g);
-        } else {
-          state.errorExpected(')');
-          state.ch = $c;
-          state.position = $pos;
-          return null;
         }
-      } else {
-        state.ch = $c;
-        state.position = $pos;
+        state.errorExpected(')');
+        state.ch = c$;
+        state.position = pos$;
         return null;
       }
-    } else {
-      state.ch = $c;
-      state.position = $pos;
+      state.ch = c$;
+      state.position = pos$;
       return null;
     }
+    state.ch = c$;
+    state.position = pos$;
+    return null;
   }
 
   /// [Expression] **Token**
   /// ```txt
   /// `Expression`
   /// Token =>
-  ///   n = <[$a-zA-Z] [$a-zA-Z0-9_]*>
+  ///   n = <[$a-z] [$a-zA-Z0-9_]*>
   ///   ~{ state.errorExpected('token name'); }
   ///   S
   ///   $ = { TokenExpression(name: n) }
   /// ```
   Result<Expression>? parseToken(State state) {
-    final $pos = state.position;
-    final $c = state.ch;
-    final $ok = $c <= 90 ? $c >= 65 || $c == 36 : $c >= 97 && $c <= 122;
-    // [$a-zA-Z]
-    if ($ok) {
+    final pos$ = state.position;
+    // [$a-z]
+    final c$ = state.ch;
+    final isSuccess$ = c$ == 36 || c$ >= 97 && c$ <= 122;
+    if (isSuccess$) {
       state.nextChar();
       // (0)
       while (true) {
-        final $c1 = state.ch;
-        final $ok1 = $c1 <= 90 ? $c1 >= 65 || $c1 == 36 || $c1 >= 48 && $c1 <= 57 : $c1 == 95 || $c1 >= 97 && $c1 <= 122;
         // [$a-zA-Z0-9_]
-        if ($ok1) {
+        final c$1 = state.ch;
+        final isSuccess$1 = c$1 <= 90 ? c$1 >= 65 || c$1 == 36 || c$1 >= 48 && c$1 <= 57 : c$1 == 95 || c$1 >= 97 && c$1 <= 122;
+        if (isSuccess$1) {
           state.nextChar();
           continue;
         }
         break;
       }
-      final n = state.substring($pos, state.position);
+      final n = state.substring(pos$, state.position);
       parseS(state);
       return Ok(TokenExpression(name: n));
-    } else {
-      state.errorExpected('token name');
-      return null;
     }
+    state.errorExpected('token name');
+    return null;
   }
 
   /// [Expression] **While**
@@ -746,10 +760,10 @@ class TokenStreamParser {
   ///   $ = { WhileExpression(expression: e, range: r).setType(t) }
   /// ```
   Result<Expression>? parseWhile(State state) {
-    final $pos = state.position;
-    final $c = state.ch;
-    final $type = parseType(state);
-    final t = $type?.$1;
+    final pos$ = state.position;
+    final c$ = state.ch;
+    final type$ = parseType(state);
+    final t = type$?.$1;
     // "@while"
     if (state.ch == 64 && state.startsWith('@while')) {
       state.readChar(state.position + 6);
@@ -758,9 +772,9 @@ class TokenStreamParser {
       if (state.ch == 40) {
         state.nextChar();
         parseS(state);
-        final $whileRange = parseWhileRange(state);
-        if ($whileRange != null) {
-          final r = $whileRange.$1;
+        final whileRange$ = parseWhileRange(state);
+        if (whileRange$ != null) {
+          final r = whileRange$.$1;
           // ')'
           if (state.ch == 41) {
             state.nextChar();
@@ -769,54 +783,47 @@ class TokenStreamParser {
             if (state.ch == 123) {
               state.nextChar();
               parseS(state);
-              final $expression = parseExpression(state);
-              if ($expression != null) {
-                final e = $expression.$1;
+              final expression$ = parseExpression(state);
+              if (expression$ != null) {
+                final e = expression$.$1;
                 // '}'
                 if (state.ch == 125) {
                   state.nextChar();
                   parseS(state);
                   return Ok(WhileExpression(expression: e, range: r).setType(t));
-                } else {
-                  state.errorExpected('}');
-                  state.ch = $c;
-                  state.position = $pos;
-                  return null;
                 }
-              } else {
-                state.ch = $c;
-                state.position = $pos;
+                state.errorExpected('}');
+                state.ch = c$;
+                state.position = pos$;
                 return null;
               }
-            } else {
-              state.errorExpected('{');
-              state.ch = $c;
-              state.position = $pos;
+              state.ch = c$;
+              state.position = pos$;
               return null;
             }
-          } else {
-            state.errorExpected(')');
-            state.ch = $c;
-            state.position = $pos;
+            state.errorExpected('{');
+            state.ch = c$;
+            state.position = pos$;
             return null;
           }
-        } else {
-          state.errorExpected('while range');
-          state.ch = $c;
-          state.position = $pos;
+          state.errorExpected(')');
+          state.ch = c$;
+          state.position = pos$;
           return null;
         }
-      } else {
-        state.errorExpected('(');
-        state.ch = $c;
-        state.position = $pos;
+        state.errorExpected('while range');
+        state.ch = c$;
+        state.position = pos$;
         return null;
       }
-    } else {
-      state.ch = $c;
-      state.position = $pos;
+      state.errorExpected('(');
+      state.ch = c$;
+      state.position = pos$;
       return null;
     }
+    state.ch = c$;
+    state.position = pos$;
+    return null;
   }
 
   /// [(int, int?)] **WhileRange**
@@ -831,35 +838,39 @@ class TokenStreamParser {
   ///   $ = { (m, n) }
   /// ```
   Result<(int, int?)>? parseWhileRange(State state) {
-    final $decValue = parseDecValue(state);
-    if ($decValue != null) {
-      final m = $decValue.$1;
+    final decValue$ = parseDecValue(state);
+    if (decValue$ != null) {
+      final m = decValue$.$1;
       parseS(state);
-      int? $val;
-      final $pos = state.position;
-      final $c = state.ch;
-      // ','
-      if (state.ch == 44) {
-        state.nextChar();
-        parseS(state);
-        final $decValue1 = parseDecValue1(state);
-        if ($decValue1 != null) {
+      Result<int?>? result$;
+      l$:
+      {
+        final pos$ = state.position;
+        final c$ = state.ch;
+        // ','
+        if (state.ch == 44) {
+          state.nextChar();
           parseS(state);
-          $val = $decValue1.$1;
-        } else {
-          state.ch = $c;
-          state.position = $pos;
-          $val = null;
+          final decValue1$ = parseDecValue1(state);
+          if (decValue1$ != null) {
+            parseS(state);
+            result$ = decValue1$;
+            break l$;
+          }
+          state.ch = c$;
+          state.position = pos$;
+          result$ = const Ok(null);
+          break l$;
         }
-      } else {
         state.errorExpected(',');
-        $val = null;
+        result$ = const Ok(null);
+        break l$;
       }
-      final n = $val;
+      // l$:
+      final n = result$.$1;
       return Ok((m, n));
-    } else {
-      return null;
     }
+    return null;
   }
 
   /// [String] **ErrorHandler**
@@ -870,22 +881,21 @@ class TokenStreamParser {
   ///   $ = Block
   /// ```
   Result<String>? parseErrorHandler(State state) {
-    final $pos = state.position;
-    final $c = state.ch;
+    final pos$ = state.position;
+    final c$ = state.ch;
     // "~"
     if (state.ch == 126) {
       state.nextChar();
       parseS(state);
-      final $block = parseBlock(state);
-      if ($block != null) {
-        return $block;
+      final block$ = parseBlock(state);
+      if (block$ != null) {
+        return block$;
       }
-      state.ch = $c;
-      state.position = $pos;
-      return null;
-    } else {
+      state.ch = c$;
+      state.position = pos$;
       return null;
     }
+    return null;
   }
 
   /// [String] **Type**
@@ -903,52 +913,49 @@ class TokenStreamParser {
   ///   '`' S
   /// ```
   Result<String>? parseType(State state) {
-    final $pos = state.position;
-    final $c = state.ch;
+    final pos$ = state.position;
+    final c$ = state.ch;
     // "`"
     if (state.ch == 96) {
       state.nextChar();
-      final $pos1 = state.position;
-      var $ok = false;
+      final pos$1 = state.position;
+      var isSuccess$ = false;
       // (1)
       while (true) {
         // [`]
         if (state.ch == 96) {
           break;
-        } else {
-          final $c1 = state.ch;
-          final $ok1 = $c1 <= 60 ? $c1 >= 60 || $c1 <= 41 ? $c1 >= 40 || $c1 == 32 || $c1 == 36 : $c1 == 44 || $c1 >= 48 && $c1 <= 58 : $c1 <= 95 ? $c1 >= 95 || $c1 <= 63 ? $c1 >= 62 : $c1 >= 65 && $c1 <= 90 : $c1 <= 123 ? $c1 >= 97 : $c1 == 125;
-          // [a-zA-Z0-9_$<(\{,:\})>? ]
-          if ($ok1) {
-            state.nextChar();
-            $ok = true;
-            continue;
-          }
-          break;
         }
+        // [a-zA-Z0-9_$<(\{,:\})>? ]
+        final c$1 = state.ch;
+        final isSuccess$1 = c$1 <= 60 ? c$1 >= 60 || c$1 <= 41 ? c$1 >= 40 || c$1 == 32 || c$1 == 36 : c$1 == 44 || c$1 >= 48 && c$1 <= 58 : c$1 <= 95 ? c$1 >= 95 || c$1 <= 63 ? c$1 >= 62 : c$1 >= 65 && c$1 <= 90 : c$1 <= 123 ? c$1 >= 97 : c$1 == 125;
+        if (isSuccess$1) {
+          state.nextChar();
+          isSuccess$ = true;
+          continue;
+        }
+        break;
       }
-      if ($ok) {
-        final $type = Ok(state.substring($pos1, state.position));
+      if (isSuccess$) {
+        final type$ = Ok(state.substring(pos$1, state.position));
         // '`'
         if (state.ch == 96) {
           state.nextChar();
           parseS(state);
-          return $type;
-        } else {
-          state.errorExpected('`');
-          state.ch = $c;
-          state.position = $pos;
-          return null;
+          return type$;
         }
+        state.errorExpected('`');
+        state.ch = c$;
+        state.position = pos$;
+        return null;
       } else {
         state.errorExpected('type description');
-        state.ch = $c;
-        state.position = $pos;
+        state.ch = c$;
+        state.position = pos$;
         return null;
       }
-    } else {
-      return null;
     }
+    return null;
   }
 
   /// [String] **DQString**
@@ -965,54 +972,53 @@ class TokenStreamParser {
   ///   $ = { p.join() }
   /// ```
   Result<String>? parseDQString(State state) {
-    final $pos = state.position;
-    final $c = state.ch;
+    final pos$ = state.position;
+    final c$ = state.ch;
     // "\""
     if (state.ch == 34) {
       state.nextChar();
-      final $list = <String>[];
+      final list$ = <String>[];
       // (0)
       while (true) {
-        final $pos1 = state.position;
-        var $ok = false;
+        final pos$1 = state.position;
+        var isSuccess$ = false;
         // (1)
         while (true) {
-          final $c1 = state.ch;
-          final $ok1 = $c1 <= 91 ? $c1 >= 35 || $c1 >= 32 && $c1 <= 33 : $c1 >= 93 && $c1 <= 1114111;
           // [ -!#-\[\]-{10ffff}]
-          if ($ok1) {
+          final c$1 = state.ch;
+          final isSuccess$1 = c$1 <= 91 ? c$1 >= 35 || c$1 >= 32 && c$1 <= 33 : c$1 >= 93 && c$1 <= 1114111;
+          if (isSuccess$1) {
             state.nextChar();
-            $ok = true;
+            isSuccess$ = true;
             continue;
           }
           break;
         }
-        if ($ok) {
-          $list.add(state.substring($pos1, state.position));
+        if (isSuccess$) {
+          list$.add(state.substring(pos$1, state.position));
           continue;
+        } else {
+          final escaped$ = parseEscaped(state);
+          if (escaped$ != null) {
+            list$.add(escaped$.$1);
+            continue;
+          }
+          break;
         }
-        final $escaped = parseEscaped(state);
-        if ($escaped != null) {
-          $list.add($escaped.$1);
-          continue;
-        }
-        break;
       }
-      final p = $list;
+      final p = list$;
       // '"'
       if (state.ch == 34) {
         state.nextChar();
         parseS(state);
         return Ok(p.join());
-      } else {
-        state.errorExpected('"');
-        state.ch = $c;
-        state.position = $pos;
-        return null;
       }
-    } else {
+      state.errorExpected('"');
+      state.ch = c$;
+      state.position = pos$;
       return null;
     }
+    return null;
   }
 
   /// [String] **SQString**
@@ -1029,54 +1035,53 @@ class TokenStreamParser {
   ///   $ = { p.join() }
   /// ```
   Result<String>? parseSQString(State state) {
-    final $pos = state.position;
-    final $c = state.ch;
+    final pos$ = state.position;
+    final c$ = state.ch;
     // "'"
     if (state.ch == 39) {
       state.nextChar();
-      final $list = <String>[];
+      final list$ = <String>[];
       // (0)
       while (true) {
-        final $pos1 = state.position;
-        var $ok = false;
+        final pos$1 = state.position;
+        var isSuccess$ = false;
         // (1)
         while (true) {
-          final $c1 = state.ch;
-          final $ok1 = $c1 <= 91 ? $c1 >= 40 || $c1 >= 32 && $c1 <= 38 : $c1 >= 93 && $c1 <= 1114111;
           // [ -&(-\[\]-{10ffff}]
-          if ($ok1) {
+          final c$1 = state.ch;
+          final isSuccess$1 = c$1 <= 91 ? c$1 >= 40 || c$1 >= 32 && c$1 <= 38 : c$1 >= 93 && c$1 <= 1114111;
+          if (isSuccess$1) {
             state.nextChar();
-            $ok = true;
+            isSuccess$ = true;
             continue;
           }
           break;
         }
-        if ($ok) {
-          $list.add(state.substring($pos1, state.position));
+        if (isSuccess$) {
+          list$.add(state.substring(pos$1, state.position));
           continue;
+        } else {
+          final escaped$ = parseEscaped(state);
+          if (escaped$ != null) {
+            list$.add(escaped$.$1);
+            continue;
+          }
+          break;
         }
-        final $escaped = parseEscaped(state);
-        if ($escaped != null) {
-          $list.add($escaped.$1);
-          continue;
-        }
-        break;
       }
-      final p = $list;
+      final p = list$;
       // '\''
       if (state.ch == 39) {
         state.nextChar();
         parseS(state);
         return Ok(p.join());
-      } else {
-        state.errorExpected('\'');
-        state.ch = $c;
-        state.position = $pos;
-        return null;
       }
-    } else {
+      state.errorExpected('\'');
+      state.ch = c$;
+      state.position = pos$;
       return null;
     }
+    return null;
   }
 
   /// [String] **Escaped**
@@ -1129,43 +1134,48 @@ class TokenStreamParser {
   ///   ~{state.error('Illegal escape character'); }
   /// ```
   Result<String>? parseEscaped(State state) {
-    final $pos = state.position;
-    final $c = state.ch;
+    final pos$ = state.position;
+    final c$ = state.ch;
     // "\\"
     if (state.ch == 92) {
       state.nextChar();
-      final $pos1 = state.position;
-      final $c1 = state.ch;
-      // "u"
-      if (state.ch == 117) {
-        state.nextChar();
-        // '{'
-        if (state.ch == 123) {
+      l$:
+      {
+        final pos$1 = state.position;
+        final c$1 = state.ch;
+        // "u"
+        if (state.ch == 117) {
           state.nextChar();
-          final $hexValue = parseHexValue(state);
-          if ($hexValue != null) {
-            final v = $hexValue.$1;
-            // '}'
-            if (state.ch == 125) {
-              state.nextChar();
-              return Ok(String.fromCharCode(v));
-            } else {
+          // '{'
+          if (state.ch == 123) {
+            state.nextChar();
+            final hexValue$ = parseHexValue(state);
+            if (hexValue$ != null) {
+              final v = hexValue$.$1;
+              // '}'
+              if (state.ch == 125) {
+                state.nextChar();
+                return Ok(String.fromCharCode(v));
+              }
               state.errorExpected('}');
               state.error('Unterminated Unicode escape sequence');
-              state.ch = $c1;
-              state.position = $pos1;
+              state.ch = c$1;
+              state.position = pos$1;
+              break l$;
             }
-          } else {
             state.error('unicode escape');
-            state.ch = $c1;
-            state.position = $pos1;
+            state.ch = c$1;
+            state.position = pos$1;
+            break l$;
           }
-        } else {
           state.errorExpected('{');
-          state.ch = $c1;
-          state.position = $pos1;
+          state.ch = c$1;
+          state.position = pos$1;
+          break l$;
         }
+        break l$;
       }
+      // l$:
       // "a"
       if (state.ch == 97) {
         state.nextChar();
@@ -1222,12 +1232,11 @@ class TokenStreamParser {
         return const Ok('\'');
       }
       state.error('Illegal escape character');
-      state.ch = $c;
-      state.position = $pos;
-      return null;
-    } else {
+      state.ch = c$;
+      state.position = pos$;
       return null;
     }
+    return null;
   }
 
   /// [int] **DecValue**
@@ -1239,22 +1248,22 @@ class TokenStreamParser {
   ///   $ = { int.parse(n) }
   /// ```
   Result<int>? parseDecValue(State state) {
-    final $pos = state.position;
-    var $ok = false;
+    final pos$ = state.position;
+    var isSuccess$ = false;
     // (1)
     while (true) {
-      final $c = state.ch;
-      final $ok1 = $c >= 48 && $c <= 57;
       // [0-9]
-      if ($ok1) {
+      final c$ = state.ch;
+      final isSuccess$1 = c$ >= 48 && c$ <= 57;
+      if (isSuccess$1) {
         state.nextChar();
-        $ok = true;
+        isSuccess$ = true;
         continue;
       }
       break;
     }
-    if ($ok) {
-      final n = state.substring($pos, state.position);
+    if (isSuccess$) {
+      final n = state.substring(pos$, state.position);
       return Ok(int.parse(n));
     } else {
       state.errorExpected('decimal number');
@@ -1271,29 +1280,28 @@ class TokenStreamParser {
   ///   $ = { int.parse(n) }
   /// ```
   Result<int>? parseDecValue1(State state) {
-    final $pos = state.position;
-    final $c = state.ch;
-    final $ok = $c >= 49 && $c <= 57;
+    final pos$ = state.position;
     // [1-9]
-    if ($ok) {
+    final c$ = state.ch;
+    final isSuccess$ = c$ >= 49 && c$ <= 57;
+    if (isSuccess$) {
       state.nextChar();
       // (0)
       while (true) {
-        final $c1 = state.ch;
-        final $ok1 = $c1 >= 48 && $c1 <= 57;
         // [0-9]
-        if ($ok1) {
+        final c$1 = state.ch;
+        final isSuccess$1 = c$1 >= 48 && c$1 <= 57;
+        if (isSuccess$1) {
           state.nextChar();
           continue;
         }
         break;
       }
-      final n = state.substring($pos, state.position);
+      final n = state.substring(pos$, state.position);
       return Ok(int.parse(n));
-    } else {
-      state.errorExpected('decimal number from 1');
-      return null;
     }
+    state.errorExpected('decimal number from 1');
+    return null;
   }
 
   /// [int] **HexValue**
@@ -1305,22 +1313,22 @@ class TokenStreamParser {
   ///   $ = { int.parse(n, radix: 16) }
   /// ```
   Result<int>? parseHexValue(State state) {
-    final $pos = state.position;
-    var $ok = false;
+    final pos$ = state.position;
+    var isSuccess$ = false;
     // (1)
     while (true) {
-      final $c = state.ch;
-      final $ok1 = $c <= 70 ? $c >= 65 || $c >= 48 && $c <= 57 : $c >= 97 && $c <= 102;
       // [a-fA-F0-9]
-      if ($ok1) {
+      final c$ = state.ch;
+      final isSuccess$1 = c$ <= 70 ? c$ >= 65 || c$ >= 48 && c$ <= 57 : c$ >= 97 && c$ <= 102;
+      if (isSuccess$1) {
         state.nextChar();
-        $ok = true;
+        isSuccess$ = true;
         continue;
       }
       break;
     }
-    if ($ok) {
-      final n = state.substring($pos, state.position);
+    if (isSuccess$) {
+      final n = state.substring(pos$, state.position);
       return Ok(int.parse(n, radix: 16));
     } else {
       state.errorExpected('hexadecimal number');
@@ -1337,35 +1345,33 @@ class TokenStreamParser {
   ///   '}' S
   /// ```
   Result<String>? parseBlock(State state) {
-    final $pos = state.position;
-    final $c = state.ch;
+    final pos$ = state.position;
+    final c$ = state.ch;
     // "{"
     if (state.ch == 123) {
       state.nextChar();
-      final $pos1 = state.position;
+      final pos$1 = state.position;
       // (0)
       while (true) {
-        final $blockBody = parseBlockBody(state);
-        if ($blockBody != null) {
+        final blockBody$ = parseBlockBody(state);
+        if (blockBody$ != null) {
           continue;
         }
         break;
       }
-      final $block = Ok(state.substring($pos1, state.position));
+      final block$ = Ok(state.substring(pos$1, state.position));
       // '}'
       if (state.ch == 125) {
         state.nextChar();
         parseS(state);
-        return $block;
-      } else {
-        state.errorExpected('}');
-        state.ch = $c;
-        state.position = $pos;
-        return null;
+        return block$;
       }
-    } else {
+      state.errorExpected('}');
+      state.ch = c$;
+      state.position = pos$;
       return null;
     }
+    return null;
   }
 
   /// [void] **BlockBody**
@@ -1380,34 +1386,41 @@ class TokenStreamParser {
   ///   .
   /// ```
   Result<void>? parseBlockBody(State state) {
-    final $pos = state.position;
-    final $c = state.ch;
-    // "{"
-    if (state.ch == 123) {
-      state.nextChar();
-      // (0)
-      while (true) {
-        final $blockBody = parseBlockBody(state);
-        if ($blockBody != null) {
-          continue;
+    l$:
+    {
+      final pos$ = state.position;
+      final c$ = state.ch;
+      // "{"
+      if (state.ch == 123) {
+        state.nextChar();
+        // (0)
+        while (true) {
+          final blockBody$ = parseBlockBody(state);
+          if (blockBody$ != null) {
+            continue;
+          }
+          break;
         }
-        break;
+        // '}'
+        if (state.ch == 125) {
+          state.nextChar();
+          return Result.none;
+        }
+        state.errorExpected('}');
+        state.ch = c$;
+        state.position = pos$;
+        break l$;
       }
-      // '}'
-      if (state.ch == 125) {
-        state.nextChar();
-        return Result.none;
-      }
-      state.errorExpected('}');
-      state.ch = $c;
-      state.position = $pos;
+      break l$;
     }
+    // l$:
     // "}"
-    if (!(state.ch == 125)) {
-      if (state.ch >= 0) {
-        state.nextChar();
-        return Result.none;
-      }
+    if (state.ch == 125) {
+      return null;
+    }
+    if (state.ch >= 0) {
+      state.nextChar();
+      return Result.none;
     }
     return null;
   }
@@ -1420,29 +1433,28 @@ class TokenStreamParser {
   ///   S
   /// ```
   Result<String>? parseVariableName(State state) {
-    final $pos = state.position;
-    final $c = state.ch;
-    final $ok = $c >= 97 && $c <= 122;
+    final pos$ = state.position;
     // [a-z]
-    if ($ok) {
+    final c$ = state.ch;
+    final isSuccess$ = c$ >= 97 && c$ <= 122;
+    if (isSuccess$) {
       state.nextChar();
       // (0)
       while (true) {
-        final $c1 = state.ch;
-        final $ok1 = $c1 <= 90 ? $c1 >= 65 || $c1 >= 48 && $c1 <= 57 : $c1 == 95 || $c1 >= 97 && $c1 <= 122;
         // [a-zA-Z0-9_]
-        if ($ok1) {
+        final c$1 = state.ch;
+        final isSuccess$1 = c$1 <= 90 ? c$1 >= 65 || c$1 >= 48 && c$1 <= 57 : c$1 == 95 || c$1 >= 97 && c$1 <= 122;
+        if (isSuccess$1) {
           state.nextChar();
           continue;
         }
         break;
       }
-      final $variableName = Ok(state.substring($pos, state.position));
+      final variableName$ = Ok(state.substring(pos$, state.position));
       parseS(state);
-      return $variableName;
-    } else {
-      return null;
+      return variableName$;
     }
+    return null;
   }
 
   /// [String] **ProductionName**
@@ -1453,29 +1465,28 @@ class TokenStreamParser {
   ///   S
   /// ```
   Result<String>? parseProductionName(State state) {
-    final $pos = state.position;
-    final $c = state.ch;
-    final $ok = $c >= 65 && $c <= 90;
+    final pos$ = state.position;
     // [A-Z]
-    if ($ok) {
+    final c$ = state.ch;
+    final isSuccess$ = c$ >= 65 && c$ <= 90;
+    if (isSuccess$) {
       state.nextChar();
       // (0)
       while (true) {
-        final $c1 = state.ch;
-        final $ok1 = $c1 <= 90 ? $c1 >= 65 || $c1 >= 48 && $c1 <= 57 : $c1 == 95 || $c1 >= 97 && $c1 <= 122;
         // [a-zA-Z0-9_]
-        if ($ok1) {
+        final c$1 = state.ch;
+        final isSuccess$1 = c$1 <= 90 ? c$1 >= 65 || c$1 >= 48 && c$1 <= 57 : c$1 == 95 || c$1 >= 97 && c$1 <= 122;
+        if (isSuccess$1) {
           state.nextChar();
           continue;
         }
         break;
       }
-      final $productionName = Ok(state.substring($pos, state.position));
+      final productionName$ = Ok(state.substring(pos$, state.position));
       parseS(state);
-      return $productionName;
-    } else {
-      return null;
+      return productionName$;
     }
+    return null;
   }
 
   /// [void] **S**
@@ -1490,12 +1501,12 @@ class TokenStreamParser {
   Result<void> parseS(State state) {
     // (0)
     while (true) {
-      final $space = parseSpace(state);
-      if ($space != null) {
+      final space$ = parseSpace(state);
+      if (space$ != null) {
         continue;
       }
-      final $comment = parseComment(state);
-      if ($comment != null) {
+      final comment$ = parseComment(state);
+      if (comment$ != null) {
         continue;
       }
       break;
@@ -1521,28 +1532,26 @@ class TokenStreamParser {
       // (0)
       while (true) {
         state.predicate++;
-        final $pos = state.position;
-        final $c = state.ch;
-        final $endOfLine = parseEndOfLine(state);
-        if ($endOfLine != null) {
-          state.ch = $c;
-          state.position = $pos;
+        final pos$ = state.position;
+        final c$ = state.ch;
+        final endOfLine$ = parseEndOfLine(state);
+        if (endOfLine$ != null) {
+          state.ch = c$;
+          state.position = pos$;
           state.predicate--;
-          break;
-        } else {
-          state.predicate--;
-          if (state.ch >= 0) {
-            state.nextChar();
-            continue;
-          }
           break;
         }
+        state.predicate--;
+        if (state.ch >= 0) {
+          state.nextChar();
+          continue;
+        }
+        break;
       }
       parseEndOfLine(state);
       return Result.none;
-    } else {
-      return null;
     }
+    return null;
   }
 
   /// [void] **Space**
@@ -1554,15 +1563,15 @@ class TokenStreamParser {
   ///   EndOfLine
   /// ```
   Result<void>? parseSpace(State state) {
-    final $c = state.ch;
-    final $ok = $c == 9 || $c == 32;
     // [ \t]
-    if ($ok) {
+    final c$ = state.ch;
+    final isSuccess$ = c$ == 9 || c$ == 32;
+    if (isSuccess$) {
       state.nextChar();
       return Result.none;
     }
-    final $endOfLine = parseEndOfLine(state);
-    if ($endOfLine != null) {
+    final endOfLine$ = parseEndOfLine(state);
+    if (endOfLine$ != null) {
       return Result.none;
     }
     return null;
@@ -1582,10 +1591,10 @@ class TokenStreamParser {
       state.readChar(state.position + 2);
       return Result.none;
     }
-    final $c = state.ch;
-    final $ok = $c == 10 || $c == 13;
     // [\n\r]
-    if ($ok) {
+    final c$ = state.ch;
+    final isSuccess$ = c$ == 10 || c$ == 13;
+    if (isSuccess$) {
       state.nextChar();
       return Result.none;
     }

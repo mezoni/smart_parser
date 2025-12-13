@@ -1,4 +1,4 @@
-import 'printer.dart';
+import 'expression_printer.dart';
 import 'visitors.dart';
 
 export 'visitors.dart';
@@ -61,6 +61,8 @@ abstract class Expression {
 
   String? errorHandler;
 
+  String? explicitType;
+
   int failureCount = 1;
 
   int index = 0;
@@ -88,7 +90,7 @@ abstract class Expression {
   T accept<T>(Visitor<T> visitor);
 
   String print() {
-    const printer = Printer();
+    const printer = ExpressionPrinter();
     return accept(printer);
   }
 
@@ -286,9 +288,7 @@ class TokenExpression extends Expression {
 class ValueExpression extends Expression {
   final String source;
 
-  final String? valueType;
-
-  ValueExpression({required this.source, this.valueType});
+  ValueExpression({required this.source});
 
   @override
   T accept<T>(Visitor<T> visitor) {

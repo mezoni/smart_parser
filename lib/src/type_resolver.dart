@@ -176,19 +176,8 @@ class ExpressionTypeResolver implements Visitor<void> {
 
   @override
   void visitValue(ValueExpression node) {
-    final valueType = node.valueType;
-    var type = valueType;
-    if (type != null) {
-      type = type.trim();
-      if (type.startsWith('const')) {
-        type = type.substring('const'.length);
-        type = type.trimLeft();
-      }
-
-      if (type.isNotEmpty) {
-        _assignType(node, type);
-      }
-    }
+    final explicitType = node.explicitType;
+    _assignType(node, explicitType);
   }
 
   @override
@@ -202,6 +191,16 @@ class ExpressionTypeResolver implements Visitor<void> {
   }
 
   void _assignType(Expression node, String? type) {
+    final explicitType = node.explicitType;
+    if (explicitType != null) {
+      type = explicitType;
+      type = type.trim();
+      if (type.startsWith('const')) {
+        type = type.substring('const'.length);
+        type = type.trimLeft();
+      }
+    }
+
     if (assignType(node, type)) {
       hasChanges = true;
     }
@@ -239,7 +238,8 @@ class ExpressionTypeResolver implements Visitor<void> {
       return false;
     }
 
-    var nodeType = node.type;
+    type = type.trim();
+    var nodeType = node.type.trim();
     nodeType = nodeType.startsWith('const')
         ? nodeType.substring('const'.length).trimLeft()
         : nodeType;

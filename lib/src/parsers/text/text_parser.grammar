@@ -117,22 +117,24 @@ Sequence =>
 SequenceElement =>
   Action
   ----
-  n = (
-    VariableName
-    ---
-    $ = '$'
-    S
-  )
-  '=' S
-  e = (
-    Prefix
-    ----
-    Value
-  )
-  { e.semanticValue = n; }
+  v = (
+    $ = SemanticValue
+    '=' S
+  )?
+  t = Type?
+  e = Prefix
+  {
+    e.semanticValue = v;
+    e.explicitType = t;
+  }
   $ = { e }
-  ----
-  Prefix
+
+`String`
+SemanticValue =>
+  VariableName
+  ---
+  $ = '$'
+  S
 
 `Expression`
 Prefix =>
@@ -178,6 +180,8 @@ Primary =>
   (
     Symbol
     ---
+    Value
+    ----
     CharacterClass
     ----
     Literal
@@ -198,6 +202,7 @@ Primary =>
 `Expression`
 Symbol =>
   n = ProductionName S
+  ! '=>'
   $ = { ProductionExpression(name: n) }
 
 `Expression`
@@ -207,9 +212,8 @@ Action =>
 
 `Expression`
 Value =>
-  t = Type?
   b = Block
-  $ = { ValueExpression(source: b, valueType: t) }
+  $ = { ValueExpression(source: b) }
 
 `Expression`
 AnyCharacter =>

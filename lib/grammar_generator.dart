@@ -11,6 +11,8 @@ import 'src/parsers/token_stream/token_stream_parser.dart'
 import 'src/parsers/token_stream/token_stream_parser.dart';
 import 'src/type_resolver.dart';
 
+export 'parser_generator_options.dart' show InputType;
+
 /// [GrammarGenerator] generates grammar from grammar [source] code.
 class GrammarGenerator {
   /// Input type.

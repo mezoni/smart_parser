@@ -1,5 +1,5 @@
 import 'package:smart_parser/grammar_generator.dart';
-import 'package:smart_parser/src/printer.dart';
+import 'package:smart_parser/src/expression_printer.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -131,7 +131,7 @@ void _testCharacterClass() {
 }
 
 void _testExpression(String input, String expected) {
-  const printer = Printer();
+  const printer = ExpressionPrinter();
   final source = '`void` Test => $input';
   final grammarGenerator = GrammarGenerator(source: source);
   final grammar = grammarGenerator.generate();
@@ -188,6 +188,11 @@ void _testLiteral() {
 
     {
       const input = r"'🚀'";
+      _testExpression(input, input);
+    }
+
+    {
+      const input = r"`String` '🚀'";
       _testExpression(input, input);
     }
   });
