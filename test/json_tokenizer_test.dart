@@ -81,9 +81,9 @@ void _testArray() {
         source,
         [
           TokenKind.openBracket,
-          TokenKind.null$,
+          TokenKind.nullKeyword,
           TokenKind.comma,
-          TokenKind.true$,
+          TokenKind.trueKeyword,
           TokenKind.closeBracket,
         ],
         ['[', null, ',', true, ']'],
@@ -96,7 +96,7 @@ void _testFalse() {
   test('false', () {
     {
       const source = ' false  ';
-      __testSuccess(source, [TokenKind.false$], [false]);
+      __testSuccess(source, [TokenKind.falseKeyword], [false]);
     }
   });
 }
@@ -105,7 +105,7 @@ void _testNull() {
   test('null', () {
     {
       const source = ' null  ';
-      __testSuccess(source, [TokenKind.null$], [null]);
+      __testSuccess(source, [TokenKind.nullKeyword], [null]);
     }
   });
 }
@@ -306,7 +306,7 @@ void _testTrue() {
   test('true', () {
     {
       const source = ' true  ';
-      __testSuccess(source, [TokenKind.true$], [true]);
+      __testSuccess(source, [TokenKind.trueKeyword], [true]);
     }
   });
 }

@@ -1,11 +1,13 @@
+import 'package:strings/strings.dart';
+
 String camelize(String word) {
   if (word.isEmpty) {
     return word;
   }
 
-  final runes = word.runes.toList();
-  return String.fromCharCode(runes[0]).toLowerCase() +
-      String.fromCharCodes(runes.sublist(1));
+  word = word.toSnakeCase();
+  word = word.toCamelCase(lower: true);
+  return word;
 }
 
 String escapeString(String text, [String? quote = '\'']) {

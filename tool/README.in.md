@@ -49,6 +49,8 @@ Productions are generated as functions, and expressions are generated as stateme
 
 The grammar is simple and intuitive. Understanding the grammar should not be difficult.  
 The quality of the generated code is quite acceptable.  
+The parsing algorithms are sufficiently optimized.  
+The generated code is optimized where possible.  
 The performance of the generated parsers is quite good.  
 All of the above allows this software to be used for the implementation of practical applications, including the tokenizers and real-time parsers (such as `JSON`, `CSV`, `XML` and others).  
 
@@ -392,7 +394,7 @@ Example of a `Group` expression at the end of a `Sequence` expression.
 
 ```dart
 START
-`int` AB =>
+`int` Ab =>
   [a]
   $ = ([b] / [c])
 END
@@ -402,7 +404,7 @@ Example of a `Group` expression not at the end of a `Sequence` expression.
 
 ```dart
 START
-`int` AB =>
+`int` Ab =>
   $ = ([b] / [c])
   [a]
 END
@@ -941,10 +943,9 @@ Example with constant value.
 
 ```dart
 START
-`String` For =>
-  [fF][oO][rR]
-  $ = `const` { 'FOR' }
-  ~ { state.errorExpected('FOR'); }
+`int` Zero =>
+  [0]
+  $ = `const` { 0 }
 END
 ```
 

@@ -1,22 +1,22 @@
 %{
 import 'package:source_span/source_span.dart';
 
+import 'json_ast.dart';
 import 'json_token.dart';
 import 'json_tokenizer.dart';
 
-Object? parse(String source) {
+JsonValue parse(String source) {
   final tokens = tokenize(source);
   final parser = JsonParser(tokens);
   final state = State('');
   final result = parser.parseStart(state);
   if (result == null) {
     final file = SourceFile.fromString(source);
-    throw FormatException(
-      state
-          .getErrors()
-          .map((e) => file.span(e.start, e.end).message(e.message))
-          .join('\n'),
-    );
+    final message = state
+        .getErrors()
+        .map((e) => file.span(e.start, e.end).message(e.message))
+        .join('\n');
+    throw FormatException('\n$message');
   }
 
   return result.$1;
@@ -61,74 +61,74 @@ Object? parse(String source) {
   }
 %%
 
-`Object?` Start =>
+`JsonValue` Start =>
   $ = Value
   & { token.kind == TokenKind.eof }
   ~{ state.errorExpected('enf of file'); }
 
-`List<Object?>` Elements =>
-  v = Value
-  { final l = [v]; }
+`List<JsonCollectionElement<JsonValue>>` Elements =>
+  value = Value
+  { final list = [JsonCollectionElement(null, value)]; }
   @while (0) {
-    comma
+    comma = comma
     ~{ state.errorExpected(','); }
-    v = Value
-    { l.add(v); }
+    value = Value
+    { list.add(JsonCollectionElement(comma, value)); }
   }
-  $ = { l }
+  $ = { list }
 
-`List<Object?>` Array =>
-  openBracket
-  e = Elements?
-  closeBracket
+`JsonArray` Array =>
+  openBracket = openBracket
+  elements = Elements?
+  closeBracket = closeBracket
   ~{ state.errorExpected(']'); }
-  $ = { e ?? [] }
+  $ = { JsonArray(openBracket, elements?? [], closeBracket) }
 
-`MapEntry<String, Object?>` KeyValue =>
-  k = string
+`JsonKeyValuePair` KeyValuePair =>
+  string = String
   ~{ state.errorExpected('string'); }
-  colon
+  colon = colon
   ~{ state.errorExpected(':'); }
-  v = Value
-  $ = { MapEntry(k.value as String, v) }
+  value = Value
+  $ = { JsonKeyValuePair(string, colon, value) }
 
-`Map<String, Object?>` Map =>
-  v = KeyValue
-  {
-    final m = <String, Object?>{};
-    m[v.key] = v.value;
-  }
+`List<JsonCollectionElement<JsonKeyValuePair>>` KeyValuePairs =>
+  keyValuePair = KeyValuePair
+  { final list = [JsonCollectionElement(null, keyValuePair)]; }
   @while (0) {
-    comma
+    comma = comma
     ~{ state.errorExpected(','); }
-    v = KeyValue
-    { m[v.key] = v.value; }
+    keyValuePair = KeyValuePair
+    { list.add(JsonCollectionElement(comma, keyValuePair)); }
   }
-  $ = { m }
+  $ = { list }
 
-`Map<String, Object?>` Object =>
-  openBrace
-  m = Map?
-  closeBrace
+`JsonObject` Object =>
+  openBrace = openBrace
+  elements = KeyValuePairs?
+  closeBrace = closeBrace
   ~{ state.errorExpected('\u007D'); }
-  $ = { m ?? {} }
+  $ = { JsonObject(openBrace, elements ?? [], closeBrace) }
 
-`Object?` Value =>
+`JsonString` String =>
+  string = string
+  $ = { JsonString(string) }
+
+`JsonValue` Value =>
   (
-    v = string
-    $ = { v.value }
+    $ = String
     ----
-    v = number
-    $ = { v.value }
+    number = number
+    $ = { JsonNumber(number) }
     ----
-    null$
-    $ = `const` { null }
+    nullKeyword = nullKeyword
+    $ =  { JsonNull(nullKeyword) }
     ----
-    true$
-    $ = `const` { true }
+    trueKeyword = trueKeyword
+    $ = { JsonBoolean(trueKeyword) }
     ----
-    false$
-    $ = `const` { false }
+    falseKeyword = falseKeyword
+    $ = { JsonBoolean(falseKeyword) }
     ----
     & openBrace
     $ = Object

@@ -156,7 +156,9 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     final code = Code();
     final fails = Code();
     final success = Success.none();
-    void ifBody(Code code) {
+    const isTrue = 'state.ch >= 0';
+    cache.clear();
+    code.if$(isTrue, (code) {
       var variable = _invalid;
       if (!isVoid) {
         variable = _getSuggestedName(node, 'any');
@@ -169,11 +171,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
       }
 
       code.add(success.succeeds);
-    }
-
-    const isTrue = 'state.ch >= 0';
-    cache.clear();
-    code.if$(isTrue, ifBody);
+    });
     _addErrorHandler(node, [code]);
     code.add(fails);
     return BuildResult(code: code, successes: [success], failures: [fails]);
@@ -732,11 +730,22 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     final isConsts = <bool>[];
     final results = <String>[];
     final values = <String>[];
+    var restorations = 0;
     for (var i = 0; i < children.length; i++) {
       final child = children[i];
       final BuildResult res;
       if (i != children.length - 1) {
-        res = _combineToSingleSuccess(child, 'result');
+        var isValue = false;
+        var name = 'element$i';
+        final semanticValue = child.semanticValue;
+        if (semanticValue != null) {
+          if (semanticValue != '\$') {
+            isValue = true;
+            name = semanticValue;
+          }
+        }
+
+        res = _combineToSingleSuccess(child, name, isValue: isValue);
         _checkIsSingleSuccess(res);
       } else {
         res = _generate(child);
@@ -753,18 +762,54 @@ class ExpressionGenerator implements Visitor<BuildResult> {
           values.add(success.value);
         }
       }
+
+      if (childrenThatRestorePosition.contains(child)) {
+        restorations += res.failures.length;
+      }
     }
 
+    final needReduceRestorations = restorations > 1;
+    Code? labeledCode;
+    var label = _invalid;
     var body = code.add(Code());
     for (var i = 0; i < children.length; i++) {
       final res = buildResults[i];
+      final child = res2Child[res];
+      var needCreateLabeledCode = false;
+      if (needReduceRestorations) {
+        if (childrenThatRestorePosition.contains(child)) {
+          if (labeledCode == null) {
+            needCreateLabeledCode = true;
+          }
+        }
+      }
+
+      if (needCreateLabeledCode) {
+        labeledCode = body;
+        label = _allocate('l');
+        body.writeln('$label:');
+        body.group((code) {
+          body = code;
+        });
+        labeledCode.writeln('// $label:');
+        _restoreState(usePosition, labeledCode, state);
+        final fails = labeledCode.add(Code());
+        failures.add(fails);
+      }
+
       body.add(res.code);
-      failures.addAll(res.failures);
+      if (labeledCode == null) {
+        failures.addAll(res.failures);
+      }
+
       for (final failure in res.failures) {
         failure((code) {
-          final child = res2Child[res];
           if (childrenThatRestorePosition.contains(child)) {
-            _restoreState(usePosition, code, state);
+            if (!needReduceRestorations) {
+              _restoreState(usePosition, code, state);
+            } else {
+              code.stmt('break $label');
+            }
           }
         });
       }
@@ -811,8 +856,8 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     final success = Success.none();
     final fails = Code();
     cache.clear();
-    final handler = code.ifElse('$tokenKind == $tokenKindValue');
-    handler.ifBlock((code) {
+    final isTrue = '$tokenKind == $tokenKindValue';
+    code.if$(isTrue, (code) {
       var variable = _invalid;
       if (!_insidePredicate.contains(node)) {
         if (!isVoid) {
@@ -827,11 +872,8 @@ class ExpressionGenerator implements Visitor<BuildResult> {
       code.add(success.succeeds);
     });
 
-    handler.elseBlock((code) {
-      code.add(fails);
-    });
-
-    _addErrorHandler(node, [fails]);
+    _addErrorHandler(node, [code]);
+    code.add(fails);
     return BuildResult(code: code, successes: [success], failures: [fails]);
   }
 
@@ -1005,7 +1047,11 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     return BuildResult(code: code, successes: res.successes, failures: [fails]);
   }
 
-  BuildResult _combineToSingleSuccess(Expression node, String name) {
+  BuildResult _combineToSingleSuccess(
+    Expression node,
+    String name, {
+    required bool isValue,
+  }) {
     if (node.successCount < 2) {
       final res = _generate(node);
       return res;
@@ -1019,8 +1065,13 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     if (!isVoid) {
       final type = node.type;
       variable = _getSuggestedName(node, name);
-      success.setResult(variable, false);
-      code.declare('Result<$type>?', variable);
+      if (isValue) {
+        success.setValue(variable, false);
+        code.declare('final $type', variable);
+      } else {
+        success.setResult(variable, false);
+        code.declare('final Result<$type>', variable);
+      }
     }
 
     code.writeln('$label:');
@@ -1034,7 +1085,11 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     for (final success in res.successes) {
       success.succeeds((code) {
         if (!isVoid) {
-          code.assign(variable, success.result);
+          if (isValue) {
+            code.assign(variable, success.value);
+          } else {
+            code.assign(variable, success.result);
+          }
         }
 
         code.stmt('break $label');
@@ -1361,14 +1416,22 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     var variable = _invalid;
     final state = _saveState(usePosition, code);
     variable = _invalid;
+    var elementName = suggestedNames[child];
+    if (elementName == null) {
+      if (child is ProductionExpression) {
+        elementName = camelize(child.name);
+      }
+    }
     switch (kind) {
       case list:
         final elementType = child.type;
-        variable = _getSuggestedName(node, 'list');
+        final name = elementName == null ? 'list' : '${elementName}List';
+        variable = _getSuggestedName(node, name);
         code.declare('final', variable, '<$elementType>[]');
         break;
       case counter:
-        variable = _allocate('count');
+        final name = elementName == null ? 'count' : '${elementName}Count';
+        variable = _allocate(name);
         code.declare('var', variable, '0');
         break;
       case flag:

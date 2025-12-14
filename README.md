@@ -2,7 +2,7 @@
 
 All in one, a generator of recursive descent PEG parsers, tokenizers, and token stream parsers.
 
-Version: 2.1.0
+Version: 2.1.1
 
 [![Pub Package](https://img.shields.io/pub/v/smart_parser.svg)](https://pub.dev/packages/smart_parser)
 [![Pub Monthly Downloads](https://img.shields.io/pub/dm/smart_parser.svg)](https://pub.dev/packages/smart_parser/score)
@@ -49,6 +49,8 @@ Productions are generated as functions, and expressions are generated as stateme
 
 The grammar is simple and intuitive. Understanding the grammar should not be difficult.  
 The quality of the generated code is quite acceptable.  
+The parsing algorithms are sufficiently optimized.  
+The generated code is optimized where possible.  
 The performance of the generated parsers is quite good.  
 All of the above allows this software to be used for the implementation of practical applications, including the tokenizers and real-time parsers (such as `JSON`, `CSV`, `XML` and others).  
 
@@ -811,7 +813,7 @@ Example of a `Group` expression at the end of a `Sequence` expression.
 Grammar code:
 
 ```txt
-`int` AB =>
+`int` Ab =>
   [a]
   $ = ([b] / [c])
 ```
@@ -819,13 +821,13 @@ Grammar code:
 Dart code:
 
 ```dart
-/// [int] **AB**
+/// [int] **Ab**
 /// ```txt
-/// `int` AB =>
+/// `int` Ab =>
 ///   [a]
 ///   $ = ([b] / [c])
 /// ```
-Result<int>? parseAB(State state) {
+Result<int>? parseAb(State state) {
   final pos$ = state.position;
   final c$ = state.ch;
   // [a]
@@ -854,7 +856,7 @@ Example of a `Group` expression not at the end of a `Sequence` expression.
 Grammar code:
 
 ```txt
-`int` AB =>
+`int` Ab =>
   $ = ([b] / [c])
   [a]
 ```
@@ -862,38 +864,38 @@ Grammar code:
 Dart code:
 
 ```dart
-/// [int] **AB**
+/// [int] **Ab**
 /// ```txt
-/// `int` AB =>
+/// `int` Ab =>
 ///   $ = ([b] / [c])
 ///   [a]
 /// ```
-Result<int>? parseAB(State state) {
+Result<int>? parseAb(State state) {
   final pos$ = state.position;
   final c$ = state.ch;
-  Result<int>? aB$;
+  final Result<int> ab$;
   l$:
   {
     // [b]
     if (state.ch == 98) {
       state.nextChar();
-      aB$ = const Ok(98);
+      ab$ = const Ok(98);
       break l$;
     }
     // [c]
     if (state.ch == 99) {
       state.nextChar();
-      aB$ = const Ok(99);
+      ab$ = const Ok(99);
       break l$;
     }
     return null;
   }
   // l$:
-  final aB$1 = aB$;
+  final ab$1 = ab$;
   // [a]
   if (state.ch == 97) {
     state.nextChar();
-    return aB$1;
+    return ab$1;
   }
   state.ch = c$;
   state.position = pos$;
@@ -2598,48 +2600,25 @@ Example with constant value.
 Grammar code:
 
 ```txt
-`String` For =>
-  [fF][oO][rR]
-  $ = `const` { 'FOR' }
-  ~ { state.errorExpected('FOR'); }
+`int` Zero =>
+  [0]
+  $ = `const` { 0 }
 ```
 
 Dart code:
 
 ```dart
-/// [String] **For**
+/// [int] **Zero**
 /// ```txt
-/// `String` For =>
-///   [fF][oO][rR]
-///   $ = `const` { 'FOR' }
-///   ~ { state.errorExpected('FOR'); }
+/// `int` Zero =>
+///   [0]
+///   $ = `const` { 0 }
 /// ```
-Result<String>? parseFor(State state) {
-  final pos$ = state.position;
-  final c$ = state.ch;
-  // [fF]
-  final isSuccess$ = c$ == 70 || c$ == 102;
-  if (isSuccess$) {
+Result<int>? parseZero(State state) {
+  // [0]
+  if (state.ch == 48) {
     state.nextChar();
-    // [oO]
-    final c$1 = state.ch;
-    final isSuccess$1 = c$1 == 79 || c$1 == 111;
-    if (isSuccess$1) {
-      state.nextChar();
-      // [rR]
-      final c$2 = state.ch;
-      final isSuccess$2 = c$2 == 82 || c$2 == 114;
-      if (isSuccess$2) {
-        state.nextChar();
-        return const Ok('FOR');
-      }
-      state.ch = c$;
-      state.position = pos$;
-      return null;
-    }
-    state.ch = c$;
-    state.position = pos$;
-    return null;
+    return const Ok(0);
   }
   return null;
 }

@@ -1,21 +1,21 @@
 import 'package:source_span/source_span.dart';
 
+import 'json_ast.dart';
 import 'json_token.dart';
 import 'json_tokenizer.dart';
 
-Object? parse(String source) {
+JsonValue parse(String source) {
   final tokens = tokenize(source);
   final parser = JsonParser(tokens);
   final state = State('');
   final result = parser.parseStart(state);
   if (result == null) {
     final file = SourceFile.fromString(source);
-    throw FormatException(
-      state
-          .getErrors()
-          .map((e) => file.span(e.start, e.end).message(e.message))
-          .join('\n'),
-    );
+    final message = state
+        .getErrors()
+        .map((e) => file.span(e.start, e.end).message(e.message))
+        .join('\n');
+    throw FormatException('\n$message');
   }
 
   return result.$1;
@@ -59,14 +59,14 @@ class JsonParser {
     state.position = token.start;
   }
 
-  /// [Object?] **Start**
+  /// [JsonValue] **Start**
   /// ```txt
-  /// `Object?` Start =>
+  /// `JsonValue` Start =>
   ///   $ = Value
   ///   & { token.kind == TokenKind.eof }
   ///   ~{ state.errorExpected('enf of file'); }
   /// ```
-  Result<Object?>? parseStart(State state) {
+  Result<JsonValue>? parseStart(State state) {
     final index$ = index;
     final value$ = parseValue(state);
     if (value$ != null) {
@@ -81,201 +81,214 @@ class JsonParser {
     return null;
   }
 
-  /// [List<Object?>] **Elements**
+  /// [List<JsonCollectionElement<JsonValue>>] **Elements**
   /// ```txt
-  /// `List<Object?>` Elements =>
-  ///   v = Value
-  ///   { final l = [v]; }
+  /// `List<JsonCollectionElement<JsonValue>>` Elements =>
+  ///   value = Value
+  ///   { final list = [JsonCollectionElement(null, value)]; }
   ///   @while (0) {
-  ///     comma
+  ///     comma = comma
   ///     ~{ state.errorExpected(','); }
-  ///     v = Value
-  ///     { l.add(v); }
+  ///     value = Value
+  ///     { list.add(JsonCollectionElement(comma, value)); }
   ///   }
-  ///   $ = { l }
+  ///   $ = { list }
   /// ```
-  Result<List<Object?>>? parseElements(State state) {
+  Result<List<JsonCollectionElement<JsonValue>>>? parseElements(State state) {
     final value$ = parseValue(state);
     if (value$ != null) {
-      final v = value$.$1;
-      final l = [v];
+      final value = value$.$1;
+      final list = [JsonCollectionElement(null, value)];
       // (0)
       while (true) {
         final index$ = index;
         if (token.kind == TokenKind.comma) {
-          nextToken(state);
+          final token$ = nextToken(state);
+          final comma = token$;
           final value$1 = parseValue(state);
           if (value$1 != null) {
-            final v = value$1.$1;
-            l.add(v);
+            final value = value$1.$1;
+            list.add(JsonCollectionElement(comma, value));
             continue;
           }
           restoreToken(state, index$);
           break;
-        } else {
-          state.errorExpected(',');
-          break;
         }
+        state.errorExpected(',');
+        break;
       }
-      return Ok(l);
+      return Ok(list);
     }
     return null;
   }
 
-  /// [List<Object?>] **Array**
+  /// [JsonArray] **Array**
   /// ```txt
-  /// `List<Object?>` Array =>
-  ///   openBracket
-  ///   e = Elements?
-  ///   closeBracket
+  /// `JsonArray` Array =>
+  ///   openBracket = openBracket
+  ///   elements = Elements?
+  ///   closeBracket = closeBracket
   ///   ~{ state.errorExpected(']'); }
-  ///   $ = { e ?? [] }
+  ///   $ = { JsonArray(openBracket, elements?? [], closeBracket) }
   /// ```
-  Result<List<Object?>>? parseArray(State state) {
+  Result<JsonArray>? parseArray(State state) {
     final index$ = index;
     if (token.kind == TokenKind.openBracket) {
-      nextToken(state);
-      final elements$ = parseElements(state);
-      final e = elements$?.$1;
-      if (token.kind == TokenKind.closeBracket) {
-        nextToken(state);
-        return Ok(e ?? []);
-      } else {
-        state.errorExpected(']');
-        restoreToken(state, index$);
-        return null;
-      }
-    } else {
-      return null;
-    }
-  }
-
-  /// [MapEntry<String, Object?>] **KeyValue**
-  /// ```txt
-  /// `MapEntry<String, Object?>` KeyValue =>
-  ///   k = string
-  ///   ~{ state.errorExpected('string'); }
-  ///   colon
-  ///   ~{ state.errorExpected(':'); }
-  ///   v = Value
-  ///   $ = { MapEntry(k.value as String, v) }
-  /// ```
-  Result<MapEntry<String, Object?>>? parseKeyValue(State state) {
-    final index$ = index;
-    if (token.kind == TokenKind.string) {
       final token$ = nextToken(state);
-      final k = token$;
-      if (token.kind == TokenKind.colon) {
-        nextToken(state);
-        final value$ = parseValue(state);
-        if (value$ != null) {
-          final v = value$.$1;
-          return Ok(MapEntry(k.value as String, v));
-        }
-        restoreToken(state, index$);
-        return null;
-      } else {
-        state.errorExpected(':');
-        restoreToken(state, index$);
-        return null;
+      final openBracket = token$;
+      final elements$ = parseElements(state);
+      final elements = elements$?.$1;
+      if (token.kind == TokenKind.closeBracket) {
+        final token$1 = nextToken(state);
+        final closeBracket = token$1;
+        return Ok(JsonArray(openBracket, elements?? [], closeBracket));
       }
-    } else {
-      state.errorExpected('string');
+      state.errorExpected(']');
+      restoreToken(state, index$);
       return null;
     }
+    return null;
   }
 
-  /// [Map<String, Object?>] **Map**
+  /// [JsonKeyValuePair] **KeyValuePair**
   /// ```txt
-  /// `Map<String, Object?>` Map =>
-  ///   v = KeyValue
-  ///   {
-  ///     final m = <String, Object?>{};
-  ///     m[v.key] = v.value;
-  ///   }
-  ///   @while (0) {
-  ///     comma
-  ///     ~{ state.errorExpected(','); }
-  ///     v = KeyValue
-  ///     { m[v.key] = v.value; }
-  ///   }
-  ///   $ = { m }
+  /// `JsonKeyValuePair` KeyValuePair =>
+  ///   string = String
+  ///   ~{ state.errorExpected('string'); }
+  ///   colon = colon
+  ///   ~{ state.errorExpected(':'); }
+  ///   value = Value
+  ///   $ = { JsonKeyValuePair(string, colon, value) }
   /// ```
-  Result<Map<String, Object?>>? parseMap(State state) {
-    final keyValue$ = parseKeyValue(state);
-    if (keyValue$ != null) {
-      final v = keyValue$.$1;
-      final m = <String, Object?>{};
-      m[v.key] = v.value;
+  Result<JsonKeyValuePair>? parseKeyValuePair(State state) {
+    final index$ = index;
+    final string$ = parseString(state);
+    if (string$ != null) {
+      final string = string$.$1;
+      l$:
+      {
+        if (token.kind == TokenKind.colon) {
+          final token$ = nextToken(state);
+          final colon = token$;
+          final value$ = parseValue(state);
+          if (value$ != null) {
+            final value = value$.$1;
+            return Ok(JsonKeyValuePair(string, colon, value));
+          }
+          break l$;
+        }
+        state.errorExpected(':');
+        break l$;
+      }
+      // l$:
+      restoreToken(state, index$);
+      return null;
+    }
+    state.errorExpected('string');
+    return null;
+  }
+
+  /// [List<JsonCollectionElement<JsonKeyValuePair>>] **KeyValuePairs**
+  /// ```txt
+  /// `List<JsonCollectionElement<JsonKeyValuePair>>` KeyValuePairs =>
+  ///   keyValuePair = KeyValuePair
+  ///   { final list = [JsonCollectionElement(null, keyValuePair)]; }
+  ///   @while (0) {
+  ///     comma = comma
+  ///     ~{ state.errorExpected(','); }
+  ///     keyValuePair = KeyValuePair
+  ///     { list.add(JsonCollectionElement(comma, keyValuePair)); }
+  ///   }
+  ///   $ = { list }
+  /// ```
+  Result<List<JsonCollectionElement<JsonKeyValuePair>>>? parseKeyValuePairs(State state) {
+    final keyValuePair$ = parseKeyValuePair(state);
+    if (keyValuePair$ != null) {
+      final keyValuePair = keyValuePair$.$1;
+      final list = [JsonCollectionElement(null, keyValuePair)];
       // (0)
       while (true) {
         final index$ = index;
         if (token.kind == TokenKind.comma) {
-          nextToken(state);
-          final keyValue$1 = parseKeyValue(state);
-          if (keyValue$1 != null) {
-            final v = keyValue$1.$1;
-            m[v.key] = v.value;
+          final token$ = nextToken(state);
+          final comma = token$;
+          final keyValuePair$1 = parseKeyValuePair(state);
+          if (keyValuePair$1 != null) {
+            final keyValuePair = keyValuePair$1.$1;
+            list.add(JsonCollectionElement(comma, keyValuePair));
             continue;
           }
           restoreToken(state, index$);
           break;
-        } else {
-          state.errorExpected(',');
-          break;
         }
+        state.errorExpected(',');
+        break;
       }
-      return Ok(m);
+      return Ok(list);
     }
     return null;
   }
 
-  /// [Map<String, Object?>] **Object**
+  /// [JsonObject] **Object**
   /// ```txt
-  /// `Map<String, Object?>` Object =>
-  ///   openBrace
-  ///   m = Map?
-  ///   closeBrace
+  /// `JsonObject` Object =>
+  ///   openBrace = openBrace
+  ///   elements = KeyValuePairs?
+  ///   closeBrace = closeBrace
   ///   ~{ state.errorExpected('\u007D'); }
-  ///   $ = { m ?? {} }
+  ///   $ = { JsonObject(openBrace, elements ?? [], closeBrace) }
   /// ```
-  Result<Map<String, Object?>>? parseObject(State state) {
+  Result<JsonObject>? parseObject(State state) {
     final index$ = index;
     if (token.kind == TokenKind.openBrace) {
-      nextToken(state);
-      final map$ = parseMap(state);
-      final m = map$?.$1;
+      final token$ = nextToken(state);
+      final openBrace = token$;
+      final keyValuePairs$ = parseKeyValuePairs(state);
+      final elements = keyValuePairs$?.$1;
       if (token.kind == TokenKind.closeBrace) {
-        nextToken(state);
-        return Ok(m ?? {});
-      } else {
-        state.errorExpected('\u007D');
-        restoreToken(state, index$);
-        return null;
+        final token$1 = nextToken(state);
+        final closeBrace = token$1;
+        return Ok(JsonObject(openBrace, elements ?? [], closeBrace));
       }
-    } else {
+      state.errorExpected('\u007D');
+      restoreToken(state, index$);
       return null;
     }
+    return null;
   }
 
-  /// [Object?] **Value**
+  /// [JsonString] **String**
   /// ```txt
-  /// `Object?` Value =>
+  /// `JsonString` String =>
+  ///   string = string
+  ///   $ = { JsonString(string) }
+  /// ```
+  Result<JsonString>? parseString(State state) {
+    if (token.kind == TokenKind.string) {
+      final token$ = nextToken(state);
+      final string = token$;
+      return Ok(JsonString(string));
+    }
+    return null;
+  }
+
+  /// [JsonValue] **Value**
+  /// ```txt
+  /// `JsonValue` Value =>
   ///   (
-  ///     v = string
-  ///     $ = { v.value }
+  ///     $ = String
   ///     ----
-  ///     v = number
-  ///     $ = { v.value }
+  ///     number = number
+  ///     $ = { JsonNumber(number) }
   ///     ----
-  ///     null$
-  ///     $ = `const` { null }
+  ///     nullKeyword = nullKeyword
+  ///     $ =  { JsonNull(nullKeyword) }
   ///     ----
-  ///     true$
-  ///     $ = `const` { true }
+  ///     trueKeyword = trueKeyword
+  ///     $ = { JsonBoolean(trueKeyword) }
   ///     ----
-  ///     false$
-  ///     $ = `const` { false }
+  ///     falseKeyword = falseKeyword
+  ///     $ = { JsonBoolean(falseKeyword) }
   ///     ----
   ///     & openBrace
   ///     $ = Object
@@ -285,58 +298,53 @@ class JsonParser {
   ///   )
   ///   ~{ state.errorExpected(const ['string', 'number', 'array', 'object', 'null', 'boolean value']); }
   /// ```
-  Result<Object?>? parseValue(State state) {
-    if (token.kind == TokenKind.string) {
-      final token$ = nextToken(state);
-      final v = token$;
-      return Ok(v.value);
-    } else {
-      if (token.kind == TokenKind.number) {
-        final token$1 = nextToken(state);
-        final v = token$1;
-        return Ok(v.value);
-      } else {
-        if (token.kind == TokenKind.null$) {
-          nextToken(state);
-          return const Ok(null);
-        } else {
-          if (token.kind == TokenKind.true$) {
-            nextToken(state);
-            return const Ok(true);
-          } else {
-            if (token.kind == TokenKind.false$) {
-              nextToken(state);
-              return const Ok(false);
-            } else {
-              l$:
-              {
-                if (token.kind == TokenKind.openBrace) {
-                  final object$ = parseObject(state);
-                  if (object$ != null) {
-                    return object$;
-                  }
-                  break l$;
-                } else {
-                  break l$;
-                }
-              }
-              // l$:
-              if (token.kind == TokenKind.openBracket) {
-                final array$ = parseArray(state);
-                if (array$ != null) {
-                  return array$;
-                }
-                state.errorExpected(const ['string', 'number', 'array', 'object', 'null', 'boolean value']);
-                return null;
-              } else {
-                state.errorExpected(const ['string', 'number', 'array', 'object', 'null', 'boolean value']);
-                return null;
-              }
-            }
-          }
-        }
-      }
+  Result<JsonValue>? parseValue(State state) {
+    final string$ = parseString(state);
+    if (string$ != null) {
+      return string$;
     }
+    if (token.kind == TokenKind.number) {
+      final token$ = nextToken(state);
+      final number = token$;
+      return Ok(JsonNumber(number));
+    }
+    if (token.kind == TokenKind.nullKeyword) {
+      final token$1 = nextToken(state);
+      final nullKeyword = token$1;
+      return Ok(JsonNull(nullKeyword));
+    }
+    if (token.kind == TokenKind.trueKeyword) {
+      final token$2 = nextToken(state);
+      final trueKeyword = token$2;
+      return Ok(JsonBoolean(trueKeyword));
+    }
+    if (token.kind == TokenKind.falseKeyword) {
+      final token$3 = nextToken(state);
+      final falseKeyword = token$3;
+      return Ok(JsonBoolean(falseKeyword));
+    }
+    l$:
+    {
+      if (token.kind == TokenKind.openBrace) {
+        final object$ = parseObject(state);
+        if (object$ != null) {
+          return object$;
+        }
+        break l$;
+      }
+      break l$;
+    }
+    // l$:
+    if (token.kind == TokenKind.openBracket) {
+      final array$ = parseArray(state);
+      if (array$ != null) {
+        return array$;
+      }
+      state.errorExpected(const ['string', 'number', 'array', 'object', 'null', 'boolean value']);
+      return null;
+    }
+    state.errorExpected(const ['string', 'number', 'array', 'object', 'null', 'boolean value']);
+    return null;
   }
 
 }

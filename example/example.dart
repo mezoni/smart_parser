@@ -6,12 +6,11 @@ Object? parse(String source) {
   final result = parser.parseStart(state);
   if (result == null) {
     final file = SourceFile.fromString(source);
-    throw FormatException(
-      state
-          .getErrors()
-          .map((e) => file.span(e.start, e.end).message(e.message))
-          .join('\n'),
-    );
+    final message = state
+        .getErrors()
+        .map((e) => file.span(e.start, e.end).message(e.message))
+        .join('\n');
+    throw FormatException('\n$message');
   }
 
   return result.$1;
@@ -33,17 +32,20 @@ class JsonParser {
     final pos$ = state.position;
     final c$ = state.ch;
     parseS(state);
-    final value$ = parseValue(state);
-    if (value$ != null) {
-      final isSuccess$ = state.ch < 0;
-      if (isSuccess$) {
-        return value$;
+    l$:
+    {
+      final value$ = parseValue(state);
+      if (value$ != null) {
+        final isSuccess$ = state.ch < 0;
+        if (isSuccess$) {
+          return value$;
+        }
+        state.errorExpected('enf of file');
+        break l$;
       }
-      state.errorExpected('enf of file');
-      state.ch = c$;
-      state.position = pos$;
-      return null;
+      break l$;
     }
+    // l$:
     state.ch = c$;
     state.position = pos$;
     return null;
@@ -138,20 +140,23 @@ class JsonParser {
     final string$ = parseString(state);
     if (string$ != null) {
       final k = string$.$1;
-      // ':'
-      if (state.ch == 58) {
-        state.nextChar();
-        parseS(state);
-        final value$ = parseValue(state);
-        if (value$ != null) {
-          final v = value$.$1;
-          return Ok(MapEntry(k, v));
+      l$:
+      {
+        // ':'
+        if (state.ch == 58) {
+          state.nextChar();
+          parseS(state);
+          final value$ = parseValue(state);
+          if (value$ != null) {
+            final v = value$.$1;
+            return Ok(MapEntry(k, v));
+          }
+          break l$;
         }
-        state.ch = c$;
-        state.position = pos$;
-        return null;
+        state.errorExpected(':');
+        break l$;
       }
-      state.errorExpected(':');
+      // l$:
       state.ch = c$;
       state.position = pos$;
       return null;

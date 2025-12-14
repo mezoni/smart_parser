@@ -8,12 +8,11 @@ List<Token> tokenize(String source) {
   final result = tokenizer.parseStart(state);
   if (result == null) {
     final file = SourceFile.fromString(source);
-    throw FormatException(
-      state
-          .getErrors()
-          .map((e) => file.span(e.start, e.end).message(e.message))
-          .join('\n'),
-    );
+    final message = state
+        .getErrors()
+        .map((e) => file.span(e.start, e.end).message(e.message))
+        .join('\n');
+    throw FormatException('\n$message');
   }
 
   return result.$1;
@@ -80,13 +79,13 @@ class JsonTokenizer {
   ///       $ = { _token(start, state.position, TokenKind.closeBracket, ']') }
   ///       ----
   ///       "null"
-  ///       $ = { _token(start, state.position, TokenKind.null$, null) }
+  ///       $ = { _token(start, state.position, TokenKind.nullKeyword, null) }
   ///       ----
   ///       "true"
-  ///       $ = { _token(start, state.position, TokenKind.true$, true) }
+  ///       $ = { _token(start, state.position, TokenKind.trueKeyword, true) }
   ///       ----
   ///       "false"
-  ///       $ = { _token(start, state.position, TokenKind.false$, false) }
+  ///       $ = { _token(start, state.position, TokenKind.falseKeyword, false) }
   ///       ----
   ///       &["]
   ///       v = String
@@ -145,19 +144,19 @@ class JsonTokenizer {
       // "null"
       if (state.ch == 110 && state.startsWith('null')) {
         state.readChar(state.position + 4);
-        tokens$.add(_token(start, state.position, TokenKind.null$, null));
+        tokens$.add(_token(start, state.position, TokenKind.nullKeyword, null));
         continue;
       }
       // "true"
       if (state.ch == 116 && state.startsWith('true')) {
         state.readChar(state.position + 4);
-        tokens$.add(_token(start, state.position, TokenKind.true$, true));
+        tokens$.add(_token(start, state.position, TokenKind.trueKeyword, true));
         continue;
       }
       // "false"
       if (state.ch == 102 && state.startsWith('false')) {
         state.readChar(state.position + 5);
-        tokens$.add(_token(start, state.position, TokenKind.false$, false));
+        tokens$.add(_token(start, state.position, TokenKind.falseKeyword, false));
         continue;
       }
       l$:

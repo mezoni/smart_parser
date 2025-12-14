@@ -1,3 +1,13 @@
+## 2.1.1
+
+- The JSON token stream parser example has been refactored to produce a JSON abstract syntax tree.
+- Added JSON AST example file `example\son_ast.dart`.
+- Added JSON AST analyzing example file `example\analyze_json.dart`.
+- Optimized the code generated for the `TokenExpression` expression.
+- Optimized the code generated for the `SequenceExpression` expression.
+- Changed generation of local variables in the `SequenceExpression` expression.
+- Changed generation of local variable name in the `while` expressions.
+
 ## 2.1.0
 
 - Renamed `Printer` class to `ExpressionPrinter`

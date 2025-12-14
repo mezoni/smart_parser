@@ -16,7 +16,7 @@ class Token {
 
   @override
   String toString() {
-    return kind.toString();
+    return '$value';
   }
 }
 
@@ -26,13 +26,13 @@ enum TokenKind {
   colon(':'),
   comma(','),
   eof('eof'),
-  false$('false'),
-  null$('null'),
+  falseKeyword('false'),
+  nullKeyword('null'),
   number('number'),
   openBrace('{'),
   openBracket('['),
   string('string'),
-  true$('true');
+  trueKeyword('true');
 
   final String name;
 
