@@ -1,3 +1,7 @@
+## 2.1.3
+
+- Optimized the code generated for the `TokenExpression` expression.
+
 ## 2.1.2
 
 - Change in local variable name generation.

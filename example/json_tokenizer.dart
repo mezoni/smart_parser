@@ -98,7 +98,7 @@ class JsonTokenizer {
   ///   S
   /// ```
   Result<List<Token>> parseTokens(State state) {
-    final $$ = <Token>[];
+    final tokens$ = <Token>[];
     // (0)
     while (true) {
       final pos$ = state.position;
@@ -108,55 +108,55 @@ class JsonTokenizer {
       // ":"
       if (state.ch == 58) {
         state.nextChar();
-        $$.add(_token(start, state.position, TokenKind.colon, ':'));
+        tokens$.add(_token(start, state.position, TokenKind.colon, ':'));
         continue;
       }
       // ","
       if (state.ch == 44) {
         state.nextChar();
-        $$.add(_token(start, state.position, TokenKind.comma, ','));
+        tokens$.add(_token(start, state.position, TokenKind.comma, ','));
         continue;
       }
       // "{"
       if (state.ch == 123) {
         state.nextChar();
-        $$.add(_token(start, state.position, TokenKind.openBrace, '\u007B'));
+        tokens$.add(_token(start, state.position, TokenKind.openBrace, '\u007B'));
         continue;
       }
       // "}"
       if (state.ch == 125) {
         state.nextChar();
-        $$.add(_token(start, state.position, TokenKind.closeBrace, '\u007D'));
+        tokens$.add(_token(start, state.position, TokenKind.closeBrace, '\u007D'));
         continue;
       }
       // "["
       if (state.ch == 91) {
         state.nextChar();
-        $$.add(_token(start, state.position, TokenKind.openBracket, '['));
+        tokens$.add(_token(start, state.position, TokenKind.openBracket, '['));
         continue;
       }
       // "]"
       if (state.ch == 93) {
         state.nextChar();
-        $$.add(_token(start, state.position, TokenKind.closeBracket, ']'));
+        tokens$.add(_token(start, state.position, TokenKind.closeBracket, ']'));
         continue;
       }
       // "null"
       if (state.ch == 110 && state.startsWith('null')) {
         state.readChar(state.position + 4);
-        $$.add(_token(start, state.position, TokenKind.nullKeyword, null));
+        tokens$.add(_token(start, state.position, TokenKind.nullKeyword, null));
         continue;
       }
       // "true"
       if (state.ch == 116 && state.startsWith('true')) {
         state.readChar(state.position + 4);
-        $$.add(_token(start, state.position, TokenKind.trueKeyword, true));
+        tokens$.add(_token(start, state.position, TokenKind.trueKeyword, true));
         continue;
       }
       // "false"
       if (state.ch == 102 && state.startsWith('false')) {
         state.readChar(state.position + 5);
-        $$.add(_token(start, state.position, TokenKind.falseKeyword, false));
+        tokens$.add(_token(start, state.position, TokenKind.falseKeyword, false));
         continue;
       }
       l$:
@@ -166,7 +166,7 @@ class JsonTokenizer {
           final string$ = parseString(state);
           if (string$ != null) {
             final string = string$.$1;
-            $$.add(_token(start, state.position, TokenKind.string, string));
+            tokens$.add(_token(start, state.position, TokenKind.string, string));
             continue;
           }
           break l$;
@@ -177,16 +177,16 @@ class JsonTokenizer {
       final number$ = parseNumber(state);
       if (number$ != null) {
         final number = number$.$1;
-        $$.add(_token(start, state.position, TokenKind.number, number));
+        tokens$.add(_token(start, state.position, TokenKind.number, number));
         continue;
       }
       state.ch = ch$;
       state.position = pos$;
       break;
     }
-    final $$1 = Ok($$);
+    final tokens$1 = Ok(tokens$);
     parseS(state);
-    return $$1;
+    return tokens$1;
   }
 
   /// [String] **EscapeC**

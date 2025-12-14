@@ -101,8 +101,8 @@ class JsonParser {
       final list = [JsonCollectionElement(null, value)];
       // (0)
       while (true) {
-        final index$ = index;
         if (token.kind == TokenKind.comma) {
+          final index$ = index;
           final comma$ = nextToken(state);
           final comma = comma$;
           final value$1 = parseValue(state);
@@ -132,8 +132,8 @@ class JsonParser {
   ///   $ = { JsonArray(openBracket, elements?? [], closeBracket) }
   /// ```
   Result<JsonArray>? parseArray(State state) {
-    final index$ = index;
     if (token.kind == TokenKind.openBracket) {
+      final index$ = index;
       final openBracket$ = nextToken(state);
       final openBracket = openBracket$;
       final elements$ = parseElements(state);
@@ -208,8 +208,8 @@ class JsonParser {
       final list = [JsonCollectionElement(null, keyValuePair)];
       // (0)
       while (true) {
-        final index$ = index;
         if (token.kind == TokenKind.comma) {
+          final index$ = index;
           final comma$ = nextToken(state);
           final comma = comma$;
           final keyValuePair$1 = parseKeyValuePair(state);
@@ -239,8 +239,8 @@ class JsonParser {
   ///   $ = { JsonObject(openBrace, elements ?? [], closeBrace) }
   /// ```
   Result<JsonObject>? parseObject(State state) {
-    final index$ = index;
     if (token.kind == TokenKind.openBrace) {
+      final index$ = index;
       final openBrace$ = nextToken(state);
       final openBrace = openBrace$;
       final keyValuePairs$ = parseKeyValuePairs(state);

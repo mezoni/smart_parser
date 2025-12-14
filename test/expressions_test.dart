@@ -9478,7 +9478,7 @@ class _TestParser {
   ///   $ = `const` { 41 }
   /// ```
   Result<void> parseActionVoid0(State state) {
-    const $$ = Ok(41);
+    const actionVoid0$ = Ok(41);
     return Result.none;
   }
 
@@ -9497,7 +9497,7 @@ class _TestParser {
   ///   $ = `const int` { 41 }
   /// ```
   Result<void> parseActionVoid1(State state) {
-    const $$ = Ok(41);
+    const actionVoid1$ = Ok(41);
     return Result.none;
   }
 
@@ -9520,7 +9520,7 @@ class _TestParser {
   /// ```
   Result<void> parseActionVoid2(State state) {
     const x = 41;
-    const $$ = Ok(x);
+    const actionVoid2$ = Ok(x);
     return Result.none;
   }
 
@@ -9556,7 +9556,7 @@ class _TestParser {
       // 'abcd'
       if (state.ch == 97 && state.startsWith('abcd')) {
         state.readChar(state.position + 4);
-        const $$ = Ok('abcd');
+        const andPredicateVoid0$ = Ok('abcd');
         return Result.none;
       }
       state.errorExpected('abcd');
@@ -9733,13 +9733,13 @@ class _TestParser {
       // [b]
       if (state.ch == 98) {
         state.nextChar();
-        final $$ = Ok(state.substring(start$, state.position));
+        final captureVoid3$ = Ok(state.substring(start$, state.position));
         return Result.none;
       }
       // [c]
       if (state.ch == 99) {
         state.nextChar();
-        final $$1 = Ok(state.substring(start$, state.position));
+        final captureVoid3$1 = Ok(state.substring(start$, state.position));
         return Result.none;
       }
       state.ch = ch$;
@@ -10232,29 +10232,29 @@ class _TestParser {
   Result<int>? parseCharacterClass15(State state) {
     final pos$ = state.position;
     final ch$ = state.ch;
-    final Result<int> $$;
+    final Result<int> characterClass15$;
     l$:
     {
       // [a]
       if (state.ch == 97) {
         state.nextChar();
-        $$ = const Ok(97);
+        characterClass15$ = const Ok(97);
         break l$;
       }
       // [b]
       if (state.ch == 98) {
         state.nextChar();
-        $$ = const Ok(98);
+        characterClass15$ = const Ok(98);
         break l$;
       }
       return null;
     }
     // l$:
-    final $$1 = $$;
+    final characterClass15$1 = characterClass15$;
     // [ ]
     if (state.ch == 32) {
       state.nextChar();
-      return $$1;
+      return characterClass15$1;
     }
     state.ch = ch$;
     state.position = pos$;
@@ -10274,25 +10274,25 @@ class _TestParser {
   Result<void>? parseCharacterClassVoid15(State state) {
     final pos$ = state.position;
     final ch$ = state.ch;
-    final Result<int> $$;
+    final Result<int> characterClassVoid15$;
     l$:
     {
       // [a]
       if (state.ch == 97) {
         state.nextChar();
-        $$ = const Ok(97);
+        characterClassVoid15$ = const Ok(97);
         break l$;
       }
       // [b]
       if (state.ch == 98) {
         state.nextChar();
-        $$ = const Ok(98);
+        characterClassVoid15$ = const Ok(98);
         break l$;
       }
       return null;
     }
     // l$:
-    final $$1 = $$;
+    final characterClassVoid15$1 = characterClassVoid15$;
     // [ ]
     if (state.ch == 32) {
       state.nextChar();
@@ -10560,29 +10560,29 @@ class _TestParser {
   Result<String>? parseLiteral6(State state) {
     final pos$ = state.position;
     final ch$ = state.ch;
-    final Result<String> $$;
+    final Result<String> literal6$;
     l$:
     {
       // "abc"
       if (state.ch == 97 && state.startsWith('abc')) {
         state.readChar(state.position + 3);
-        $$ = const Ok('abc');
+        literal6$ = const Ok('abc');
         break l$;
       }
       // "def"
       if (state.ch == 100 && state.startsWith('def')) {
         state.readChar(state.position + 3);
-        $$ = const Ok('def');
+        literal6$ = const Ok('def');
         break l$;
       }
       return null;
     }
     // l$:
-    final $$1 = $$;
+    final literal6$1 = literal6$;
     // [ ]
     if (state.ch == 32) {
       state.nextChar();
-      return $$1;
+      return literal6$1;
     }
     state.ch = ch$;
     state.position = pos$;
@@ -10602,25 +10602,25 @@ class _TestParser {
   Result<void>? parseLiteralVoid6(State state) {
     final pos$ = state.position;
     final ch$ = state.ch;
-    final Result<String> $$;
+    final Result<String> literalVoid6$;
     l$:
     {
       // "abc"
       if (state.ch == 97 && state.startsWith('abc')) {
         state.readChar(state.position + 3);
-        $$ = const Ok('abc');
+        literalVoid6$ = const Ok('abc');
         break l$;
       }
       // "def"
       if (state.ch == 100 && state.startsWith('def')) {
         state.readChar(state.position + 3);
-        $$ = const Ok('def');
+        literalVoid6$ = const Ok('def');
         break l$;
       }
       return null;
     }
     // l$:
-    final $$1 = $$;
+    final literalVoid6$1 = literalVoid6$;
     // [ ]
     if (state.ch == 32) {
       state.nextChar();
@@ -10728,31 +10728,31 @@ class _TestParser {
   Result<String>? parseLiteral9(State state) {
     final pos$ = state.position;
     final ch$ = state.ch;
-    final Result<String> $$;
+    final Result<String> literal9$;
     l$:
     {
       // 'abc'
       if (state.ch == 97 && state.startsWith('abc')) {
         state.readChar(state.position + 3);
-        $$ = const Ok('abc');
+        literal9$ = const Ok('abc');
         break l$;
       }
       state.errorExpected('abc');
       // 'def'
       if (state.ch == 100 && state.startsWith('def')) {
         state.readChar(state.position + 3);
-        $$ = const Ok('def');
+        literal9$ = const Ok('def');
         break l$;
       }
       state.errorExpected('def');
       return null;
     }
     // l$:
-    final $$1 = $$;
+    final literal9$1 = literal9$;
     // [ ]
     if (state.ch == 32) {
       state.nextChar();
-      return $$1;
+      return literal9$1;
     }
     state.ch = ch$;
     state.position = pos$;
@@ -10772,27 +10772,27 @@ class _TestParser {
   Result<void>? parseLiteralVoid9(State state) {
     final pos$ = state.position;
     final ch$ = state.ch;
-    final Result<String> $$;
+    final Result<String> literalVoid9$;
     l$:
     {
       // 'abc'
       if (state.ch == 97 && state.startsWith('abc')) {
         state.readChar(state.position + 3);
-        $$ = const Ok('abc');
+        literalVoid9$ = const Ok('abc');
         break l$;
       }
       state.errorExpected('abc');
       // 'def'
       if (state.ch == 100 && state.startsWith('def')) {
         state.readChar(state.position + 3);
-        $$ = const Ok('def');
+        literalVoid9$ = const Ok('def');
         break l$;
       }
       state.errorExpected('def');
       return null;
     }
     // l$:
-    final $$1 = $$;
+    final literalVoid9$1 = literalVoid9$;
     // [ ]
     if (state.ch == 32) {
       state.nextChar();
@@ -11128,7 +11128,7 @@ class _TestParser {
   Result<String>? parseMatch6(State state) {
     final pos$ = state.position;
     final ch$ = state.ch;
-    final Result<String> $$;
+    final Result<String> match6$;
     l$:
     {
       // @match('for')
@@ -11138,9 +11138,9 @@ class _TestParser {
         if (c$ == 111 || c$ == 79) {
           c$ = state.charAt(pos$1 += 1);
           if (c$ == 114 || c$ == 82) {
-            final match6$ = state.substring(state.position, pos$1 += 1);
+            final match6$1 = state.substring(state.position, pos$1 += 1);
             state.readChar(pos$1);
-            $$ = Ok(match6$);
+            match6$ = Ok(match6$1);
             break l$;
           }
         }
@@ -11156,9 +11156,9 @@ class _TestParser {
             if (c$1 == 108 || c$1 == 76) {
               c$1 = state.charAt(pos$2 += 1);
               if (c$1 == 101 || c$1 == 69) {
-                final match6$1 = state.substring(state.position, pos$2 += 1);
+                final match6$2 = state.substring(state.position, pos$2 += 1);
                 state.readChar(pos$2);
-                $$ = Ok(match6$1);
+                match6$ = Ok(match6$2);
                 break l$;
               }
             }
@@ -11168,11 +11168,11 @@ class _TestParser {
       return null;
     }
     // l$:
-    final $$1 = $$;
+    final match6$3 = match6$;
     // [ ]
     if (state.ch == 32) {
       state.nextChar();
-      return $$1;
+      return match6$3;
     }
     state.ch = ch$;
     state.position = pos$;
@@ -11192,7 +11192,7 @@ class _TestParser {
   Result<void>? parseMatchVoid6(State state) {
     final pos$ = state.position;
     final ch$ = state.ch;
-    final Result<String> $$;
+    final Result<String> matchVoid6$;
     l$:
     {
       // @match('for')
@@ -11202,9 +11202,9 @@ class _TestParser {
         if (c$ == 111 || c$ == 79) {
           c$ = state.charAt(pos$1 += 1);
           if (c$ == 114 || c$ == 82) {
-            final matchVoid6$ = state.substring(state.position, pos$1 += 1);
+            final matchVoid6$1 = state.substring(state.position, pos$1 += 1);
             state.readChar(pos$1);
-            $$ = Ok(matchVoid6$);
+            matchVoid6$ = Ok(matchVoid6$1);
             break l$;
           }
         }
@@ -11220,9 +11220,9 @@ class _TestParser {
             if (c$1 == 108 || c$1 == 76) {
               c$1 = state.charAt(pos$2 += 1);
               if (c$1 == 101 || c$1 == 69) {
-                final matchVoid6$1 = state.substring(state.position, pos$2 += 1);
+                final matchVoid6$2 = state.substring(state.position, pos$2 += 1);
                 state.readChar(pos$2);
-                $$ = Ok(matchVoid6$1);
+                matchVoid6$ = Ok(matchVoid6$2);
                 break l$;
               }
             }
@@ -11232,7 +11232,7 @@ class _TestParser {
       return null;
     }
     // l$:
-    final $$1 = $$;
+    final matchVoid6$3 = matchVoid6$;
     // [ ]
     if (state.ch == 32) {
       state.nextChar();
@@ -11337,7 +11337,7 @@ class _TestParser {
     // 'ab'
     if (state.ch == 97 && state.startsWith('ab')) {
       state.readChar(state.position + 2);
-      const $$ = Ok('ab');
+      const notPredicateVoid0$ = Ok('ab');
       return Result.none;
     }
     state.errorExpected('ab');
@@ -11356,7 +11356,7 @@ class _TestParser {
       final pos$ = state.position;
       final ch$ = state.ch;
       state.readChar(state.position + 3);
-      const $$ = Ok('abc');
+      const notPredicate1$ = Ok('abc');
       // '=>'
       if (state.ch == 61 && state.startsWith('=>')) {
         state.ch = ch$;
@@ -11364,7 +11364,7 @@ class _TestParser {
         return null;
       }
       state.errorExpected('=>');
-      return $$;
+      return notPredicate1$;
     }
     state.errorExpected('abc');
     return null;
@@ -11382,7 +11382,7 @@ class _TestParser {
       final pos$ = state.position;
       final ch$ = state.ch;
       state.readChar(state.position + 3);
-      const $$ = Ok('abc');
+      const notPredicateVoid1$ = Ok('abc');
       // '=>'
       if (state.ch == 61 && state.startsWith('=>')) {
         state.ch = ch$;
@@ -11430,18 +11430,18 @@ class _TestParser {
       state.ch = ch$1;
       state.position = pos$1;
       state.predicate--;
-      final $$ = <int>[];
+      final notPredicate2$ = <int>[];
       // (0)
       while (true) {
         // [a]
         if (state.ch == 97) {
           state.nextChar();
-          $$.add(97);
+          notPredicate2$.add(97);
           continue;
         }
         break;
       }
-      return Ok($$);
+      return Ok(notPredicate2$);
     }
   }
 
@@ -11479,18 +11479,18 @@ class _TestParser {
       state.ch = ch$1;
       state.position = pos$1;
       state.predicate--;
-      final $$ = <int>[];
+      final notPredicateVoid2$ = <int>[];
       // (0)
       while (true) {
         // [a]
         if (state.ch == 97) {
           state.nextChar();
-          $$.add(97);
+          notPredicateVoid2$.add(97);
           continue;
         }
         break;
       }
-      final $$1 = Ok($$);
+      final notPredicateVoid2$1 = Ok(notPredicateVoid2$);
       return Result.none;
     }
   }
@@ -11706,7 +11706,7 @@ class _TestParser {
       // [b]
       if (state.ch == 98) {
         state.nextChar();
-        const $$ = Ok(98);
+        const optionalVoid2$ = Ok(98);
         return Result.none;
       }
       state.ch = ch$;
@@ -11727,11 +11727,11 @@ class _TestParser {
       final pos$ = state.position;
       final ch$ = state.ch;
       state.nextChar();
-      const $$ = Ok(97);
+      const optional3$ = Ok(97);
       // [b]
       if (state.ch == 98) {
         state.nextChar();
-        return $$;
+        return optional3$;
       }
       state.ch = ch$;
       state.position = pos$;
@@ -11751,7 +11751,7 @@ class _TestParser {
       final pos$ = state.position;
       final ch$ = state.ch;
       state.nextChar();
-      const $$ = Ok(97);
+      const optionalVoid3$ = Ok(97);
       // [b]
       if (state.ch == 98) {
         state.nextChar();
@@ -11825,7 +11825,7 @@ class _TestParser {
     // [c]
     if (state.ch == 99) {
       state.nextChar();
-      const $$ = Ok(99);
+      const optionalVoid4$ = Ok(99);
       return Result.none;
     }
     state.ch = ch$;
@@ -11999,7 +11999,7 @@ class _TestParser {
           if (isSuccess$2) {
             state.nextChar();
             final c = ch$3;
-            final $$ = Ok(a - 48 + b - 48 + c - 48);
+            final sequenceVoid0$ = Ok(a - 48 + b - 48 + c - 48);
             return Result.none;
           }
           break l$;
@@ -12072,7 +12072,7 @@ class _TestParser {
           // [c]
           if (state.ch == 99) {
             state.nextChar();
-            const $$ = Ok('abc');
+            const sequenceVoid1$ = Ok('abc');
             return Result.none;
           }
           break l$;
@@ -12748,19 +12748,19 @@ class _TestParser {
       return null;
     }
     // l$:
-    final $$ = <int>[];
+    final while11$ = <int>[];
     // (1)
     while (true) {
       // [c]
       if (state.ch == 99) {
         state.nextChar();
-        $$.add(99);
+        while11$.add(99);
         continue;
       }
       break;
     }
-    if ($$.isNotEmpty) {
-      return Ok($$);
+    if (while11$.isNotEmpty) {
+      return Ok(while11$);
     } else {
       state.ch = ch$;
       state.position = pos$;
@@ -12794,19 +12794,19 @@ class _TestParser {
       return null;
     }
     // l$:
-    final $$ = <int>[];
+    final whileVoid11$ = <int>[];
     // (1)
     while (true) {
       // [c]
       if (state.ch == 99) {
         state.nextChar();
-        $$.add(99);
+        whileVoid11$.add(99);
         continue;
       }
       break;
     }
-    if ($$.isNotEmpty) {
-      final $$1 = Ok($$);
+    if (whileVoid11$.isNotEmpty) {
+      final whileVoid11$1 = Ok(whileVoid11$);
       return Result.none;
     } else {
       state.ch = ch$;
@@ -13051,7 +13051,7 @@ class _TestParser {
         }
         break;
       }
-      final $$ = Ok(state.substring(start$, state.position));
+      final identifierVoid0$ = Ok(state.substring(start$, state.position));
       return Result.none;
     }
     return null;
@@ -13256,7 +13256,7 @@ class _TestParser {
     final isSuccess$2 = end != -1;
     if (isSuccess$2) {
       state.readChar(end);
-      final $$ = Ok(state.substring(start$, state.position));
+      final identifierVoid1$ = Ok(state.substring(start$, state.position));
       return Result.none;
     }
     // [a-zA-Z]
@@ -13275,7 +13275,7 @@ class _TestParser {
         }
         break;
       }
-      final $$1 = Ok(state.substring(start$, state.position));
+      final identifierVoid1$1 = Ok(state.substring(start$, state.position));
       return Result.none;
     }
     return null;

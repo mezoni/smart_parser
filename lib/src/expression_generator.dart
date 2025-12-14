@@ -863,9 +863,9 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     final code = Code();
     final success = Success.none();
     final fails = Code();
-    _writeSaveParsingState(code, node);
     final isTrue = '$tokenKind == $tokenKindValue';
     code.if$(isTrue, (code) {
+      _writeSaveParsingState(code, node);
       var variable = _invalid;
       if (!_insidePredicate.contains(node)) {
         if (!isVoid) {
@@ -1257,11 +1257,23 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     final suggestedName = suggestedNames[node];
     if (suggestedName != null) {
       name = suggestedName;
+      return _allocate(name);
     }
 
     final semanticValue = node.semanticValue;
     if (semanticValue != null) {
       name = semanticValue;
+      return _allocate(name);
+    }
+
+    if (node is ProductionExpression) {
+      name = camelize(node.name);
+      return _allocate(name);
+    }
+
+    if (node is TokenExpression) {
+      name = node.name;
+      return _allocate(name);
     }
 
     return _allocate(name);
@@ -1310,7 +1322,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
       final nextToken = options.getNextToken;
       _writeSaveParsingState(code, node);
       if (!isVoid) {
-        final variable = _getSuggestedName(node, 'tok');
+        final variable = _getSuggestedName(node, 'token');
         success.setValue(variable, false);
         code.declare('final', variable, nextToken);
       } else {
