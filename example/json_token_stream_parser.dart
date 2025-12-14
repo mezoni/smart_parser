@@ -103,8 +103,8 @@ class JsonParser {
       while (true) {
         final index$ = index;
         if (token.kind == TokenKind.comma) {
-          final token$ = nextToken(state);
-          final comma = token$;
+          final comma$ = nextToken(state);
+          final comma = comma$;
           final value$1 = parseValue(state);
           if (value$1 != null) {
             final value = value$1.$1;
@@ -134,13 +134,13 @@ class JsonParser {
   Result<JsonArray>? parseArray(State state) {
     final index$ = index;
     if (token.kind == TokenKind.openBracket) {
-      final token$ = nextToken(state);
-      final openBracket = token$;
+      final openBracket$ = nextToken(state);
+      final openBracket = openBracket$;
       final elements$ = parseElements(state);
       final elements = elements$?.$1;
       if (token.kind == TokenKind.closeBracket) {
-        final token$1 = nextToken(state);
-        final closeBracket = token$1;
+        final closeBracket$ = nextToken(state);
+        final closeBracket = closeBracket$;
         return Ok(JsonArray(openBracket, elements?? [], closeBracket));
       }
       state.errorExpected(']');
@@ -168,8 +168,8 @@ class JsonParser {
       l$:
       {
         if (token.kind == TokenKind.colon) {
-          final token$ = nextToken(state);
-          final colon = token$;
+          final colon$ = nextToken(state);
+          final colon = colon$;
           final value$ = parseValue(state);
           if (value$ != null) {
             final value = value$.$1;
@@ -210,8 +210,8 @@ class JsonParser {
       while (true) {
         final index$ = index;
         if (token.kind == TokenKind.comma) {
-          final token$ = nextToken(state);
-          final comma = token$;
+          final comma$ = nextToken(state);
+          final comma = comma$;
           final keyValuePair$1 = parseKeyValuePair(state);
           if (keyValuePair$1 != null) {
             final keyValuePair = keyValuePair$1.$1;
@@ -241,13 +241,13 @@ class JsonParser {
   Result<JsonObject>? parseObject(State state) {
     final index$ = index;
     if (token.kind == TokenKind.openBrace) {
-      final token$ = nextToken(state);
-      final openBrace = token$;
+      final openBrace$ = nextToken(state);
+      final openBrace = openBrace$;
       final keyValuePairs$ = parseKeyValuePairs(state);
       final elements = keyValuePairs$?.$1;
       if (token.kind == TokenKind.closeBrace) {
-        final token$1 = nextToken(state);
-        final closeBrace = token$1;
+        final closeBrace$ = nextToken(state);
+        final closeBrace = closeBrace$;
         return Ok(JsonObject(openBrace, elements ?? [], closeBrace));
       }
       state.errorExpected('\u007D');
@@ -265,8 +265,8 @@ class JsonParser {
   /// ```
   Result<JsonString>? parseString(State state) {
     if (token.kind == TokenKind.string) {
-      final token$ = nextToken(state);
-      final string = token$;
+      final string$ = nextToken(state);
+      final string = string$;
       return Ok(JsonString(string));
     }
     return null;
@@ -304,23 +304,23 @@ class JsonParser {
       return string$;
     }
     if (token.kind == TokenKind.number) {
-      final token$ = nextToken(state);
-      final number = token$;
+      final number$ = nextToken(state);
+      final number = number$;
       return Ok(JsonNumber(number));
     }
     if (token.kind == TokenKind.nullKeyword) {
-      final token$1 = nextToken(state);
-      final nullKeyword = token$1;
+      final nullKeyword$ = nextToken(state);
+      final nullKeyword = nullKeyword$;
       return Ok(JsonNull(nullKeyword));
     }
     if (token.kind == TokenKind.trueKeyword) {
-      final token$2 = nextToken(state);
-      final trueKeyword = token$2;
+      final trueKeyword$ = nextToken(state);
+      final trueKeyword = trueKeyword$;
       return Ok(JsonBoolean(trueKeyword));
     }
     if (token.kind == TokenKind.falseKeyword) {
-      final token$3 = nextToken(state);
-      final falseKeyword = token$3;
+      final falseKeyword$ = nextToken(state);
+      final falseKeyword = falseKeyword$;
       return Ok(JsonBoolean(falseKeyword));
     }
     l$:

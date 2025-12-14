@@ -54,20 +54,20 @@ class JsonParser {
   /// [List<Object?>] **Elements**
   /// ```txt
   /// `List<Object?>` Elements =>
-  ///   v = Value
-  ///   { final l = [v]; }
+  ///   value = Value
+  ///   { final elements = [value]; }
   ///   @while (0) {
   ///     ',' S
-  ///     v = Value
-  ///     { l.add(v); }
+  ///     value = Value
+  ///     { elements.add(value); }
   ///   }
-  ///   $ = { l }
+  ///   $ = { elements }
   /// ```
   Result<List<Object?>>? parseElements(State state) {
     final value$ = parseValue(state);
     if (value$ != null) {
-      final v = value$.$1;
-      final l = [v];
+      final value = value$.$1;
+      final elements = [value];
       // (0)
       while (true) {
         final pos$ = state.position;
@@ -78,8 +78,8 @@ class JsonParser {
           parseS(state);
           final value$1 = parseValue(state);
           if (value$1 != null) {
-            final v = value$1.$1;
-            l.add(v);
+            final value = value$1.$1;
+            elements.add(value);
             continue;
           }
           state.ch = c$;
@@ -89,7 +89,7 @@ class JsonParser {
         state.errorExpected(',');
         break;
       }
-      return Ok(l);
+      return Ok(elements);
     }
     return null;
   }
@@ -98,9 +98,9 @@ class JsonParser {
   /// ```txt
   /// `List<Object?>` Array =>
   ///   "[" S
-  ///   e = Elements?
+  ///   elements = Elements?
   ///   ']' S
-  ///   $ = { e ?? [] }
+  ///   $ = { elements ?? [] }
   /// ```
   Result<List<Object?>>? parseArray(State state) {
     final pos$ = state.position;
@@ -110,12 +110,12 @@ class JsonParser {
       state.nextChar();
       parseS(state);
       final elements$ = parseElements(state);
-      final e = elements$?.$1;
+      final elements = elements$?.$1;
       // ']'
       if (state.ch == 93) {
         state.nextChar();
         parseS(state);
-        return Ok(e ?? []);
+        return Ok(elements ?? []);
       }
       state.errorExpected(']');
       state.ch = c$;
@@ -128,18 +128,18 @@ class JsonParser {
   /// [MapEntry<String, Object?>] **KeyValue**
   /// ```txt
   /// `MapEntry<String, Object?>` KeyValue =>
-  ///   k = String
+  ///   key = String
   ///   ~{ state.errorExpected('string'); }
   ///   ':' S
-  ///   v = Value
-  ///   $ = { MapEntry(k, v) }
+  ///   value = Value
+  ///   $ = { MapEntry(key, value) }
   /// ```
   Result<MapEntry<String, Object?>>? parseKeyValue(State state) {
     final pos$ = state.position;
     final c$ = state.ch;
     final string$ = parseString(state);
     if (string$ != null) {
-      final k = string$.$1;
+      final key = string$.$1;
       l$:
       {
         // ':'
@@ -148,8 +148,8 @@ class JsonParser {
           parseS(state);
           final value$ = parseValue(state);
           if (value$ != null) {
-            final v = value$.$1;
-            return Ok(MapEntry(k, v));
+            final value = value$.$1;
+            return Ok(MapEntry(key, value));
           }
           break l$;
         }
@@ -168,24 +168,24 @@ class JsonParser {
   /// [Map<String, Object?>] **Map**
   /// ```txt
   /// `Map<String, Object?>` Map =>
-  ///   v = KeyValue
+  ///   keyValue = KeyValue
   ///   {
-  ///     final m = <String, Object?>{};
-  ///     m[v.key] = v.value;
+  ///     final map = <String, Object?>{};
+  ///     map[keyValue.key] = keyValue.value;
   ///   }
   ///   @while (0) {
   ///     ',' S
-  ///     v = KeyValue
-  ///     { m[v.key] = v.value; }
+  ///     keyValue = KeyValue
+  ///     { map[keyValue.key] = keyValue.value; }
   ///   }
-  ///   $ = { m }
+  ///   $ = { map }
   /// ```
   Result<Map<String, Object?>>? parseMap(State state) {
     final keyValue$ = parseKeyValue(state);
     if (keyValue$ != null) {
-      final v = keyValue$.$1;
-      final m = <String, Object?>{};
-      m[v.key] = v.value;
+      final keyValue = keyValue$.$1;
+      final map = <String, Object?>{};
+      map[keyValue.key] = keyValue.value;
       // (0)
       while (true) {
         final pos$ = state.position;
@@ -196,8 +196,8 @@ class JsonParser {
           parseS(state);
           final keyValue$1 = parseKeyValue(state);
           if (keyValue$1 != null) {
-            final v = keyValue$1.$1;
-            m[v.key] = v.value;
+            final keyValue = keyValue$1.$1;
+            map[keyValue.key] = keyValue.value;
             continue;
           }
           state.ch = c$;
@@ -207,7 +207,7 @@ class JsonParser {
         state.errorExpected(',');
         break;
       }
-      return Ok(m);
+      return Ok(map);
     }
     return null;
   }
@@ -216,9 +216,9 @@ class JsonParser {
   /// ```txt
   /// `Map<String, Object?>` Object =>
   ///   "{" S
-  ///   m = Map?
+  ///   map = Map?
   ///   '}' S
-  ///   $ = { m ?? {} }
+  ///   $ = { map ?? {} }
   /// ```
   Result<Map<String, Object?>>? parseObject(State state) {
     final pos$ = state.position;
@@ -228,12 +228,12 @@ class JsonParser {
       state.nextChar();
       parseS(state);
       final map$ = parseMap(state);
-      final m = map$?.$1;
+      final map = map$?.$1;
       // '}'
       if (state.ch == 125) {
         state.nextChar();
         parseS(state);
-        return Ok(m ?? {});
+        return Ok(map ?? {});
       }
       state.errorExpected('}');
       state.ch = c$;
@@ -334,7 +334,7 @@ class JsonParser {
   ///   { final start = state.position; }
   ///   "u"
   ///   { var end = 0; }
-  ///   s = <
+  ///   text = <
   ///     @while (4, 4) {
   ///       [a-fA-F0-9]
   ///       ~{
@@ -344,7 +344,7 @@ class JsonParser {
   ///     }
   ///   >
   ///   ~{ state.error('Incorrect Unicode escape sequence', position: end, start: start, end: end); }
-  ///   $ = { String.fromCharCode(int.parse(s, radix: 16)) }
+  ///   $ = { String.fromCharCode(int.parse(text, radix: 16)) }
   /// ```
   Result<String>? parseEscapeUnicode(State state) {
     final pos$ = state.position;
@@ -372,8 +372,8 @@ class JsonParser {
         break;
       }
       if (count$ >= 4) {
-        final s = state.substring(pos$1, state.position);
-        return Ok(String.fromCharCode(int.parse(s, radix: 16)));
+        final text = state.substring(pos$1, state.position);
+        return Ok(String.fromCharCode(int.parse(text, radix: 16)));
       } else {
         state.ch = c$1;
         state.position = pos$1;
@@ -420,7 +420,7 @@ class JsonParser {
   /// `String` String =>
   ///   { final start = state.position; }
   ///   ["]
-  ///   p = @while (0) {
+  ///   parts = @while (0) {
   ///     <[^{0-1F}"\\]+>
   ///     ---
   ///     [\\]
@@ -432,7 +432,7 @@ class JsonParser {
   ///     state.errorExpected('"');
   ///   }
   ///   S
-  ///   $ = { p.length == 1 ? p[0] : p.isNotEmpty ? p.join() : '' }
+  ///   $ = { parts.length == 1 ? parts[0] : parts.isNotEmpty ? parts.join() : '' }
   /// ```
   Result<String>? parseString(State state) {
     final pos$ = state.position;
@@ -441,7 +441,7 @@ class JsonParser {
     // ["]
     if (state.ch == 34) {
       state.nextChar();
-      final list$ = <String>[];
+      final parts$ = <String>[];
       // (0)
       while (true) {
         final pos$1 = state.position;
@@ -459,7 +459,7 @@ class JsonParser {
           break;
         }
         if (isSuccess$) {
-          list$.add(state.substring(pos$1, state.position));
+          parts$.add(state.substring(pos$1, state.position));
           continue;
         } else {
           final pos$2 = state.position;
@@ -469,7 +469,7 @@ class JsonParser {
             state.nextChar();
             final escaped$ = parseEscaped(state);
             if (escaped$ != null) {
-              list$.add(escaped$.$1);
+              parts$.add(escaped$.$1);
               continue;
             }
             state.ch = c$2;
@@ -479,12 +479,12 @@ class JsonParser {
           break;
         }
       }
-      final p = list$;
+      final parts = parts$;
       // ["]
       if (state.ch == 34) {
         state.nextChar();
         parseS(state);
-        return Ok(p.length == 1 ? p[0] : p.isNotEmpty ? p.join() : '');
+        return Ok(parts.length == 1 ? parts[0] : parts.isNotEmpty ? parts.join() : '');
       }
       state.error('Unterminated string', start: start);
       state.errorExpected('"');
@@ -526,9 +526,9 @@ class JsonParser {
   ///     }
   ///     { flag = false; }
   ///   )?
-  ///   s = { state.substring(start, state.position) }
+  ///   text = { state.substring(start, state.position) }
   ///   S
-  ///   $ = { flag && s.length <= 18 ? int.parse(s) : num.parse(s) }
+  ///   $ = { flag && text.length <= 18 ? int.parse(text) : num.parse(text) }
   /// ```
   Result<num>? parseNumber(State state) {
     final pos$ = state.position;
@@ -659,9 +659,9 @@ class JsonParser {
       break l$3;
     }
     // l$3:
-    final s = state.substring(start, state.position);
+    final text = state.substring(start, state.position);
     parseS(state);
-    return Ok(flag && s.length <= 18 ? int.parse(s) : num.parse(s));
+    return Ok(flag && text.length <= 18 ? int.parse(text) : num.parse(text));
   }
 
   /// [Object?] **Value**

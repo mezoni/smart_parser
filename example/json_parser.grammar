@@ -29,46 +29,46 @@ const JsonParser();
   ~{ state.errorExpected('enf of file'); }
 
 `List<Object?>` Elements =>
-  v = Value
-  { final l = [v]; }
+  value = Value
+  { final elements = [value]; }
   @while (0) {
     ',' S
-    v = Value
-    { l.add(v); }
+    value = Value
+    { elements.add(value); }
   }
-  $ = { l }
+  $ = { elements }
 
 `List<Object?>` Array =>
   "[" S
-  e = Elements?
+  elements = Elements?
   ']' S
-  $ = { e ?? [] }
+  $ = { elements ?? [] }
 
 `MapEntry<String, Object?>` KeyValue =>
-  k = String
+  key = String
   ~{ state.errorExpected('string'); }
   ':' S
-  v = Value
-  $ = { MapEntry(k, v) }
+  value = Value
+  $ = { MapEntry(key, value) }
 
 `Map<String, Object?>` Map =>
-  v = KeyValue
+  keyValue = KeyValue
   {
-    final m = <String, Object?>{};
-    m[v.key] = v.value;
+    final map = <String, Object?>{};
+    map[keyValue.key] = keyValue.value;
   }
   @while (0) {
     ',' S
-    v = KeyValue
-    { m[v.key] = v.value; }
+    keyValue = KeyValue
+    { map[keyValue.key] = keyValue.value; }
   }
-  $ = { m }
+  $ = { map }
 
 `Map<String, Object?>` Object =>
   "{" S
-  m = Map?
+  map = Map?
   '}' S
-  $ = { m ?? {} }
+  $ = { map ?? {} }
 
 `String` EscapeC =>
   (
@@ -108,7 +108,7 @@ const JsonParser();
   { final start = state.position; }
   "u"
   { var end = 0; }
-  s = <
+  text = <
     @while (4, 4) {
       [a-fA-F0-9]
       ~{
@@ -118,7 +118,7 @@ const JsonParser();
     }
   >
   ~{ state.error('Incorrect Unicode escape sequence', position: end, start: start, end: end); }
-  $ = { String.fromCharCode(int.parse(s, radix: 16)) }
+  $ = { String.fromCharCode(int.parse(text, radix: 16)) }
 
 `String` Escaped =>
   & "u"
@@ -129,7 +129,7 @@ const JsonParser();
 `String` String =>
   { final start = state.position; }
   ["]
-  p = @while (0) {
+  parts = @while (0) {
     <[^{0-1F}"\\]+>
     ---
     [\\]
@@ -141,7 +141,7 @@ const JsonParser();
     state.errorExpected('"');
   }
   S
-  $ = { p.length == 1 ? p[0] : p.isNotEmpty ? p.join() : '' }
+  $ = { parts.length == 1 ? parts[0] : parts.isNotEmpty ? parts.join() : '' }
 
 `num` Number =>
   {
@@ -172,9 +172,9 @@ const JsonParser();
     }
     { flag = false; }
   )?
-  s = { state.substring(start, state.position) }
+  text = { state.substring(start, state.position) }
   S
-  $ = { flag && s.length <= 18 ? int.parse(s) : num.parse(s) }
+  $ = { flag && text.length <= 18 ? int.parse(text) : num.parse(text) }
 
 `Object?` Value =>
   (

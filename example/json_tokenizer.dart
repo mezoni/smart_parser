@@ -88,17 +88,17 @@ class JsonTokenizer {
   ///       $ = { _token(start, state.position, TokenKind.falseKeyword, false) }
   ///       ----
   ///       &["]
-  ///       v = String
-  ///       $ = { _token(start, state.position, TokenKind.string, v) }
+  ///       string = String
+  ///       $ = { _token(start, state.position, TokenKind.string, string) }
   ///       ----
-  ///       v = Number
-  ///       $ = { _token(start, state.position, TokenKind.number, v) }
+  ///       number = Number
+  ///       $ = { _token(start, state.position, TokenKind.number, number) }
   ///     )
   ///   )*
   ///   S
   /// ```
   Result<List<Token>> parseTokens(State state) {
-    final tokens$ = <Token>[];
+    final $$ = <Token>[];
     // (0)
     while (true) {
       final pos$ = state.position;
@@ -108,55 +108,55 @@ class JsonTokenizer {
       // ":"
       if (state.ch == 58) {
         state.nextChar();
-        tokens$.add(_token(start, state.position, TokenKind.colon, ':'));
+        $$.add(_token(start, state.position, TokenKind.colon, ':'));
         continue;
       }
       // ","
       if (state.ch == 44) {
         state.nextChar();
-        tokens$.add(_token(start, state.position, TokenKind.comma, ','));
+        $$.add(_token(start, state.position, TokenKind.comma, ','));
         continue;
       }
       // "{"
       if (state.ch == 123) {
         state.nextChar();
-        tokens$.add(_token(start, state.position, TokenKind.openBrace, '\u007B'));
+        $$.add(_token(start, state.position, TokenKind.openBrace, '\u007B'));
         continue;
       }
       // "}"
       if (state.ch == 125) {
         state.nextChar();
-        tokens$.add(_token(start, state.position, TokenKind.closeBrace, '\u007D'));
+        $$.add(_token(start, state.position, TokenKind.closeBrace, '\u007D'));
         continue;
       }
       // "["
       if (state.ch == 91) {
         state.nextChar();
-        tokens$.add(_token(start, state.position, TokenKind.openBracket, '['));
+        $$.add(_token(start, state.position, TokenKind.openBracket, '['));
         continue;
       }
       // "]"
       if (state.ch == 93) {
         state.nextChar();
-        tokens$.add(_token(start, state.position, TokenKind.closeBracket, ']'));
+        $$.add(_token(start, state.position, TokenKind.closeBracket, ']'));
         continue;
       }
       // "null"
       if (state.ch == 110 && state.startsWith('null')) {
         state.readChar(state.position + 4);
-        tokens$.add(_token(start, state.position, TokenKind.nullKeyword, null));
+        $$.add(_token(start, state.position, TokenKind.nullKeyword, null));
         continue;
       }
       // "true"
       if (state.ch == 116 && state.startsWith('true')) {
         state.readChar(state.position + 4);
-        tokens$.add(_token(start, state.position, TokenKind.trueKeyword, true));
+        $$.add(_token(start, state.position, TokenKind.trueKeyword, true));
         continue;
       }
       // "false"
       if (state.ch == 102 && state.startsWith('false')) {
         state.readChar(state.position + 5);
-        tokens$.add(_token(start, state.position, TokenKind.falseKeyword, false));
+        $$.add(_token(start, state.position, TokenKind.falseKeyword, false));
         continue;
       }
       l$:
@@ -165,8 +165,8 @@ class JsonTokenizer {
         if (state.ch == 34) {
           final string$ = parseString(state);
           if (string$ != null) {
-            final v = string$.$1;
-            tokens$.add(_token(start, state.position, TokenKind.string, v));
+            final string = string$.$1;
+            $$.add(_token(start, state.position, TokenKind.string, string));
             continue;
           }
           break l$;
@@ -176,17 +176,17 @@ class JsonTokenizer {
       // l$:
       final number$ = parseNumber(state);
       if (number$ != null) {
-        final v = number$.$1;
-        tokens$.add(_token(start, state.position, TokenKind.number, v));
+        final number = number$.$1;
+        $$.add(_token(start, state.position, TokenKind.number, number));
         continue;
       }
       state.ch = c$;
       state.position = pos$;
       break;
     }
-    final tokens$1 = Ok(tokens$);
+    final $$1 = Ok($$);
     parseS(state);
-    return tokens$1;
+    return $$1;
   }
 
   /// [String] **EscapeC**
@@ -280,7 +280,7 @@ class JsonTokenizer {
   ///   { final start = state.position; }
   ///   "u"
   ///   { var end = 0; }
-  ///   s = <
+  ///   text = <
   ///     @while (4, 4) {
   ///       [a-fA-F0-9]
   ///       ~{
@@ -290,7 +290,7 @@ class JsonTokenizer {
   ///     }
   ///   >
   ///   ~{ state.error('Incorrect Unicode escape sequence', position: end, start: start, end: end); }
-  ///   $ = { String.fromCharCode(int.parse(s, radix: 16)) }
+  ///   $ = { String.fromCharCode(int.parse(text, radix: 16)) }
   /// ```
   Result<String>? parseEscapeUnicode(State state) {
     final pos$ = state.position;
@@ -318,8 +318,8 @@ class JsonTokenizer {
         break;
       }
       if (count$ >= 4) {
-        final s = state.substring(pos$1, state.position);
-        return Ok(String.fromCharCode(int.parse(s, radix: 16)));
+        final text = state.substring(pos$1, state.position);
+        return Ok(String.fromCharCode(int.parse(text, radix: 16)));
       } else {
         state.ch = c$1;
         state.position = pos$1;
@@ -366,7 +366,7 @@ class JsonTokenizer {
   /// `String` String =>
   ///   { final start = state.position; }
   ///   ["]
-  ///   p = @while (0) {
+  ///   parts = @while (0) {
   ///     <[^{0-1F}"\\]+>
   ///     ---
   ///     [\\]
@@ -378,7 +378,7 @@ class JsonTokenizer {
   ///     state.errorExpected('"');
   ///   }
   ///   S
-  ///   $ = { p.length == 1 ? p[0] : p.isNotEmpty ? p.join() : '' }
+  ///   $ = { parts.length == 1 ? parts[0] : parts.isNotEmpty ? parts.join() : '' }
   /// ```
   Result<String>? parseString(State state) {
     final pos$ = state.position;
@@ -387,7 +387,7 @@ class JsonTokenizer {
     // ["]
     if (state.ch == 34) {
       state.nextChar();
-      final list$ = <String>[];
+      final parts$ = <String>[];
       // (0)
       while (true) {
         final pos$1 = state.position;
@@ -405,7 +405,7 @@ class JsonTokenizer {
           break;
         }
         if (isSuccess$) {
-          list$.add(state.substring(pos$1, state.position));
+          parts$.add(state.substring(pos$1, state.position));
           continue;
         } else {
           final pos$2 = state.position;
@@ -415,7 +415,7 @@ class JsonTokenizer {
             state.nextChar();
             final escaped$ = parseEscaped(state);
             if (escaped$ != null) {
-              list$.add(escaped$.$1);
+              parts$.add(escaped$.$1);
               continue;
             }
             state.ch = c$2;
@@ -425,12 +425,12 @@ class JsonTokenizer {
           break;
         }
       }
-      final p = list$;
+      final parts = parts$;
       // ["]
       if (state.ch == 34) {
         state.nextChar();
         parseS(state);
-        return Ok(p.length == 1 ? p[0] : p.isNotEmpty ? p.join() : '');
+        return Ok(parts.length == 1 ? parts[0] : parts.isNotEmpty ? parts.join() : '');
       }
       state.error('Unterminated string', start: start);
       state.errorExpected('"');
@@ -472,9 +472,9 @@ class JsonTokenizer {
   ///     }
   ///     { flag = false; }
   ///   )?
-  ///   s = { state.substring(start, state.position) }
+  ///   text = { state.substring(start, state.position) }
   ///   S
-  ///   $ = { flag && s.length <= 18 ? int.parse(s) : num.parse(s) }
+  ///   $ = { flag && text.length <= 18 ? int.parse(text) : num.parse(text) }
   /// ```
   Result<num>? parseNumber(State state) {
     final pos$ = state.position;
@@ -605,9 +605,9 @@ class JsonTokenizer {
       break l$3;
     }
     // l$3:
-    final s = state.substring(start, state.position);
+    final text = state.substring(start, state.position);
     parseS(state);
-    return Ok(flag && s.length <= 18 ? int.parse(s) : num.parse(s));
+    return Ok(flag && text.length <= 18 ? int.parse(text) : num.parse(text));
   }
 
   /// [void] **S**

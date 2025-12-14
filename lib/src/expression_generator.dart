@@ -1254,6 +1254,11 @@ class ExpressionGenerator implements Visitor<BuildResult> {
       name = suggestedName;
     }
 
+    final semanticValue = node.semanticValue;
+    if (semanticValue != null) {
+      name = semanticValue;
+    }
+
     return _allocate(name);
   }
 

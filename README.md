@@ -497,10 +497,10 @@ Result<String>? parseAndPredicate(State state) {
   final isSuccess$ = c$ <= 90 ? c$ >= 65 : c$ >= 97 && c$ <= 122;
   if (isSuccess$) {
     state.nextChar();
-    final andPredicate$ = Ok(state.substring(pos$, state.position));
+    final $$ = Ok(state.substring(pos$, state.position));
     // "=>"
     if (state.ch == 61 && state.startsWith('=>')) {
-      return andPredicate$;
+      return $$;
     }
     state.ch = c$;
     state.position = pos$;
@@ -873,29 +873,29 @@ Dart code:
 Result<int>? parseAb(State state) {
   final pos$ = state.position;
   final c$ = state.ch;
-  final Result<int> ab$;
+  final Result<int> $$;
   l$:
   {
     // [b]
     if (state.ch == 98) {
       state.nextChar();
-      ab$ = const Ok(98);
+      $$ = const Ok(98);
       break l$;
     }
     // [c]
     if (state.ch == 99) {
       state.nextChar();
-      ab$ = const Ok(99);
+      $$ = const Ok(99);
       break l$;
     }
     return null;
   }
   // l$:
-  final ab$1 = ab$;
+  final $$1 = $$;
   // [a]
   if (state.ch == 97) {
     state.nextChar();
-    return ab$1;
+    return $$1;
   }
   state.ch = c$;
   state.position = pos$;
@@ -2656,7 +2656,7 @@ Dart code:
 ///   # ...
 /// ```
 Result<Expression>? parsePrimary(State state) {
-  final primary$ = <Expression>[];
+  final n$ = <Expression>[];
   // (1)
   while (true) {
     final pos = state.position;
@@ -2664,14 +2664,14 @@ Result<Expression>? parsePrimary(State state) {
     if (sequenceElement$ != null) {
       final e = sequenceElement$.$1;
       e.sourceCode = state.substring(pos, state.position).trimRight();
-      primary$.add(e);
+      n$.add(e);
       continue;
     }
     break;
   }
-  if (primary$.isNotEmpty) {
-    final n = primary$;
-    return Ok(primary$);
+  if (n$.isNotEmpty) {
+    final n = n$;
+    return Ok(n$);
   } else {
     return null;
   }

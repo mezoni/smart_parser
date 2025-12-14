@@ -1,3 +1,8 @@
+## 2.1.2
+
+- Change in local variable name generation.
+- Changes in parser grammar files.
+
 ## 2.1.1
 
 - The JSON token stream parser example has been refactored to produce a JSON abstract syntax tree.

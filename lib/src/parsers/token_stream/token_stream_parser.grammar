@@ -19,15 +19,6 @@ Grammar parse(String source) {
 
   return result.$1;
 }
-
-extension _Ext<T extends Expression> on T {
-  T setType(String? type) {
-    if (type != null) {
-      this.type = type;
-    }
-    return this;
-  }
-}
 }%
 
 %%
@@ -37,11 +28,12 @@ const TokenStreamParser();
 `Grammar`
 Start =>
   S
-  g = Globals?
-  m = Members?
-  p = Production+
-  ! .
-  $ = { Grammar(globals: g, members: m, productions: p) }
+  globals = Globals?
+  members = Members?
+  productions = Production+
+  !.
+  ~ { state.errorExpected('end of file'); }
+  $ = { Grammar(globals: globals, members: members, productions: productions) }
 
 `String`
 Globals =>
@@ -49,7 +41,8 @@ Globals =>
   "%{"
   { final index = state.indexOf('\u007D%'); }
   $ = <@position({ index == -1 ? state.length : index })>
-  "}%" ~{ state.error('Unterminated globals section', position: start); } S
+  "}%"
+  ~{ state.error('Unterminated globals section', position: start); } S
 
 `String`
 Members =>
@@ -57,76 +50,77 @@ Members =>
   "%%"
   { final index = state.indexOf('%%'); }
   $ = <@position({ index == -1 ? state.length : index })>
-  "%%" ~{ state.error('Unterminated members section', position: start); } S
+  "%%"
+  ~{ state.error('Unterminated members section', position: start); } S
 
 `Production`
 Production =>
   { final start = state.position; }
-  t = Type
+  type = Type
   ~{ state.errorExpected('type'); }
-  i = ProductionName
+  name = ProductionName
   ~{ state.errorExpected('production name'); }
   '=>' S
-  e = Expression
+  expression = Expression
   [;]? S
   {
     final end = state.position;
-    final src = state.substring(start, end).trimRight();
+    final source = state.substring(start, end).trimRight();
   }
-  $ = { Production(expression: e, name: i, sourceCode: src, type: t) }
+  $ = { Production(expression: expression, name: name, sourceCode: source, type: type) }
 
 `Expression`
 Expression =>
   { final pos = state.position; }
-  e = OrderedChoice
+  expression = OrderedChoice
   ~{ state.errorExpected('expression'); }
-  { e.sourceCode = state.substring(pos, state.position).trimRight(); }
-  $ = { e }
+  { expression.sourceCode = state.substring(pos, state.position).trimRight(); }
+  $ = { expression }
 
 `Expression`
 OrderedChoice =>
-  n = Sequence
-  { final l = [n]; }
+  expression = Sequence
+  { final expressions = [expression]; }
   @while (0) {
     (
       "/"
       ----
       "-"+
     ) S
-    n = Sequence
-    { l.add(n); }
+    expression = Sequence
+    { expressions.add(expression); }
   }
-  $ = { OrderedChoiceExpression(expressions: l) }
+  $ = { OrderedChoiceExpression(expressions: expressions) }
 
 `Expression`
 Sequence =>
   { final pos = state.position; }
-  n = (
+  expressions = (
     { final pos = state.position; }
-    e = SequenceElement
-    h = ErrorHandler?
-    { e.sourceCode = state.substring(pos, state.position).trimRight(); }
-    $ = `Expression` { e..errorHandler = h }
+    expression = SequenceElement
+    errorHandler = ErrorHandler?
+    { expression.sourceCode = state.substring(pos, state.position).trimRight(); }
+    $ = `Expression` { expression..errorHandler = errorHandler }
   )+
-  e = { SequenceExpression(expressions: n) }
-  { e.sourceCode = state.substring(pos, state.position).trimRight(); }
-  $ = { e }
+  expression = { SequenceExpression(expressions: expressions) }
+  { expression.sourceCode = state.substring(pos, state.position).trimRight(); }
+  $ = { expression }
 
 `Expression`
 SequenceElement =>
   Action
   ----
-  v = (
+  semanticValue = (
     $ = SemanticValue
     '=' S
   )?
-  t = Type?
-  e = Prefix
+  type = Type?
+  expression = Prefix
   {
-    e.semanticValue = v;
-    e.explicitType = t;
+    expression.semanticValue = semanticValue;
+    expression.explicitType = type;
   }
-  $ = { e }
+  $ = { expression }
 
 `String`
 SemanticValue =>
@@ -139,39 +133,39 @@ SemanticValue =>
 Prefix =>
   "!" S
   $ = (
-    b = Block
-    $ = { PredicateExpression(negate: true, predicate: b) }
+    predicate = Block
+    $ = { PredicateExpression(negate: true, predicate: predicate) }
     ----
-    s = Suffix
-    $ = { NotPredicateExpression(expression: s) }
+    expression = Suffix
+    $ = { NotPredicateExpression(expression: expression) }
   )
   ----
   "&" S
   $ = (
-    b = Block
-    $ = { PredicateExpression(negate: false, predicate: b) }
+    predicate = Block
+    $ = { PredicateExpression(negate: false, predicate: predicate) }
     ---
-    s = Suffix
-    $ = { AndPredicateExpression(expression: s) }
+    expression = Suffix
+    $ = { AndPredicateExpression(expression: expression) }
   )
   ----
   Suffix
 
 `Expression`
 Suffix =>
-  p = Primary
+  expression = Primary
   $ = (
     "*" S
-    $ = { ZeroOrMoreExpression(expression: p) }
+    $ = { ZeroOrMoreExpression(expression: expression) }
     ----
     "+" S
-    $ = { OneOrMoreExpression(expression: p) }
+    $ = { OneOrMoreExpression(expression: expression) }
     ----
     "?" S
-    $ = { OptionalExpression(expression: p) }
+    $ = { OptionalExpression(expression: expression) }
     ---
     ""
-    $ = { p }
+    $ = { expression }
   )
 
 `Expression`
@@ -186,62 +180,59 @@ Primary =>
     While
     ---
     Token
-  ) ~{ state.errorExpected('expression'); }
+  )
+  ~{ state.errorExpected('expression'); }
 
 `Expression`
 Symbol =>
-  n = ProductionName S
-  ! '=>'
-  $ = { ProductionExpression(name: n) }
+  name = ProductionName S
+  !'=>'
+  $ = { ProductionExpression(name: name) }
 
 `Expression`
 Action =>
-  b = Block
-  $ = { ActionExpression(source: b) }
+  source = Block
+  $ = { ActionExpression(source: source) }
 
 `Expression`
 Value =>
-  b = Block
-  $ = { ValueExpression(source: b) }
+  source = Block
+  $ = { ValueExpression(source: source) }
 
 `Expression`
 Group =>
-  t = Type?
   "(" S
-  e = Expression
+  expression = Expression
   ')' S
-  g = { GroupExpression(expression: e) }
-  { t != null ? g.type = t : null; }
-  $ = { g }
+  $ = { GroupExpression(expression: expression) }
 
 `Expression`
 Token =>
-  n = <[$a-z] [$a-zA-Z0-9_]*>
+  name = <[$a-z] [$a-zA-Z0-9_]*>
   ~{ state.errorExpected('token name'); }
   S
-  $ = { TokenExpression(name: n) }
+  $ = { TokenExpression(name: name) }
 
 `Expression`
 While =>
-  t = Type?
   "@while" S
   '(' S
-  r = WhileRange
+  range = WhileRange
   ~{ state.errorExpected('while range'); }
   ')' S
   '{' S
-  e = Expression
+  expression = Expression
   '}' S
-  $ = { WhileExpression(expression: e, range: r).setType(t) }
+  $ = { WhileExpression(expression: expression, range: range) }
 
 `(int, int?)`
 WhileRange =>
-  m = DecValue S
-  n = (
+  min = DecValue S
+  max = (
     ',' S
     $ = DecValue1 S
   )?
-  $ = { (m, n) }
+  $ = { (min, max) }
 
 `String`
 ErrorHandler =>
@@ -263,24 +254,24 @@ Type =>
 `String`
 DQString =>
   "\""
-  p = @while (0) {
+  parts = @while (0) {
     <[{20-21}{23-5B}{5D-10FFFF}]+>
     ---
     Escaped
   }
   '"' S
-  $ = { p.join() }
+  $ = { parts.join() }
 
 `String`
 SQString =>
   "'"
-  p = @while (0) {
+  parts = @while (0) {
     <[{20-26}{28-5B}{5D-10FFFF}]+>
     ---
     Escaped
   }
   '\'' S
-  $ = { p.join() }
+  $ = { parts.join() }
 
 `String`
 Escaped =>
@@ -288,11 +279,11 @@ Escaped =>
   $ = (
     "u"
     '{'
-    v = HexValue
+    charCode = HexValue
     ~{ state.error('unicode escape'); }
     '}'
     ~{ state.error('Unterminated Unicode escape sequence'); }
-    $ = {String.fromCharCode(v) }
+    $ = { String.fromCharCode(charCode) }
     ----
     "a"
     $ = `const` { '\u0007' }
@@ -327,25 +318,25 @@ Escaped =>
     "'"
     $ = `const` { '\'' }
   )
-  ~{state.error('Illegal escape character'); }
+  ~{ state.error('Illegal escape character'); }
 
 `int`
 DecValue =>
-  n = <[0-9]+>
+  text = <[0-9]+>
   ~{ state.errorExpected('decimal number'); }
-  $ = { int.parse(n) }
+  $ = { int.parse(text) }
 
 `int`
 DecValue1 =>
-  n = <[1-9] [0-9]*>
+  text = <[1-9] [0-9]*>
   ~{ state.errorExpected('decimal number from 1'); }
-  $ = { int.parse(n) }
+  $ = { int.parse(text) }
 
 `int`
 HexValue =>
-  n = <[a-fA-F0-9]+>
+  text = <[a-fA-F0-9]+>
   ~{ state.errorExpected('hexadecimal number'); }
-  $ = { int.parse(n, radix: 16) }
+  $ = { int.parse(text, radix: 16) }
 
 `String`
 Block =>
@@ -359,7 +350,7 @@ BlockBody =>
   BlockBody*
   '}'
   ----
-  ! "}"
+  !"}"
   .
 
 `String`
@@ -372,18 +363,18 @@ ProductionName =>
   $ = <[A-Z] [a-zA-Z0-9_]*>
   S
 
-`void`
-S => @while (0) {
-  Space
-  ----
-  Comment
-}
+`void` S =>
+  @while (0) {
+    Space
+    ----
+    Comment
+  }
 
 `void`
 Comment =>
   "#"
   @while (0) {
-    ! EndOfLine
+    !EndOfLine
     .
   }
   EndOfLine?

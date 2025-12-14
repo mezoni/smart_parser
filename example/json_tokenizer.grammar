@@ -71,11 +71,11 @@ Token _token(int start, int end, TokenKind kind, Object? value) {
       $ = { _token(start, state.position, TokenKind.falseKeyword, false) }
       ----
       &["]
-      v = String
-      $ = { _token(start, state.position, TokenKind.string, v) }
+      string = String
+      $ = { _token(start, state.position, TokenKind.string, string) }
       ----
-      v = Number
-      $ = { _token(start, state.position, TokenKind.number, v) }
+      number = Number
+      $ = { _token(start, state.position, TokenKind.number, number) }
     )
   )*
   S
@@ -118,7 +118,7 @@ Token _token(int start, int end, TokenKind kind, Object? value) {
   { final start = state.position; }
   "u"
   { var end = 0; }
-  s = <
+  text = <
     @while (4, 4) {
       [a-fA-F0-9]
       ~{
@@ -128,7 +128,7 @@ Token _token(int start, int end, TokenKind kind, Object? value) {
     }
   >
   ~{ state.error('Incorrect Unicode escape sequence', position: end, start: start, end: end); }
-  $ = { String.fromCharCode(int.parse(s, radix: 16)) }
+  $ = { String.fromCharCode(int.parse(text, radix: 16)) }
 
 `String` Escaped =>
   & "u"
@@ -139,7 +139,7 @@ Token _token(int start, int end, TokenKind kind, Object? value) {
 `String` String =>
   { final start = state.position; }
   ["]
-  p = @while (0) {
+  parts = @while (0) {
     <[^{0-1F}"\\]+>
     ---
     [\\]
@@ -151,7 +151,7 @@ Token _token(int start, int end, TokenKind kind, Object? value) {
     state.errorExpected('"');
   }
   S
-  $ = { p.length == 1 ? p[0] : p.isNotEmpty ? p.join() : '' }
+  $ = { parts.length == 1 ? parts[0] : parts.isNotEmpty ? parts.join() : '' }
 
 `num` Number =>
   {
@@ -182,9 +182,9 @@ Token _token(int start, int end, TokenKind kind, Object? value) {
     }
     { flag = false; }
   )?
-  s = { state.substring(start, state.position) }
+  text = { state.substring(start, state.position) }
   S
-  $ = { flag && s.length <= 18 ? int.parse(s) : num.parse(s) }
+  $ = { flag && text.length <= 18 ? int.parse(text) : num.parse(text) }
 
 `void` S =>
   [\n\r\t ]*
