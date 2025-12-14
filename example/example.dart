@@ -30,7 +30,7 @@ class JsonParser {
   /// ```
   Result<Object?>? parseStart(State state) {
     final pos$ = state.position;
-    final c$ = state.ch;
+    final ch$ = state.ch;
     parseS(state);
     l$:
     {
@@ -46,7 +46,7 @@ class JsonParser {
       break l$;
     }
     // l$:
-    state.ch = c$;
+    state.ch = ch$;
     state.position = pos$;
     return null;
   }
@@ -70,10 +70,10 @@ class JsonParser {
       final elements = [value];
       // (0)
       while (true) {
-        final pos$ = state.position;
-        final c$ = state.ch;
         // ','
         if (state.ch == 44) {
+          final pos$ = state.position;
+          final ch$ = state.ch;
           state.nextChar();
           parseS(state);
           final value$1 = parseValue(state);
@@ -82,7 +82,7 @@ class JsonParser {
             elements.add(value);
             continue;
           }
-          state.ch = c$;
+          state.ch = ch$;
           state.position = pos$;
           break;
         }
@@ -103,10 +103,10 @@ class JsonParser {
   ///   $ = { elements ?? [] }
   /// ```
   Result<List<Object?>>? parseArray(State state) {
-    final pos$ = state.position;
-    final c$ = state.ch;
     // "["
     if (state.ch == 91) {
+      final pos$ = state.position;
+      final ch$ = state.ch;
       state.nextChar();
       parseS(state);
       final elements$ = parseElements(state);
@@ -118,7 +118,7 @@ class JsonParser {
         return Ok(elements ?? []);
       }
       state.errorExpected(']');
-      state.ch = c$;
+      state.ch = ch$;
       state.position = pos$;
       return null;
     }
@@ -136,7 +136,7 @@ class JsonParser {
   /// ```
   Result<MapEntry<String, Object?>>? parseKeyValue(State state) {
     final pos$ = state.position;
-    final c$ = state.ch;
+    final ch$ = state.ch;
     final string$ = parseString(state);
     if (string$ != null) {
       final key = string$.$1;
@@ -157,7 +157,7 @@ class JsonParser {
         break l$;
       }
       // l$:
-      state.ch = c$;
+      state.ch = ch$;
       state.position = pos$;
       return null;
     }
@@ -188,10 +188,10 @@ class JsonParser {
       map[keyValue.key] = keyValue.value;
       // (0)
       while (true) {
-        final pos$ = state.position;
-        final c$ = state.ch;
         // ','
         if (state.ch == 44) {
+          final pos$ = state.position;
+          final ch$ = state.ch;
           state.nextChar();
           parseS(state);
           final keyValue$1 = parseKeyValue(state);
@@ -200,7 +200,7 @@ class JsonParser {
             map[keyValue.key] = keyValue.value;
             continue;
           }
-          state.ch = c$;
+          state.ch = ch$;
           state.position = pos$;
           break;
         }
@@ -221,10 +221,10 @@ class JsonParser {
   ///   $ = { map ?? {} }
   /// ```
   Result<Map<String, Object?>>? parseObject(State state) {
-    final pos$ = state.position;
-    final c$ = state.ch;
     // "{"
     if (state.ch == 123) {
+      final pos$ = state.position;
+      final ch$ = state.ch;
       state.nextChar();
       parseS(state);
       final map$ = parseMap(state);
@@ -236,7 +236,7 @@ class JsonParser {
         return Ok(map ?? {});
       }
       state.errorExpected('}');
-      state.ch = c$;
+      state.ch = ch$;
       state.position = pos$;
       return null;
     }
@@ -347,21 +347,22 @@ class JsonParser {
   ///   $ = { String.fromCharCode(int.parse(text, radix: 16)) }
   /// ```
   Result<String>? parseEscapeUnicode(State state) {
-    final pos$ = state.position;
-    final c$ = state.ch;
     final start = state.position;
     // "u"
     if (state.ch == 117) {
+      final pos$ = state.position;
+      final ch$ = state.ch;
       state.nextChar();
       var end = 0;
+      final start$ = state.position;
       final pos$1 = state.position;
-      final c$1 = state.ch;
+      final ch$1 = state.ch;
       var count$ = 0;
       // (4, 4)
       while (count$ < 4) {
         // [a-fA-F0-9]
-        final c$2 = state.ch;
-        final isSuccess$ = c$2 <= 70 ? c$2 >= 65 || c$2 >= 48 && c$2 <= 57 : c$2 >= 97 && c$2 <= 102;
+        final ch$2 = state.ch;
+        final isSuccess$ = ch$2 <= 70 ? ch$2 >= 65 || ch$2 >= 48 && ch$2 <= 57 : ch$2 >= 97 && ch$2 <= 102;
         if (isSuccess$) {
           state.nextChar();
           count$++;
@@ -372,13 +373,13 @@ class JsonParser {
         break;
       }
       if (count$ >= 4) {
-        final text = state.substring(pos$1, state.position);
+        final text = state.substring(start$, state.position);
         return Ok(String.fromCharCode(int.parse(text, radix: 16)));
       } else {
-        state.ch = c$1;
+        state.ch = ch$1;
         state.position = pos$1;
         state.error('Incorrect Unicode escape sequence', position: end, start: start, end: end);
-        state.ch = c$;
+        state.ch = ch$;
         state.position = pos$;
         return null;
       }
@@ -435,22 +436,22 @@ class JsonParser {
   ///   $ = { parts.length == 1 ? parts[0] : parts.isNotEmpty ? parts.join() : '' }
   /// ```
   Result<String>? parseString(State state) {
-    final pos$ = state.position;
-    final c$ = state.ch;
     final start = state.position;
     // ["]
     if (state.ch == 34) {
+      final pos$ = state.position;
+      final ch$ = state.ch;
       state.nextChar();
       final parts$ = <String>[];
       // (0)
       while (true) {
-        final pos$1 = state.position;
+        final start$ = state.position;
         var isSuccess$ = false;
         // (1)
         while (true) {
           // [^{0-1f}"\\]
-          final c$1 = state.ch;
-          final isSuccess$1 = !(c$1 <= 34 ? c$1 >= 34 || c$1 >= 0 && c$1 <= 31 : c$1 == 92) && !(c$1 < 0);
+          final ch$1 = state.ch;
+          final isSuccess$1 = !(ch$1 <= 34 ? ch$1 >= 34 || ch$1 >= 0 && ch$1 <= 31 : ch$1 == 92) && !(ch$1 < 0);
           if (isSuccess$1) {
             state.nextChar();
             isSuccess$ = true;
@@ -459,21 +460,21 @@ class JsonParser {
           break;
         }
         if (isSuccess$) {
-          parts$.add(state.substring(pos$1, state.position));
+          parts$.add(state.substring(start$, state.position));
           continue;
         } else {
-          final pos$2 = state.position;
-          final c$2 = state.ch;
           // [\\]
           if (state.ch == 92) {
+            final pos$1 = state.position;
+            final ch$2 = state.ch;
             state.nextChar();
             final escaped$ = parseEscaped(state);
             if (escaped$ != null) {
               parts$.add(escaped$.$1);
               continue;
             }
-            state.ch = c$2;
-            state.position = pos$2;
+            state.ch = ch$2;
+            state.position = pos$1;
             break;
           }
           break;
@@ -488,7 +489,7 @@ class JsonParser {
       }
       state.error('Unterminated string', start: start);
       state.errorExpected('"');
-      state.ch = c$;
+      state.ch = ch$;
       state.position = pos$;
       return null;
     }
@@ -532,7 +533,7 @@ class JsonParser {
   /// ```
   Result<num>? parseNumber(State state) {
     final pos$ = state.position;
-    final c$ = state.ch;
+    final ch$ = state.ch;
     final start = state.position;
     var flag = true;
     l$:
@@ -553,15 +554,15 @@ class JsonParser {
         break l$1;
       }
       // [1-9]
-      final c$1 = state.ch;
-      final isSuccess$ = c$1 >= 49 && c$1 <= 57;
+      final ch$1 = state.ch;
+      final isSuccess$ = ch$1 >= 49 && ch$1 <= 57;
       if (isSuccess$) {
         state.nextChar();
         // (0)
         while (true) {
           // [0-9]
-          final c$2 = state.ch;
-          final isSuccess$1 = c$2 >= 48 && c$2 <= 57;
+          final ch$2 = state.ch;
+          final isSuccess$1 = ch$2 >= 48 && ch$2 <= 57;
           if (isSuccess$1) {
             state.nextChar();
             continue;
@@ -571,24 +572,24 @@ class JsonParser {
         break l$1;
       }
       state.errorExpected('digit');
-      state.ch = c$;
+      state.ch = ch$;
       state.position = pos$;
       return null;
     }
     // l$1:
     l$2:
     {
-      final pos$1 = state.position;
-      final c$3 = state.ch;
       // [.]
       if (state.ch == 46) {
+        final pos$1 = state.position;
+        final ch$3 = state.ch;
         state.nextChar();
         var isSuccess$2 = false;
         // (1)
         while (true) {
           // [0-9]
-          final c$4 = state.ch;
-          final isSuccess$3 = c$4 >= 48 && c$4 <= 57;
+          final ch$4 = state.ch;
+          final isSuccess$3 = ch$4 >= 48 && ch$4 <= 57;
           if (isSuccess$3) {
             state.nextChar();
             isSuccess$2 = true;
@@ -603,7 +604,7 @@ class JsonParser {
           state.errorExpected('digit');
           state.error('Fractional part is missing a number');
           state.error('Malformed number', start: start, end: state.position);
-          state.ch = c$3;
+          state.ch = ch$3;
           state.position = pos$1;
           break l$2;
         }
@@ -613,17 +614,18 @@ class JsonParser {
     // l$2:
     l$3:
     {
-      final pos$2 = state.position;
-      final c$5 = state.ch;
       // [eE]
-      final isSuccess$4 = c$5 == 69 || c$5 == 101;
+      final ch$6 = state.ch;
+      final isSuccess$4 = ch$6 == 69 || ch$6 == 101;
       if (isSuccess$4) {
+        final pos$2 = state.position;
+        final ch$5 = state.ch;
         state.nextChar();
         l$4:
         {
           // [\-+]
-          final c$6 = state.ch;
-          final isSuccess$5 = c$6 == 43 || c$6 == 45;
+          final ch$7 = state.ch;
+          final isSuccess$5 = ch$7 == 43 || ch$7 == 45;
           if (isSuccess$5) {
             state.nextChar();
             break l$4;
@@ -635,8 +637,8 @@ class JsonParser {
         // (1)
         while (true) {
           // [0-9]
-          final c$7 = state.ch;
-          final isSuccess$7 = c$7 >= 48 && c$7 <= 57;
+          final ch$8 = state.ch;
+          final isSuccess$7 = ch$8 >= 48 && ch$8 <= 57;
           if (isSuccess$7) {
             state.nextChar();
             isSuccess$6 = true;
@@ -651,7 +653,7 @@ class JsonParser {
           state.errorExpected('digit');
           state.error('Exponent part is missing a number');
           state.error('Malformed number', start: start, end: state.position);
-          state.ch = c$5;
+          state.ch = ch$5;
           state.position = pos$2;
           break l$3;
         }
@@ -765,8 +767,8 @@ class JsonParser {
     // (0)
     while (true) {
       // [\n\r\t ]
-      final c$ = state.ch;
-      final isSuccess$ = c$ <= 13 ? c$ >= 13 || c$ >= 9 && c$ <= 10 : c$ == 32;
+      final ch$ = state.ch;
+      final isSuccess$ = ch$ <= 13 ? ch$ >= 13 || ch$ >= 9 && ch$ <= 10 : ch$ == 32;
       if (isSuccess$) {
         state.nextChar();
         continue;

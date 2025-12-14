@@ -2,6 +2,7 @@
 
 - Change in local variable name generation.
 - Changes in parser grammar files.
+- The expression code generator has been refactored.
 
 ## 2.1.1
 

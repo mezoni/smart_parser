@@ -11,6 +11,8 @@ import 'expressions.dart';
 import 'helper.dart';
 import 'range_generator.dart';
 
+typedef _ParsingState = ({Code save, Code restore});
+
 class BuildResult {
   final Code code;
 
@@ -41,24 +43,6 @@ class BuildResult {
   }
 }
 
-class Cache {
-  Map<String, String> data = {};
-
-  void clear() {
-    data = {};
-  }
-
-  void clone() {
-    final data = this.data;
-    this.data = {};
-    this.data.addAll(data);
-  }
-
-  void restore(Map<String, String> data) {
-    this.data = data;
-  }
-}
-
 class ExpressionGenerator implements Visitor<BuildResult> {
   static const _invalid = '__INVALID__';
 
@@ -68,19 +52,18 @@ class ExpressionGenerator implements Visitor<BuildResult> {
 
   final Allocator allocator;
 
-  Cache cache;
-
   final ParserGeneratorOptions options;
 
   final String productionName;
 
   final Map<Expression, String> suggestedNames = {};
 
-  final Set<Expression> _insidePredicate = <Expression>{};
+  final Set<Expression> _insidePredicate = {};
+
+  final Map<Expression, Code> _parsingStates = {};
 
   ExpressionGenerator({
     required this.allocator,
-    required this.cache,
     required this.options,
     required this.productionName,
   });
@@ -93,6 +76,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
   BuildResult visitAction(ActionExpression node) {
     final source = node.source;
     final code = Code();
+    _writeSaveParsingState(code, node);
     _writeBlock(code, source);
     final success = Success.none();
     code.add(success.succeeds);
@@ -111,14 +95,12 @@ class ExpressionGenerator implements Visitor<BuildResult> {
       );
     }
 
-    final data = cache.data;
     final code = Code();
+    _writeSaveParsingState(code, node);
     if (_isSimpleExpression(child)) {
       _insidePredicate.add(child);
-      cache.clone();
       final res = _generate(child);
       _checkIsSingleOutput(res);
-      cache.restore(data);
       final success = res.singleSuccess;
       final failure = res.singleFailure;
       success.setResultToNone();
@@ -128,17 +110,16 @@ class ExpressionGenerator implements Visitor<BuildResult> {
 
     final usePosition = child.canChangePosition;
     code.stmt('state.predicate++');
-    final state = _saveState(usePosition, code);
-    cache.clone();
+    final state = _createParsingState(usePosition);
+    _saveParsingState(code, state);
     final res = _generate(child);
-    cache.restore(data);
     code.add(res.code);
     final successes = res.successes;
     final failures = res.failures;
     for (final success in successes) {
       success.setResultToNone();
       success.succeeds((code) {
-        _restoreState(usePosition, code, state);
+        _restoreParsingState(code, state);
         code.stmt('state.predicate--');
       });
     }
@@ -157,8 +138,8 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     final fails = Code();
     final success = Success.none();
     const isTrue = 'state.ch >= 0';
-    cache.clear();
     code.if$(isTrue, (code) {
+      _writeSaveParsingState(code, node);
       var variable = _invalid;
       if (!isVoid) {
         variable = _getSuggestedName(node, 'any');
@@ -172,6 +153,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
 
       code.add(success.succeeds);
     });
+
     _addErrorHandler(node, [code]);
     code.add(fails);
     return BuildResult(code: code, successes: [success], failures: [fails]);
@@ -182,7 +164,13 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     final child = node.expression;
     final isVoid = node.isVoid;
     final code = Code();
-    final pos = isVoid ? _invalid : _getPosition(code);
+    _writeSaveParsingState(code, node);
+    var start = _invalid;
+    if (!isVoid) {
+      start = _allocate('start');
+      code.declare('final', start, 'state.position');
+    }
+
     _copySuggestedName(node, child);
     final res = _generate(child);
     code.add(res.code);
@@ -191,7 +179,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
         if (isVoid) {
           success.setResultToNone();
         } else {
-          success.setValue('state.substring($pos, state.position)', false);
+          success.setValue('state.substring($start, state.position)', false);
         }
       });
     }
@@ -216,8 +204,8 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     final charCode = _getCharCode(ranges, negate);
     if (charCode != null) {
       final isTrue = 'state.ch == $charCode';
-      cache.clear();
       code.if$(isTrue, (code) {
+        _writeSaveParsingState(code, node);
         if (!isVoid) {
           success.setValue('$charCode', true);
         }
@@ -231,18 +219,19 @@ class ExpressionGenerator implements Visitor<BuildResult> {
       _addErrorHandler(node, [code]);
       code.add(fails);
     } else {
-      final ch = _getCh(code);
+      final ch = _allocate('ch');
       final isSuccess = _allocate('isSuccess');
       final isTrue = isSuccess;
-      cache.clear();
       RangeGenerator(name: ch, ranges: ranges, negate: negate);
       final predicate = RangeGenerator(
         name: ch,
         ranges: ranges,
         negate: negate,
       ).generate();
+      code.declare('final', ch, 'state.ch');
       code.declare('final', isSuccess, predicate);
       code.if$(isTrue, (code) {
+        _writeSaveParsingState(code, node);
         if (!isVoid) {
           success.setValue(ch, false);
         }
@@ -264,6 +253,8 @@ class ExpressionGenerator implements Visitor<BuildResult> {
   @override
   BuildResult visitGroup(GroupExpression node) {
     final child = node.expression;
+    _redirectWritingParsingState(node, child);
+    _copySuggestedName(node, child);
     final res = _generate(child);
     _addErrorHandler(node, res.failures);
     return res;
@@ -279,6 +270,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     final fails = Code();
     final success = Success.none();
     if (text.isEmpty) {
+      _writeSaveParsingState(code, node);
       _addNodeSourceToComment(node, code, false);
       code.add(success.succeeds);
       if (!isVoid) {
@@ -290,12 +282,12 @@ class ExpressionGenerator implements Visitor<BuildResult> {
       final runes = text.runes;
       final firstRune = runes.first;
       final strlen = _strlen(escaped, text);
-      cache.clear();
       final isTrue = runes.length == 1
           ? 'state.ch == $firstRune'
           : 'state.ch == $firstRune && state.startsWith($escaped)';
       _addNodeSourceToComment(node, code, false);
       code.if$(isTrue, (code) {
+        _writeSaveParsingState(code, node);
         if (!_insidePredicate.contains(node)) {
           if (runes.length == 1) {
             code.stmt('state.nextChar()');
@@ -310,6 +302,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
 
         code.add(success.succeeds);
       });
+
       if (!isPrimitive) {
         code.stmt('state.errorExpected($escaped)');
       }
@@ -331,6 +324,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     final success = Success.none();
     final escaped = escapeString(text, quote);
     if (text.isEmpty) {
+      _writeSaveParsingState(code, node);
       _addNodeSourceToComment(node, code, false);
       code.add(success.succeeds);
       if (!isVoid) {
@@ -341,6 +335,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
       return BuildResult(code: code, successes: [success], failures: const []);
     }
 
+    _writeSaveParsingState(code, node);
     (int, int) toRange(int c1, int c2) {
       if (c1 <= c2) {
         return (c1, c2);
@@ -349,7 +344,6 @@ class ExpressionGenerator implements Visitor<BuildResult> {
       return (c2, c1);
     }
 
-    cache.clear();
     final lowerCase = toLowerCase(text);
     final upperCase = toUpperCase(text);
     final lowerCaseRunes = lowerCase.runes.toList();
@@ -412,9 +406,9 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     }
 
     final code = Code();
+    _writeSaveParsingState(code, node);
     if (_isSimpleExpression(child)) {
       _insidePredicate.add(child);
-      cache.clone();
       final res = _generate(child);
       _checkIsSingleOutput(res);
       code.add(res.code);
@@ -434,18 +428,16 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     }
 
     final usePosition = child.canChangePosition;
-    final data = cache.data;
     code.stmt('state.predicate++');
-    final state = _saveState(usePosition, code);
-    cache.clone();
+    final state = _createParsingState(usePosition);
+    _saveParsingState(code, state);
     final res = _generate(child);
-    cache.restore(data);
     code.add(res.code);
     final successes = <Success>[];
     final failures = <Code>[];
     for (final success in res.successes) {
       success.succeeds((code) {
-        _restoreState(usePosition, code, state);
+        _restoreParsingState(code, state);
         code.stmt('state.predicate--');
         _addErrorHandler(node, [code]);
         failures.add(code.add(Code()));
@@ -477,16 +469,13 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     final child = node.expression;
     final isVoid = node.isVoid;
     final code = Code();
+    _writeSaveParsingState(code, node);
     _copySuggestedName(node, child);
     _addErrorHandler(node, const []);
     if (child is ProductionExpression) {
       final success = Success.none();
       final name = child.name;
       final parse = 'parse$name(state)';
-      if (child.canChangePosition) {
-        cache.clear();
-      }
-
       if (isVoid) {
         code.stmt(parse);
       } else {
@@ -533,6 +522,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     final isVoid = node.isVoid;
     if (children.length == 1) {
       final child = children.first;
+      _redirectWritingParsingState(node, child);
       _copySuggestedName(node, child);
       final res = _generate(child);
       if (isVoid) {
@@ -572,6 +562,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     // final data = cache.data;
     // TODO: Needs to be optimized.
     final code = Code();
+    _writeSaveParsingState(code, node);
     var body = code.add(Code());
     final successes = <Success>[];
     final failures = <Code>[];
@@ -608,8 +599,8 @@ class ExpressionGenerator implements Visitor<BuildResult> {
   @override
   BuildResult visitPosition(PositionExpression node) {
     final action = node.action.trim();
-    cache.clear();
     final code = Code();
+    _writeSaveParsingState(code, node);
     final success = Success.none();
     code.stmt('state.readChar($action)');
     code.add(success.succeeds);
@@ -624,6 +615,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     final code = Code();
     final success = Success.none();
     final isSuccess = _allocate('isSuccess');
+    _writeSaveParsingState(code, node);
     code.declare('final', isSuccess, predicate);
     final isTrue = negate ? '!$isSuccess' : isSuccess;
     code.if$(isTrue, (code) {
@@ -640,15 +632,11 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     final name = node.name;
     final isVoid = node.isVoid;
     final isAlwaysSuccessful = node.isAlwaysSuccessful;
-    final canChangePosition = node.canChangePosition;
     final parse = 'parse$name(state)';
-    if (canChangePosition) {
-      cache.clear();
-    }
-
     final code = Code();
     final failures = <Code>[];
     final success = Success.none();
+    _writeSaveParsingState(code, node);
     if (isVoid) {
       if (isAlwaysSuccessful) {
         code.stmt(parse);
@@ -688,6 +676,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     final isVoid = node.isVoid;
     if (children.length == 1) {
       final child = children.first;
+      _redirectWritingParsingState(node, child);
       _copySuggestedName(node, child);
       final res = _generate(child);
       _declareSemanticValue(child, res);
@@ -726,13 +715,27 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     final successes = <Success>[];
     final buildResults = <BuildResult>[];
     final res2Child = <BuildResult, Expression>{};
-    final state = _saveState(usePosition, code);
+    final state = _createParsingState(usePosition);
     final isConsts = <bool>[];
     final results = <String>[];
     final values = <String>[];
     var restorations = 0;
+    var triedSaveParsingState = false;
+    var parsingStateSaved = false;
     for (var i = 0; i < children.length; i++) {
       final child = children[i];
+      if (child.canChangePosition) {
+        if (state != null) {
+          if (!triedSaveParsingState) {
+            triedSaveParsingState = true;
+            if (_isSimpleExpression(child)) {
+              parsingStateSaved = true;
+              _parsingStates[child] = state.save;
+            }
+          }
+        }
+      }
+
       final BuildResult res;
       if (i != children.length - 1) {
         var isValue = false;
@@ -768,6 +771,11 @@ class ExpressionGenerator implements Visitor<BuildResult> {
       }
     }
 
+    if (!parsingStateSaved) {
+      parsingStateSaved = true;
+      _saveParsingState(code, state);
+    }
+
     final needReduceRestorations = restorations > 1;
     Code? labeledCode;
     var label = _invalid;
@@ -792,7 +800,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
           body = code;
         });
         labeledCode.writeln('// $label:');
-        _restoreState(usePosition, labeledCode, state);
+        _restoreParsingState(labeledCode, state);
         final fails = labeledCode.add(Code());
         failures.add(fails);
       }
@@ -806,7 +814,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
         failure((code) {
           if (childrenThatRestorePosition.contains(child)) {
             if (!needReduceRestorations) {
-              _restoreState(usePosition, code, state);
+              _restoreParsingState(code, state);
             } else {
               code.stmt('break $label');
             }
@@ -855,7 +863,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     final code = Code();
     final success = Success.none();
     final fails = Code();
-    cache.clear();
+    _writeSaveParsingState(code, node);
     final isTrue = '$tokenKind == $tokenKindValue';
     code.if$(isTrue, (code) {
       var variable = _invalid;
@@ -897,6 +905,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
       success.setValue(source, isConst);
     }
 
+    _writeSaveParsingState(code, node);
     code.add(success.succeeds);
     return BuildResult(code: code, successes: [success], failures: []);
   }
@@ -1032,7 +1041,6 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     final label = _allocate('l');
     code.writeln('$label:');
     final res = _generate(node);
-    cache.clear();
     code.group((code) {
       code.add(res.code);
     });
@@ -1076,7 +1084,6 @@ class ExpressionGenerator implements Visitor<BuildResult> {
 
     code.writeln('$label:');
     final res = _generate(node);
-    cache.clear();
     code.group((code) {
       code.add(res.code);
     });
@@ -1110,6 +1117,31 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     }
 
     suggestedNames[child] = suggestedName;
+  }
+
+  _ParsingState? _createParsingState(bool condition) {
+    if (!condition) {
+      return null;
+    }
+
+    final save = Code();
+    final restore = Code();
+    if (options.inputType == InputType.tokens) {
+      final tokenIndex = options.getTokenIndex;
+      final index = _allocate('index');
+      save.declare('final', index, tokenIndex);
+      final restoreToken = options.getRestoreToken.replaceAll('{{0}}', index);
+      restore.stmt(restoreToken);
+    } else {
+      final pos = _allocate('pos');
+      final ch = _allocate('ch');
+      save.declare('final', pos, 'state.position');
+      save.declare('final', ch, 'state.ch');
+      restore.assign('state.ch', ch);
+      restore.assign('state.position', pos);
+    }
+
+    return (save: save, restore: restore);
   }
 
   void _declareSemanticValue(Expression node, BuildResult res) {
@@ -1208,25 +1240,6 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     return res;
   }
 
-  String _getCachedValue(String name, String Function() f) {
-    final data = cache.data;
-    if (data.containsKey(name)) {
-      return data[name]!;
-    }
-
-    final value = f();
-    data[name] = value;
-    return value;
-  }
-
-  String _getCh(Code code) {
-    return _getCachedValue('ch', () {
-      final value = _allocate('c');
-      code.declare('final', value, 'state.ch');
-      return value;
-    });
-  }
-
   int? _getCharCode(List<(int, int)> ranges, bool negate) {
     final length = ranges.length;
     if (length == 1 && !negate) {
@@ -1238,14 +1251,6 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     }
 
     return null;
-  }
-
-  String _getPosition(Code code) {
-    return _getCachedValue('position', () {
-      final value = _allocate('pos');
-      code.declare('final', value, 'state.position');
-      return value;
-    });
   }
 
   String _getSuggestedName(Expression node, String name) {
@@ -1260,15 +1265,6 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     }
 
     return _allocate(name);
-  }
-
-  String _getTokenIndex(Code code) {
-    return _getCachedValue('index', () {
-      final value = _allocate('index');
-      final index = options.getTokenIndex;
-      code.declare('final', value, index);
-      return value;
-    });
   }
 
   Never _internalError() {
@@ -1312,6 +1308,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     final handler = code.ifElse(isTrue);
     handler.ifBlock((code) {
       final nextToken = options.getNextToken;
+      _writeSaveParsingState(code, node);
       if (!isVoid) {
         final variable = _getSuggestedName(node, 'tok');
         success.setValue(variable, false);
@@ -1331,34 +1328,30 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     return BuildResult(code: code, successes: [success], failures: [fails]);
   }
 
-  void _restoreState(bool condition, Code code, List<String> state) {
-    if (!condition) {
+  void _redirectWritingParsingState(Expression node, Expression child) {
+    final parsingStates = _parsingStates[node];
+    if (parsingStates == null) {
       return;
     }
 
-    for (final element in state) {
-      code.writeln(element);
-    }
+    _parsingStates.remove(node);
+    _parsingStates[child] = parsingStates;
   }
 
-  List<String> _saveState(bool condition, Code code) {
-    final result = <String>[];
-    if (!condition) {
-      return result;
+  void _restoreParsingState(Code code, _ParsingState? state) {
+    if (state == null) {
+      return;
     }
 
-    if (options.inputType == InputType.tokens) {
-      final index = _getTokenIndex(code);
-      final restoreToken = options.getRestoreToken.replaceAll('{{0}}', index);
-      result.add('$restoreToken;');
-    } else {
-      final pos = _getPosition(code);
-      final ch = _getCh(code);
-      result.add('state.ch = $ch;');
-      result.add('state.position = $pos;');
+    code.add(state.restore);
+  }
+
+  void _saveParsingState(Code code, _ParsingState? state) {
+    if (state == null) {
+      return;
     }
 
-    return result;
+    code.add(state.save);
   }
 
   String _strlen(String expression, String text) {
@@ -1419,7 +1412,8 @@ class ExpressionGenerator implements Visitor<BuildResult> {
 
     final code = Code();
     var variable = _invalid;
-    final state = _saveState(usePosition, code);
+    final state = _createParsingState(usePosition);
+    _saveParsingState(code, state);
     variable = _invalid;
     var elementName = suggestedNames[child];
     if (elementName == null) {
@@ -1447,9 +1441,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
         break;
     }
 
-    cache.clear();
     final res = _generate(child);
-    cache.clear();
     for (final success in res.successes) {
       success.succeeds((code) {
         switch (kind) {
@@ -1558,7 +1550,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
 
     final canFails = isTrue != 'true';
     handler.elseBlock((code) {
-      _restoreState(usePosition, code, state);
+      _restoreParsingState(code, state);
       if (canFails) {
         code.add(fails);
         failures.add(fails);
@@ -1575,6 +1567,16 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     for (final line in lines) {
       code.writeln(line.trimRight());
     }
+  }
+
+  void _writeSaveParsingState(Code code, Expression node) {
+    final parsingState = _parsingStates[node];
+    if (parsingState == null) {
+      return;
+    }
+
+    _parsingStates.remove(node);
+    code.add(parsingState);
   }
 
   Never _wrongExpression(
