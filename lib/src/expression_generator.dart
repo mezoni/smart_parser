@@ -58,6 +58,8 @@ class ExpressionGenerator implements Visitor<BuildResult> {
 
   final Map<Expression, String> suggestedNames = {};
 
+  final Set<Expression> _declaredSemanticValues = {};
+
   final Set<Expression> _insidePredicate = {};
 
   final Map<Expression, Code> _parsingStates = {};
@@ -856,6 +858,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
   BuildResult visitToken(TokenExpression node) {
     final name = node.name;
     final isVoid = node.isVoid;
+    final semanticValue = node.semanticValue;
     final nextToken = options.getNextToken;
     final token = options.getToken;
     final tokenKind = options.getTokenKind.replaceAll('{{0}}', token);
@@ -869,9 +872,15 @@ class ExpressionGenerator implements Visitor<BuildResult> {
       var variable = _invalid;
       if (!_insidePredicate.contains(node)) {
         if (!isVoid) {
-          variable = _getSuggestedName(node, 'token');
-          code.declare('final', variable, nextToken);
-          success.setValue(variable, false);
+          if (semanticValue != null) {
+            _declaredSemanticValues.add(node);
+            code.declare('final', semanticValue, nextToken);
+            success.setValue(semanticValue, false);
+          } else {
+            variable = _getSuggestedName(node, 'token');
+            code.declare('final', variable, nextToken);
+            success.setValue(variable, false);
+          }
         } else {
           code.stmt(nextToken);
         }
@@ -1147,6 +1156,10 @@ class ExpressionGenerator implements Visitor<BuildResult> {
   void _declareSemanticValue(Expression node, BuildResult res) {
     final semanticValue = node.semanticValue;
     if (semanticValue == null) {
+      return;
+    }
+
+    if (_declaredSemanticValues.contains(node)) {
       return;
     }
 

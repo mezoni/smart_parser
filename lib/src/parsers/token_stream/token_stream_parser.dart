@@ -93,12 +93,12 @@ class TokenStreamParser {
       final index = state.indexOf('\u007D%');
       final start$ = state.position;
       state.readChar(index == -1 ? state.length : index);
-      final $$ = Ok(state.substring(start$, state.position));
+      final globals$ = Ok(state.substring(start$, state.position));
       // "}%"
       if (state.ch == 125 && state.startsWith('}%')) {
         state.readChar(state.position + 2);
         parseS(state);
-        return $$;
+        return globals$;
       }
       state.error('Unterminated globals section', position: start);
       state.ch = ch$;
@@ -129,12 +129,12 @@ class TokenStreamParser {
       final index = state.indexOf('%%');
       final start$ = state.position;
       state.readChar(index == -1 ? state.length : index);
-      final $$ = Ok(state.substring(start$, state.position));
+      final members$ = Ok(state.substring(start$, state.position));
       // "%%"
       if (state.ch == 37 && state.startsWith('%%')) {
         state.readChar(state.position + 2);
         parseS(state);
-        return $$;
+        return members$;
       }
       state.error('Unterminated members section', position: start);
       state.ch = ch$;
@@ -426,9 +426,9 @@ class TokenStreamParser {
     // '\$'
     if (state.ch == 36) {
       state.nextChar();
-      const $$ = Ok('\$');
+      const semanticValue$ = Ok('\$');
       parseS(state);
-      return $$;
+      return semanticValue$;
     }
     state.errorExpected('\$');
     return null;
@@ -708,23 +708,23 @@ class TokenStreamParser {
   /// ```txt
   /// `Expression`
   /// Token =>
-  ///   name = <[$a-z] [$a-zA-Z0-9_]*>
+  ///   name = <[a-z] [a-zA-Z0-9_]*>
   ///   ~{ state.errorExpected('token name'); }
   ///   S
   ///   $ = { TokenExpression(name: name) }
   /// ```
   Result<Expression>? parseToken(State state) {
     final start$ = state.position;
-    // [$a-z]
+    // [a-z]
     final ch$ = state.ch;
-    final isSuccess$ = ch$ == 36 || ch$ >= 97 && ch$ <= 122;
+    final isSuccess$ = ch$ >= 97 && ch$ <= 122;
     if (isSuccess$) {
       state.nextChar();
       // (0)
       while (true) {
-        // [$a-zA-Z0-9_]
+        // [a-zA-Z0-9_]
         final ch$1 = state.ch;
-        final isSuccess$1 = ch$1 <= 90 ? ch$1 >= 65 || ch$1 == 36 || ch$1 >= 48 && ch$1 <= 57 : ch$1 == 95 || ch$1 >= 97 && ch$1 <= 122;
+        final isSuccess$1 = ch$1 <= 90 ? ch$1 >= 65 || ch$1 >= 48 && ch$1 <= 57 : ch$1 == 95 || ch$1 >= 97 && ch$1 <= 122;
         if (isSuccess$1) {
           state.nextChar();
           continue;
@@ -924,12 +924,12 @@ class TokenStreamParser {
           break;
         }
         if (isSuccess$) {
-          final $$ = Ok(state.substring(start$, state.position));
+          final type$ = Ok(state.substring(start$, state.position));
           // '`'
           if (state.ch == 96) {
             state.nextChar();
             parseS(state);
-            return $$;
+            return type$;
           }
           state.errorExpected('`');
           break l$;
@@ -1348,12 +1348,12 @@ class TokenStreamParser {
         }
         break;
       }
-      final $$ = Ok(state.substring(start$, state.position));
+      final block$ = Ok(state.substring(start$, state.position));
       // '}'
       if (state.ch == 125) {
         state.nextChar();
         parseS(state);
-        return $$;
+        return block$;
       }
       state.errorExpected('}');
       state.ch = ch$;
@@ -1439,9 +1439,9 @@ class TokenStreamParser {
         }
         break;
       }
-      final $$ = Ok(state.substring(start$, state.position));
+      final variableName$ = Ok(state.substring(start$, state.position));
       parseS(state);
-      return $$;
+      return variableName$;
     }
     return null;
   }
@@ -1471,9 +1471,9 @@ class TokenStreamParser {
         }
         break;
       }
-      final $$ = Ok(state.substring(start$, state.position));
+      final productionName$ = Ok(state.substring(start$, state.position));
       parseS(state);
-      return $$;
+      return productionName$;
     }
     return null;
   }

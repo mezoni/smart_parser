@@ -93,12 +93,12 @@ class TextParser {
       final index = state.indexOf('\u007D%');
       final start$ = state.position;
       state.readChar(index == -1 ? state.length : index);
-      final $$ = Ok(state.substring(start$, state.position));
+      final globals$ = Ok(state.substring(start$, state.position));
       // "}%"
       if (state.ch == 125 && state.startsWith('}%')) {
         state.readChar(state.position + 2);
         parseS(state);
-        return $$;
+        return globals$;
       }
       state.error('Unterminated globals section', position: start);
       state.ch = ch$;
@@ -129,12 +129,12 @@ class TextParser {
       final index = state.indexOf('%%');
       final start$ = state.position;
       state.readChar(index == -1 ? state.length : index);
-      final $$ = Ok(state.substring(start$, state.position));
+      final members$ = Ok(state.substring(start$, state.position));
       // "%%"
       if (state.ch == 37 && state.startsWith('%%')) {
         state.readChar(state.position + 2);
         parseS(state);
-        return $$;
+        return members$;
       }
       state.error('Unterminated members section', position: start);
       state.ch = ch$;
@@ -426,9 +426,9 @@ class TextParser {
     // '\$'
     if (state.ch == 36) {
       state.nextChar();
-      const $$ = Ok('\$');
+      const semanticValue$ = Ok('\$');
       parseS(state);
-      return $$;
+      return semanticValue$;
     }
     state.errorExpected('\$');
     return null;
@@ -1195,12 +1195,12 @@ class TextParser {
           break;
         }
         if (isSuccess$) {
-          final $$ = Ok(state.substring(start$, state.position));
+          final type$ = Ok(state.substring(start$, state.position));
           // '`'
           if (state.ch == 96) {
             state.nextChar();
             parseS(state);
-            return $$;
+            return type$;
           }
           state.errorExpected('`');
           break l$;
@@ -1958,12 +1958,12 @@ class TextParser {
         }
         break;
       }
-      final $$ = Ok(state.substring(start$, state.position));
+      final block$ = Ok(state.substring(start$, state.position));
       // '}'
       if (state.ch == 125) {
         state.nextChar();
         parseS(state);
-        return $$;
+        return block$;
       }
       state.errorExpected('}');
       state.ch = ch$;
@@ -2049,9 +2049,9 @@ class TextParser {
         }
         break;
       }
-      final $$ = Ok(state.substring(start$, state.position));
+      final variableName$ = Ok(state.substring(start$, state.position));
       parseS(state);
-      return $$;
+      return variableName$;
     }
     return null;
   }
@@ -2081,9 +2081,9 @@ class TextParser {
         }
         break;
       }
-      final $$ = Ok(state.substring(start$, state.position));
+      final productionName$ = Ok(state.substring(start$, state.position));
       parseS(state);
-      return $$;
+      return productionName$;
     }
     return null;
   }
