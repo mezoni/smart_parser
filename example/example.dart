@@ -109,8 +109,7 @@ class JsonParser {
       final ch$ = state.ch;
       state.nextChar();
       parseS(state);
-      final elements$ = parseElements(state);
-      final elements = elements$?.$1;
+      final elements = parseElements(state)?.$1;
       // ']'
       if (state.ch == 93) {
         state.nextChar();
@@ -227,8 +226,7 @@ class JsonParser {
       final ch$ = state.ch;
       state.nextChar();
       parseS(state);
-      final map$ = parseMap(state);
-      final map = map$?.$1;
+      final map = parseMap(state)?.$1;
       // '}'
       if (state.ch == 125) {
         state.nextChar();

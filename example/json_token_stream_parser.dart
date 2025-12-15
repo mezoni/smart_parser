@@ -134,8 +134,7 @@ class JsonParser {
     if (token.kind == TokenKind.openBracket) {
       final index$ = index;
       final openBracket = nextToken(state);
-      final elements$ = parseElements(state);
-      final elements = elements$?.$1;
+      final elements = parseElements(state)?.$1;
       if (token.kind == TokenKind.closeBracket) {
         final closeBracket = nextToken(state);
         return Ok(JsonArray(openBracket, elements?? [], closeBracket));
@@ -237,8 +236,7 @@ class JsonParser {
     if (token.kind == TokenKind.openBrace) {
       final index$ = index;
       final openBrace = nextToken(state);
-      final keyValuePairs$ = parseKeyValuePairs(state);
-      final elements = keyValuePairs$?.$1;
+      final elements = parseKeyValuePairs(state)?.$1;
       if (token.kind == TokenKind.closeBrace) {
         final closeBrace = nextToken(state);
         return Ok(JsonObject(openBrace, elements ?? [], closeBrace));

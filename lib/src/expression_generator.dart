@@ -471,6 +471,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
   BuildResult visitOptional(OptionalExpression node) {
     final child = node.expression;
     final isVoid = node.isVoid;
+    final semanticValue = node.semanticValue;
     final code = Code();
     _writeSaveParsingState(code, node);
     _copySuggestedName(node, child);
@@ -482,12 +483,33 @@ class ExpressionGenerator implements Visitor<BuildResult> {
       if (isVoid) {
         code.stmt(parse);
       } else {
-        final variable = _allocate(camelize(name));
-        code.declare('final', variable, parse);
+        var variable = _invalid;
         if (child.isAlwaysSuccessful) {
-          success.setResult(variable, false);
+          if (semanticValue == null) {
+            variable = _allocate(
+              _getSuitableName(node) ?? _getSuitableName(child) ?? 'temp',
+            );
+            success.setResult(variable, false);
+            code.declare('final', variable, parse);
+          } else {
+            _declaredSemanticValues.add(node);
+            variable = semanticValue;
+            success.setValue(variable, false);
+            code.declare('final', variable, '$parse.\$1');
+          }
         } else {
-          success.setValue('$variable?.\$1', false);
+          if (semanticValue == null) {
+            variable = _allocate(
+              _getSuitableName(node) ?? _getSuitableName(child) ?? 'temp',
+            );
+            success.setValue(variable, false);
+            code.declare('final', variable, '$parse?.\$1');
+          } else {
+            _declaredSemanticValues.add(node);
+            final variable = semanticValue;
+            success.setValue(variable, false);
+            code.declare('final', variable, '$parse?.\$1');
+          }
         }
       }
 

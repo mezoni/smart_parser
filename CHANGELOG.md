@@ -3,6 +3,7 @@
 - Optimized the code generated for the `ProductionExpression` expression.
 - Minor improvements in code generation.
 - Minor corrections in `tool/README.in.md` file.
+- Optimized the code generated for the `OptionalExpression` expression.
 
 ## 2.1.3
 

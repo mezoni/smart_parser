@@ -1442,8 +1442,8 @@ Dart code:
 ///   P?
 /// ```
 Result<int?> parseOptional(State state) {
-  final p$ = parseP(state);
-  return Ok(p$?.$1);
+  final optional$ = parseP(state)?.$1;
+  return Ok(optional$);
 }
 ```
 
@@ -1465,8 +1465,7 @@ Dart code:
 ///   $ = { p ?? 41 }
 /// ```
 Result<int?> parseOptional(State state) {
-  final p$ = parseP(state);
-  final p = p$?.$1;
+  final p = parseP(state)?.$1;
   return Ok(p ?? 41);
 }
 ```
@@ -1732,50 +1731,50 @@ Examples with a child expression with single branch.
 Grammar code:
 
 ```txt
-`List<int>` OneOrMore =>
+`List<int>` ZeroOrMore =>
   [a]*
 ```
 
 Dart code:
 
 ```dart
-/// [List<int>] **OneOrMore**
+/// [List<int>] **ZeroOrMore**
 /// ```txt
-/// `List<int>` OneOrMore =>
+/// `List<int>` ZeroOrMore =>
 ///   [a]*
 /// ```
-Result<List<int>> parseOneOrMore(State state) {
-  final oneOrMore$ = <int>[];
+Result<List<int>> parseZeroOrMore(State state) {
+  final zeroOrMore$ = <int>[];
   // (0)
   while (true) {
     // [a]
     if (state.ch == 97) {
       state.nextChar();
-      oneOrMore$.add(97);
+      zeroOrMore$.add(97);
       continue;
     }
     break;
   }
-  return Ok(oneOrMore$);
+  return Ok(zeroOrMore$);
 }
 ```
 
 Grammar code:
 
 ```txt
-`void` OneOrMore =>
+`void` ZeroOrMore =>
   [a]*
 ```
 
 Dart code:
 
 ```dart
-/// [void] **OneOrMore**
+/// [void] **ZeroOrMore**
 /// ```txt
-/// `void` OneOrMore =>
+/// `void` ZeroOrMore =>
 ///   [a]*
 /// ```
-Result<void> parseOneOrMore(State state) {
+Result<void> parseZeroOrMore(State state) {
   // (0)
   while (true) {
     // [a]
@@ -1794,56 +1793,56 @@ Examples with a child expression with multiple branches.
 Grammar code:
 
 ```txt
-`List<int>` OneOrMore =>
+`List<int>` ZeroOrMore =>
   ([a] / [b])*
 ```
 
 Dart code:
 
 ```dart
-/// [List<int>] **OneOrMore**
+/// [List<int>] **ZeroOrMore**
 /// ```txt
-/// `List<int>` OneOrMore =>
+/// `List<int>` ZeroOrMore =>
 ///   ([a] / [b])*
 /// ```
-Result<List<int>> parseOneOrMore(State state) {
-  final oneOrMore$ = <int>[];
+Result<List<int>> parseZeroOrMore(State state) {
+  final zeroOrMore$ = <int>[];
   // (0)
   while (true) {
     // [a]
     if (state.ch == 97) {
       state.nextChar();
-      oneOrMore$.add(97);
+      zeroOrMore$.add(97);
       continue;
     }
     // [b]
     if (state.ch == 98) {
       state.nextChar();
-      oneOrMore$.add(98);
+      zeroOrMore$.add(98);
       continue;
     }
     break;
   }
-  return Ok(oneOrMore$);
+  return Ok(zeroOrMore$);
 }
 ```
 
 Grammar code:
 
 ```txt
-`void` OneOrMore =>
+`void` ZeroOrMore =>
   ([a] / [b])*
 ```
 
 Dart code:
 
 ```dart
-/// [void] **OneOrMore**
+/// [void] **ZeroOrMore**
 /// ```txt
-/// `void` OneOrMore =>
+/// `void` ZeroOrMore =>
 ///   ([a] / [b])*
 /// ```
-Result<void> parseOneOrMore(State state) {
+Result<void> parseZeroOrMore(State state) {
   // (0)
   while (true) {
     // [a]
@@ -2705,22 +2704,22 @@ An example of a token stream parser grammar:
 %{
 import 'package:source_span/source_span.dart';
 
+import 'json_ast.dart';
 import 'json_token.dart';
 import 'json_tokenizer.dart';
 
-Object? parse(String source) {
+JsonValue parse(String source) {
   final tokens = tokenize(source);
   final parser = JsonParser(tokens);
   final state = State('');
   final result = parser.parseStart(state);
   if (result == null) {
     final file = SourceFile.fromString(source);
-    throw FormatException(
-      state
-          .getErrors()
-          .map((e) => file.span(e.start, e.end).message(e.message))
-          .join('\n'),
-    );
+    final message = state
+        .getErrors()
+        .map((e) => file.span(e.start, e.end).message(e.message))
+        .join('\n');
+    throw FormatException('\n$message');
   }
 
   return result.$1;
@@ -2728,106 +2727,111 @@ Object? parse(String source) {
 }%
 
 %%
-Token token;
+  Token token;
 
-int index = 0;
+  int index = 0;
 
-final List<Token> _tokens;
+  final List<Token> _tokens;
 
-JsonParser(List<Token> tokens)
-  : _tokens = tokens,
-    token = tokens.isEmpty
-        ? throw ArgumentError('Must not be empty', 'tokens')
-        : tokens.first;
+  JsonParser(List<Token> tokens)
+    : _tokens = tokens,
+      token = tokens.isEmpty
+          ? throw ArgumentError('Must not be empty', 'tokens')
+          : tokens.first;
 
-void nextToken(State state) {
-  if (index >= _tokens.length) {
-    return;
+  /// Advances the parsing position to the next token, if possible.
+  /// Sets this token as the current token.
+  /// Returns the token that was current when this method was called.
+  Token nextToken(State state) {
+    final token = this.token;
+    if (index < _tokens.length) {
+      this.token = _tokens[++index];
+      final start = this.token.start;
+      state.position = start;
+      if (state.farthestPosition < start) {
+        state.farthestPosition = start;
+      }
+    }
+
+    return token;
   }
 
-  token = _tokens[++index];
-  final start = token.start;
-  state.position = start;
-  if (state.farthestPosition < start) {
-    state.farthestPosition = start;
+  /// Restores the current token.
+  void restoreToken(State state, int index) {
+    this.index = index;
+    token = _tokens[index];
+    state.position = token.start;
   }
-}
-
-void restoreToken(State state, int index) {
-  this.index = index;
-  token = _tokens[index];
-  state.position = token.start;
-}
 %%
 
-`Object?` Start =>
+`JsonValue` Start =>
   $ = Value
   & { token.kind == TokenKind.eof }
   ~{ state.errorExpected('enf of file'); }
 
-`List<Object?>` Elements =>
-  v = Value
-  { final l = [v]; }
+`List<JsonCollectionElement<JsonValue>>` Elements =>
+  value = Value
+  { final list = [JsonCollectionElement(null, value)]; }
   @while (0) {
-    comma
+    comma = comma
     ~{ state.errorExpected(','); }
-    v = Value
-    { l.add(v); }
+    value = Value
+    { list.add(JsonCollectionElement(comma, value)); }
   }
-  $ = { l }
+  $ = { list }
 
-`List<Object?>` Array =>
-  openBracket
-  e = Elements?
-  closeBracket
+`JsonArray` Array =>
+  openBracket = openBracket
+  elements = Elements?
+  closeBracket = closeBracket
   ~{ state.errorExpected(']'); }
-  $ = { e ?? [] }
+  $ = { JsonArray(openBracket, elements?? [], closeBracket) }
 
-`MapEntry<String, Object?>` KeyValue =>
-  k = string
+`JsonKeyValuePair` KeyValuePair =>
+  string = String
   ~{ state.errorExpected('string'); }
-  colon
+  colon = colon
   ~{ state.errorExpected(':'); }
-  v = Value
-  $ = { MapEntry(k.value as String, v) }
+  value = Value
+  $ = { JsonKeyValuePair(string, colon, value) }
 
-`Map<String, Object?>` Map =>
-  v = KeyValue
-  {
-    final m = <String, Object?>{};
-    m[v.key] = v.value;
-  }
+`List<JsonCollectionElement<JsonKeyValuePair>>` KeyValuePairs =>
+  keyValuePair = KeyValuePair
+  { final list = [JsonCollectionElement(null, keyValuePair)]; }
   @while (0) {
-    comma
-    ~{ state.errorExpected(':'); }
-    v = KeyValue
-    { m[v.key] = v.value; }
+    comma = comma
+    ~{ state.errorExpected(','); }
+    keyValuePair = KeyValuePair
+    { list.add(JsonCollectionElement(comma, keyValuePair)); }
   }
-  $ = { m }
+  $ = { list }
 
-`Map<String, Object?>` Object =>
-  openBrace
-  m = Map?
-  closeBrace
+`JsonObject` Object =>
+  openBrace = openBrace
+  elements = KeyValuePairs?
+  closeBrace = closeBrace
   ~{ state.errorExpected('\u007D'); }
-  $ = { m ?? {} }
+  $ = { JsonObject(openBrace, elements ?? [], closeBrace) }
 
-`Object?` Value =>
+`JsonString` String =>
+  string = string
+  $ = { JsonString(string) }
+
+`JsonValue` Value =>
   (
-    v = string
-    $ = { v.value }
+    $ = String
     ----
-    v = number
-    $ = { v.value }
+    number = number
+    $ = { JsonNumber(number) }
     ----
-    null$
-    $ = `const` { null }
+    nullKeyword = nullKeyword
+    $ =  { JsonNull(nullKeyword) }
     ----
-    true$
-    $ = `const` { true }
+    trueKeyword = trueKeyword
+    $ = { JsonBoolean(trueKeyword) }
     ----
-    false$
-    $ = `const` { false }
+    falseKeyword = falseKeyword
+    $ = { JsonBoolean(falseKeyword) }
     ----
     & openBrace
     $ = Object

@@ -39,10 +39,8 @@ class TextParser {
     final pos$ = state.position;
     final ch$ = state.ch;
     parseS(state);
-    final globals$ = parseGlobals(state);
-    final globals = globals$?.$1;
-    final members$ = parseMembers(state);
-    final members = members$?.$1;
+    final globals = parseGlobals(state)?.$1;
+    final members = parseMembers(state)?.$1;
     l$:
     {
       final productions$ = <Production>[];
@@ -327,8 +325,7 @@ class TextParser {
       final sequenceElement$ = parseSequenceElement(state);
       if (sequenceElement$ != null) {
         final expression = sequenceElement$.$1;
-        final errorHandler$ = parseErrorHandler(state);
-        final errorHandler = errorHandler$?.$1;
+        final errorHandler = parseErrorHandler(state)?.$1;
         expression.sourceCode = state.substring(pos, state.position).trimRight();
         expressions$.add(expression..errorHandler = errorHandler);
         continue;
@@ -395,8 +392,7 @@ class TextParser {
     }
     // l$:
     final semanticValue = semanticValue$;
-    final type$ = parseType(state);
-    final type = type$?.$1;
+    final type = parseType(state)?.$1;
     final prefix$ = parsePrefix(state);
     if (prefix$ != null) {
       final expression = prefix$.$1;
