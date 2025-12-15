@@ -1185,9 +1185,9 @@ class TextParser {
             break;
           }
           // [a-zA-Z0-9_$<(\{,:\})>? ]
-          final ch$1 = state.ch;
-          final isSuccess$1 = ch$1 <= 60 ? ch$1 >= 60 || ch$1 <= 41 ? ch$1 >= 40 || ch$1 == 32 || ch$1 == 36 : ch$1 == 44 || ch$1 >= 48 && ch$1 <= 58 : ch$1 <= 95 ? ch$1 >= 95 || ch$1 <= 63 ? ch$1 >= 62 : ch$1 >= 65 && ch$1 <= 90 : ch$1 <= 123 ? ch$1 >= 97 : ch$1 == 125;
-          if (isSuccess$1) {
+          final c$ = state.ch;
+          final isInRange$ = c$ <= 60 ? c$ >= 60 || c$ <= 41 ? c$ >= 40 || c$ == 32 || c$ == 36 : c$ == 44 || c$ >= 48 && c$ <= 58 : c$ <= 95 ? c$ >= 95 || c$ <= 63 ? c$ >= 62 : c$ >= 65 && c$ <= 90 : c$ <= 123 ? c$ >= 97 : c$ == 125;
+          if (isInRange$) {
             state.nextChar();
             isSuccess$ = true;
             continue;
@@ -1244,9 +1244,9 @@ class TextParser {
         // (1)
         while (true) {
           // [ -!#-\[\]-{10ffff}]
-          final ch$1 = state.ch;
-          final isSuccess$1 = ch$1 <= 91 ? ch$1 >= 35 || ch$1 >= 32 && ch$1 <= 33 : ch$1 >= 93 && ch$1 <= 1114111;
-          if (isSuccess$1) {
+          final c$ = state.ch;
+          final isInRange$ = c$ <= 91 ? c$ >= 35 || c$ >= 32 && c$ <= 33 : c$ >= 93 && c$ <= 1114111;
+          if (isInRange$) {
             state.nextChar();
             isSuccess$ = true;
             continue;
@@ -1307,9 +1307,9 @@ class TextParser {
         // (1)
         while (true) {
           // [ -&(-\[\]-{10ffff}]
-          final ch$1 = state.ch;
-          final isSuccess$1 = ch$1 <= 91 ? ch$1 >= 40 || ch$1 >= 32 && ch$1 <= 38 : ch$1 >= 93 && ch$1 <= 1114111;
-          if (isSuccess$1) {
+          final c$ = state.ch;
+          final isInRange$ = c$ <= 91 ? c$ >= 40 || c$ >= 32 && c$ <= 38 : c$ >= 93 && c$ <= 1114111;
+          if (isInRange$) {
             state.nextChar();
             isSuccess$ = true;
             continue;
@@ -1569,11 +1569,11 @@ class TextParser {
         break l$;
       }
       // [^{0-1f}\{\}\[\]\\]
-      final ch$ = state.ch;
-      final isSuccess$ = !(ch$ <= 93 ? ch$ >= 91 || ch$ >= 0 && ch$ <= 31 : ch$ == 123 || ch$ == 125) && !(ch$ < 0);
-      if (isSuccess$) {
+      final c$ = state.ch;
+      final isInRange$ = !(c$ <= 93 ? c$ >= 91 || c$ >= 0 && c$ <= 31 : c$ == 123 || c$ == 125) && !(c$ < 0);
+      if (isInRange$) {
         state.nextChar();
-        return Ok(ch$);
+        return Ok(c$);
       }
       break l$;
     }
@@ -1581,14 +1581,14 @@ class TextParser {
     // "\\"
     if (state.ch == 92) {
       final pos$ = state.position;
-      final ch$1 = state.ch;
+      final ch$ = state.ch;
       state.nextChar();
       l$1:
       {
         // "u"
         if (state.ch == 117) {
           final pos$1 = state.position;
-          final ch$2 = state.ch;
+          final ch$1 = state.ch;
           state.nextChar();
           l$2:
           {
@@ -1612,7 +1612,7 @@ class TextParser {
             break l$2;
           }
           // l$2:
-          state.ch = ch$2;
+          state.ch = ch$1;
           state.position = pos$1;
           break l$1;
         }
@@ -1695,7 +1695,7 @@ class TextParser {
         return const Ok(0x7D);
       }
       state.error('Illegal escape character');
-      state.ch = ch$1;
+      state.ch = ch$;
       state.position = pos$;
       return null;
     }
@@ -1716,9 +1716,9 @@ class TextParser {
     // (1)
     while (true) {
       // [0-9]
-      final ch$ = state.ch;
-      final isSuccess$1 = ch$ >= 48 && ch$ <= 57;
-      if (isSuccess$1) {
+      final c$ = state.ch;
+      final isDigit$ = c$ >= 48 && c$ <= 57;
+      if (isDigit$) {
         state.nextChar();
         isSuccess$ = true;
         continue;
@@ -1745,16 +1745,16 @@ class TextParser {
   Result<int>? parseDecValue1(State state) {
     final start$ = state.position;
     // [1-9]
-    final ch$ = state.ch;
-    final isSuccess$ = ch$ >= 49 && ch$ <= 57;
-    if (isSuccess$) {
+    final c$ = state.ch;
+    final isNonZeroDigit$ = c$ >= 49 && c$ <= 57;
+    if (isNonZeroDigit$) {
       state.nextChar();
       // (0)
       while (true) {
         // [0-9]
-        final ch$1 = state.ch;
-        final isSuccess$1 = ch$1 >= 48 && ch$1 <= 57;
-        if (isSuccess$1) {
+        final c$1 = state.ch;
+        final isDigit$ = c$1 >= 48 && c$1 <= 57;
+        if (isDigit$) {
           state.nextChar();
           continue;
         }
@@ -1781,9 +1781,9 @@ class TextParser {
     // (1)
     while (true) {
       // [a-fA-F0-9]
-      final ch$ = state.ch;
-      final isSuccess$1 = ch$ <= 70 ? ch$ >= 65 || ch$ >= 48 && ch$ <= 57 : ch$ >= 97 && ch$ <= 102;
-      if (isSuccess$1) {
+      final c$ = state.ch;
+      final isHexDigit$ = c$ <= 70 ? c$ >= 65 || c$ >= 48 && c$ <= 57 : c$ >= 97 && c$ <= 102;
+      if (isHexDigit$) {
         state.nextChar();
         isSuccess$ = true;
         continue;
@@ -1952,8 +1952,7 @@ class TextParser {
       final start$ = state.position;
       // (0)
       while (true) {
-        final blockBody$ = parseBlockBody(state);
-        if (blockBody$ != null) {
+        if (parseBlockBody(state) != null) {
           continue;
         }
         break;
@@ -1994,8 +1993,7 @@ class TextParser {
         state.nextChar();
         // (0)
         while (true) {
-          final blockBody$ = parseBlockBody(state);
-          if (blockBody$ != null) {
+          if (parseBlockBody(state) != null) {
             continue;
           }
           break;
@@ -2034,16 +2032,16 @@ class TextParser {
   Result<String>? parseVariableName(State state) {
     final start$ = state.position;
     // [a-z]
-    final ch$ = state.ch;
-    final isSuccess$ = ch$ >= 97 && ch$ <= 122;
-    if (isSuccess$) {
+    final c$ = state.ch;
+    final isLower$ = c$ >= 97 && c$ <= 122;
+    if (isLower$) {
       state.nextChar();
       // (0)
       while (true) {
         // [a-zA-Z0-9_]
-        final ch$1 = state.ch;
-        final isSuccess$1 = ch$1 <= 90 ? ch$1 >= 65 || ch$1 >= 48 && ch$1 <= 57 : ch$1 == 95 || ch$1 >= 97 && ch$1 <= 122;
-        if (isSuccess$1) {
+        final c$1 = state.ch;
+        final isAlphaOrDigitOrUnderscore$ = c$1 <= 90 ? c$1 >= 65 || c$1 >= 48 && c$1 <= 57 : c$1 == 95 || c$1 >= 97 && c$1 <= 122;
+        if (isAlphaOrDigitOrUnderscore$) {
           state.nextChar();
           continue;
         }
@@ -2066,16 +2064,16 @@ class TextParser {
   Result<String>? parseProductionName(State state) {
     final start$ = state.position;
     // [A-Z]
-    final ch$ = state.ch;
-    final isSuccess$ = ch$ >= 65 && ch$ <= 90;
-    if (isSuccess$) {
+    final c$ = state.ch;
+    final isUpper$ = c$ >= 65 && c$ <= 90;
+    if (isUpper$) {
       state.nextChar();
       // (0)
       while (true) {
         // [a-zA-Z0-9_]
-        final ch$1 = state.ch;
-        final isSuccess$1 = ch$1 <= 90 ? ch$1 >= 65 || ch$1 >= 48 && ch$1 <= 57 : ch$1 == 95 || ch$1 >= 97 && ch$1 <= 122;
-        if (isSuccess$1) {
+        final c$1 = state.ch;
+        final isAlphaOrDigitOrUnderscore$ = c$1 <= 90 ? c$1 >= 65 || c$1 >= 48 && c$1 <= 57 : c$1 == 95 || c$1 >= 97 && c$1 <= 122;
+        if (isAlphaOrDigitOrUnderscore$) {
           state.nextChar();
           continue;
         }
@@ -2100,12 +2098,10 @@ class TextParser {
   Result<void> parseS(State state) {
     // (0)
     while (true) {
-      final space$ = parseSpace(state);
-      if (space$ != null) {
+      if (parseSpace(state) != null) {
         continue;
       }
-      final comment$ = parseComment(state);
-      if (comment$ != null) {
+      if (parseComment(state) != null) {
         continue;
       }
       break;
@@ -2133,8 +2129,7 @@ class TextParser {
         state.predicate++;
         final pos$ = state.position;
         final ch$ = state.ch;
-        final endOfLine$ = parseEndOfLine(state);
-        if (endOfLine$ != null) {
+        if (parseEndOfLine(state) != null) {
           state.ch = ch$;
           state.position = pos$;
           state.predicate--;
@@ -2163,14 +2158,13 @@ class TextParser {
   /// ```
   Result<void>? parseSpace(State state) {
     // [ \t]
-    final ch$ = state.ch;
-    final isSuccess$ = ch$ == 9 || ch$ == 32;
-    if (isSuccess$) {
+    final c$ = state.ch;
+    final isBlank$ = c$ == 9 || c$ == 32;
+    if (isBlank$) {
       state.nextChar();
       return Result.none;
     }
-    final endOfLine$ = parseEndOfLine(state);
-    if (endOfLine$ != null) {
+    if (parseEndOfLine(state) != null) {
       return Result.none;
     }
     return null;
@@ -2191,9 +2185,9 @@ class TextParser {
       return Result.none;
     }
     // [\n\r]
-    final ch$ = state.ch;
-    final isSuccess$ = ch$ == 10 || ch$ == 13;
-    if (isSuccess$) {
+    final c$ = state.ch;
+    final isNewline$ = c$ == 10 || c$ == 13;
+    if (isNewline$) {
       state.nextChar();
       return Result.none;
     }

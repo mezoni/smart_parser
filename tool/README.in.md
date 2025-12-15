@@ -928,8 +928,8 @@ An example of the use of semantic value.
 ```dart
 START
 `Sting` Digit =>
-  n = [0-9]
-  $ = { n - 48 }
+  char = [0-9]
+  $ = { char - 48 }
 END
 ```
 
@@ -953,15 +953,11 @@ Example with explicit specifications the value type.
 
 ```dart
 START
-`Expression` Primary =>
-  # ...
-  n = (
-    { final pos = state.position; }
-    e = SequenceElement
-    { e.sourceCode = state.substring(pos, state.position).trimRight(); }
-    $ = `Expression` { e }
-  )+
-  # ...
+`int`
+DecValue =>
+  text = <[0-9]+>
+  ~{ state.errorExpected('decimal number'); }
+  $ = { int.parse(text) }
 END
 ```
 

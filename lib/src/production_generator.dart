@@ -17,10 +17,8 @@ class ProductionGenerator {
     final name = production.name;
     final type = production.type;
     final allocator = Allocator();
-    //final cache = Cache();
     final expressionGenerator = ExpressionGenerator(
       allocator: allocator,
-      //cache: cache,
       options: options,
       productionName: name,
     );

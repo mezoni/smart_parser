@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:simple_sparse_list/ranges_helper.dart';
+import 'package:strings/strings.dart';
 import 'package:unicode/unicode.dart';
 
 import '../parser_generator_options.dart';
@@ -144,7 +145,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
       _writeSaveParsingState(code, node);
       var variable = _invalid;
       if (!isVoid) {
-        variable = _getSuggestedName(node, 'any');
+        variable = _allocate(_getSuitableName(node) ?? 'anyChar');
         code.declare('final', variable, 'state.ch');
         success.setValue(variable, false);
       }
@@ -221,9 +222,9 @@ class ExpressionGenerator implements Visitor<BuildResult> {
       _addErrorHandler(node, [code]);
       code.add(fails);
     } else {
-      final ch = _allocate('ch');
-      final isSuccess = _allocate('isSuccess');
-      final isTrue = isSuccess;
+      final ch = _allocate('c');
+      final isInRange = _allocate(_getRangeName(ranges, negate) ?? 'isInRange');
+      final isTrue = isInRange;
       RangeGenerator(name: ch, ranges: ranges, negate: negate);
       final predicate = RangeGenerator(
         name: ch,
@@ -231,7 +232,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
         negate: negate,
       ).generate();
       code.declare('final', ch, 'state.ch');
-      code.declare('final', isSuccess, predicate);
+      code.declare('final', isInRange, predicate);
       code.if$(isTrue, (code) {
         _writeSaveParsingState(code, node);
         if (!isVoid) {
@@ -372,7 +373,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
           }
         } else {
           if (!isVoid) {
-            variable = _getSuggestedName(node, 'text');
+            variable = _allocate(_getSuitableName(node) ?? 'temp');
             code.declare(
               'final',
               variable,
@@ -645,9 +646,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
         code.stmt(parse);
         code.add(success.succeeds);
       } else {
-        final variable = _allocate(camelize(name));
-        code.declare('final', variable, parse);
-        code.if$('$variable != null', (code) {
+        code.if$('$parse != null', (code) {
           code.add(success.succeeds);
         });
 
@@ -656,7 +655,8 @@ class ExpressionGenerator implements Visitor<BuildResult> {
       }
     } else {
       if (isAlwaysSuccessful) {
-        final variable = semanticValue ?? _allocate(camelize(name));
+        final variable =
+            semanticValue ?? _allocate(_getSuitableName(node) ?? 'temp');
         if (semanticValue == null) {
           success.setResult(variable, false);
           code.declare('final', variable, parse);
@@ -668,7 +668,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
 
         code.add(success.succeeds);
       } else {
-        final variable = _allocate(camelize(name));
+        final variable = _allocate(_getSuitableName(node) ?? 'temp');
         success.setResult(variable, false);
         code.declare('final', variable, parse);
         code.if$('$variable != null', (code) {
@@ -888,7 +888,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
             code.declare('final', semanticValue, nextToken);
             success.setValue(semanticValue, false);
           } else {
-            variable = _getSuggestedName(node, 'token');
+            variable = _allocate(_getSuitableName(node) ?? 'token');
             code.declare('final', variable, nextToken);
             success.setValue(variable, false);
           }
@@ -1092,7 +1092,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     var variable = _invalid;
     if (!isVoid) {
       final type = node.type;
-      variable = _getSuggestedName(node, name);
+      variable = _allocate(_getSuitableName(node) ?? 'temp');
       if (isValue) {
         success.setValue(variable, false);
         code.declare('final $type', variable);
@@ -1195,7 +1195,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
       success.succeeds((code) {
         if (needDeclare) {
           if (isDollar) {
-            final variable = _getSuggestedName(node, '');
+            final variable = _allocate(_getSuitableName(node) ?? 'temp');
             _declareVariable(
               code,
               isConst: success.isConst,
@@ -1277,30 +1277,108 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     return null;
   }
 
-  String _getSuggestedName(Expression node, String name) {
-    final suggestedName = suggestedNames[node];
-    if (suggestedName != null) {
-      name = suggestedName;
-      return _allocate(name);
+  String? _getRangeName(List<(int, int)> ranges, bool negate) {
+    ranges = normalizeRanges(ranges);
+    String? rename(String name) {
+      name = negate ? 'is_not_$name' : 'is_$name';
+      name = name.toCamelCase(lower: true);
+      if (name.length <= 63) {
+        return name;
+      }
+
+      return null;
     }
 
-    final semanticValue = node.semanticValue;
-    if (semanticValue != null) {
-      name = semanticValue;
-      return _allocate(name);
+    var name = switch (ranges) {
+      [(0x09, 0x0a), (0x0d, 0xd), (0x20, 0x20)] => 'whitespace',
+      [(0x09, 0x09), (0x20, 0x20)] => 'blank',
+      _ => null,
+    };
+
+    if (name != null) {
+      return rename(name);
     }
 
+    const names = {
+      (0x00, 0x1f): 'control',
+      (0x09, 0x09): 'tab',
+      (0x0a, 0x0a): 'line_feed',
+      (0x0d, 0x0d): 'carriage_return',
+      (0x22, 0x22): 'double_quote',
+      (0x24, 0x24): 'dollar',
+      (0x27, 0x27): 'single_quote',
+      (0x2b, 0x2b): 'plus',
+      (0x2d, 0x2d): 'minus',
+      (0x30, 0x39): 'digit',
+      (0x31, 0x39): 'non_zero_digit',
+      (0x41, 0x5a): 'upper',
+      (0x41, 0x46): 'hex',
+      (0x5c, 0x5c): 'backslash',
+      (0x61, 0x7a): 'lower',
+      (0x61, 0x66): 'hex',
+      (0x5f, 0x5f): 'underscore',
+    };
+
+    final parts = <String>{};
+    for (final range in ranges) {
+      final name = names[range];
+      if (name != null) {
+        parts.add(name);
+      } else {
+        return null;
+      }
+    }
+
+    const replacements = [
+      (['lower', 'upper'], 'alpha'),
+      (['carriage_return', 'line_feed'], 'newline'),
+      (['digit', 'hex'], 'hex_digit'),
+    ];
+
+    for (final element in replacements) {
+      var ok = true;
+      for (final element in element.$1) {
+        if (!parts.contains(element)) {
+          ok = false;
+          break;
+        }
+      }
+
+      if (ok) {
+        for (final element in element.$1) {
+          parts.remove(element);
+        }
+
+        parts.add(element.$2);
+      }
+    }
+
+    final list = parts.toList();
+    list.sort();
+    name = list.join('_or_');
+    return rename(name);
+  }
+
+  String? _getSuitableName(Expression node) {
     if (node is ProductionExpression) {
-      name = camelize(node.name);
-      return _allocate(name);
+      return camelize(node.name);
     }
 
     if (node is TokenExpression) {
-      name = node.name;
-      return _allocate(name);
+      return node.name;
     }
 
-    return _allocate(name);
+    final semanticValue = node.semanticValue;
+    if (semanticValue != null && semanticValue != '\$') {
+      return semanticValue;
+    }
+
+    final suggestedName = suggestedNames[node];
+    if (suggestedName != null) {
+      return suggestedName;
+    }
+
+    return null;
   }
 
   Never _internalError() {
@@ -1346,7 +1424,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
       final nextToken = options.getNextToken;
       _writeSaveParsingState(code, node);
       if (!isVoid) {
-        final variable = _getSuggestedName(node, 'token');
+        final variable = _allocate(_getSuitableName(node) ?? 'token');
         success.setValue(variable, false);
         code.declare('final', variable, nextToken);
       } else {
@@ -1451,22 +1529,14 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     final state = _createParsingState(usePosition);
     _saveParsingState(code, state);
     variable = _invalid;
-    var elementName = suggestedNames[child];
-    if (elementName == null) {
-      if (child is ProductionExpression) {
-        elementName = camelize(child.name);
-      }
-    }
     switch (kind) {
       case list:
         final elementType = child.type;
-        final name = elementName == null ? 'list' : '${elementName}List';
-        variable = _getSuggestedName(node, name);
+        variable = _allocate(_getSuitableName(node) ?? 'list');
         code.declare('final', variable, '<$elementType>[]');
         break;
       case counter:
-        final name = elementName == null ? 'count' : '${elementName}Count';
-        variable = _allocate(name);
+        variable = _allocate('count');
         code.declare('var', variable, '0');
         break;
       case flag:

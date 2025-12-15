@@ -9784,11 +9784,11 @@ class _TestParser {
   /// ```
   Result<int>? parseCharacterClass1(State state) {
     // [a-z]
-    final ch$ = state.ch;
-    final isSuccess$ = ch$ >= 97 && ch$ <= 122;
-    if (isSuccess$) {
+    final c$ = state.ch;
+    final isLower$ = c$ >= 97 && c$ <= 122;
+    if (isLower$) {
       state.nextChar();
-      return Ok(ch$);
+      return Ok(c$);
     }
     return null;
   }
@@ -9800,9 +9800,9 @@ class _TestParser {
   /// ```
   Result<void>? parseCharacterClassVoid1(State state) {
     // [a-z]
-    final ch$ = state.ch;
-    final isSuccess$ = ch$ >= 97 && ch$ <= 122;
-    if (isSuccess$) {
+    final c$ = state.ch;
+    final isLower$ = c$ >= 97 && c$ <= 122;
+    if (isLower$) {
       state.nextChar();
       return Result.none;
     }
@@ -9816,11 +9816,11 @@ class _TestParser {
   /// ```
   Result<int>? parseCharacterClass2(State state) {
     // [^a]
-    final ch$ = state.ch;
-    final isSuccess$ = !(ch$ == 97) && !(ch$ < 0);
-    if (isSuccess$) {
+    final c$ = state.ch;
+    final isInRange$ = !(c$ == 97) && !(c$ < 0);
+    if (isInRange$) {
       state.nextChar();
-      return Ok(ch$);
+      return Ok(c$);
     }
     return null;
   }
@@ -9832,9 +9832,9 @@ class _TestParser {
   /// ```
   Result<void>? parseCharacterClassVoid2(State state) {
     // [^a]
-    final ch$ = state.ch;
-    final isSuccess$ = !(ch$ == 97) && !(ch$ < 0);
-    if (isSuccess$) {
+    final c$ = state.ch;
+    final isInRange$ = !(c$ == 97) && !(c$ < 0);
+    if (isInRange$) {
       state.nextChar();
       return Result.none;
     }
@@ -9848,11 +9848,11 @@ class _TestParser {
   /// ```
   Result<int>? parseCharacterClass3(State state) {
     // [^ab]
-    final ch$ = state.ch;
-    final isSuccess$ = !(ch$ >= 97 && ch$ <= 98) && !(ch$ < 0);
-    if (isSuccess$) {
+    final c$ = state.ch;
+    final isInRange$ = !(c$ >= 97 && c$ <= 98) && !(c$ < 0);
+    if (isInRange$) {
       state.nextChar();
-      return Ok(ch$);
+      return Ok(c$);
     }
     return null;
   }
@@ -9864,9 +9864,9 @@ class _TestParser {
   /// ```
   Result<void>? parseCharacterClassVoid3(State state) {
     // [^ab]
-    final ch$ = state.ch;
-    final isSuccess$ = !(ch$ >= 97 && ch$ <= 98) && !(ch$ < 0);
-    if (isSuccess$) {
+    final c$ = state.ch;
+    final isInRange$ = !(c$ >= 97 && c$ <= 98) && !(c$ < 0);
+    if (isInRange$) {
       state.nextChar();
       return Result.none;
     }
@@ -9880,11 +9880,11 @@ class _TestParser {
   /// ```
   Result<int>? parseCharacterClass4(State state) {
     // [^abc]
-    final ch$ = state.ch;
-    final isSuccess$ = !(ch$ >= 97 && ch$ <= 99) && !(ch$ < 0);
-    if (isSuccess$) {
+    final c$ = state.ch;
+    final isInRange$ = !(c$ >= 97 && c$ <= 99) && !(c$ < 0);
+    if (isInRange$) {
       state.nextChar();
-      return Ok(ch$);
+      return Ok(c$);
     }
     return null;
   }
@@ -9896,9 +9896,9 @@ class _TestParser {
   /// ```
   Result<void>? parseCharacterClassVoid4(State state) {
     // [^abc]
-    final ch$ = state.ch;
-    final isSuccess$ = !(ch$ >= 97 && ch$ <= 99) && !(ch$ < 0);
-    if (isSuccess$) {
+    final c$ = state.ch;
+    final isInRange$ = !(c$ >= 97 && c$ <= 99) && !(c$ < 0);
+    if (isInRange$) {
       state.nextChar();
       return Result.none;
     }
@@ -9912,11 +9912,11 @@ class _TestParser {
   /// ```
   Result<int>? parseCharacterClass5(State state) {
     // [^a-z]
-    final ch$ = state.ch;
-    final isSuccess$ = !(ch$ >= 97 && ch$ <= 122) && !(ch$ < 0);
-    if (isSuccess$) {
+    final c$ = state.ch;
+    final isNotLower$ = !(c$ >= 97 && c$ <= 122) && !(c$ < 0);
+    if (isNotLower$) {
       state.nextChar();
-      return Ok(ch$);
+      return Ok(c$);
     }
     return null;
   }
@@ -9928,9 +9928,9 @@ class _TestParser {
   /// ```
   Result<void>? parseCharacterClassVoid5(State state) {
     // [^a-z]
-    final ch$ = state.ch;
-    final isSuccess$ = !(ch$ >= 97 && ch$ <= 122) && !(ch$ < 0);
-    if (isSuccess$) {
+    final c$ = state.ch;
+    final isNotLower$ = !(c$ >= 97 && c$ <= 122) && !(c$ < 0);
+    if (isNotLower$) {
       state.nextChar();
       return Result.none;
     }
@@ -10028,11 +10028,11 @@ class _TestParser {
   /// ```
   Result<int>? parseCharacterClass9(State state) {
     // [0-9]
-    final ch$ = state.ch;
-    final isSuccess$ = ch$ >= 48 && ch$ <= 57;
-    if (isSuccess$) {
+    final c$ = state.ch;
+    final isDigit$ = c$ >= 48 && c$ <= 57;
+    if (isDigit$) {
       state.nextChar();
-      return Ok(ch$);
+      return Ok(c$);
     }
     return null;
   }
@@ -10044,9 +10044,9 @@ class _TestParser {
   /// ```
   Result<void>? parseCharacterClassVoid9(State state) {
     // [0-9]
-    final ch$ = state.ch;
-    final isSuccess$ = ch$ >= 48 && ch$ <= 57;
-    if (isSuccess$) {
+    final c$ = state.ch;
+    final isDigit$ = c$ >= 48 && c$ <= 57;
+    if (isDigit$) {
       state.nextChar();
       return Result.none;
     }
@@ -10088,11 +10088,11 @@ class _TestParser {
   /// ```
   Result<int>? parseCharacterClass11(State state) {
     // [{0}-\t]
-    final ch$ = state.ch;
-    final isSuccess$ = ch$ >= 0 && ch$ <= 9;
-    if (isSuccess$) {
+    final c$ = state.ch;
+    final isInRange$ = c$ >= 0 && c$ <= 9;
+    if (isInRange$) {
       state.nextChar();
-      return Ok(ch$);
+      return Ok(c$);
     }
     return null;
   }
@@ -10104,9 +10104,9 @@ class _TestParser {
   /// ```
   Result<void>? parseCharacterClassVoid11(State state) {
     // [{0}-\t]
-    final ch$ = state.ch;
-    final isSuccess$ = ch$ >= 0 && ch$ <= 9;
-    if (isSuccess$) {
+    final c$ = state.ch;
+    final isInRange$ = c$ >= 0 && c$ <= 9;
+    if (isInRange$) {
       state.nextChar();
       return Result.none;
     }
@@ -10120,11 +10120,11 @@ class _TestParser {
   /// ```
   Result<int>? parseCharacterClass12(State state) {
     // [^{0}]
-    final ch$ = state.ch;
-    final isSuccess$ = !(ch$ == 0) && !(ch$ < 0);
-    if (isSuccess$) {
+    final c$ = state.ch;
+    final isInRange$ = !(c$ == 0) && !(c$ < 0);
+    if (isInRange$) {
       state.nextChar();
-      return Ok(ch$);
+      return Ok(c$);
     }
     return null;
   }
@@ -10136,9 +10136,9 @@ class _TestParser {
   /// ```
   Result<void>? parseCharacterClassVoid12(State state) {
     // [^{0}]
-    final ch$ = state.ch;
-    final isSuccess$ = !(ch$ == 0) && !(ch$ < 0);
-    if (isSuccess$) {
+    final c$ = state.ch;
+    final isInRange$ = !(c$ == 0) && !(c$ < 0);
+    if (isInRange$) {
       state.nextChar();
       return Result.none;
     }
@@ -10152,11 +10152,11 @@ class _TestParser {
   /// ```
   Result<int>? parseCharacterClass13(State state) {
     // [^{0}-\t]
-    final ch$ = state.ch;
-    final isSuccess$ = !(ch$ >= 0 && ch$ <= 9) && !(ch$ < 0);
-    if (isSuccess$) {
+    final c$ = state.ch;
+    final isInRange$ = !(c$ >= 0 && c$ <= 9) && !(c$ < 0);
+    if (isInRange$) {
       state.nextChar();
-      return Ok(ch$);
+      return Ok(c$);
     }
     return null;
   }
@@ -10168,9 +10168,9 @@ class _TestParser {
   /// ```
   Result<void>? parseCharacterClassVoid13(State state) {
     // [^{0}-\t]
-    final ch$ = state.ch;
-    final isSuccess$ = !(ch$ >= 0 && ch$ <= 9) && !(ch$ < 0);
-    if (isSuccess$) {
+    final c$ = state.ch;
+    final isInRange$ = !(c$ >= 0 && c$ <= 9) && !(c$ < 0);
+    if (isInRange$) {
       state.nextChar();
       return Result.none;
     }
@@ -11933,27 +11933,27 @@ class _TestParser {
   /// ```
   Result<int>? parseSequence0(State state) {
     // [0-9]
-    final ch$1 = state.ch;
-    final isSuccess$ = ch$1 >= 48 && ch$1 <= 57;
-    if (isSuccess$) {
+    final c$ = state.ch;
+    final isDigit$ = c$ >= 48 && c$ <= 57;
+    if (isDigit$) {
       final pos$ = state.position;
       final ch$ = state.ch;
       state.nextChar();
-      final a = ch$1;
+      final a = c$;
       l$:
       {
         // [0-9]
-        final ch$2 = state.ch;
-        final isSuccess$1 = ch$2 >= 48 && ch$2 <= 57;
-        if (isSuccess$1) {
+        final c$1 = state.ch;
+        final isDigit$1 = c$1 >= 48 && c$1 <= 57;
+        if (isDigit$1) {
           state.nextChar();
-          final b = ch$2;
+          final b = c$1;
           // [0-9]
-          final ch$3 = state.ch;
-          final isSuccess$2 = ch$3 >= 48 && ch$3 <= 57;
-          if (isSuccess$2) {
+          final c$2 = state.ch;
+          final isDigit$2 = c$2 >= 48 && c$2 <= 57;
+          if (isDigit$2) {
             state.nextChar();
-            final c = ch$3;
+            final c = c$2;
             return Ok(a - 48 + b - 48 + c - 48);
           }
           break l$;
@@ -11978,27 +11978,27 @@ class _TestParser {
   /// ```
   Result<void>? parseSequenceVoid0(State state) {
     // [0-9]
-    final ch$1 = state.ch;
-    final isSuccess$ = ch$1 >= 48 && ch$1 <= 57;
-    if (isSuccess$) {
+    final c$ = state.ch;
+    final isDigit$ = c$ >= 48 && c$ <= 57;
+    if (isDigit$) {
       final pos$ = state.position;
       final ch$ = state.ch;
       state.nextChar();
-      final a = ch$1;
+      final a = c$;
       l$:
       {
         // [0-9]
-        final ch$2 = state.ch;
-        final isSuccess$1 = ch$2 >= 48 && ch$2 <= 57;
-        if (isSuccess$1) {
+        final c$1 = state.ch;
+        final isDigit$1 = c$1 >= 48 && c$1 <= 57;
+        if (isDigit$1) {
           state.nextChar();
-          final b = ch$2;
+          final b = c$1;
           // [0-9]
-          final ch$3 = state.ch;
-          final isSuccess$2 = ch$3 >= 48 && ch$3 <= 57;
-          if (isSuccess$2) {
+          final c$2 = state.ch;
+          final isDigit$2 = c$2 >= 48 && c$2 <= 57;
+          if (isDigit$2) {
             state.nextChar();
-            final c = ch$3;
+            final c = c$2;
             final sequenceVoid0$ = Ok(a - 48 + b - 48 + c - 48);
             return Result.none;
           }
@@ -12943,9 +12943,9 @@ class _TestParser {
       }
       // l$1:
       // [a-zA-Z0-9]
-      final ch$2 = state.ch;
-      final isSuccess$ = ch$2 <= 90 ? ch$2 >= 65 || ch$2 >= 48 && ch$2 <= 57 : ch$2 >= 97 && ch$2 <= 122;
-      if (isSuccess$) {
+      final c$ = state.ch;
+      final isAlphaOrDigit$ = c$ <= 90 ? c$ >= 65 || c$ >= 48 && c$ <= 57 : c$ >= 97 && c$ <= 122;
+      if (isAlphaOrDigit$) {
         state.ch = ch$1;
         state.position = pos$1;
         state.predicate--;
@@ -12959,16 +12959,16 @@ class _TestParser {
     // l$:
     final start$ = state.position;
     // [a-zA-Z]
-    final ch$3 = state.ch;
-    final isSuccess$1 = ch$3 <= 90 ? ch$3 >= 65 : ch$3 >= 97 && ch$3 <= 122;
-    if (isSuccess$1) {
+    final c$1 = state.ch;
+    final isAlpha$ = c$1 <= 90 ? c$1 >= 65 : c$1 >= 97 && c$1 <= 122;
+    if (isAlpha$) {
       state.nextChar();
       // (0)
       while (true) {
         // [a-zA-Z0-9]
-        final ch$4 = state.ch;
-        final isSuccess$2 = ch$4 <= 90 ? ch$4 >= 65 || ch$4 >= 48 && ch$4 <= 57 : ch$4 >= 97 && ch$4 <= 122;
-        if (isSuccess$2) {
+        final c$2 = state.ch;
+        final isAlphaOrDigit$1 = c$2 <= 90 ? c$2 >= 65 || c$2 >= 48 && c$2 <= 57 : c$2 >= 97 && c$2 <= 122;
+        if (isAlphaOrDigit$1) {
           state.nextChar();
           continue;
         }
@@ -13020,9 +13020,9 @@ class _TestParser {
       }
       // l$1:
       // [a-zA-Z0-9]
-      final ch$2 = state.ch;
-      final isSuccess$ = ch$2 <= 90 ? ch$2 >= 65 || ch$2 >= 48 && ch$2 <= 57 : ch$2 >= 97 && ch$2 <= 122;
-      if (isSuccess$) {
+      final c$ = state.ch;
+      final isAlphaOrDigit$ = c$ <= 90 ? c$ >= 65 || c$ >= 48 && c$ <= 57 : c$ >= 97 && c$ <= 122;
+      if (isAlphaOrDigit$) {
         state.ch = ch$1;
         state.position = pos$1;
         state.predicate--;
@@ -13036,16 +13036,16 @@ class _TestParser {
     // l$:
     final start$ = state.position;
     // [a-zA-Z]
-    final ch$3 = state.ch;
-    final isSuccess$1 = ch$3 <= 90 ? ch$3 >= 65 : ch$3 >= 97 && ch$3 <= 122;
-    if (isSuccess$1) {
+    final c$1 = state.ch;
+    final isAlpha$ = c$1 <= 90 ? c$1 >= 65 : c$1 >= 97 && c$1 <= 122;
+    if (isAlpha$) {
       state.nextChar();
       // (0)
       while (true) {
         // [a-zA-Z0-9]
-        final ch$4 = state.ch;
-        final isSuccess$2 = ch$4 <= 90 ? ch$4 >= 65 || ch$4 >= 48 && ch$4 <= 57 : ch$4 >= 97 && ch$4 <= 122;
-        if (isSuccess$2) {
+        final c$2 = state.ch;
+        final isAlphaOrDigit$1 = c$2 <= 90 ? c$2 >= 65 || c$2 >= 48 && c$2 <= 57 : c$2 >= 97 && c$2 <= 122;
+        if (isAlphaOrDigit$1) {
           state.nextChar();
           continue;
         }
@@ -13114,9 +13114,9 @@ class _TestParser {
       // (1)
       while (true) {
         // [a-zA-Z0-9]
-        final ch$3 = state.ch;
-        final isSuccess$1 = ch$3 <= 90 ? ch$3 >= 65 || ch$3 >= 48 && ch$3 <= 57 : ch$3 >= 97 && ch$3 <= 122;
-        if (isSuccess$1) {
+        final c$ = state.ch;
+        final isAlphaOrDigit$ = c$ <= 90 ? c$ >= 65 || c$ >= 48 && c$ <= 57 : c$ >= 97 && c$ <= 122;
+        if (isAlphaOrDigit$) {
           state.nextChar();
           end = state.position;
           isSuccess$ = true;
@@ -13142,22 +13142,22 @@ class _TestParser {
     }
     // l$:
     final start$ = state.position;
-    final isSuccess$2 = end != -1;
-    if (isSuccess$2) {
+    final isSuccess$1 = end != -1;
+    if (isSuccess$1) {
       state.readChar(end);
       return Ok(state.substring(start$, state.position));
     }
     // [a-zA-Z]
-    final ch$4 = state.ch;
-    final isSuccess$3 = ch$4 <= 90 ? ch$4 >= 65 : ch$4 >= 97 && ch$4 <= 122;
-    if (isSuccess$3) {
+    final c$1 = state.ch;
+    final isAlpha$ = c$1 <= 90 ? c$1 >= 65 : c$1 >= 97 && c$1 <= 122;
+    if (isAlpha$) {
       state.nextChar();
       // (0)
       while (true) {
         // [a-zA-Z0-9]
-        final ch$5 = state.ch;
-        final isSuccess$4 = ch$5 <= 90 ? ch$5 >= 65 || ch$5 >= 48 && ch$5 <= 57 : ch$5 >= 97 && ch$5 <= 122;
-        if (isSuccess$4) {
+        final c$2 = state.ch;
+        final isAlphaOrDigit$1 = c$2 <= 90 ? c$2 >= 65 || c$2 >= 48 && c$2 <= 57 : c$2 >= 97 && c$2 <= 122;
+        if (isAlphaOrDigit$1) {
           state.nextChar();
           continue;
         }
@@ -13225,9 +13225,9 @@ class _TestParser {
       // (1)
       while (true) {
         // [a-zA-Z0-9]
-        final ch$3 = state.ch;
-        final isSuccess$1 = ch$3 <= 90 ? ch$3 >= 65 || ch$3 >= 48 && ch$3 <= 57 : ch$3 >= 97 && ch$3 <= 122;
-        if (isSuccess$1) {
+        final c$ = state.ch;
+        final isAlphaOrDigit$ = c$ <= 90 ? c$ >= 65 || c$ >= 48 && c$ <= 57 : c$ >= 97 && c$ <= 122;
+        if (isAlphaOrDigit$) {
           state.nextChar();
           end = state.position;
           isSuccess$ = true;
@@ -13253,23 +13253,23 @@ class _TestParser {
     }
     // l$:
     final start$ = state.position;
-    final isSuccess$2 = end != -1;
-    if (isSuccess$2) {
+    final isSuccess$1 = end != -1;
+    if (isSuccess$1) {
       state.readChar(end);
       final identifierVoid1$ = Ok(state.substring(start$, state.position));
       return Result.none;
     }
     // [a-zA-Z]
-    final ch$4 = state.ch;
-    final isSuccess$3 = ch$4 <= 90 ? ch$4 >= 65 : ch$4 >= 97 && ch$4 <= 122;
-    if (isSuccess$3) {
+    final c$1 = state.ch;
+    final isAlpha$ = c$1 <= 90 ? c$1 >= 65 : c$1 >= 97 && c$1 <= 122;
+    if (isAlpha$) {
       state.nextChar();
       // (0)
       while (true) {
         // [a-zA-Z0-9]
-        final ch$5 = state.ch;
-        final isSuccess$4 = ch$5 <= 90 ? ch$5 >= 65 || ch$5 >= 48 && ch$5 <= 57 : ch$5 >= 97 && ch$5 <= 122;
-        if (isSuccess$4) {
+        final c$2 = state.ch;
+        final isAlphaOrDigit$1 = c$2 <= 90 ? c$2 >= 65 || c$2 >= 48 && c$2 <= 57 : c$2 >= 97 && c$2 <= 122;
+        if (isAlphaOrDigit$1) {
           state.nextChar();
           continue;
         }

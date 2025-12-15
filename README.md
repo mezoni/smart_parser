@@ -305,9 +305,9 @@ Result<String>? parseEscapeUnicode(State state) {
     // (4, 4)
     while (count$ < 4) {
       // [a-fA-F0-9]
-      final ch$2 = state.ch;
-      final isSuccess$ = ch$2 <= 70 ? ch$2 >= 65 || ch$2 >= 48 && ch$2 <= 57 : ch$2 >= 97 && ch$2 <= 102;
-      if (isSuccess$) {
+      final c$ = state.ch;
+      final isHexDigit$ = c$ <= 70 ? c$ >= 65 || c$ >= 48 && c$ <= 57 : c$ >= 97 && c$ <= 102;
+      if (isHexDigit$) {
         state.nextChar();
         count$++;
         continue;
@@ -496,9 +496,9 @@ Result<String>? parseAndPredicate(State state) {
   final ch$ = state.ch;
   final start$ = state.position;
   // [a-zA-Z]
-  final ch$1 = state.ch;
-  final isSuccess$ = ch$1 <= 90 ? ch$1 >= 65 : ch$1 >= 97 && ch$1 <= 122;
-  if (isSuccess$) {
+  final c$ = state.ch;
+  final isAlpha$ = c$ <= 90 ? c$ >= 65 : c$ >= 97 && c$ <= 122;
+  if (isAlpha$) {
     state.nextChar();
     final andPredicate$ = Ok(state.substring(start$, state.position));
     // "=>"
@@ -599,11 +599,11 @@ Dart code:
 /// ```
 Result<int>? parseDigits(State state) {
   // [0-9]
-  final ch$ = state.ch;
-  final isSuccess$ = ch$ >= 48 && ch$ <= 57;
-  if (isSuccess$) {
+  final c$ = state.ch;
+  final isDigit$ = c$ >= 48 && c$ <= 57;
+  if (isDigit$) {
     state.nextChar();
-    return Ok(ch$);
+    return Ok(c$);
   }
   return null;
 }
@@ -628,11 +628,11 @@ Dart code:
 /// ```
 Result<int>? parseNotDigits(State state) {
   // [^0-9]
-  final ch$ = state.ch;
-  final isSuccess$ = !(ch$ >= 48 && ch$ <= 57) && !(ch$ < 0);
-  if (isSuccess$) {
+  final c$ = state.ch;
+  final isNotDigit$ = !(c$ >= 48 && c$ <= 57) && !(c$ < 0);
+  if (isNotDigit$) {
     state.nextChar();
-    return Ok(ch$);
+    return Ok(c$);
   }
   return null;
 }
@@ -657,11 +657,11 @@ Dart code:
 /// ```
 Result<int>? parseNotDigitsNotLetters(State state) {
   // [^0-9a-zA-Z]
-  final ch$ = state.ch;
-  final isSuccess$ = !(ch$ <= 90 ? ch$ >= 65 || ch$ >= 48 && ch$ <= 57 : ch$ >= 97 && ch$ <= 122) && !(ch$ < 0);
-  if (isSuccess$) {
+  final c$ = state.ch;
+  final isNotAlphaOrDigit$ = !(c$ <= 90 ? c$ >= 65 || c$ >= 48 && c$ <= 57 : c$ >= 97 && c$ <= 122) && !(c$ < 0);
+  if (isNotAlphaOrDigit$) {
     state.nextChar();
-    return Ok(ch$);
+    return Ok(c$);
   }
   return null;
 }
@@ -713,11 +713,11 @@ Dart code:
 /// ```
 Result<int>? parseDigits(State state) {
   // [0-9]
-  final ch$ = state.ch;
-  final isSuccess$ = ch$ >= 48 && ch$ <= 57;
-  if (isSuccess$) {
+  final c$ = state.ch;
+  final isDigit$ = c$ >= 48 && c$ <= 57;
+  if (isDigit$) {
     state.nextChar();
-    return Ok(ch$);
+    return Ok(c$);
   }
   return null;
 }
@@ -1969,9 +1969,9 @@ Result<String>? parseDigits(State state) {
   // (1)
   while (true) {
     // [0-9]
-    final ch$ = state.ch;
-    final isSuccess$1 = ch$ >= 48 && ch$ <= 57;
-    if (isSuccess$1) {
+    final c$ = state.ch;
+    final isDigit$ = c$ >= 48 && c$ <= 57;
+    if (isDigit$) {
       state.nextChar();
       isSuccess$ = true;
       continue;
@@ -2006,9 +2006,9 @@ Result<void>? parseSkipDigits(State state) {
   // (1)
   while (true) {
     // [0-9]
-    final ch$ = state.ch;
-    final isSuccess$1 = ch$ >= 48 && ch$ <= 57;
-    if (isSuccess$1) {
+    final c$ = state.ch;
+    final isDigit$ = c$ >= 48 && c$ <= 57;
+    if (isDigit$) {
       state.nextChar();
       isSuccess$ = true;
       continue;
@@ -2228,11 +2228,11 @@ Result<List<int>> parseLetters(State state) {
   // (0)
   while (true) {
     // [a-zA-Z]
-    final ch$ = state.ch;
-    final isSuccess$ = ch$ <= 90 ? ch$ >= 65 : ch$ >= 97 && ch$ <= 122;
-    if (isSuccess$) {
+    final c$ = state.ch;
+    final isAlpha$ = c$ <= 90 ? c$ >= 65 : c$ >= 97 && c$ <= 122;
+    if (isAlpha$) {
       state.nextChar();
-      letters$.add(ch$);
+      letters$.add(c$);
       continue;
     }
     break;
@@ -2264,9 +2264,9 @@ Result<void> parseLetters(State state) {
   // (0)
   while (true) {
     // [a-zA-Z]
-    final ch$ = state.ch;
-    final isSuccess$ = ch$ <= 90 ? ch$ >= 65 : ch$ >= 97 && ch$ <= 122;
-    if (isSuccess$) {
+    final c$ = state.ch;
+    final isAlpha$ = c$ <= 90 ? c$ >= 65 : c$ >= 97 && c$ <= 122;
+    if (isAlpha$) {
       state.nextChar();
       continue;
     }
@@ -2302,11 +2302,11 @@ Result<List<int>>? parseLetters(State state) {
   // (1)
   while (true) {
     // [a-zA-Z]
-    final ch$ = state.ch;
-    final isSuccess$ = ch$ <= 90 ? ch$ >= 65 : ch$ >= 97 && ch$ <= 122;
-    if (isSuccess$) {
+    final c$ = state.ch;
+    final isAlpha$ = c$ <= 90 ? c$ >= 65 : c$ >= 97 && c$ <= 122;
+    if (isAlpha$) {
       state.nextChar();
-      letters$.add(ch$);
+      letters$.add(c$);
       continue;
     }
     break;
@@ -2343,9 +2343,9 @@ Result<void>? parseLetters(State state) {
   // (1)
   while (true) {
     // [a-zA-Z]
-    final ch$ = state.ch;
-    final isSuccess$1 = ch$ <= 90 ? ch$ >= 65 : ch$ >= 97 && ch$ <= 122;
-    if (isSuccess$1) {
+    final c$ = state.ch;
+    final isAlpha$ = c$ <= 90 ? c$ >= 65 : c$ >= 97 && c$ <= 122;
+    if (isAlpha$) {
       state.nextChar();
       isSuccess$ = true;
       continue;
@@ -2388,11 +2388,11 @@ Result<List<int>>? parseLetters(State state) {
   // (2, 3)
   while (letters$.length < 3) {
     // [a-zA-Z]
-    final ch$1 = state.ch;
-    final isSuccess$ = ch$1 <= 90 ? ch$1 >= 65 : ch$1 >= 97 && ch$1 <= 122;
-    if (isSuccess$) {
+    final c$ = state.ch;
+    final isAlpha$ = c$ <= 90 ? c$ >= 65 : c$ >= 97 && c$ <= 122;
+    if (isAlpha$) {
       state.nextChar();
-      letters$.add(ch$1);
+      letters$.add(c$);
       continue;
     }
     break;
@@ -2433,9 +2433,9 @@ Result<void>? parseLetters(State state) {
   // (2, 3)
   while (count$ < 3) {
     // [a-zA-Z]
-    final ch$1 = state.ch;
-    final isSuccess$ = ch$1 <= 90 ? ch$1 >= 65 : ch$1 >= 97 && ch$1 <= 122;
-    if (isSuccess$) {
+    final c$ = state.ch;
+    final isAlpha$ = c$ <= 90 ? c$ >= 65 : c$ >= 97 && c$ <= 122;
+    if (isAlpha$) {
       state.nextChar();
       count$++;
       continue;
@@ -2480,11 +2480,11 @@ Result<List<int>>? parseLetters(State state) {
   // (4, 4)
   while (letters$.length < 4) {
     // [a-zA-Z]
-    final ch$1 = state.ch;
-    final isSuccess$ = ch$1 <= 90 ? ch$1 >= 65 : ch$1 >= 97 && ch$1 <= 122;
-    if (isSuccess$) {
+    final c$ = state.ch;
+    final isAlpha$ = c$ <= 90 ? c$ >= 65 : c$ >= 97 && c$ <= 122;
+    if (isAlpha$) {
       state.nextChar();
-      letters$.add(ch$1);
+      letters$.add(c$);
       continue;
     }
     break;
@@ -2525,9 +2525,9 @@ Result<void>? parseLetters(State state) {
   // (4, 4)
   while (count$ < 4) {
     // [a-zA-Z]
-    final ch$1 = state.ch;
-    final isSuccess$ = ch$1 <= 90 ? ch$1 >= 65 : ch$1 >= 97 && ch$1 <= 122;
-    if (isSuccess$) {
+    final c$ = state.ch;
+    final isAlpha$ = c$ <= 90 ? c$ >= 65 : c$ >= 97 && c$ <= 122;
+    if (isAlpha$) {
       state.nextChar();
       count$++;
       continue;
@@ -2566,8 +2566,8 @@ Grammar code:
 
 ```txt
 `Sting` Digit =>
-  n = [0-9]
-  $ = { n - 48 }
+  char = [0-9]
+  $ = { char - 48 }
 ```
 
 Dart code:
@@ -2576,17 +2576,17 @@ Dart code:
 /// [Sting] **Digit**
 /// ```txt
 /// `Sting` Digit =>
-///   n = [0-9]
-///   $ = { n - 48 }
+///   char = [0-9]
+///   $ = { char - 48 }
 /// ```
 Result<Sting>? parseDigit(State state) {
   // [0-9]
-  final ch$ = state.ch;
-  final isSuccess$ = ch$ >= 48 && ch$ <= 57;
-  if (isSuccess$) {
+  final c$ = state.ch;
+  final isDigit$ = c$ >= 48 && c$ <= 57;
+  if (isDigit$) {
     state.nextChar();
-    final n = ch$;
-    return Ok(n - 48);
+    final char = c$;
+    return Ok(char - 48);
   }
   return null;
 }
@@ -2632,50 +2632,44 @@ Example with explicit specifications the value type.
 Grammar code:
 
 ```txt
-`Expression` Primary =>
-  # ...
-  n = (
-    { final pos = state.position; }
-    e = SequenceElement
-    { e.sourceCode = state.substring(pos, state.position).trimRight(); }
-    $ = `Expression` { e }
-  )+
-  # ...
+`int`
+DecValue =>
+  text = <[0-9]+>
+  ~{ state.errorExpected('decimal number'); }
+  $ = { int.parse(text) }
 ```
 
 Dart code:
 
 ```dart
-/// [Expression] **Primary**
+/// [int] **DecValue**
 /// ```txt
-/// `Expression` Primary =>
-///   # ...
-///   n = (
-///     { final pos = state.position; }
-///     e = SequenceElement
-///     { e.sourceCode = state.substring(pos, state.position).trimRight(); }
-///     $ = `Expression` { e }
-///   )+
-///   # ...
+/// `int`
+/// DecValue =>
+///   text = <[0-9]+>
+///   ~{ state.errorExpected('decimal number'); }
+///   $ = { int.parse(text) }
 /// ```
-Result<Expression>? parsePrimary(State state) {
-  final primary$ = <Expression>[];
+Result<int>? parseDecValue(State state) {
+  final start$ = state.position;
+  var isSuccess$ = false;
   // (1)
   while (true) {
-    final pos = state.position;
-    final sequenceElement$ = parseSequenceElement(state);
-    if (sequenceElement$ != null) {
-      final e = sequenceElement$.$1;
-      e.sourceCode = state.substring(pos, state.position).trimRight();
-      primary$.add(e);
+    // [0-9]
+    final c$ = state.ch;
+    final isDigit$ = c$ >= 48 && c$ <= 57;
+    if (isDigit$) {
+      state.nextChar();
+      isSuccess$ = true;
       continue;
     }
     break;
   }
-  if (primary$.isNotEmpty) {
-    final n = primary$;
-    return Ok(primary$);
+  if (isSuccess$) {
+    final text = state.substring(start$, state.position);
+    return Ok(int.parse(text));
   } else {
+    state.errorExpected('decimal number');
     return null;
   }
 }

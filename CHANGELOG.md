@@ -1,6 +1,7 @@
 ## 2.1.4
 
 - Optimized the code generated for the `ProductionExpression` expression.
+- Minor improvements in code generation.
 
 ## 2.1.3
 

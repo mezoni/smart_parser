@@ -306,9 +306,9 @@ class JsonTokenizer {
       // (4, 4)
       while (count$ < 4) {
         // [a-fA-F0-9]
-        final ch$2 = state.ch;
-        final isSuccess$ = ch$2 <= 70 ? ch$2 >= 65 || ch$2 >= 48 && ch$2 <= 57 : ch$2 >= 97 && ch$2 <= 102;
-        if (isSuccess$) {
+        final c$ = state.ch;
+        final isHexDigit$ = c$ <= 70 ? c$ >= 65 || c$ >= 48 && c$ <= 57 : c$ >= 97 && c$ <= 102;
+        if (isHexDigit$) {
           state.nextChar();
           count$++;
           continue;
@@ -395,9 +395,9 @@ class JsonTokenizer {
         // (1)
         while (true) {
           // [^{0-1f}"\\]
-          final ch$1 = state.ch;
-          final isSuccess$1 = !(ch$1 <= 34 ? ch$1 >= 34 || ch$1 >= 0 && ch$1 <= 31 : ch$1 == 92) && !(ch$1 < 0);
-          if (isSuccess$1) {
+          final c$ = state.ch;
+          final isNotBackslashOrControlOrDoubleQuote$ = !(c$ <= 34 ? c$ >= 34 || c$ >= 0 && c$ <= 31 : c$ == 92) && !(c$ < 0);
+          if (isNotBackslashOrControlOrDoubleQuote$) {
             state.nextChar();
             isSuccess$ = true;
             continue;
@@ -411,14 +411,14 @@ class JsonTokenizer {
           // [\\]
           if (state.ch == 92) {
             final pos$1 = state.position;
-            final ch$2 = state.ch;
+            final ch$1 = state.ch;
             state.nextChar();
             final escaped$ = parseEscaped(state);
             if (escaped$ != null) {
               parts$.add(escaped$.$1);
               continue;
             }
-            state.ch = ch$2;
+            state.ch = ch$1;
             state.position = pos$1;
             break;
           }
@@ -499,16 +499,16 @@ class JsonTokenizer {
         break l$1;
       }
       // [1-9]
-      final ch$1 = state.ch;
-      final isSuccess$ = ch$1 >= 49 && ch$1 <= 57;
-      if (isSuccess$) {
+      final c$ = state.ch;
+      final isNonZeroDigit$ = c$ >= 49 && c$ <= 57;
+      if (isNonZeroDigit$) {
         state.nextChar();
         // (0)
         while (true) {
           // [0-9]
-          final ch$2 = state.ch;
-          final isSuccess$1 = ch$2 >= 48 && ch$2 <= 57;
-          if (isSuccess$1) {
+          final c$1 = state.ch;
+          final isDigit$ = c$1 >= 48 && c$1 <= 57;
+          if (isDigit$) {
             state.nextChar();
             continue;
           }
@@ -527,29 +527,29 @@ class JsonTokenizer {
       // [.]
       if (state.ch == 46) {
         final pos$1 = state.position;
-        final ch$3 = state.ch;
+        final ch$1 = state.ch;
         state.nextChar();
-        var isSuccess$2 = false;
+        var isSuccess$ = false;
         // (1)
         while (true) {
           // [0-9]
-          final ch$4 = state.ch;
-          final isSuccess$3 = ch$4 >= 48 && ch$4 <= 57;
-          if (isSuccess$3) {
+          final c$2 = state.ch;
+          final isDigit$1 = c$2 >= 48 && c$2 <= 57;
+          if (isDigit$1) {
             state.nextChar();
-            isSuccess$2 = true;
+            isSuccess$ = true;
             continue;
           }
           break;
         }
-        if (isSuccess$2) {
+        if (isSuccess$) {
           flag = false;
           break l$2;
         } else {
           state.errorExpected('digit');
           state.error('Fractional part is missing a number');
           state.error('Malformed number', start: start, end: state.position);
-          state.ch = ch$3;
+          state.ch = ch$1;
           state.position = pos$1;
           break l$2;
         }
@@ -560,45 +560,45 @@ class JsonTokenizer {
     l$3:
     {
       // [eE]
-      final ch$6 = state.ch;
-      final isSuccess$4 = ch$6 == 69 || ch$6 == 101;
-      if (isSuccess$4) {
+      final c$3 = state.ch;
+      final isInRange$ = c$3 == 69 || c$3 == 101;
+      if (isInRange$) {
         final pos$2 = state.position;
-        final ch$5 = state.ch;
+        final ch$2 = state.ch;
         state.nextChar();
         l$4:
         {
           // [\-+]
-          final ch$7 = state.ch;
-          final isSuccess$5 = ch$7 == 43 || ch$7 == 45;
-          if (isSuccess$5) {
+          final c$4 = state.ch;
+          final isMinusOrPlus$ = c$4 == 43 || c$4 == 45;
+          if (isMinusOrPlus$) {
             state.nextChar();
             break l$4;
           }
           break l$4;
         }
         // l$4:
-        var isSuccess$6 = false;
+        var isSuccess$1 = false;
         // (1)
         while (true) {
           // [0-9]
-          final ch$8 = state.ch;
-          final isSuccess$7 = ch$8 >= 48 && ch$8 <= 57;
-          if (isSuccess$7) {
+          final c$5 = state.ch;
+          final isDigit$2 = c$5 >= 48 && c$5 <= 57;
+          if (isDigit$2) {
             state.nextChar();
-            isSuccess$6 = true;
+            isSuccess$1 = true;
             continue;
           }
           break;
         }
-        if (isSuccess$6) {
+        if (isSuccess$1) {
           flag = false;
           break l$3;
         } else {
           state.errorExpected('digit');
           state.error('Exponent part is missing a number');
           state.error('Malformed number', start: start, end: state.position);
-          state.ch = ch$5;
+          state.ch = ch$2;
           state.position = pos$2;
           break l$3;
         }
@@ -620,9 +620,9 @@ class JsonTokenizer {
     // (0)
     while (true) {
       // [\n\r\t ]
-      final ch$ = state.ch;
-      final isSuccess$ = ch$ <= 13 ? ch$ >= 13 || ch$ >= 9 && ch$ <= 10 : ch$ == 32;
-      if (isSuccess$) {
+      final c$ = state.ch;
+      final isWhitespace$ = c$ <= 13 ? c$ >= 13 || c$ >= 9 && c$ <= 10 : c$ == 32;
+      if (isWhitespace$) {
         state.nextChar();
         continue;
       }
