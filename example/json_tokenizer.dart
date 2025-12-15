@@ -40,8 +40,7 @@ class JsonTokenizer {
   Result<List<Token>>? parseStart(State state) {
     final pos$ = state.position;
     final ch$ = state.ch;
-    final tokens$ = parseTokens(state);
-    final t = tokens$.$1;
+    final t = parseTokens(state).$1;
     final isSuccess$ = state.ch < 0;
     if (isSuccess$) {
       final eof = _token(state.position, state.position, TokenKind.eof, null);

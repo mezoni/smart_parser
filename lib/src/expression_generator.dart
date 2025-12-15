@@ -634,6 +634,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     final name = node.name;
     final isVoid = node.isVoid;
     final isAlwaysSuccessful = node.isAlwaysSuccessful;
+    final semanticValue = node.semanticValue;
     final parse = 'parse$name(state)';
     final code = Code();
     final failures = <Code>[];
@@ -654,12 +655,22 @@ class ExpressionGenerator implements Visitor<BuildResult> {
         failures.add(code.add(Code()));
       }
     } else {
-      final variable = _allocate(camelize(name));
-      success.setResult(variable, false);
-      code.declare('final', variable, parse);
       if (isAlwaysSuccessful) {
+        final variable = semanticValue ?? _allocate(camelize(name));
+        if (semanticValue == null) {
+          success.setResult(variable, false);
+          code.declare('final', variable, parse);
+        } else {
+          _declaredSemanticValues.add(node);
+          success.setValue(variable, false);
+          code.declare('final', variable, '$parse.\$1');
+        }
+
         code.add(success.succeeds);
       } else {
+        final variable = _allocate(camelize(name));
+        success.setResult(variable, false);
+        code.declare('final', variable, parse);
         code.if$('$variable != null', (code) {
           code.add(success.succeeds);
         });
