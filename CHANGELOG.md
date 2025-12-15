@@ -2,6 +2,7 @@
 
 - Optimized the code generated for the `ProductionExpression` expression.
 - Minor improvements in code generation.
+- Minor corrections in `tool/README.in.md` file.
 
 ## 2.1.3
 
@@ -16,8 +17,8 @@
 ## 2.1.1
 
 - The JSON token stream parser example has been refactored to produce a JSON abstract syntax tree.
-- Added JSON AST example file `example\json_ast.dart`.
-- Added JSON AST analyzing example file `example\analyze_json.dart`.
+- Added JSON AST example file `example/json_ast.dart`.
+- Added JSON AST analyzing example file `example/analyze_json.dart`.
 - Optimized the code generated for the `TokenExpression` expression.
 - Optimized the code generated for the `SequenceExpression` expression.
 - Changed generation of local variables in the `SequenceExpression` expression.
@@ -81,13 +82,13 @@
 
 ## 1.0.3
 
-- Minor changes have been made to the `tool\README.in.md` file.
+- Minor changes have been made to the `tool/README.in.md` file.
 - Minor improvements have been made to the `ExpressionAnalyzer`.
 - Minor improvement to the code generated for error handling.
 
 ## 1.0.2
 
-- Minor changes have been made to the `tool\README.in.md` file.
+- Minor changes have been made to the `tool/README.in.md` file.
 - Minor improvement (in speed and size) to the code generated for error handling.
 - The algorithm for generating the `README.md` file has been changed.
 
@@ -95,7 +96,7 @@
 
 - Fixed a minor bug with the use of the reused value cache at the beginning of production parsing.
 - Added the `final` type modifier to semantic value variable declarations when the type value is specified explicitly. According to this principle, all variables assigned during declaration must be immutable.
-- Fixed typos in `tool\README.in.md` file.
+- Fixed typos in `tool/README.in.md` file.
 - Minor improvement (in speed and size) to the code generated for error handling.
 
 ## 1.0.0
