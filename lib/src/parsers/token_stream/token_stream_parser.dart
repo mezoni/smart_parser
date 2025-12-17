@@ -39,10 +39,8 @@ class TokenStreamParser {
     final pos$ = state.position;
     final ch$ = state.ch;
     parseS(state);
-    final globals$ = parseGlobals(state);
-    final globals = globals$?.$1;
-    final members$ = parseMembers(state);
-    final members = members$?.$1;
+    final globals = parseGlobals(state)?.$1;
+    final members = parseMembers(state)?.$1;
     l$:
     {
       final productions$ = <Production>[];
@@ -327,8 +325,7 @@ class TokenStreamParser {
       final sequenceElement$ = parseSequenceElement(state);
       if (sequenceElement$ != null) {
         final expression = sequenceElement$.$1;
-        final errorHandler$ = parseErrorHandler(state);
-        final errorHandler = errorHandler$?.$1;
+        final errorHandler = parseErrorHandler(state)?.$1;
         expression.sourceCode = state.substring(pos, state.position).trimRight();
         expressions$.add(expression..errorHandler = errorHandler);
         continue;
@@ -370,33 +367,32 @@ class TokenStreamParser {
     }
     final pos$ = state.position;
     final ch$ = state.ch;
-    final String? semanticValue$;
+    final String? semanticValue$1;
     l$:
     {
       final pos$1 = state.position;
       final ch$1 = state.ch;
-      final semanticValue$1 = parseSemanticValue(state);
-      if (semanticValue$1 != null) {
+      final semanticValue$ = parseSemanticValue(state);
+      if (semanticValue$ != null) {
         // '='
         if (state.ch == 61) {
           state.nextChar();
           parseS(state);
-          semanticValue$ = semanticValue$1.$1;
+          semanticValue$1 = semanticValue$.$1;
           break l$;
         }
         state.errorExpected('=');
         state.ch = ch$1;
         state.position = pos$1;
-        semanticValue$ = null;
+        semanticValue$1 = null;
         break l$;
       }
-      semanticValue$ = null;
+      semanticValue$1 = null;
       break l$;
     }
     // l$:
-    final semanticValue = semanticValue$;
-    final type$ = parseType(state);
-    final type = type$?.$1;
+    final semanticValue = semanticValue$1;
+    final type = parseType(state)?.$1;
     final prefix$ = parsePrefix(state);
     if (prefix$ != null) {
       final expression = prefix$.$1;
@@ -1127,14 +1123,14 @@ class TokenStreamParser {
       final pos$ = state.position;
       final ch$ = state.ch;
       state.nextChar();
-      l$:
+      l$1:
       {
         // "u"
         if (state.ch == 117) {
           final pos$1 = state.position;
           final ch$1 = state.ch;
           state.nextChar();
-          l$1:
+          l$:
           {
             // '{'
             if (state.ch == 123) {
@@ -1149,22 +1145,22 @@ class TokenStreamParser {
                 }
                 state.errorExpected('}');
                 state.error('Unterminated Unicode escape sequence');
-                break l$1;
+                break l$;
               }
               state.error('unicode escape');
-              break l$1;
+              break l$;
             }
             state.errorExpected('{');
-            break l$1;
+            break l$;
           }
-          // l$1:
+          // l$:
           state.ch = ch$1;
           state.position = pos$1;
-          break l$;
+          break l$1;
         }
-        break l$;
+        break l$1;
       }
-      // l$:
+      // l$1:
       // "a"
       if (state.ch == 97) {
         state.nextChar();

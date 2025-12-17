@@ -2,7 +2,7 @@
 
 All in one, a generator of recursive descent PEG parsers, tokenizers, and token stream parsers.
 
-Version: 2.1.3
+Version: 2.1.4
 
 [![Pub Package](https://img.shields.io/pub/v/smart_parser.svg)](https://pub.dev/packages/smart_parser)
 [![Pub Monthly Downloads](https://img.shields.io/pub/dm/smart_parser.svg)](https://pub.dev/packages/smart_parser/score)
@@ -2488,7 +2488,7 @@ Result<List<int>>? parseLetters(State state) {
     }
     break;
   }
-  if (letters$.length >= 4) {
+  if (letters$.length == 4) {
     return Ok(letters$);
   } else {
     state.ch = ch$;

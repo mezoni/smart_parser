@@ -137,6 +137,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
   @override
   BuildResult visitAnyCharacter(AnyCharacterExpression node) {
     final isVoid = node.isVoid;
+    final semanticValue = _getSemanticValue(node);
     final code = Code();
     final fails = Code();
     final success = Success.none();
@@ -145,8 +146,13 @@ class ExpressionGenerator implements Visitor<BuildResult> {
       _writeSaveParsingState(code, node);
       var variable = _invalid;
       if (!isVoid) {
-        variable = _allocate(_getSuitableName(node) ?? 'anyChar');
+        variable =
+            semanticValue ?? _allocate(_getSuitableName(node) ?? 'anyChar');
         code.declare('final', variable, 'state.ch');
+        if (semanticValue != null) {
+          _declaredSemanticValues.add(node);
+        }
+
         success.setValue(variable, false);
       }
 
@@ -166,6 +172,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
   BuildResult visitCapture(CaptureExpression node) {
     final child = node.expression;
     final isVoid = node.isVoid;
+    final semanticValue = _getSemanticValue(node);
     final code = Code();
     _writeSaveParsingState(code, node);
     var start = _invalid;
@@ -182,7 +189,17 @@ class ExpressionGenerator implements Visitor<BuildResult> {
         if (isVoid) {
           success.setResultToNone();
         } else {
-          success.setValue('state.substring($start, state.position)', false);
+          if (semanticValue == null) {
+            success.setValue('state.substring($start, state.position)', false);
+          } else {
+            _declaredSemanticValues.add(node);
+            code.declare(
+              'final',
+              semanticValue,
+              'state.substring($start, state.position)',
+            );
+            success.setValue('state.substring($start, state.position)', false);
+          }
         }
       });
     }
@@ -256,9 +273,25 @@ class ExpressionGenerator implements Visitor<BuildResult> {
   @override
   BuildResult visitGroup(GroupExpression node) {
     final child = node.expression;
+    final isVoid = node.isVoid;
     _redirectWritingParsingState(node, child);
-    _copySuggestedName(node, child);
+    final name = suggestedNames[node];
+    if (name != null) {
+      _copySuggestedName(node, child);
+    } else {
+      final semanticValue = _getSemanticValue(node);
+      if (semanticValue != null) {
+        suggestedNames[child] = semanticValue;
+      }
+    }
+
     final res = _generate(child);
+    if (isVoid) {
+      for (final success in res.successes) {
+        success.setResultToNone();
+      }
+    }
+
     _addErrorHandler(node, res.failures);
     return res;
   }
@@ -471,7 +504,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
   BuildResult visitOptional(OptionalExpression node) {
     final child = node.expression;
     final isVoid = node.isVoid;
-    final semanticValue = node.semanticValue;
+    final semanticValue = _getSemanticValue(node);
     final code = Code();
     _writeSaveParsingState(code, node);
     _copySuggestedName(node, child);
@@ -584,15 +617,12 @@ class ExpressionGenerator implements Visitor<BuildResult> {
       }
     }
 
-    // final data = cache.data;
-    // TODO: Needs to be optimized.
     final code = Code();
     _writeSaveParsingState(code, node);
     var body = code.add(Code());
     final successes = <Success>[];
     final failures = <Code>[];
     for (var i = 0; i < children.length; i++) {
-      //cache.restore(data);
       final child = children[i];
       _copySuggestedName(node, child);
       final BuildResult res;
@@ -657,7 +687,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     final name = node.name;
     final isVoid = node.isVoid;
     final isAlwaysSuccessful = node.isAlwaysSuccessful;
-    final semanticValue = node.semanticValue;
+    final semanticValue = _getSemanticValue(node);
     final parse = 'parse$name(state)';
     final code = Code();
     final failures = <Code>[];
@@ -891,7 +921,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
   BuildResult visitToken(TokenExpression node) {
     final name = node.name;
     final isVoid = node.isVoid;
-    final semanticValue = node.semanticValue;
+    final semanticValue = _getSemanticValue(node);
     final nextToken = options.getNextToken;
     final token = options.getToken;
     final tokenKind = options.getTokenKind.replaceAll('{{0}}', token);
@@ -1074,15 +1104,14 @@ class ExpressionGenerator implements Visitor<BuildResult> {
   }
 
   BuildResult _combineToSingleFailure(Expression node) {
-    if (node.failureCount < 2) {
-      final res = _generate(node);
+    final res = _generate(node);
+    if (res.failures.length < 2) {
       return res;
     }
 
     final code = Code();
     final label = _allocate('l');
     code.writeln('$label:');
-    final res = _generate(node);
     code.group((code) {
       code.add(res.code);
     });
@@ -1102,8 +1131,8 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     String name, {
     required bool isValue,
   }) {
-    if (node.successCount < 2) {
-      final res = _generate(node);
+    final res = _generate(node);
+    if (res.successes.length < 2) {
       return res;
     }
 
@@ -1125,7 +1154,6 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     }
 
     code.writeln('$label:');
-    final res = _generate(node);
     code.group((code) {
       code.add(res.code);
     });
@@ -1381,6 +1409,15 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     return rename(name);
   }
 
+  String? _getSemanticValue(Expression node) {
+    final semanticValue = node.semanticValue;
+    if (semanticValue == null) {
+      return null;
+    }
+
+    return semanticValue != '\$' ? semanticValue : null;
+  }
+
   String? _getSuitableName(Expression node) {
     if (node is ProductionExpression) {
       return camelize(node.name);
@@ -1390,8 +1427,8 @@ class ExpressionGenerator implements Visitor<BuildResult> {
       return node.name;
     }
 
-    final semanticValue = node.semanticValue;
-    if (semanticValue != null && semanticValue != '\$') {
+    final semanticValue = _getSemanticValue(node);
+    if (semanticValue != null) {
       return semanticValue;
     }
 
@@ -1640,9 +1677,17 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     switch (kind) {
       case list:
         if (min > 0) {
-          isSuccess = min == 1
-              ? '$variable.isNotEmpty'
-              : '$variable.length >= $min';
+          if (min == 1) {
+            isSuccess = '$variable.isNotEmpty';
+          } else {
+            if (max == null) {
+              isSuccess = '$variable.length >= $min';
+            } else {
+              isSuccess = min == max
+                  ? '$variable.length == $min'
+                  : '$variable.length >= $min';
+            }
+          }
         }
 
         break;

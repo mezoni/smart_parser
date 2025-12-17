@@ -367,31 +367,31 @@ class TextParser {
     }
     final pos$ = state.position;
     final ch$ = state.ch;
-    final String? semanticValue$;
+    final String? semanticValue$1;
     l$:
     {
       final pos$1 = state.position;
       final ch$1 = state.ch;
-      final semanticValue$1 = parseSemanticValue(state);
-      if (semanticValue$1 != null) {
+      final semanticValue$ = parseSemanticValue(state);
+      if (semanticValue$ != null) {
         // '='
         if (state.ch == 61) {
           state.nextChar();
           parseS(state);
-          semanticValue$ = semanticValue$1.$1;
+          semanticValue$1 = semanticValue$.$1;
           break l$;
         }
         state.errorExpected('=');
         state.ch = ch$1;
         state.position = pos$1;
-        semanticValue$ = null;
+        semanticValue$1 = null;
         break l$;
       }
-      semanticValue$ = null;
+      semanticValue$1 = null;
       break l$;
     }
     // l$:
-    final semanticValue = semanticValue$;
+    final semanticValue = semanticValue$1;
     final type = parseType(state)?.$1;
     final prefix$ = parsePrefix(state);
     if (prefix$ != null) {
@@ -1394,14 +1394,14 @@ class TextParser {
       final pos$ = state.position;
       final ch$ = state.ch;
       state.nextChar();
-      l$:
+      l$1:
       {
         // "u"
         if (state.ch == 117) {
           final pos$1 = state.position;
           final ch$1 = state.ch;
           state.nextChar();
-          l$1:
+          l$:
           {
             // '{'
             if (state.ch == 123) {
@@ -1416,22 +1416,22 @@ class TextParser {
                 }
                 state.errorExpected('}');
                 state.error('Unterminated Unicode escape sequence');
-                break l$1;
+                break l$;
               }
               state.error('unicode escape');
-              break l$1;
+              break l$;
             }
             state.errorExpected('{');
-            break l$1;
+            break l$;
           }
-          // l$1:
+          // l$:
           state.ch = ch$1;
           state.position = pos$1;
-          break l$;
+          break l$1;
         }
-        break l$;
+        break l$1;
       }
-      // l$:
+      // l$1:
       // "a"
       if (state.ch == 97) {
         state.nextChar();
@@ -1579,14 +1579,14 @@ class TextParser {
       final pos$ = state.position;
       final ch$ = state.ch;
       state.nextChar();
-      l$1:
+      l$2:
       {
         // "u"
         if (state.ch == 117) {
           final pos$1 = state.position;
           final ch$1 = state.ch;
           state.nextChar();
-          l$2:
+          l$1:
           {
             // '{'
             if (state.ch == 123) {
@@ -1599,22 +1599,22 @@ class TextParser {
                   return hexValue$;
                 }
                 state.errorExpected('}');
-                break l$2;
+                break l$1;
               }
               state.errorExpected('hex number');
-              break l$2;
+              break l$1;
             }
             state.errorExpected('{');
-            break l$2;
+            break l$1;
           }
-          // l$2:
+          // l$1:
           state.ch = ch$1;
           state.position = pos$1;
-          break l$1;
+          break l$2;
         }
-        break l$1;
+        break l$2;
       }
-      // l$1:
+      // l$2:
       // "a"
       if (state.ch == 97) {
         state.nextChar();
@@ -1822,14 +1822,14 @@ class TextParser {
   ///   )
   /// ```
   Result<(int, int)>? parseRange(State state) {
-    l$:
+    l$1:
     {
       // "{"
       if (state.ch == 123) {
         final pos$ = state.position;
         final ch$ = state.ch;
         state.nextChar();
-        l$1:
+        l$:
         {
           final hexValue$ = parseHexValue(state);
           if (hexValue$ != null) {
@@ -1846,31 +1846,31 @@ class TextParser {
                   return Ok((start, end));
                 }
                 state.errorExpected('}');
-                break l$1;
+                break l$;
               }
-              break l$1;
+              break l$;
             }
             state.errorExpected('-');
-            break l$1;
+            break l$;
           }
-          break l$1;
+          break l$;
         }
-        // l$1:
+        // l$:
         state.ch = ch$;
         state.position = pos$;
-        break l$;
+        break l$1;
       }
-      break l$;
+      break l$1;
     }
-    // l$:
-    l$2:
+    // l$1:
+    l$3:
     {
       // "{"
       if (state.ch == 123) {
         final pos$1 = state.position;
         final ch$1 = state.ch;
         state.nextChar();
-        l$3:
+        l$2:
         {
           final hexValue$2 = parseHexValue(state);
           if (hexValue$2 != null) {
@@ -1881,26 +1881,26 @@ class TextParser {
               return Ok((char, char));
             }
             state.errorExpected('}');
-            break l$3;
+            break l$2;
           }
-          break l$3;
+          break l$2;
         }
-        // l$3:
+        // l$2:
         state.ch = ch$1;
         state.position = pos$1;
-        break l$2;
+        break l$3;
       }
-      break l$2;
+      break l$3;
     }
-    // l$2:
-    l$4:
+    // l$3:
+    l$5:
     {
       final pos$2 = state.position;
       final ch$2 = state.ch;
       final rangeChar$ = parseRangeChar(state);
       if (rangeChar$ != null) {
         final start = rangeChar$.$1;
-        l$5:
+        l$4:
         {
           // '-'
           if (state.ch == 45) {
@@ -1910,19 +1910,19 @@ class TextParser {
               final end = rangeChar$1.$1;
               return Ok((start, end));
             }
-            break l$5;
+            break l$4;
           }
           state.errorExpected('-');
-          break l$5;
+          break l$4;
         }
-        // l$5:
+        // l$4:
         state.ch = ch$2;
         state.position = pos$2;
-        break l$4;
+        break l$5;
       }
-      break l$4;
+      break l$5;
     }
-    // l$4:
+    // l$5:
     final rangeChar$2 = parseRangeChar(state);
     if (rangeChar$2 != null) {
       final char = rangeChar$2.$1;

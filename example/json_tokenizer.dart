@@ -557,7 +557,7 @@ class JsonTokenizer {
       break l$2;
     }
     // l$2:
-    l$3:
+    l$4:
     {
       // [eE]
       final c$3 = state.ch;
@@ -566,18 +566,18 @@ class JsonTokenizer {
         final pos$2 = state.position;
         final ch$2 = state.ch;
         state.nextChar();
-        l$4:
+        l$3:
         {
           // [\-+]
           final c$4 = state.ch;
           final isMinusOrPlus$ = c$4 == 43 || c$4 == 45;
           if (isMinusOrPlus$) {
             state.nextChar();
-            break l$4;
+            break l$3;
           }
-          break l$4;
+          break l$3;
         }
-        // l$4:
+        // l$3:
         var isSuccess$1 = false;
         // (1)
         while (true) {
@@ -593,19 +593,19 @@ class JsonTokenizer {
         }
         if (isSuccess$1) {
           flag = false;
-          break l$3;
+          break l$4;
         } else {
           state.errorExpected('digit');
           state.error('Exponent part is missing a number');
           state.error('Malformed number', start: start, end: state.position);
           state.ch = ch$2;
           state.position = pos$2;
-          break l$3;
+          break l$4;
         }
       }
-      break l$3;
+      break l$4;
     }
-    // l$3:
+    // l$4:
     final text = state.substring(start, state.position);
     parseS(state);
     return Ok(flag && text.length <= 18 ? int.parse(text) : num.parse(text));

@@ -148,6 +148,7 @@ $info''');
             if (i == 1 && type == 'void') {
               break;
             }
+
             String toList(List<String> errors) {
               return '[${errors.map(escapeString).join(', ')}]';
             }

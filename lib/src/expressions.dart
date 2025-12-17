@@ -63,6 +63,7 @@ abstract class Expression {
 
   String? explicitType;
 
+  // TODO: Need remove
   int failureCount = 1;
 
   int index = 0;
@@ -71,6 +72,7 @@ abstract class Expression {
 
   bool isConst = false;
 
+  // TODO: Need remove
   bool isEndPoint = false;
 
   bool isLatest = false;
@@ -83,6 +85,7 @@ abstract class Expression {
 
   String? sourceCode;
 
+  // TODO: Need remove
   int successCount = 1;
 
   String type = defaultType;
