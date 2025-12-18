@@ -200,8 +200,8 @@ class ExpressionPrinter implements Visitor<String> {
   @override
   String visitPredicate(PredicateExpression node) {
     final negate = node.negate;
-    final predicate = node.predicate;
-    final code = _action(predicate);
+    final source = node.source;
+    final code = _action(source);
     return negate ? '!$code' : '&$code'.postprocess(node, withErrorHandler);
   }
 

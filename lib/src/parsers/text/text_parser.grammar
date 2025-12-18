@@ -133,8 +133,8 @@ SemanticValue =>
 Prefix =>
   "!" S
   $ = (
-    predicate = Block
-    $ = { PredicateExpression(negate: true, predicate: predicate) }
+    source = Block
+    $ = { PredicateExpression(negate: true, source: source) }
     ----
     expression = Suffix
     $ = { NotPredicateExpression(expression: expression) }
@@ -142,8 +142,8 @@ Prefix =>
   ----
   "&" S
   $ = (
-    predicate = Block
-    $ = { PredicateExpression(negate: false, predicate: predicate) }
+    source = Block
+    $ = { PredicateExpression(negate: false, source: source) }
     ---
     expression = Suffix
     $ = { AndPredicateExpression(expression: expression) }

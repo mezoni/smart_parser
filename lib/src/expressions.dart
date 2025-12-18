@@ -210,9 +210,9 @@ class PositionExpression extends Expression {
 class PredicateExpression extends Expression {
   final bool negate;
 
-  final String predicate;
+  final String source;
 
-  PredicateExpression({required this.negate, required this.predicate});
+  PredicateExpression({required this.negate, required this.source});
 
   @override
   T accept<T>(Visitor<T> visitor) {

@@ -1,7 +1,0 @@
-`int?` Optional4 =>
-  { final foo = 2; }
-  x = Foo
-  $ = [c]
-
-`int?` Foo =>
-  [0]

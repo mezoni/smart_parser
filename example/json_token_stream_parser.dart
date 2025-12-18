@@ -67,7 +67,7 @@ class JsonParser {
   ///   ~{ state.errorExpected('enf of file'); }
   /// ```
   Result<JsonValue>? parseStart(State state) {
-    final index = index;
+    final index1 = index;
     final value = parseValue(state);
     if (value != null) {
       final isSuccess = token.kind == TokenKind.eof;
@@ -75,7 +75,7 @@ class JsonParser {
         return value;
       }
       state.errorExpected('enf of file');
-      restoreToken(state, index);
+      restoreToken(state, index1);
       return null;
     }
     return null;
@@ -102,7 +102,7 @@ class JsonParser {
       // (0)
       while (true) {
         if (token.kind == TokenKind.comma) {
-          final index = index;
+          final index1 = index;
           final comma = nextToken(state);
           final value2 = parseValue(state);
           if (value2 != null) {
@@ -110,7 +110,7 @@ class JsonParser {
             list.add(JsonCollectionElement(comma, value));
             continue;
           }
-          restoreToken(state, index);
+          restoreToken(state, index1);
           break;
         }
         state.errorExpected(',');
@@ -132,7 +132,7 @@ class JsonParser {
   /// ```
   Result<JsonArray>? parseArray(State state) {
     if (token.kind == TokenKind.openBracket) {
-      final index = index;
+      final index1 = index;
       final openBracket = nextToken(state);
       final elements = parseElements(state)?.$1;
       if (token.kind == TokenKind.closeBracket) {
@@ -140,7 +140,7 @@ class JsonParser {
         return Ok(JsonArray(openBracket, elements?? [], closeBracket));
       }
       state.errorExpected(']');
-      restoreToken(state, index);
+      restoreToken(state, index1);
       return null;
     }
     return null;
@@ -157,7 +157,7 @@ class JsonParser {
   ///   $ = { JsonKeyValuePair(string, colon, value) }
   /// ```
   Result<JsonKeyValuePair>? parseKeyValuePair(State state) {
-    final index = index;
+    final index1 = index;
     final string1 = parseString(state);
     if (string1 != null) {
       final string = string1.$1;
@@ -176,7 +176,7 @@ class JsonParser {
         break l;
       }
       // l:
-      restoreToken(state, index);
+      restoreToken(state, index1);
       return null;
     }
     state.errorExpected('string');
@@ -204,7 +204,7 @@ class JsonParser {
       // (0)
       while (true) {
         if (token.kind == TokenKind.comma) {
-          final index = index;
+          final index1 = index;
           final comma = nextToken(state);
           final keyValuePair2 = parseKeyValuePair(state);
           if (keyValuePair2 != null) {
@@ -212,7 +212,7 @@ class JsonParser {
             list.add(JsonCollectionElement(comma, keyValuePair));
             continue;
           }
-          restoreToken(state, index);
+          restoreToken(state, index1);
           break;
         }
         state.errorExpected(',');
@@ -234,7 +234,7 @@ class JsonParser {
   /// ```
   Result<JsonObject>? parseObject(State state) {
     if (token.kind == TokenKind.openBrace) {
-      final index = index;
+      final index1 = index;
       final openBrace = nextToken(state);
       final elements = parseKeyValuePairs(state)?.$1;
       if (token.kind == TokenKind.closeBrace) {
@@ -242,7 +242,7 @@ class JsonParser {
         return Ok(JsonObject(openBrace, elements ?? [], closeBrace));
       }
       state.errorExpected('\u007D');
-      restoreToken(state, index);
+      restoreToken(state, index1);
       return null;
     }
     return null;

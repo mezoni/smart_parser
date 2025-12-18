@@ -36,37 +36,37 @@ class TextParser {
   ///   $ = { Grammar(globals: globals, members: members, productions: productions) }
   /// ```
   Result<Grammar>? parseStart(State state) {
-    final pos$ = state.position;
-    final ch$ = state.ch;
+    final pos = state.position;
+    final ch = state.ch;
     parseS(state);
     final globals = parseGlobals(state)?.$1;
     final members = parseMembers(state)?.$1;
-    l$:
+    l:
     {
-      final productions$ = <Production>[];
+      final productions1 = <Production>[];
       // (1)
       while (true) {
-        final production$ = parseProduction(state);
-        if (production$ != null) {
-          productions$.add(production$.$1);
+        final production = parseProduction(state);
+        if (production != null) {
+          productions1.add(production.$1);
           continue;
         }
         break;
       }
-      if (productions$.isNotEmpty) {
-        final productions = productions$;
+      if (productions1.isNotEmpty) {
+        final productions = productions1;
         if (state.ch >= 0) {
           state.errorExpected('end of file');
-          break l$;
+          break l;
         }
         return Ok(Grammar(globals: globals, members: members, productions: productions));
       } else {
-        break l$;
+        break l;
       }
     }
-    // l$:
-    state.ch = ch$;
-    state.position = pos$;
+    // l:
+    state.ch = ch;
+    state.position = pos;
     return null;
   }
 
@@ -85,22 +85,22 @@ class TextParser {
     final start = state.position;
     // "%{"
     if (state.ch == 37 && state.startsWith('%{')) {
-      final pos$ = state.position;
-      final ch$ = state.ch;
+      final pos = state.position;
+      final ch = state.ch;
       state.readChar(state.position + 2);
       final index = state.indexOf('\u007D%');
-      final start$ = state.position;
+      final start1 = state.position;
       state.readChar(index == -1 ? state.length : index);
-      final globals$ = Ok(state.substring(start$, state.position));
+      final globals1 = Ok(state.substring(start1, state.position));
       // "}%"
       if (state.ch == 125 && state.startsWith('}%')) {
         state.readChar(state.position + 2);
         parseS(state);
-        return globals$;
+        return globals1;
       }
       state.error('Unterminated globals section', position: start);
-      state.ch = ch$;
-      state.position = pos$;
+      state.ch = ch;
+      state.position = pos;
       return null;
     }
     return null;
@@ -121,22 +121,22 @@ class TextParser {
     final start = state.position;
     // "%%"
     if (state.ch == 37 && state.startsWith('%%')) {
-      final pos$ = state.position;
-      final ch$ = state.ch;
+      final pos = state.position;
+      final ch = state.ch;
       state.readChar(state.position + 2);
       final index = state.indexOf('%%');
-      final start$ = state.position;
+      final start1 = state.position;
       state.readChar(index == -1 ? state.length : index);
-      final members$ = Ok(state.substring(start$, state.position));
+      final members1 = Ok(state.substring(start1, state.position));
       // "%%"
       if (state.ch == 37 && state.startsWith('%%')) {
         state.readChar(state.position + 2);
         parseS(state);
-        return members$;
+        return members1;
       }
       state.error('Unterminated members section', position: start);
-      state.ch = ch$;
-      state.position = pos$;
+      state.ch = ch;
+      state.position = pos;
       return null;
     }
     return null;
@@ -161,24 +161,24 @@ class TextParser {
   ///   $ = { Production(expression: expression, name: name, sourceCode: source, type: type) }
   /// ```
   Result<Production>? parseProduction(State state) {
-    final pos$ = state.position;
-    final ch$ = state.ch;
+    final pos = state.position;
+    final ch = state.ch;
     final start = state.position;
-    final type$ = parseType(state);
-    if (type$ != null) {
-      final type = type$.$1;
-      l$:
+    final type1 = parseType(state);
+    if (type1 != null) {
+      final type = type1.$1;
+      l:
       {
-        final productionName$ = parseProductionName(state);
-        if (productionName$ != null) {
-          final name = productionName$.$1;
+        final productionName = parseProductionName(state);
+        if (productionName != null) {
+          final name = productionName.$1;
           // '=>'
           if (state.ch == 61 && state.startsWith('=>')) {
             state.readChar(state.position + 2);
             parseS(state);
-            final expression$ = parseExpression(state);
-            if (expression$ != null) {
-              final expression = expression$.$1;
+            final expression1 = parseExpression(state);
+            if (expression1 != null) {
+              final expression = expression1.$1;
               // [;]
               if (state.ch == 59) {
                 state.nextChar();
@@ -188,17 +188,17 @@ class TextParser {
               final source = state.substring(start, end).trimRight();
               return Ok(Production(expression: expression, name: name, sourceCode: source, type: type));
             }
-            break l$;
+            break l;
           }
           state.errorExpected('=>');
-          break l$;
+          break l;
         }
         state.errorExpected('production name');
-        break l$;
+        break l;
       }
-      // l$:
-      state.ch = ch$;
-      state.position = pos$;
+      // l:
+      state.ch = ch;
+      state.position = pos;
       return null;
     }
     state.errorExpected('type');
@@ -217,9 +217,9 @@ class TextParser {
   /// ```
   Result<Expression>? parseExpression(State state) {
     final pos = state.position;
-    final orderedChoice$ = parseOrderedChoice(state);
-    if (orderedChoice$ != null) {
-      final expression = orderedChoice$.$1;
+    final orderedChoice = parseOrderedChoice(state);
+    if (orderedChoice != null) {
+      final expression = orderedChoice.$1;
       expression.sourceCode = state.substring(pos, state.position).trimRight();
       return Ok(expression);
     }
@@ -245,48 +245,48 @@ class TextParser {
   ///   $ = { OrderedChoiceExpression(expressions: expressions) }
   /// ```
   Result<Expression>? parseOrderedChoice(State state) {
-    final sequence$ = parseSequence(state);
-    if (sequence$ != null) {
-      final expression = sequence$.$1;
+    final sequence = parseSequence(state);
+    if (sequence != null) {
+      final expression = sequence.$1;
       final expressions = [expression];
       // (0)
       while (true) {
-        final pos$ = state.position;
-        final ch$ = state.ch;
-        l$:
+        final pos = state.position;
+        final ch = state.ch;
+        l:
         {
           // "/"
           if (state.ch == 47) {
             state.nextChar();
-            break l$;
+            break l;
           }
-          var isSuccess$ = false;
+          var isSuccess = false;
           // (1)
           while (true) {
             // "-"
             if (state.ch == 45) {
               state.nextChar();
-              isSuccess$ = true;
+              isSuccess = true;
               continue;
             }
             break;
           }
-          if (isSuccess$) {
-            break l$;
+          if (isSuccess) {
+            break l;
           } else {
             break;
           }
         }
-        // l$:
+        // l:
         parseS(state);
-        final sequence$1 = parseSequence(state);
-        if (sequence$1 != null) {
-          final expression = sequence$1.$1;
+        final sequence1 = parseSequence(state);
+        if (sequence1 != null) {
+          final expression = sequence1.$1;
           expressions.add(expression);
           continue;
         }
-        state.ch = ch$;
-        state.position = pos$;
+        state.ch = ch;
+        state.position = pos;
         break;
       }
       return Ok(OrderedChoiceExpression(expressions: expressions));
@@ -312,22 +312,22 @@ class TextParser {
   /// ```
   Result<Expression>? parseSequence(State state) {
     final pos = state.position;
-    final expressions$ = <Expression>[];
+    final expressions1 = <Expression>[];
     // (1)
     while (true) {
       final pos = state.position;
-      final sequenceElement$ = parseSequenceElement(state);
-      if (sequenceElement$ != null) {
-        final expression = sequenceElement$.$1;
+      final sequenceElement = parseSequenceElement(state);
+      if (sequenceElement != null) {
+        final expression = sequenceElement.$1;
         final errorHandler = parseErrorHandler(state)?.$1;
         expression.sourceCode = state.substring(pos, state.position).trimRight();
-        expressions$.add(expression..errorHandler = errorHandler);
+        expressions1.add(expression..errorHandler = errorHandler);
         continue;
       }
       break;
     }
-    if (expressions$.isNotEmpty) {
-      final expressions = expressions$;
+    if (expressions1.isNotEmpty) {
+      final expressions = expressions1;
       final expression = SequenceExpression(expressions: expressions);
       expression.sourceCode = state.substring(pos, state.position).trimRight();
       return Ok(expression);
@@ -355,47 +355,47 @@ class TextParser {
   ///   $ = { expression }
   /// ```
   Result<Expression>? parseSequenceElement(State state) {
-    final action$ = parseAction(state);
-    if (action$ != null) {
-      return action$;
+    final action = parseAction(state);
+    if (action != null) {
+      return action;
     }
-    final pos$ = state.position;
-    final ch$ = state.ch;
-    final String? semanticValue$1;
-    l$:
+    final pos = state.position;
+    final ch = state.ch;
+    final String? semanticValue2;
+    l:
     {
-      final pos$1 = state.position;
-      final ch$1 = state.ch;
-      final semanticValue$ = parseSemanticValue(state);
-      if (semanticValue$ != null) {
+      final pos1 = state.position;
+      final ch1 = state.ch;
+      final semanticValue1 = parseSemanticValue(state);
+      if (semanticValue1 != null) {
         // '='
         if (state.ch == 61) {
           state.nextChar();
           parseS(state);
-          semanticValue$1 = semanticValue$.$1;
-          break l$;
+          semanticValue2 = semanticValue1.$1;
+          break l;
         }
         state.errorExpected('=');
-        state.ch = ch$1;
-        state.position = pos$1;
-        semanticValue$1 = null;
-        break l$;
+        state.ch = ch1;
+        state.position = pos1;
+        semanticValue2 = null;
+        break l;
       }
-      semanticValue$1 = null;
-      break l$;
+      semanticValue2 = null;
+      break l;
     }
-    // l$:
-    final semanticValue = semanticValue$1;
+    // l:
+    final semanticValue = semanticValue2;
     final type = parseType(state)?.$1;
-    final prefix$ = parsePrefix(state);
-    if (prefix$ != null) {
-      final expression = prefix$.$1;
+    final prefix = parsePrefix(state);
+    if (prefix != null) {
+      final expression = prefix.$1;
       expression.semanticValue = semanticValue;
       expression.explicitType = type;
       return Ok(expression);
     }
-    state.ch = ch$;
-    state.position = pos$;
+    state.ch = ch;
+    state.position = pos;
     return null;
   }
 
@@ -409,16 +409,16 @@ class TextParser {
   ///   S
   /// ```
   Result<String>? parseSemanticValue(State state) {
-    final variableName$ = parseVariableName(state);
-    if (variableName$ != null) {
-      return variableName$;
+    final variableName = parseVariableName(state);
+    if (variableName != null) {
+      return variableName;
     }
     // '\$'
     if (state.ch == 36) {
       state.nextChar();
-      const semanticValue$ = Ok('\$');
+      const semanticValue = Ok('\$');
       parseS(state);
-      return semanticValue$;
+      return semanticValue;
     }
     state.errorExpected('\$');
     return null;
@@ -430,8 +430,8 @@ class TextParser {
   /// Prefix =>
   ///   "!" S
   ///   $ = (
-  ///     predicate = Block
-  ///     $ = { PredicateExpression(negate: true, predicate: predicate) }
+  ///     source = Block
+  ///     $ = { PredicateExpression(negate: true, source: source) }
   ///     ----
   ///     expression = Suffix
   ///     $ = { NotPredicateExpression(expression: expression) }
@@ -439,8 +439,8 @@ class TextParser {
   ///   ----
   ///   "&" S
   ///   $ = (
-  ///     predicate = Block
-  ///     $ = { PredicateExpression(negate: false, predicate: predicate) }
+  ///     source = Block
+  ///     $ = { PredicateExpression(negate: false, source: source) }
   ///     ---
   ///     expression = Suffix
   ///     $ = { AndPredicateExpression(expression: expression) }
@@ -449,59 +449,59 @@ class TextParser {
   ///   Suffix
   /// ```
   Result<Expression>? parsePrefix(State state) {
-    l$:
+    l:
     {
       // "!"
       if (state.ch == 33) {
-        final pos$ = state.position;
-        final ch$ = state.ch;
+        final pos = state.position;
+        final ch = state.ch;
         state.nextChar();
         parseS(state);
-        final block$ = parseBlock(state);
-        if (block$ != null) {
-          final predicate = block$.$1;
-          return Ok(PredicateExpression(negate: true, predicate: predicate));
+        final block = parseBlock(state);
+        if (block != null) {
+          final source = block.$1;
+          return Ok(PredicateExpression(negate: true, source: source));
         }
-        final suffix$ = parseSuffix(state);
-        if (suffix$ != null) {
-          final expression = suffix$.$1;
+        final suffix = parseSuffix(state);
+        if (suffix != null) {
+          final expression = suffix.$1;
           return Ok(NotPredicateExpression(expression: expression));
         }
-        state.ch = ch$;
-        state.position = pos$;
-        break l$;
+        state.ch = ch;
+        state.position = pos;
+        break l;
       }
-      break l$;
+      break l;
     }
-    // l$:
-    l$1:
+    // l:
+    l1:
     {
       // "&"
       if (state.ch == 38) {
-        final pos$1 = state.position;
-        final ch$1 = state.ch;
+        final pos1 = state.position;
+        final ch1 = state.ch;
         state.nextChar();
         parseS(state);
-        final block$1 = parseBlock(state);
-        if (block$1 != null) {
-          final predicate = block$1.$1;
-          return Ok(PredicateExpression(negate: false, predicate: predicate));
+        final block1 = parseBlock(state);
+        if (block1 != null) {
+          final source = block1.$1;
+          return Ok(PredicateExpression(negate: false, source: source));
         }
-        final suffix$1 = parseSuffix(state);
-        if (suffix$1 != null) {
-          final expression = suffix$1.$1;
+        final suffix1 = parseSuffix(state);
+        if (suffix1 != null) {
+          final expression = suffix1.$1;
           return Ok(AndPredicateExpression(expression: expression));
         }
-        state.ch = ch$1;
-        state.position = pos$1;
-        break l$1;
+        state.ch = ch1;
+        state.position = pos1;
+        break l1;
       }
-      break l$1;
+      break l1;
     }
-    // l$1:
-    final suffix$2 = parseSuffix(state);
-    if (suffix$2 != null) {
-      return suffix$2;
+    // l1:
+    final suffix2 = parseSuffix(state);
+    if (suffix2 != null) {
+      return suffix2;
     }
     return null;
   }
@@ -526,9 +526,9 @@ class TextParser {
   ///   )
   /// ```
   Result<Expression>? parseSuffix(State state) {
-    final primary$ = parsePrimary(state);
-    if (primary$ != null) {
-      final expression = primary$.$1;
+    final primary = parsePrimary(state);
+    if (primary != null) {
+      final expression = primary.$1;
       // "*"
       if (state.ch == 42) {
         state.nextChar();
@@ -581,45 +581,45 @@ class TextParser {
   ///   ~{ state.errorExpected('expression'); }
   /// ```
   Result<Expression>? parsePrimary(State state) {
-    final symbol$ = parseSymbol(state);
-    if (symbol$ != null) {
-      return symbol$;
+    final symbol = parseSymbol(state);
+    if (symbol != null) {
+      return symbol;
     }
-    final value$ = parseValue(state);
-    if (value$ != null) {
-      return value$;
+    final value = parseValue(state);
+    if (value != null) {
+      return value;
     }
-    final characterClass$ = parseCharacterClass(state);
-    if (characterClass$ != null) {
-      return characterClass$;
+    final characterClass = parseCharacterClass(state);
+    if (characterClass != null) {
+      return characterClass;
     }
-    final literal$ = parseLiteral(state);
-    if (literal$ != null) {
-      return literal$;
+    final literal = parseLiteral(state);
+    if (literal != null) {
+      return literal;
     }
-    final group$ = parseGroup(state);
-    if (group$ != null) {
-      return group$;
+    final group = parseGroup(state);
+    if (group != null) {
+      return group;
     }
-    final while$ = parseWhile(state);
-    if (while$ != null) {
-      return while$;
+    final while1 = parseWhile(state);
+    if (while1 != null) {
+      return while1;
     }
-    final anyCharacter$ = parseAnyCharacter(state);
-    if (anyCharacter$ != null) {
-      return anyCharacter$;
+    final anyCharacter = parseAnyCharacter(state);
+    if (anyCharacter != null) {
+      return anyCharacter;
     }
-    final capture$ = parseCapture(state);
-    if (capture$ != null) {
-      return capture$;
+    final capture = parseCapture(state);
+    if (capture != null) {
+      return capture;
     }
-    final position$ = parsePosition(state);
-    if (position$ != null) {
-      return position$;
+    final position = parsePosition(state);
+    if (position != null) {
+      return position;
     }
-    final match$ = parseMatch(state);
-    if (match$ != null) {
-      return match$;
+    final match = parseMatch(state);
+    if (match != null) {
+      return match;
     }
     state.errorExpected('expression');
     return null;
@@ -634,16 +634,16 @@ class TextParser {
   ///   $ = { ProductionExpression(name: name) }
   /// ```
   Result<Expression>? parseSymbol(State state) {
-    final pos$ = state.position;
-    final ch$ = state.ch;
-    final productionName$ = parseProductionName(state);
-    if (productionName$ != null) {
-      final name = productionName$.$1;
+    final pos = state.position;
+    final ch = state.ch;
+    final productionName = parseProductionName(state);
+    if (productionName != null) {
+      final name = productionName.$1;
       parseS(state);
       // '=>'
       if (state.ch == 61 && state.startsWith('=>')) {
-        state.ch = ch$;
-        state.position = pos$;
+        state.ch = ch;
+        state.position = pos;
         return null;
       }
       state.errorExpected('=>');
@@ -660,9 +660,9 @@ class TextParser {
   ///   $ = { ActionExpression(source: source) }
   /// ```
   Result<Expression>? parseAction(State state) {
-    final block$ = parseBlock(state);
-    if (block$ != null) {
-      final source = block$.$1;
+    final block = parseBlock(state);
+    if (block != null) {
+      final source = block.$1;
       return Ok(ActionExpression(source: source));
     }
     return null;
@@ -676,9 +676,9 @@ class TextParser {
   ///   $ = { ValueExpression(source: source) }
   /// ```
   Result<Expression>? parseValue(State state) {
-    final block$ = parseBlock(state);
-    if (block$ != null) {
-      final source = block$.$1;
+    final block = parseBlock(state);
+    if (block != null) {
+      final source = block.$1;
       return Ok(ValueExpression(source: source));
     }
     return null;
@@ -713,15 +713,15 @@ class TextParser {
   Result<Expression>? parseCapture(State state) {
     // "<"
     if (state.ch == 60) {
-      final pos$ = state.position;
-      final ch$ = state.ch;
+      final pos = state.position;
+      final ch = state.ch;
       state.nextChar();
       parseS(state);
-      l$:
+      l:
       {
-        final expression$ = parseExpression(state);
-        if (expression$ != null) {
-          final expression = expression$.$1;
+        final expression1 = parseExpression(state);
+        if (expression1 != null) {
+          final expression = expression1.$1;
           // '>'
           if (state.ch == 62) {
             state.nextChar();
@@ -729,13 +729,13 @@ class TextParser {
             return Ok(CaptureExpression(expression: expression));
           }
           state.errorExpected('>');
-          break l$;
+          break l;
         }
-        break l$;
+        break l;
       }
-      // l$:
-      state.ch = ch$;
-      state.position = pos$;
+      // l:
+      state.ch = ch;
+      state.position = pos;
       return null;
     }
     return null;
@@ -760,43 +760,43 @@ class TextParser {
   ///   $ = { CharacterClassExpression(ranges: ranges, negate: negate) }
   /// ```
   Result<Expression>? parseCharacterClass(State state) {
-    final pos$ = state.position;
-    final ch$ = state.ch;
+    final pos = state.position;
+    final ch = state.ch;
     var negate = false;
-    l$:
+    l:
     {
       // "[^"
       if (state.ch == 91 && state.startsWith('[^')) {
         state.readChar(state.position + 2);
         negate = true;
-        break l$;
+        break l;
       }
       // "["
       if (state.ch == 91) {
         state.nextChar();
-        break l$;
+        break l;
       }
       return null;
     }
-    // l$:
-    l$1:
+    // l:
+    l1:
     {
-      final ranges$ = <(int, int)>[];
+      final ranges1 = <(int, int)>[];
       // (1)
       while (true) {
         // "]"
         if (state.ch == 93) {
           break;
         }
-        final range$ = parseRange(state);
-        if (range$ != null) {
-          ranges$.add(range$.$1);
+        final range = parseRange(state);
+        if (range != null) {
+          ranges1.add(range.$1);
           continue;
         }
         break;
       }
-      if (ranges$.isNotEmpty) {
-        final ranges = ranges$;
+      if (ranges1.isNotEmpty) {
+        final ranges = ranges1;
         // ']'
         if (state.ch == 93) {
           state.nextChar();
@@ -804,15 +804,15 @@ class TextParser {
           return Ok(CharacterClassExpression(ranges: ranges, negate: negate));
         }
         state.errorExpected(']');
-        break l$1;
+        break l1;
       } else {
         state.errorExpected('characters');
-        break l$1;
+        break l1;
       }
     }
-    // l$1:
-    state.ch = ch$;
-    state.position = pos$;
+    // l1:
+    state.ch = ch;
+    state.position = pos;
     return null;
   }
 
@@ -828,15 +828,15 @@ class TextParser {
   Result<Expression>? parseGroup(State state) {
     // "("
     if (state.ch == 40) {
-      final pos$ = state.position;
-      final ch$ = state.ch;
+      final pos = state.position;
+      final ch = state.ch;
       state.nextChar();
       parseS(state);
-      l$:
+      l:
       {
-        final expression$ = parseExpression(state);
-        if (expression$ != null) {
-          final expression = expression$.$1;
+        final expression1 = parseExpression(state);
+        if (expression1 != null) {
+          final expression = expression1.$1;
           // ')'
           if (state.ch == 41) {
             state.nextChar();
@@ -844,13 +844,13 @@ class TextParser {
             return Ok(GroupExpression(expression: expression));
           }
           state.errorExpected(')');
-          break l$;
+          break l;
         }
-        break l$;
+        break l;
       }
-      // l$:
-      state.ch = ch$;
-      state.position = pos$;
+      // l:
+      state.ch = ch;
+      state.position = pos;
       return null;
     }
     return null;
@@ -867,14 +867,14 @@ class TextParser {
   ///   $ = { LiteralExpression(isPrimitive: true, text: text) }
   /// ```
   Result<Expression>? parseLiteral(State state) {
-    final sQString$ = parseSQString(state);
-    if (sQString$ != null) {
-      final text = sQString$.$1;
+    final sQString = parseSQString(state);
+    if (sQString != null) {
+      final text = sQString.$1;
       return Ok(LiteralExpression(text: text));
     }
-    final dQString$ = parseDQString(state);
-    if (dQString$ != null) {
-      final text = dQString$.$1;
+    final dQString = parseDQString(state);
+    if (dQString != null) {
+      final text = dQString.$1;
       return Ok(LiteralExpression(isPrimitive: true, text: text));
     }
     return null;
@@ -900,36 +900,36 @@ class TextParser {
   Result<Expression>? parseMatch(State state) {
     // "@match"
     if (state.ch == 64 && state.startsWith('@match')) {
-      final pos$ = state.position;
-      final ch$ = state.ch;
+      final pos = state.position;
+      final ch = state.ch;
       state.readChar(state.position + 6);
       parseS(state);
-      l$1:
+      l1:
       {
         // '('
         if (state.ch == 40) {
           state.nextChar();
           parseS(state);
           var quote = '\'';
-          final String text$;
-          l$:
+          final String text1;
+          l:
           {
-            final sQString$ = parseSQString(state);
-            if (sQString$ != null) {
-              text$ = sQString$.$1;
-              break l$;
+            final sQString = parseSQString(state);
+            if (sQString != null) {
+              text1 = sQString.$1;
+              break l;
             }
-            final dQString$ = parseDQString(state);
-            if (dQString$ != null) {
+            final dQString = parseDQString(state);
+            if (dQString != null) {
               quote = '"';
-              text$ = dQString$.$1;
-              break l$;
+              text1 = dQString.$1;
+              break l;
             }
             state.errorExpected('string value');
-            break l$1;
+            break l1;
           }
-          // l$:
-          final text = text$;
+          // l:
+          final text = text1;
           // ')'
           if (state.ch == 41) {
             state.nextChar();
@@ -937,14 +937,14 @@ class TextParser {
             return Ok(MatchExpression(quote: quote, text: text));
           }
           state.errorExpected(')');
-          break l$1;
+          break l1;
         }
         state.errorExpected('(');
-        break l$1;
+        break l1;
       }
-      // l$1:
-      state.ch = ch$;
-      state.position = pos$;
+      // l1:
+      state.ch = ch;
+      state.position = pos;
       return null;
     }
     return null;
@@ -964,19 +964,19 @@ class TextParser {
   Result<Expression>? parsePosition(State state) {
     // "@position"
     if (state.ch == 64 && state.startsWith('@position')) {
-      final pos$ = state.position;
-      final ch$ = state.ch;
+      final pos = state.position;
+      final ch = state.ch;
       state.readChar(state.position + 9);
       parseS(state);
-      l$:
+      l:
       {
         // '('
         if (state.ch == 40) {
           state.nextChar();
           parseS(state);
-          final block$ = parseBlock(state);
-          if (block$ != null) {
-            final action = block$.$1;
+          final block = parseBlock(state);
+          if (block != null) {
+            final action = block.$1;
             // ')'
             if (state.ch == 41) {
               state.nextChar();
@@ -984,17 +984,17 @@ class TextParser {
               return Ok(PositionExpression(action: action));
             }
             state.errorExpected(')');
-            break l$;
+            break l;
           }
           state.errorExpected('position value');
-          break l$;
+          break l;
         }
         state.errorExpected('(');
-        break l$;
+        break l;
       }
-      // l$:
-      state.ch = ch$;
-      state.position = pos$;
+      // l:
+      state.ch = ch;
+      state.position = pos;
       return null;
     }
     return null;
@@ -1017,19 +1017,19 @@ class TextParser {
   Result<Expression>? parseWhile(State state) {
     // "@while"
     if (state.ch == 64 && state.startsWith('@while')) {
-      final pos$ = state.position;
-      final ch$ = state.ch;
+      final pos = state.position;
+      final ch = state.ch;
       state.readChar(state.position + 6);
       parseS(state);
-      l$:
+      l:
       {
         // '('
         if (state.ch == 40) {
           state.nextChar();
           parseS(state);
-          final whileRange$ = parseWhileRange(state);
-          if (whileRange$ != null) {
-            final range = whileRange$.$1;
+          final whileRange = parseWhileRange(state);
+          if (whileRange != null) {
+            final range = whileRange.$1;
             // ')'
             if (state.ch == 41) {
               state.nextChar();
@@ -1038,9 +1038,9 @@ class TextParser {
               if (state.ch == 123) {
                 state.nextChar();
                 parseS(state);
-                final expression$ = parseExpression(state);
-                if (expression$ != null) {
-                  final expression = expression$.$1;
+                final expression1 = parseExpression(state);
+                if (expression1 != null) {
+                  final expression = expression1.$1;
                   // '}'
                   if (state.ch == 125) {
                     state.nextChar();
@@ -1048,25 +1048,25 @@ class TextParser {
                     return Ok(WhileExpression(expression: expression, range: range));
                   }
                   state.errorExpected('}');
-                  break l$;
+                  break l;
                 }
-                break l$;
+                break l;
               }
               state.errorExpected('{');
-              break l$;
+              break l;
             }
             state.errorExpected(')');
-            break l$;
+            break l;
           }
           state.errorExpected('while range');
-          break l$;
+          break l;
         }
         state.errorExpected('(');
-        break l$;
+        break l;
       }
-      // l$:
-      state.ch = ch$;
-      state.position = pos$;
+      // l:
+      state.ch = ch;
+      state.position = pos;
       return null;
     }
     return null;
@@ -1084,36 +1084,36 @@ class TextParser {
   ///   $ = { (min, max) }
   /// ```
   Result<(int, int?)>? parseWhileRange(State state) {
-    final decValue$ = parseDecValue(state);
-    if (decValue$ != null) {
-      final min = decValue$.$1;
+    final decValue = parseDecValue(state);
+    if (decValue != null) {
+      final min = decValue.$1;
       parseS(state);
-      final int? max$;
-      l$:
+      final int? max1;
+      l:
       {
         // ','
         if (state.ch == 44) {
-          final pos$ = state.position;
-          final ch$ = state.ch;
+          final pos = state.position;
+          final ch = state.ch;
           state.nextChar();
           parseS(state);
-          final decValue1$ = parseDecValue1(state);
-          if (decValue1$ != null) {
+          final decValue1 = parseDecValue1(state);
+          if (decValue1 != null) {
             parseS(state);
-            max$ = decValue1$.$1;
-            break l$;
+            max1 = decValue1.$1;
+            break l;
           }
-          state.ch = ch$;
-          state.position = pos$;
-          max$ = null;
-          break l$;
+          state.ch = ch;
+          state.position = pos;
+          max1 = null;
+          break l;
         }
         state.errorExpected(',');
-        max$ = null;
-        break l$;
+        max1 = null;
+        break l;
       }
-      // l$:
-      final max = max$;
+      // l:
+      final max = max1;
       return Ok((min, max));
     }
     return null;
@@ -1129,16 +1129,16 @@ class TextParser {
   Result<String>? parseErrorHandler(State state) {
     // "~"
     if (state.ch == 126) {
-      final pos$ = state.position;
-      final ch$ = state.ch;
+      final pos = state.position;
+      final ch = state.ch;
       state.nextChar();
       parseS(state);
-      final block$ = parseBlock(state);
-      if (block$ != null) {
-        return block$;
+      final block = parseBlock(state);
+      if (block != null) {
+        return block;
       }
-      state.ch = ch$;
-      state.position = pos$;
+      state.ch = ch;
+      state.position = pos;
       return null;
     }
     return null;
@@ -1161,13 +1161,13 @@ class TextParser {
   Result<String>? parseType(State state) {
     // "`"
     if (state.ch == 96) {
-      final pos$ = state.position;
-      final ch$ = state.ch;
+      final pos = state.position;
+      final ch = state.ch;
       state.nextChar();
-      l$:
+      l:
       {
-        final start$ = state.position;
-        var isSuccess$ = false;
+        final start = state.position;
+        var isSuccess = false;
         // (1)
         while (true) {
           // [`]
@@ -1175,33 +1175,33 @@ class TextParser {
             break;
           }
           // [a-zA-Z0-9_$<(\{,:\})>? ]
-          final c$ = state.ch;
-          final isInRange$ = c$ <= 60 ? c$ >= 60 || c$ <= 41 ? c$ >= 40 || c$ == 32 || c$ == 36 : c$ == 44 || c$ >= 48 && c$ <= 58 : c$ <= 95 ? c$ >= 95 || c$ <= 63 ? c$ >= 62 : c$ >= 65 && c$ <= 90 : c$ <= 123 ? c$ >= 97 : c$ == 125;
-          if (isInRange$) {
+          final c = state.ch;
+          final isInRange = c <= 60 ? c >= 60 || c <= 41 ? c >= 40 || c == 32 || c == 36 : c == 44 || c >= 48 && c <= 58 : c <= 95 ? c >= 95 || c <= 63 ? c >= 62 : c >= 65 && c <= 90 : c <= 123 ? c >= 97 : c == 125;
+          if (isInRange) {
             state.nextChar();
-            isSuccess$ = true;
+            isSuccess = true;
             continue;
           }
           break;
         }
-        if (isSuccess$) {
-          final type$ = Ok(state.substring(start$, state.position));
+        if (isSuccess) {
+          final type1 = Ok(state.substring(start, state.position));
           // '`'
           if (state.ch == 96) {
             state.nextChar();
             parseS(state);
-            return type$;
+            return type1;
           }
           state.errorExpected('`');
-          break l$;
+          break l;
         } else {
           state.errorExpected('type description');
-          break l$;
+          break l;
         }
       }
-      // l$:
-      state.ch = ch$;
-      state.position = pos$;
+      // l:
+      state.ch = ch;
+      state.position = pos;
       return null;
     }
     return null;
@@ -1223,39 +1223,39 @@ class TextParser {
   Result<String>? parseDQString(State state) {
     // "\""
     if (state.ch == 34) {
-      final pos$ = state.position;
-      final ch$ = state.ch;
+      final pos = state.position;
+      final ch = state.ch;
       state.nextChar();
-      final parts$ = <String>[];
+      final parts1 = <String>[];
       // (0)
       while (true) {
-        final start$ = state.position;
-        var isSuccess$ = false;
+        final start = state.position;
+        var isSuccess = false;
         // (1)
         while (true) {
           // [ -!#-\[\]-{10ffff}]
-          final c$ = state.ch;
-          final isInRange$ = c$ <= 91 ? c$ >= 35 || c$ >= 32 && c$ <= 33 : c$ >= 93 && c$ <= 1114111;
-          if (isInRange$) {
+          final c = state.ch;
+          final isInRange = c <= 91 ? c >= 35 || c >= 32 && c <= 33 : c >= 93 && c <= 1114111;
+          if (isInRange) {
             state.nextChar();
-            isSuccess$ = true;
+            isSuccess = true;
             continue;
           }
           break;
         }
-        if (isSuccess$) {
-          parts$.add(state.substring(start$, state.position));
+        if (isSuccess) {
+          parts1.add(state.substring(start, state.position));
           continue;
         } else {
-          final escaped$ = parseEscaped(state);
-          if (escaped$ != null) {
-            parts$.add(escaped$.$1);
+          final escaped = parseEscaped(state);
+          if (escaped != null) {
+            parts1.add(escaped.$1);
             continue;
           }
           break;
         }
       }
-      final parts = parts$;
+      final parts = parts1;
       // '"'
       if (state.ch == 34) {
         state.nextChar();
@@ -1263,8 +1263,8 @@ class TextParser {
         return Ok(parts.join());
       }
       state.errorExpected('"');
-      state.ch = ch$;
-      state.position = pos$;
+      state.ch = ch;
+      state.position = pos;
       return null;
     }
     return null;
@@ -1286,39 +1286,39 @@ class TextParser {
   Result<String>? parseSQString(State state) {
     // "'"
     if (state.ch == 39) {
-      final pos$ = state.position;
-      final ch$ = state.ch;
+      final pos = state.position;
+      final ch = state.ch;
       state.nextChar();
-      final parts$ = <String>[];
+      final parts1 = <String>[];
       // (0)
       while (true) {
-        final start$ = state.position;
-        var isSuccess$ = false;
+        final start = state.position;
+        var isSuccess = false;
         // (1)
         while (true) {
           // [ -&(-\[\]-{10ffff}]
-          final c$ = state.ch;
-          final isInRange$ = c$ <= 91 ? c$ >= 40 || c$ >= 32 && c$ <= 38 : c$ >= 93 && c$ <= 1114111;
-          if (isInRange$) {
+          final c = state.ch;
+          final isInRange = c <= 91 ? c >= 40 || c >= 32 && c <= 38 : c >= 93 && c <= 1114111;
+          if (isInRange) {
             state.nextChar();
-            isSuccess$ = true;
+            isSuccess = true;
             continue;
           }
           break;
         }
-        if (isSuccess$) {
-          parts$.add(state.substring(start$, state.position));
+        if (isSuccess) {
+          parts1.add(state.substring(start, state.position));
           continue;
         } else {
-          final escaped$ = parseEscaped(state);
-          if (escaped$ != null) {
-            parts$.add(escaped$.$1);
+          final escaped = parseEscaped(state);
+          if (escaped != null) {
+            parts1.add(escaped.$1);
             continue;
           }
           break;
         }
       }
-      final parts = parts$;
+      final parts = parts1;
       // '\''
       if (state.ch == 39) {
         state.nextChar();
@@ -1326,8 +1326,8 @@ class TextParser {
         return Ok(parts.join());
       }
       state.errorExpected('\'');
-      state.ch = ch$;
-      state.position = pos$;
+      state.ch = ch;
+      state.position = pos;
       return null;
     }
     return null;
@@ -1385,24 +1385,24 @@ class TextParser {
   Result<String>? parseEscaped(State state) {
     // "\\"
     if (state.ch == 92) {
-      final pos$ = state.position;
-      final ch$ = state.ch;
+      final pos = state.position;
+      final ch = state.ch;
       state.nextChar();
-      l$1:
+      l1:
       {
         // "u"
         if (state.ch == 117) {
-          final pos$1 = state.position;
-          final ch$1 = state.ch;
+          final pos1 = state.position;
+          final ch1 = state.ch;
           state.nextChar();
-          l$:
+          l:
           {
             // '{'
             if (state.ch == 123) {
               state.nextChar();
-              final hexValue$ = parseHexValue(state);
-              if (hexValue$ != null) {
-                final charCode = hexValue$.$1;
+              final hexValue = parseHexValue(state);
+              if (hexValue != null) {
+                final charCode = hexValue.$1;
                 // '}'
                 if (state.ch == 125) {
                   state.nextChar();
@@ -1410,22 +1410,22 @@ class TextParser {
                 }
                 state.errorExpected('}');
                 state.error('Unterminated Unicode escape sequence');
-                break l$;
+                break l;
               }
               state.error('unicode escape');
-              break l$;
+              break l;
             }
             state.errorExpected('{');
-            break l$;
+            break l;
           }
-          // l$:
-          state.ch = ch$1;
-          state.position = pos$1;
-          break l$1;
+          // l:
+          state.ch = ch1;
+          state.position = pos1;
+          break l1;
         }
-        break l$1;
+        break l1;
       }
-      // l$1:
+      // l1:
       // "a"
       if (state.ch == 97) {
         state.nextChar();
@@ -1482,8 +1482,8 @@ class TextParser {
         return const Ok('\'');
       }
       state.error('Illegal escape character');
-      state.ch = ch$;
-      state.position = pos$;
+      state.ch = ch;
+      state.position = pos;
       return null;
     }
     return null;
@@ -1552,63 +1552,63 @@ class TextParser {
   ///   ~{ state.error('Illegal escape character'); }
   /// ```
   Result<int>? parseRangeChar(State state) {
-    l$:
+    l:
     {
       // "\\"
       if (state.ch == 92) {
-        break l$;
+        break l;
       }
       // [^{0-1f}\{\}\[\]\\]
-      final c$ = state.ch;
-      final isInRange$ = !(c$ <= 93 ? c$ >= 91 || c$ >= 0 && c$ <= 31 : c$ == 123 || c$ == 125) && !(c$ < 0);
-      if (isInRange$) {
+      final c = state.ch;
+      final isInRange = !(c <= 93 ? c >= 91 || c >= 0 && c <= 31 : c == 123 || c == 125) && !(c < 0);
+      if (isInRange) {
         state.nextChar();
-        return Ok(c$);
+        return Ok(c);
       }
-      break l$;
+      break l;
     }
-    // l$:
+    // l:
     // "\\"
     if (state.ch == 92) {
-      final pos$ = state.position;
-      final ch$ = state.ch;
+      final pos = state.position;
+      final ch = state.ch;
       state.nextChar();
-      l$2:
+      l2:
       {
         // "u"
         if (state.ch == 117) {
-          final pos$1 = state.position;
-          final ch$1 = state.ch;
+          final pos1 = state.position;
+          final ch1 = state.ch;
           state.nextChar();
-          l$1:
+          l1:
           {
             // '{'
             if (state.ch == 123) {
               state.nextChar();
-              final hexValue$ = parseHexValue(state);
-              if (hexValue$ != null) {
+              final hexValue = parseHexValue(state);
+              if (hexValue != null) {
                 // '}'
                 if (state.ch == 125) {
                   state.nextChar();
-                  return hexValue$;
+                  return hexValue;
                 }
                 state.errorExpected('}');
-                break l$1;
+                break l1;
               }
               state.errorExpected('hex number');
-              break l$1;
+              break l1;
             }
             state.errorExpected('{');
-            break l$1;
+            break l1;
           }
-          // l$1:
-          state.ch = ch$1;
-          state.position = pos$1;
-          break l$2;
+          // l1:
+          state.ch = ch1;
+          state.position = pos1;
+          break l2;
         }
-        break l$2;
+        break l2;
       }
-      // l$2:
+      // l2:
       // "a"
       if (state.ch == 97) {
         state.nextChar();
@@ -1685,8 +1685,8 @@ class TextParser {
         return const Ok(0x7D);
       }
       state.error('Illegal escape character');
-      state.ch = ch$;
-      state.position = pos$;
+      state.ch = ch;
+      state.position = pos;
       return null;
     }
     return null;
@@ -1701,22 +1701,22 @@ class TextParser {
   ///   $ = { int.parse(text) }
   /// ```
   Result<int>? parseDecValue(State state) {
-    final start$ = state.position;
-    var isSuccess$ = false;
+    final start = state.position;
+    var isSuccess = false;
     // (1)
     while (true) {
       // [0-9]
-      final c$ = state.ch;
-      final isDigit$ = c$ >= 48 && c$ <= 57;
-      if (isDigit$) {
+      final c = state.ch;
+      final isDigit = c >= 48 && c <= 57;
+      if (isDigit) {
         state.nextChar();
-        isSuccess$ = true;
+        isSuccess = true;
         continue;
       }
       break;
     }
-    if (isSuccess$) {
-      final text = state.substring(start$, state.position);
+    if (isSuccess) {
+      final text = state.substring(start, state.position);
       return Ok(int.parse(text));
     } else {
       state.errorExpected('decimal number');
@@ -1733,24 +1733,24 @@ class TextParser {
   ///   $ = { int.parse(text) }
   /// ```
   Result<int>? parseDecValue1(State state) {
-    final start$ = state.position;
+    final start = state.position;
     // [1-9]
-    final c$ = state.ch;
-    final isNonZeroDigit$ = c$ >= 49 && c$ <= 57;
-    if (isNonZeroDigit$) {
+    final c = state.ch;
+    final isNonZeroDigit = c >= 49 && c <= 57;
+    if (isNonZeroDigit) {
       state.nextChar();
       // (0)
       while (true) {
         // [0-9]
-        final c$1 = state.ch;
-        final isDigit$ = c$1 >= 48 && c$1 <= 57;
-        if (isDigit$) {
+        final c1 = state.ch;
+        final isDigit = c1 >= 48 && c1 <= 57;
+        if (isDigit) {
           state.nextChar();
           continue;
         }
         break;
       }
-      final text = state.substring(start$, state.position);
+      final text = state.substring(start, state.position);
       return Ok(int.parse(text));
     }
     state.errorExpected('decimal number from 1');
@@ -1766,22 +1766,22 @@ class TextParser {
   ///   $ = { int.parse(text, radix: 16) }
   /// ```
   Result<int>? parseHexValue(State state) {
-    final start$ = state.position;
-    var isSuccess$ = false;
+    final start = state.position;
+    var isSuccess = false;
     // (1)
     while (true) {
       // [a-fA-F0-9]
-      final c$ = state.ch;
-      final isHexDigit$ = c$ <= 70 ? c$ >= 65 || c$ >= 48 && c$ <= 57 : c$ >= 97 && c$ <= 102;
-      if (isHexDigit$) {
+      final c = state.ch;
+      final isHexDigit = c <= 70 ? c >= 65 || c >= 48 && c <= 57 : c >= 97 && c <= 102;
+      if (isHexDigit) {
         state.nextChar();
-        isSuccess$ = true;
+        isSuccess = true;
         continue;
       }
       break;
     }
-    if (isSuccess$) {
-      final text = state.substring(start$, state.position);
+    if (isSuccess) {
+      final text = state.substring(start, state.position);
       return Ok(int.parse(text, radix: 16));
     } else {
       state.errorExpected('hexadecimal number');
@@ -1816,110 +1816,110 @@ class TextParser {
   ///   )
   /// ```
   Result<(int, int)>? parseRange(State state) {
-    l$1:
+    l1:
     {
       // "{"
       if (state.ch == 123) {
-        final pos$ = state.position;
-        final ch$ = state.ch;
+        final pos = state.position;
+        final ch = state.ch;
         state.nextChar();
-        l$:
+        l:
         {
-          final hexValue$ = parseHexValue(state);
-          if (hexValue$ != null) {
-            final start = hexValue$.$1;
+          final hexValue = parseHexValue(state);
+          if (hexValue != null) {
+            final start = hexValue.$1;
             // '-'
             if (state.ch == 45) {
               state.nextChar();
-              final hexValue$1 = parseHexValue(state);
-              if (hexValue$1 != null) {
-                final end = hexValue$1.$1;
+              final hexValue1 = parseHexValue(state);
+              if (hexValue1 != null) {
+                final end = hexValue1.$1;
                 // '}'
                 if (state.ch == 125) {
                   state.nextChar();
                   return Ok((start, end));
                 }
                 state.errorExpected('}');
-                break l$;
+                break l;
               }
-              break l$;
+              break l;
             }
             state.errorExpected('-');
-            break l$;
+            break l;
           }
-          break l$;
+          break l;
         }
-        // l$:
-        state.ch = ch$;
-        state.position = pos$;
-        break l$1;
+        // l:
+        state.ch = ch;
+        state.position = pos;
+        break l1;
       }
-      break l$1;
+      break l1;
     }
-    // l$1:
-    l$3:
+    // l1:
+    l3:
     {
       // "{"
       if (state.ch == 123) {
-        final pos$1 = state.position;
-        final ch$1 = state.ch;
+        final pos1 = state.position;
+        final ch1 = state.ch;
         state.nextChar();
-        l$2:
+        l2:
         {
-          final hexValue$2 = parseHexValue(state);
-          if (hexValue$2 != null) {
-            final char = hexValue$2.$1;
+          final hexValue2 = parseHexValue(state);
+          if (hexValue2 != null) {
+            final char = hexValue2.$1;
             // '}'
             if (state.ch == 125) {
               state.nextChar();
               return Ok((char, char));
             }
             state.errorExpected('}');
-            break l$2;
+            break l2;
           }
-          break l$2;
+          break l2;
         }
-        // l$2:
-        state.ch = ch$1;
-        state.position = pos$1;
-        break l$3;
+        // l2:
+        state.ch = ch1;
+        state.position = pos1;
+        break l3;
       }
-      break l$3;
+      break l3;
     }
-    // l$3:
-    l$5:
+    // l3:
+    l5:
     {
-      final pos$2 = state.position;
-      final ch$2 = state.ch;
-      final rangeChar$ = parseRangeChar(state);
-      if (rangeChar$ != null) {
-        final start = rangeChar$.$1;
-        l$4:
+      final pos2 = state.position;
+      final ch2 = state.ch;
+      final rangeChar = parseRangeChar(state);
+      if (rangeChar != null) {
+        final start = rangeChar.$1;
+        l4:
         {
           // '-'
           if (state.ch == 45) {
             state.nextChar();
-            final rangeChar$1 = parseRangeChar(state);
-            if (rangeChar$1 != null) {
-              final end = rangeChar$1.$1;
+            final rangeChar1 = parseRangeChar(state);
+            if (rangeChar1 != null) {
+              final end = rangeChar1.$1;
               return Ok((start, end));
             }
-            break l$4;
+            break l4;
           }
           state.errorExpected('-');
-          break l$4;
+          break l4;
         }
-        // l$4:
-        state.ch = ch$2;
-        state.position = pos$2;
-        break l$5;
+        // l4:
+        state.ch = ch2;
+        state.position = pos2;
+        break l5;
       }
-      break l$5;
+      break l5;
     }
-    // l$5:
-    final rangeChar$2 = parseRangeChar(state);
-    if (rangeChar$2 != null) {
-      final char = rangeChar$2.$1;
+    // l5:
+    final rangeChar2 = parseRangeChar(state);
+    if (rangeChar2 != null) {
+      final char = rangeChar2.$1;
       return Ok((char, char));
     }
     return null;
@@ -1936,10 +1936,10 @@ class TextParser {
   Result<String>? parseBlock(State state) {
     // "{"
     if (state.ch == 123) {
-      final pos$ = state.position;
-      final ch$ = state.ch;
+      final pos = state.position;
+      final ch = state.ch;
       state.nextChar();
-      final start$ = state.position;
+      final start = state.position;
       // (0)
       while (true) {
         if (parseBlockBody(state) != null) {
@@ -1947,16 +1947,16 @@ class TextParser {
         }
         break;
       }
-      final block$ = Ok(state.substring(start$, state.position));
+      final block = Ok(state.substring(start, state.position));
       // '}'
       if (state.ch == 125) {
         state.nextChar();
         parseS(state);
-        return block$;
+        return block;
       }
       state.errorExpected('}');
-      state.ch = ch$;
-      state.position = pos$;
+      state.ch = ch;
+      state.position = pos;
       return null;
     }
     return null;
@@ -1974,12 +1974,12 @@ class TextParser {
   ///   .
   /// ```
   Result<void>? parseBlockBody(State state) {
-    l$:
+    l:
     {
       // "{"
       if (state.ch == 123) {
-        final pos$ = state.position;
-        final ch$ = state.ch;
+        final pos = state.position;
+        final ch = state.ch;
         state.nextChar();
         // (0)
         while (true) {
@@ -1994,13 +1994,13 @@ class TextParser {
           return Result.none;
         }
         state.errorExpected('}');
-        state.ch = ch$;
-        state.position = pos$;
-        break l$;
+        state.ch = ch;
+        state.position = pos;
+        break l;
       }
-      break l$;
+      break l;
     }
-    // l$:
+    // l:
     // "}"
     if (state.ch == 125) {
       return null;
@@ -2020,26 +2020,26 @@ class TextParser {
   ///   S
   /// ```
   Result<String>? parseVariableName(State state) {
-    final start$ = state.position;
+    final start = state.position;
     // [a-z]
-    final c$ = state.ch;
-    final isLower$ = c$ >= 97 && c$ <= 122;
-    if (isLower$) {
+    final c = state.ch;
+    final isLower = c >= 97 && c <= 122;
+    if (isLower) {
       state.nextChar();
       // (0)
       while (true) {
         // [a-zA-Z0-9_]
-        final c$1 = state.ch;
-        final isAlphaOrDigitOrUnderscore$ = c$1 <= 90 ? c$1 >= 65 || c$1 >= 48 && c$1 <= 57 : c$1 == 95 || c$1 >= 97 && c$1 <= 122;
-        if (isAlphaOrDigitOrUnderscore$) {
+        final c1 = state.ch;
+        final isAlphaOrDigitOrUnderscore = c1 <= 90 ? c1 >= 65 || c1 >= 48 && c1 <= 57 : c1 == 95 || c1 >= 97 && c1 <= 122;
+        if (isAlphaOrDigitOrUnderscore) {
           state.nextChar();
           continue;
         }
         break;
       }
-      final variableName$ = Ok(state.substring(start$, state.position));
+      final variableName = Ok(state.substring(start, state.position));
       parseS(state);
-      return variableName$;
+      return variableName;
     }
     return null;
   }
@@ -2052,26 +2052,26 @@ class TextParser {
   ///   S
   /// ```
   Result<String>? parseProductionName(State state) {
-    final start$ = state.position;
+    final start = state.position;
     // [A-Z]
-    final c$ = state.ch;
-    final isUpper$ = c$ >= 65 && c$ <= 90;
-    if (isUpper$) {
+    final c = state.ch;
+    final isUpper = c >= 65 && c <= 90;
+    if (isUpper) {
       state.nextChar();
       // (0)
       while (true) {
         // [a-zA-Z0-9_]
-        final c$1 = state.ch;
-        final isAlphaOrDigitOrUnderscore$ = c$1 <= 90 ? c$1 >= 65 || c$1 >= 48 && c$1 <= 57 : c$1 == 95 || c$1 >= 97 && c$1 <= 122;
-        if (isAlphaOrDigitOrUnderscore$) {
+        final c1 = state.ch;
+        final isAlphaOrDigitOrUnderscore = c1 <= 90 ? c1 >= 65 || c1 >= 48 && c1 <= 57 : c1 == 95 || c1 >= 97 && c1 <= 122;
+        if (isAlphaOrDigitOrUnderscore) {
           state.nextChar();
           continue;
         }
         break;
       }
-      final productionName$ = Ok(state.substring(start$, state.position));
+      final productionName = Ok(state.substring(start, state.position));
       parseS(state);
-      return productionName$;
+      return productionName;
     }
     return null;
   }
@@ -2117,11 +2117,11 @@ class TextParser {
       // (0)
       while (true) {
         state.predicate++;
-        final pos$ = state.position;
-        final ch$ = state.ch;
+        final pos = state.position;
+        final ch = state.ch;
         if (parseEndOfLine(state) != null) {
-          state.ch = ch$;
-          state.position = pos$;
+          state.ch = ch;
+          state.position = pos;
           state.predicate--;
           break;
         }
@@ -2148,9 +2148,9 @@ class TextParser {
   /// ```
   Result<void>? parseSpace(State state) {
     // [ \t]
-    final c$ = state.ch;
-    final isBlank$ = c$ == 9 || c$ == 32;
-    if (isBlank$) {
+    final c = state.ch;
+    final isBlank = c == 9 || c == 32;
+    if (isBlank) {
       state.nextChar();
       return Result.none;
     }
@@ -2175,9 +2175,9 @@ class TextParser {
       return Result.none;
     }
     // [\n\r]
-    final c$ = state.ch;
-    final isNewline$ = c$ == 10 || c$ == 13;
-    if (isNewline$) {
+    final c = state.ch;
+    final isNewline = c == 10 || c == 13;
+    if (isNewline) {
       state.nextChar();
       return Result.none;
     }

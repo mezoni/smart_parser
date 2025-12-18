@@ -683,7 +683,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
   @override
   BuildResult visitPredicate(PredicateExpression node) {
     final negate = node.negate;
-    final predicate = node.predicate.trim();
+    final predicate = node.source.trim();
     final code = Code();
     final failure = Failure();
     final success = Success.none();
@@ -1127,7 +1127,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
 
   Set<String> _collectIdentifiers(Expression expression) {
     final identifierCollector = _IdentifierCollector();
-    final collected = identifierCollector.collect(expression);
+    final collected = identifierCollector.collect(expression, options);
     return collected;
   }
 
@@ -1926,9 +1926,25 @@ class _IdentifierCollector extends VisitorBase<void> {
 
   Set<String> _found = const {};
 
-  Set<String> collect(Expression expression) {
+  Set<String> collect(Expression expression, ParserGeneratorOptions options) {
     _found = {..._other, ..._reserved, ..._types};
     _found.add('state');
+    final inputType = options.inputType;
+    if (inputType == InputType.tokens) {
+      final list = [
+        options.getNextToken,
+        options.getRestoreToken,
+        options.getToken,
+        options.getTokenIndex,
+        options.getTokenKind,
+        options.getTokenKindValue,
+      ];
+
+      for (final element in list) {
+        _processSourceCode(element);
+      }
+    }
+
     expression.accept(this);
     return _found;
   }
@@ -1936,7 +1952,7 @@ class _IdentifierCollector extends VisitorBase<void> {
   @override
   void visitAction(ActionExpression node) {
     final source = node.source;
-    _processAction(source);
+    _processSourceCode(source);
   }
 
   @override
@@ -1946,40 +1962,64 @@ class _IdentifierCollector extends VisitorBase<void> {
     final semanticValue = node.semanticValue;
     final type = node.type;
     if (errorHandler != null) {
-      _processAction(errorHandler);
+      _processSourceCode(errorHandler);
     }
 
     if (explicitType != null) {
-      _addIdentifier(explicitType.trim(), 0);
+      _scanIdentifier(explicitType.trim(), 0);
     }
 
     if (semanticValue != null) {
       _found.add(semanticValue);
     }
 
-    _addIdentifier(type.trim(), 0);
+    _scanIdentifier(type.trim(), 0);
     node.visitChildren(this);
   }
 
   @override
   void visitPredicate(PredicateExpression node) {
-    final predicate = node.predicate;
-    _processAction(predicate);
+    final source = node.source;
+    _processSourceCode(source);
   }
 
   @override
   void visitValue(ValueExpression node) {
     final source = node.source;
-    _processAction(source);
+    _processSourceCode(source);
   }
 
-  int _addIdentifier(String text, int index) {
+  bool _isIdentifierEnd(int c) {
+    return _isLetterOrDigit(c) || c == 0x24 || c == 0x5f;
+  }
+
+  bool _isIdentifierStart(int c) {
+    return _isLetter(c) || c == 0x24 || c == 0x5f;
+  }
+
+  bool _isLetter(int c) {
+    return c >= 0x41 && c <= 0x5a || c >= 0x61 && c <= 0x7a;
+  }
+
+  bool _isLetterOrDigit(int c) {
+    return c >= 0x30 && c <= 0x39 ||
+        c >= 0x41 && c <= 0x5a ||
+        c >= 0x61 && c <= 0x7a;
+  }
+
+  void _processSourceCode(String text) {
+    for (var i = 0; i < text.length; i++) {
+      i = _scanIdentifier(text, i);
+    }
+  }
+
+  int _scanIdentifier(String text, int index) {
     if (index >= text.length) {
       return index;
     }
 
     final c = text.codeUnitAt(index);
-    if (!_isIdentStart(c)) {
+    if (!_isIdentifierStart(c)) {
       return index;
     }
 
@@ -1987,7 +2027,7 @@ class _IdentifierCollector extends VisitorBase<void> {
     index++;
     while (index < text.length) {
       final c = text.codeUnitAt(index);
-      if (!_isIdentContd(c)) {
+      if (!_isIdentifierEnd(c)) {
         break;
       }
 
@@ -1997,29 +2037,5 @@ class _IdentifierCollector extends VisitorBase<void> {
     final name = text.substring(start, index);
     _found.add(name);
     return index;
-  }
-
-  bool _isAlpha(int c) {
-    return c >= 0x41 && c <= 0x5a || c >= 0x61 && c <= 0x7a;
-  }
-
-  bool _isAlphanumeric(int c) {
-    return c >= 0x30 && c <= 0x39 ||
-        c >= 0x41 && c <= 0x5a ||
-        c >= 0x61 && c <= 0x7a;
-  }
-
-  bool _isIdentContd(int c) {
-    return _isAlphanumeric(c) || c == 0x24 || c == 0x5f;
-  }
-
-  bool _isIdentStart(int c) {
-    return _isAlpha(c) || c == 0x24 || c == 0x5f;
-  }
-
-  void _processAction(String text) {
-    for (var i = 0; i < text.length; i++) {
-      i = _addIdentifier(text, i);
-    }
   }
 }
