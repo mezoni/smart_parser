@@ -34,7 +34,7 @@ class ProductionGenerator {
     }
 
     for (final failure in res.failures) {
-      failure((code) {
+      failure.fails((code) {
         code.stmt('return null');
       });
     }

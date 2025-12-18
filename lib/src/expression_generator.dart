@@ -17,9 +17,9 @@ typedef _ParsingState = ({Code save, Code restore});
 class BuildResult {
   final Code code;
 
-  final List<Success> successes;
+  final List<Failure> failures;
 
-  final List<Code> failures;
+  final List<Success> successes;
 
   BuildResult({
     required this.code,
@@ -27,7 +27,7 @@ class BuildResult {
     required this.failures,
   });
 
-  Code get singleFailure {
+  Failure get singleFailure {
     if (failures.length != 1) {
       throw StateError('Failed to get single failure');
     }
@@ -72,6 +72,8 @@ class ExpressionGenerator implements Visitor<BuildResult> {
   });
 
   BuildResult generate(Expression expression) {
+    final identifiers = _collectIdentifiers(expression);
+    allocator.reserved.addAll(identifiers);
     return _generate(expression);
   }
 
@@ -139,7 +141,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     final isVoid = node.isVoid;
     final semanticValue = _getSemanticValue(node);
     final code = Code();
-    final fails = Code();
+    final failure = Failure(isSafe: true);
     final success = Success.none();
     const isTrue = 'state.ch >= 0';
     code.if$(isTrue, (code) {
@@ -163,9 +165,9 @@ class ExpressionGenerator implements Visitor<BuildResult> {
       code.add(success.succeeds);
     });
 
-    _addErrorHandler(node, [code]);
-    code.add(fails);
-    return BuildResult(code: code, successes: [success], failures: [fails]);
+    _addErrorHandler(node, [failure]);
+    code.add(failure.fails);
+    return BuildResult(code: code, successes: [success], failures: [failure]);
   }
 
   @override
@@ -218,7 +220,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     final negate = node.negate;
     final ranges = node.ranges;
     final code = Code();
-    final fails = Code();
+    final failure = Failure(isSafe: true);
     final success = Success.none();
     _addNodeSourceToComment(node, code, false);
     final charCode = _getCharCode(ranges, negate);
@@ -236,8 +238,8 @@ class ExpressionGenerator implements Visitor<BuildResult> {
 
         code.add(success.succeeds);
       });
-      _addErrorHandler(node, [code]);
-      code.add(fails);
+      _addErrorHandler(node, [failure]);
+      code.add(failure.fails);
     } else {
       final ch = _allocate('c');
       final isInRange = _allocate(_getRangeName(ranges, negate) ?? 'isInRange');
@@ -263,11 +265,11 @@ class ExpressionGenerator implements Visitor<BuildResult> {
         code.add(success.succeeds);
       });
 
-      _addErrorHandler(node, [code]);
-      code.add(fails);
+      _addErrorHandler(node, [failure]);
+      code.add(failure.fails);
     }
 
-    return BuildResult(code: code, successes: [success], failures: [fails]);
+    return BuildResult(code: code, successes: [success], failures: [failure]);
   }
 
   @override
@@ -303,7 +305,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     final isVoid = node.isVoid;
     final escaped = escapeString(text);
     final code = Code();
-    final fails = Code();
+    final failure = Failure(isSafe: true);
     final success = Success.none();
     if (text.isEmpty) {
       _writeSaveParsingState(code, node);
@@ -343,11 +345,11 @@ class ExpressionGenerator implements Visitor<BuildResult> {
         code.stmt('state.errorExpected($escaped)');
       }
 
-      _addErrorHandler(node, [code]);
-      code.add(fails);
+      _addErrorHandler(node, [failure]);
+      code.add(failure.fails);
     }
 
-    return BuildResult(code: code, successes: [success], failures: [fails]);
+    return BuildResult(code: code, successes: [success], failures: [failure]);
   }
 
   @override
@@ -356,7 +358,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     final quote = node.quote;
     final isVoid = node.isVoid;
     final code = Code();
-    final fails = Code();
+    final failure = Failure();
     final success = Success.none();
     final escaped = escapeString(text, quote);
     if (text.isEmpty) {
@@ -425,9 +427,9 @@ class ExpressionGenerator implements Visitor<BuildResult> {
       });
     }
 
-    _addErrorHandler(node, [code]);
-    code.add(fails);
-    return BuildResult(code: code, successes: [success], failures: [fails]);
+    _addErrorHandler(node, [failure]);
+    code.add(failure.fails);
+    return BuildResult(code: code, successes: [success], failures: [failure]);
   }
 
   @override
@@ -449,18 +451,19 @@ class ExpressionGenerator implements Visitor<BuildResult> {
       _checkIsSingleOutput(res);
       code.add(res.code);
       var success = res.singleSuccess;
-      final failure = res.singleFailure;
-      final fails = Code();
+      final singleFailure = res.singleFailure;
+      final failure = Failure();
+      singleFailure.isSafe = false;
       success.succeeds((code) {
-        _addErrorHandler(node, [code]);
-        code.add(fails);
+        _addErrorHandler(node, [failure]);
+        code.add(failure.fails);
       });
       success = Success.none();
-      failure((code) {
+      singleFailure.fails((code) {
         code.add(success.succeeds);
       });
 
-      return BuildResult(code: code, successes: [success], failures: [fails]);
+      return BuildResult(code: code, successes: [success], failures: [failure]);
     }
 
     final usePosition = child.canChangePosition;
@@ -470,19 +473,21 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     final res = _generate(child);
     code.add(res.code);
     final successes = <Success>[];
-    final failures = <Code>[];
+    final failures = <Failure>[];
     for (final success in res.successes) {
       success.succeeds((code) {
+        final failure = Failure();
         _restoreParsingState(code, state);
         code.stmt('state.predicate--');
-        _addErrorHandler(node, [code]);
-        failures.add(code.add(Code()));
+        _addErrorHandler(node, [failure]);
+        code.add(failure.fails);
+        failures.add(failure);
       });
     }
 
     for (final failure in res.failures) {
       final success = Success.none();
-      failure((code) {
+      failure.fails((code) {
         code.stmt('state.predicate--');
         code.add(success.succeeds);
       });
@@ -553,22 +558,34 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     final res = _generate(child);
     code.add(res.code);
     final successes = <Success>[];
-    for (final success in res.successes) {
-      success.succeeds((code) {
-        if (isVoid) {
-          success.setResultToNone();
-        }
-      });
-
+    final failures = res.failures;
+    final isSafeFailure = _isSafeFailure(failures);
+    if (isSafeFailure && isVoid && res.successes.length < 2) {
+      final success = Success.none();
+      code.add(success.succeeds);
       successes.add(success);
-    }
+    } else {
+      for (final success in res.successes) {
+        success.succeeds((code) {
+          if (isVoid) {
+            success.setResultToNone();
+          }
+        });
 
-    for (final failure in res.failures) {
-      failure((code) {
-        final success = Success.withValue('null', true);
-        code.add(success.succeeds);
         successes.add(success);
-      });
+      }
+
+      for (final failure in failures) {
+        failure.fails((code) {
+          final success = Success.none();
+          if (!isVoid) {
+            success.setValue('null', true);
+          }
+
+          code.add(success.succeeds);
+          successes.add(success);
+        });
+      }
     }
 
     return BuildResult(code: code, successes: successes, failures: const []);
@@ -621,7 +638,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     _writeSaveParsingState(code, node);
     var body = code.add(Code());
     final successes = <Success>[];
-    final failures = <Code>[];
+    final failures = <Failure>[];
     for (var i = 0; i < children.length; i++) {
       final child = children[i];
       _copySuggestedName(node, child);
@@ -637,7 +654,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
       successes.addAll(res.successes);
       if (i != children.length - 1) {
         final failure = res.singleFailure;
-        body = failure;
+        body = failure.fails;
       } else {
         if (!child.isAlwaysSuccessful) {
           for (final failure in res.failures) {
@@ -668,6 +685,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     final negate = node.negate;
     final predicate = node.predicate.trim();
     final code = Code();
+    final failure = Failure();
     final success = Success.none();
     final isSuccess = _allocate('isSuccess');
     _writeSaveParsingState(code, node);
@@ -677,9 +695,9 @@ class ExpressionGenerator implements Visitor<BuildResult> {
       code.add(success.succeeds);
     });
 
-    _addErrorHandler(node, [code]);
-    final fails = code.add(Code());
-    return BuildResult(code: code, successes: [success], failures: [fails]);
+    _addErrorHandler(node, [failure]);
+    code.add(failure.fails);
+    return BuildResult(code: code, successes: [success], failures: [failure]);
   }
 
   @override
@@ -690,8 +708,9 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     final semanticValue = _getSemanticValue(node);
     final parse = 'parse$name(state)';
     final code = Code();
-    final failures = <Code>[];
     final success = Success.none();
+    final failure = Failure(isSafe: true);
+    final failures = <Failure>[];
     _writeSaveParsingState(code, node);
     if (isVoid) {
       if (isAlwaysSuccessful) {
@@ -702,8 +721,9 @@ class ExpressionGenerator implements Visitor<BuildResult> {
           code.add(success.succeeds);
         });
 
-        _addErrorHandler(node, [code]);
-        failures.add(code.add(Code()));
+        _addErrorHandler(node, [failure]);
+        code.add(failure.fails);
+        failures.add(failure);
       }
     } else {
       if (isAlwaysSuccessful) {
@@ -727,8 +747,9 @@ class ExpressionGenerator implements Visitor<BuildResult> {
           code.add(success.succeeds);
         });
 
-        _addErrorHandler(node, [code]);
-        failures.add(code.add(Code()));
+        _addErrorHandler(node, [failure]);
+        code.add(failure.fails);
+        failures.add(failure);
       }
     }
 
@@ -776,7 +797,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
 
     final usePosition = childrenThatRestorePosition.isNotEmpty;
     final code = Code();
-    final failures = <Code>[];
+    final failures = <Failure>[];
     final successes = <Success>[];
     final buildResults = <BuildResult>[];
     final res2Child = <BuildResult, Expression>{};
@@ -866,8 +887,9 @@ class ExpressionGenerator implements Visitor<BuildResult> {
         });
         labeledCode.writeln('// $label:');
         _restoreParsingState(labeledCode, state);
-        final fails = labeledCode.add(Code());
-        failures.add(fails);
+        final failure = Failure();
+        labeledCode.add(failure.fails);
+        failures.add(failure);
       }
 
       body.add(res.code);
@@ -876,7 +898,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
       }
 
       for (final failure in res.failures) {
-        failure((code) {
+        failure.fails((code) {
           if (childrenThatRestorePosition.contains(child)) {
             if (!needReduceRestorations) {
               _restoreParsingState(code, state);
@@ -928,7 +950,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     final tokenKindValue = options.getTokenKindValue.replaceAll('{{0}}', name);
     final code = Code();
     final success = Success.none();
-    final fails = Code();
+    final failure = Failure(isSafe: true);
     final isTrue = '$tokenKind == $tokenKindValue';
     code.if$(isTrue, (code) {
       _writeSaveParsingState(code, node);
@@ -952,9 +974,9 @@ class ExpressionGenerator implements Visitor<BuildResult> {
       code.add(success.succeeds);
     });
 
-    _addErrorHandler(node, [code]);
-    code.add(fails);
-    return BuildResult(code: code, successes: [success], failures: [fails]);
+    _addErrorHandler(node, [failure]);
+    code.add(failure.fails);
+    return BuildResult(code: code, successes: [success], failures: [failure]);
   }
 
   @override
@@ -996,7 +1018,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
 
   void _addErrorHandler(
     Expression node,
-    List<Code> failures, [
+    List<Failure> failures, [
     void Function(Code code)? f,
   ]) {
     final errorHandler = node.errorHandler;
@@ -1013,7 +1035,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     }
 
     for (final failure in failures) {
-      failure((code) {
+      failure.fails((code) {
         _writeBlock(code, errorHandler);
       });
     }
@@ -1103,9 +1125,24 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     }
   }
 
+  Set<String> _collectIdentifiers(Expression expression) {
+    final identifierCollector = _IdentifierCollector();
+    final collected = identifierCollector.collect(expression);
+    return collected;
+  }
+
   BuildResult _combineToSingleFailure(Expression node) {
     final res = _generate(node);
-    if (res.failures.length < 2) {
+    final failures = res.failures;
+    if (failures.length < 2) {
+      return res;
+    }
+
+    final isSafeFailure = _isSafeFailure(failures);
+    if (isSafeFailure) {
+      final first = failures.first;
+      failures.clear();
+      failures.add(first);
       return res;
     }
 
@@ -1116,14 +1153,19 @@ class ExpressionGenerator implements Visitor<BuildResult> {
       code.add(res.code);
     });
     code.writeln('// $label:');
-    final fails = code.add(Code());
+    final failure = Failure();
+    code.add(failure.fails);
     for (final failure in res.failures) {
-      failure((code) {
+      failure.fails((code) {
         code.stmt('break $label');
       });
     }
 
-    return BuildResult(code: code, successes: res.successes, failures: [fails]);
+    return BuildResult(
+      code: code,
+      successes: res.successes,
+      failures: [failure],
+    );
   }
 
   BuildResult _combineToSingleSuccess(
@@ -1444,6 +1486,11 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     throw StateError('Internal error');
   }
 
+  bool _isSafeFailure(List<Failure> failures) {
+    return !failures.any((e) => !e.isSafe) &&
+        !failures.any((e) => e.fails.isNotEmpty);
+  }
+
   bool _isSimpleExpression(Expression node) {
     return node is AnyCharacterExpression ||
         node is CharacterClassExpression ||
@@ -1466,7 +1513,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
 
     final isVoid = node.isVoid;
     final code = Code();
-    final fails = Code();
+    final failure = Failure(isSafe: true);
     final token = options.getToken;
     final tokenKind = options.getTokenKind.replaceAll('{{0}}', token);
     final kind = _allocate('kind');
@@ -1494,11 +1541,11 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     });
 
     handler.elseBlock((code) {
-      code.add(fails);
-      _addErrorHandler(node, [fails]);
+      _addErrorHandler(node, [failure]);
+      code.add(failure.fails);
     });
 
-    return BuildResult(code: code, successes: [success], failures: [fails]);
+    return BuildResult(code: code, successes: [success], failures: [failure]);
   }
 
   void _redirectWritingParsingState(Expression node, Expression child) {
@@ -1629,7 +1676,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     }
 
     for (final failure in res.failures) {
-      failure((code) {
+      failure.fails((code) {
         code.stmt('break');
       });
     }
@@ -1707,8 +1754,8 @@ class ExpressionGenerator implements Visitor<BuildResult> {
         break;
     }
 
-    final fails = Code();
-    final failures = <Code>[];
+    final failure = Failure();
+    final failures = <Failure>[];
     final success = Success.none();
     if (!isVoid) {
       success.setValue(variable, false);
@@ -1725,8 +1772,8 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     handler.elseBlock((code) {
       _restoreParsingState(code, state);
       if (canFails) {
-        code.add(fails);
-        failures.add(fails);
+        code.add(failure.fails);
+        failures.add(failure);
       }
 
       _addErrorHandler(node, failures);
@@ -1771,6 +1818,14 @@ class ExpressionGenerator implements Visitor<BuildResult> {
 
     throw StateError(lines.join('\n'));
   }
+}
+
+class Failure {
+  final Code fails = Code();
+
+  bool isSafe;
+
+  Failure({this.isSafe = false});
 }
 
 class Success {
@@ -1824,6 +1879,147 @@ class Success {
       result = 'const Ok($value)';
     } else {
       result = 'Ok($value)';
+    }
+  }
+}
+
+class _IdentifierCollector extends VisitorBase<void> {
+  static const _other = {'await', 'dynamic', 'yield'};
+
+  static const Set<String> _reserved = {
+    'assert',
+    'break',
+    'case',
+    'catch',
+    'class',
+    'const',
+    'continue',
+    'default',
+    'do',
+    'else',
+    'enum',
+    'extends',
+    'false',
+    'final',
+    'finally',
+    'for',
+    'if',
+    'in',
+    'is',
+    'new',
+    'null',
+    'rethrow',
+    'return',
+    'super',
+    'switch',
+    'this',
+    'throw',
+    'true',
+    'try',
+    'var',
+    'void',
+    'while',
+    'with',
+  };
+
+  static const _types = {'bool', 'double', 'int'};
+
+  Set<String> _found = const {};
+
+  Set<String> collect(Expression expression) {
+    _found = {..._other, ..._reserved, ..._types};
+    _found.add('state');
+    expression.accept(this);
+    return _found;
+  }
+
+  @override
+  void visitAction(ActionExpression node) {
+    final source = node.source;
+    _processAction(source);
+  }
+
+  @override
+  void visitNode(Expression node) {
+    final errorHandler = node.errorHandler;
+    final explicitType = node.explicitType;
+    final semanticValue = node.semanticValue;
+    final type = node.type;
+    if (errorHandler != null) {
+      _processAction(errorHandler);
+    }
+
+    if (explicitType != null) {
+      _addIdentifier(explicitType.trim(), 0);
+    }
+
+    if (semanticValue != null) {
+      _found.add(semanticValue);
+    }
+
+    _addIdentifier(type.trim(), 0);
+    node.visitChildren(this);
+  }
+
+  @override
+  void visitPredicate(PredicateExpression node) {
+    final predicate = node.predicate;
+    _processAction(predicate);
+  }
+
+  @override
+  void visitValue(ValueExpression node) {
+    final source = node.source;
+    _processAction(source);
+  }
+
+  int _addIdentifier(String text, int index) {
+    if (index >= text.length) {
+      return index;
+    }
+
+    final c = text.codeUnitAt(index);
+    if (!_isIdentStart(c)) {
+      return index;
+    }
+
+    final start = index;
+    index++;
+    while (index < text.length) {
+      final c = text.codeUnitAt(index);
+      if (!_isIdentContd(c)) {
+        break;
+      }
+
+      index++;
+    }
+
+    final name = text.substring(start, index);
+    _found.add(name);
+    return index;
+  }
+
+  bool _isAlpha(int c) {
+    return c >= 0x41 && c <= 0x5a || c >= 0x61 && c <= 0x7a;
+  }
+
+  bool _isAlphanumeric(int c) {
+    return c >= 0x30 && c <= 0x39 ||
+        c >= 0x41 && c <= 0x5a ||
+        c >= 0x61 && c <= 0x7a;
+  }
+
+  bool _isIdentContd(int c) {
+    return _isAlphanumeric(c) || c == 0x24 || c == 0x5f;
+  }
+
+  bool _isIdentStart(int c) {
+    return _isAlpha(c) || c == 0x24 || c == 0x5f;
+  }
+
+  void _processAction(String text) {
+    for (var i = 0; i < text.length; i++) {
+      i = _addIdentifier(text, i);
     }
   }
 }

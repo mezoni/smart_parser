@@ -1,3 +1,8 @@
+## 2.2.0
+
+- Minor improvements in code generation.
+- The allocation of local variable names has been changed.
+
 ## 2.1.4
 
 - Optimized the code generated for the `ProductionExpression` expression.

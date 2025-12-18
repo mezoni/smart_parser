@@ -167,7 +167,7 @@ class TextParser {
     final type$ = parseType(state);
     if (type$ != null) {
       final type = type$.$1;
-      l$1:
+      l$:
       {
         final productionName$ = parseProductionName(state);
         if (productionName$ != null) {
@@ -179,30 +179,24 @@ class TextParser {
             final expression$ = parseExpression(state);
             if (expression$ != null) {
               final expression = expression$.$1;
-              l$:
-              {
-                // [;]
-                if (state.ch == 59) {
-                  state.nextChar();
-                  break l$;
-                }
-                break l$;
+              // [;]
+              if (state.ch == 59) {
+                state.nextChar();
               }
-              // l$:
               parseS(state);
               final end = state.position;
               final source = state.substring(start, end).trimRight();
               return Ok(Production(expression: expression, name: name, sourceCode: source, type: type));
             }
-            break l$1;
+            break l$;
           }
           state.errorExpected('=>');
-          break l$1;
+          break l$;
         }
         state.errorExpected('production name');
-        break l$1;
+        break l$;
       }
-      // l$1:
+      // l$:
       state.ch = ch$;
       state.position = pos$;
       return null;

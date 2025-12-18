@@ -294,37 +294,37 @@ Result<String>? parseEscapeUnicode(State state) {
   final start = state.position;
   // "u"
   if (state.ch == 117) {
-    final pos$ = state.position;
-    final ch$ = state.ch;
+    final pos = state.position;
+    final ch = state.ch;
     state.nextChar();
     var end = 0;
-    final start$ = state.position;
-    final pos$1 = state.position;
-    final ch$1 = state.ch;
-    var count$ = 0;
+    final start1 = state.position;
+    final pos1 = state.position;
+    final ch1 = state.ch;
+    var count = 0;
     // (4, 4)
-    while (count$ < 4) {
+    while (count < 4) {
       // [a-fA-F0-9]
-      final c$ = state.ch;
-      final isHexDigit$ = c$ <= 70 ? c$ >= 65 || c$ >= 48 && c$ <= 57 : c$ >= 97 && c$ <= 102;
-      if (isHexDigit$) {
+      final c = state.ch;
+      final isHexDigit = c <= 70 ? c >= 65 || c >= 48 && c <= 57 : c >= 97 && c <= 102;
+      if (isHexDigit) {
         state.nextChar();
-        count$++;
+        count++;
         continue;
       }
       end = state.position;
       state.errorExpected('hexadecimal digit');
       break;
     }
-    if (count$ >= 4) {
-      final s = state.substring(start$, state.position);
+    if (count >= 4) {
+      final s = state.substring(start1, state.position);
       return Ok(String.fromCharCode(int.parse(s, radix: 16)));
     } else {
-      state.ch = ch$1;
-      state.position = pos$1;
+      state.ch = ch1;
+      state.position = pos1;
       state.error('Incorrect Unicode escape sequence', position: end, start: start, end: end);
-      state.ch = ch$;
-      state.position = pos$;
+      state.ch = ch;
+      state.position = pos;
       return null;
     }
   }
@@ -411,9 +411,9 @@ Dart code:
 /// ```
 Result<int>? parseAnyCharacter(State state) {
   if (state.ch >= 0) {
-    final anyCharacter$ = state.ch;
+    final anyCharacter = state.ch;
     state.nextChar();
-    return Ok(anyCharacter$);
+    return Ok(anyCharacter);
   }
   return null;
 }
@@ -492,21 +492,21 @@ Dart code:
 ///   & "=>"
 /// ```
 Result<String>? parseAndPredicate(State state) {
-  final pos$ = state.position;
-  final ch$ = state.ch;
-  final start$ = state.position;
+  final pos = state.position;
+  final ch = state.ch;
+  final start = state.position;
   // [a-zA-Z]
-  final c$ = state.ch;
-  final isAlpha$ = c$ <= 90 ? c$ >= 65 : c$ >= 97 && c$ <= 122;
-  if (isAlpha$) {
+  final c = state.ch;
+  final isAlpha = c <= 90 ? c >= 65 : c >= 97 && c <= 122;
+  if (isAlpha) {
     state.nextChar();
-    final andPredicate$ = Ok(state.substring(start$, state.position));
+    final andPredicate = Ok(state.substring(start, state.position));
     // "=>"
     if (state.ch == 61 && state.startsWith('=>')) {
-      return andPredicate$;
+      return andPredicate;
     }
-    state.ch = ch$;
-    state.position = pos$;
+    state.ch = ch;
+    state.position = pos;
     return null;
   }
   return null;
@@ -599,11 +599,11 @@ Dart code:
 /// ```
 Result<int>? parseDigits(State state) {
   // [0-9]
-  final c$ = state.ch;
-  final isDigit$ = c$ >= 48 && c$ <= 57;
-  if (isDigit$) {
+  final c = state.ch;
+  final isDigit = c >= 48 && c <= 57;
+  if (isDigit) {
     state.nextChar();
-    return Ok(c$);
+    return Ok(c);
   }
   return null;
 }
@@ -628,11 +628,11 @@ Dart code:
 /// ```
 Result<int>? parseNotDigits(State state) {
   // [^0-9]
-  final c$ = state.ch;
-  final isNotDigit$ = !(c$ >= 48 && c$ <= 57) && !(c$ < 0);
-  if (isNotDigit$) {
+  final c = state.ch;
+  final isNotDigit = !(c >= 48 && c <= 57) && !(c < 0);
+  if (isNotDigit) {
     state.nextChar();
-    return Ok(c$);
+    return Ok(c);
   }
   return null;
 }
@@ -657,11 +657,11 @@ Dart code:
 /// ```
 Result<int>? parseNotDigitsNotLetters(State state) {
   // [^0-9a-zA-Z]
-  final c$ = state.ch;
-  final isNotAlphaOrDigit$ = !(c$ <= 90 ? c$ >= 65 || c$ >= 48 && c$ <= 57 : c$ >= 97 && c$ <= 122) && !(c$ < 0);
-  if (isNotAlphaOrDigit$) {
+  final c = state.ch;
+  final isNotAlphaOrDigit = !(c <= 90 ? c >= 65 || c >= 48 && c <= 57 : c >= 97 && c <= 122) && !(c < 0);
+  if (isNotAlphaOrDigit) {
     state.nextChar();
-    return Ok(c$);
+    return Ok(c);
   }
   return null;
 }
@@ -713,11 +713,11 @@ Dart code:
 /// ```
 Result<int>? parseDigits(State state) {
   // [0-9]
-  final c$ = state.ch;
-  final isDigit$ = c$ >= 48 && c$ <= 57;
-  if (isDigit$) {
+  final c = state.ch;
+  final isDigit = c >= 48 && c <= 57;
+  if (isDigit) {
     state.nextChar();
-    return Ok(c$);
+    return Ok(c);
   }
   return null;
 }
@@ -833,8 +833,8 @@ Dart code:
 Result<int>? parseAb(State state) {
   // [a]
   if (state.ch == 97) {
-    final pos$ = state.position;
-    final ch$ = state.ch;
+    final pos = state.position;
+    final ch = state.ch;
     state.nextChar();
     // [b]
     if (state.ch == 98) {
@@ -846,8 +846,8 @@ Result<int>? parseAb(State state) {
       state.nextChar();
       return const Ok(99);
     }
-    state.ch = ch$;
-    state.position = pos$;
+    state.ch = ch;
+    state.position = pos;
     return null;
   }
   return null;
@@ -874,34 +874,34 @@ Dart code:
 ///   [a]
 /// ```
 Result<int>? parseAb(State state) {
-  final pos$ = state.position;
-  final ch$ = state.ch;
-  final Result<int> ab$;
-  l$:
+  final pos = state.position;
+  final ch = state.ch;
+  final Result<int> ab;
+  l:
   {
     // [b]
     if (state.ch == 98) {
       state.nextChar();
-      ab$ = const Ok(98);
-      break l$;
+      ab = const Ok(98);
+      break l;
     }
     // [c]
     if (state.ch == 99) {
       state.nextChar();
-      ab$ = const Ok(99);
-      break l$;
+      ab = const Ok(99);
+      break l;
     }
     return null;
   }
-  // l$:
-  final ab$1 = ab$;
+  // l:
+  final ab1 = ab;
   // [a]
   if (state.ch == 97) {
     state.nextChar();
-    return ab$1;
+    return ab1;
   }
-  state.ch = ch$;
-  state.position = pos$;
+  state.ch = ch;
+  state.position = pos;
   return null;
 }
 ```
@@ -1123,21 +1123,21 @@ Dart code:
 /// ```
 Result<void>? parseNotPredicate(State state) {
   state.predicate++;
-  final pos$ = state.position;
-  final ch$ = state.ch;
+  final pos = state.position;
+  final ch = state.ch;
   // [a]
   if (state.ch == 97) {
     state.nextChar();
-    state.ch = ch$;
-    state.position = pos$;
+    state.ch = ch;
+    state.position = pos;
     state.predicate--;
     return null;
   }
   // [b]
   if (state.ch == 98) {
     state.nextChar();
-    state.ch = ch$;
-    state.position = pos$;
+    state.ch = ch;
+    state.position = pos;
     state.predicate--;
     return null;
   }
@@ -1168,19 +1168,19 @@ Dart code:
 ///   [a]+
 /// ```
 Result<List<int>>? parseOneOrMore(State state) {
-  final oneOrMore$ = <int>[];
+  final oneOrMore = <int>[];
   // (1)
   while (true) {
     // [a]
     if (state.ch == 97) {
       state.nextChar();
-      oneOrMore$.add(97);
+      oneOrMore.add(97);
       continue;
     }
     break;
   }
-  if (oneOrMore$.isNotEmpty) {
-    return Ok(oneOrMore$);
+  if (oneOrMore.isNotEmpty) {
+    return Ok(oneOrMore);
   } else {
     return null;
   }
@@ -1203,18 +1203,18 @@ Dart code:
 ///   [a]+
 /// ```
 Result<void>? parseOneOrMore(State state) {
-  var isSuccess$ = false;
+  var isSuccess = false;
   // (1)
   while (true) {
     // [a]
     if (state.ch == 97) {
       state.nextChar();
-      isSuccess$ = true;
+      isSuccess = true;
       continue;
     }
     break;
   }
-  if (isSuccess$) {
+  if (isSuccess) {
     return Result.none;
   } else {
     return null;
@@ -1240,25 +1240,25 @@ Dart code:
 ///   ([a] / [b])+
 /// ```
 Result<List<int>>? parseOneOrMore(State state) {
-  final oneOrMore$ = <int>[];
+  final oneOrMore = <int>[];
   // (1)
   while (true) {
     // [a]
     if (state.ch == 97) {
       state.nextChar();
-      oneOrMore$.add(97);
+      oneOrMore.add(97);
       continue;
     }
     // [b]
     if (state.ch == 98) {
       state.nextChar();
-      oneOrMore$.add(98);
+      oneOrMore.add(98);
       continue;
     }
     break;
   }
-  if (oneOrMore$.isNotEmpty) {
-    return Ok(oneOrMore$);
+  if (oneOrMore.isNotEmpty) {
+    return Ok(oneOrMore);
   } else {
     return null;
   }
@@ -1281,24 +1281,24 @@ Dart code:
 ///   ([a] / [b])+
 /// ```
 Result<void>? parseOneOrMore(State state) {
-  var isSuccess$ = false;
+  var isSuccess = false;
   // (1)
   while (true) {
     // [a]
     if (state.ch == 97) {
       state.nextChar();
-      isSuccess$ = true;
+      isSuccess = true;
       continue;
     }
     // [b]
     if (state.ch == 98) {
       state.nextChar();
-      isSuccess$ = true;
+      isSuccess = true;
       continue;
     }
     break;
   }
-  if (isSuccess$) {
+  if (isSuccess) {
     return Result.none;
   } else {
     return null;
@@ -1356,7 +1356,6 @@ Result<void> parseOptional(State state) {
   // [a]
   if (state.ch == 97) {
     state.nextChar();
-    return Result.none;
   }
   return Result.none;
 }
@@ -1442,8 +1441,8 @@ Dart code:
 ///   P?
 /// ```
 Result<int?> parseOptional(State state) {
-  final optional$ = parseP(state)?.$1;
-  return Ok(optional$);
+  final optional = parseP(state)?.$1;
+  return Ok(optional);
 }
 ```
 
@@ -1668,8 +1667,8 @@ Dart code:
 Result<(int, int)>? parseAB(State state) {
   // [a]
   if (state.ch == 97) {
-    final pos$ = state.position;
-    final ch$ = state.ch;
+    final pos = state.position;
+    final ch = state.ch;
     state.nextChar();
     const a = 97;
     // [b]
@@ -1678,8 +1677,8 @@ Result<(int, int)>? parseAB(State state) {
       const b = 98;
       return const Ok((a, b));
     }
-    state.ch = ch$;
-    state.position = pos$;
+    state.ch = ch;
+    state.position = pos;
     return null;
   }
   return null;
@@ -1706,16 +1705,16 @@ Dart code:
 Result<void>? parseAB(State state) {
   // [a]
   if (state.ch == 97) {
-    final pos$ = state.position;
-    final ch$ = state.ch;
+    final pos = state.position;
+    final ch = state.ch;
     state.nextChar();
     // [b]
     if (state.ch == 98) {
       state.nextChar();
       return Result.none;
     }
-    state.ch = ch$;
-    state.position = pos$;
+    state.ch = ch;
+    state.position = pos;
     return null;
   }
   return null;
@@ -1744,18 +1743,18 @@ Dart code:
 ///   [a]*
 /// ```
 Result<List<int>> parseZeroOrMore(State state) {
-  final zeroOrMore$ = <int>[];
+  final zeroOrMore = <int>[];
   // (0)
   while (true) {
     // [a]
     if (state.ch == 97) {
       state.nextChar();
-      zeroOrMore$.add(97);
+      zeroOrMore.add(97);
       continue;
     }
     break;
   }
-  return Ok(zeroOrMore$);
+  return Ok(zeroOrMore);
 }
 ```
 
@@ -1806,24 +1805,24 @@ Dart code:
 ///   ([a] / [b])*
 /// ```
 Result<List<int>> parseZeroOrMore(State state) {
-  final zeroOrMore$ = <int>[];
+  final zeroOrMore = <int>[];
   // (0)
   while (true) {
     // [a]
     if (state.ch == 97) {
       state.nextChar();
-      zeroOrMore$.add(97);
+      zeroOrMore.add(97);
       continue;
     }
     // [b]
     if (state.ch == 98) {
       state.nextChar();
-      zeroOrMore$.add(98);
+      zeroOrMore.add(98);
       continue;
     }
     break;
   }
-  return Ok(zeroOrMore$);
+  return Ok(zeroOrMore);
 }
 ```
 
@@ -1933,8 +1932,8 @@ Dart code:
 ///   & { some_expression }
 /// ```
 Result<void>? parseAction(State state) {
-  final isSuccess$ = some_expression;
-  if (isSuccess$) {
+  final isSuccess = some_expression;
+  if (isSuccess) {
     return Result.none;
   }
   return null;
@@ -1963,22 +1962,22 @@ Dart code:
 ///   <[0-9]+>
 /// ```
 Result<String>? parseDigits(State state) {
-  final start$ = state.position;
-  var isSuccess$ = false;
+  final start = state.position;
+  var isSuccess = false;
   // (1)
   while (true) {
     // [0-9]
-    final c$ = state.ch;
-    final isDigit$ = c$ >= 48 && c$ <= 57;
-    if (isDigit$) {
+    final c = state.ch;
+    final isDigit = c >= 48 && c <= 57;
+    if (isDigit) {
       state.nextChar();
-      isSuccess$ = true;
+      isSuccess = true;
       continue;
     }
     break;
   }
-  if (isSuccess$) {
-    return Ok(state.substring(start$, state.position));
+  if (isSuccess) {
+    return Ok(state.substring(start, state.position));
   } else {
     return null;
   }
@@ -2001,20 +2000,20 @@ Dart code:
 ///   <[0-9]+>
 /// ```
 Result<void>? parseSkipDigits(State state) {
-  var isSuccess$ = false;
+  var isSuccess = false;
   // (1)
   while (true) {
     // [0-9]
-    final c$ = state.ch;
-    final isDigit$ = c$ >= 48 && c$ <= 57;
-    if (isDigit$) {
+    final c = state.ch;
+    final isDigit = c >= 48 && c <= 57;
+    if (isDigit) {
       state.nextChar();
-      isSuccess$ = true;
+      isSuccess = true;
       continue;
     }
     break;
   }
-  if (isSuccess$) {
+  if (isSuccess) {
     return Result.none;
   } else {
     return null;
@@ -2046,8 +2045,8 @@ Dart code:
 ///   & { some_expression }
 /// ```
 Result<void>? parseAction(State state) {
-  final isSuccess$ = some_expression;
-  if (isSuccess$) {
+  final isSuccess = some_expression;
+  if (isSuccess) {
     return Result.none;
   }
   return null;
@@ -2072,8 +2071,8 @@ Dart code:
 ///   ! { some_expression }
 /// ```
 Result<void>? parseAction(State state) {
-  final isSuccess$ = some_expression;
-  if (!isSuccess$) {
+  final isSuccess = some_expression;
+  if (!isSuccess) {
     return Result.none;
   }
   return null;
@@ -2103,15 +2102,15 @@ Dart code:
 /// ```
 Result<String>? parseFor(State state) {
   // @match('for')
-  var pos$ = state.position;
+  var pos = state.position;
   if (state.ch == 102 || state.ch == 70) {
-    var c$ = state.charAt(pos$ += 1);
-    if (c$ == 111 || c$ == 79) {
-      c$ = state.charAt(pos$ += 1);
-      if (c$ == 114 || c$ == 82) {
-        final for$ = state.substring(state.position, pos$ += 1);
-        state.readChar(pos$);
-        return Ok(for$);
+    var c = state.charAt(pos += 1);
+    if (c == 111 || c == 79) {
+      c = state.charAt(pos += 1);
+      if (c == 114 || c == 82) {
+        final for1 = state.substring(state.position, pos += 1);
+        state.readChar(pos);
+        return Ok(for1);
       }
     }
   }
@@ -2136,13 +2135,13 @@ Dart code:
 /// ```
 Result<void>? parseFor(State state) {
   // @match('for')
-  var pos$ = state.position;
+  var pos = state.position;
   if (state.ch == 102 || state.ch == 70) {
-    var c$ = state.charAt(pos$ += 1);
-    if (c$ == 111 || c$ == 79) {
-      c$ = state.charAt(pos$ += 1);
-      if (c$ == 114 || c$ == 82) {
-        state.readChar(pos$ += 1);
+    var c = state.charAt(pos += 1);
+    if (c == 111 || c == 79) {
+      c = state.charAt(pos += 1);
+      if (c == 114 || c == 82) {
+        state.readChar(pos += 1);
         return Result.none;
       }
     }
@@ -2177,8 +2176,8 @@ Dart code:
 ///   $ = '-->'
 /// ```
 Result<String>? parseEndTag(State state) {
-  final pos$ = state.position;
-  final ch$ = state.ch;
+  final pos = state.position;
+  final ch = state.ch;
   final index = state.indexOf('-->');
   state.readChar(index != -1 ? index : state.length);
   // '-->'
@@ -2187,8 +2186,8 @@ Result<String>? parseEndTag(State state) {
     return const Ok('-->');
   }
   state.errorExpected('-->');
-  state.ch = ch$;
-  state.position = pos$;
+  state.ch = ch;
+  state.position = pos;
   return null;
 }
 ```
@@ -2223,20 +2222,20 @@ Dart code:
 ///   }
 /// ```
 Result<List<int>> parseLetters(State state) {
-  final letters$ = <int>[];
+  final letters = <int>[];
   // (0)
   while (true) {
     // [a-zA-Z]
-    final c$ = state.ch;
-    final isAlpha$ = c$ <= 90 ? c$ >= 65 : c$ >= 97 && c$ <= 122;
-    if (isAlpha$) {
+    final c = state.ch;
+    final isAlpha = c <= 90 ? c >= 65 : c >= 97 && c <= 122;
+    if (isAlpha) {
       state.nextChar();
-      letters$.add(c$);
+      letters.add(c);
       continue;
     }
     break;
   }
-  return Ok(letters$);
+  return Ok(letters);
 }
 ```
 
@@ -2263,9 +2262,9 @@ Result<void> parseLetters(State state) {
   // (0)
   while (true) {
     // [a-zA-Z]
-    final c$ = state.ch;
-    final isAlpha$ = c$ <= 90 ? c$ >= 65 : c$ >= 97 && c$ <= 122;
-    if (isAlpha$) {
+    final c = state.ch;
+    final isAlpha = c <= 90 ? c >= 65 : c >= 97 && c <= 122;
+    if (isAlpha) {
       state.nextChar();
       continue;
     }
@@ -2297,21 +2296,21 @@ Dart code:
 ///   }
 /// ```
 Result<List<int>>? parseLetters(State state) {
-  final letters$ = <int>[];
+  final letters = <int>[];
   // (1)
   while (true) {
     // [a-zA-Z]
-    final c$ = state.ch;
-    final isAlpha$ = c$ <= 90 ? c$ >= 65 : c$ >= 97 && c$ <= 122;
-    if (isAlpha$) {
+    final c = state.ch;
+    final isAlpha = c <= 90 ? c >= 65 : c >= 97 && c <= 122;
+    if (isAlpha) {
       state.nextChar();
-      letters$.add(c$);
+      letters.add(c);
       continue;
     }
     break;
   }
-  if (letters$.isNotEmpty) {
-    return Ok(letters$);
+  if (letters.isNotEmpty) {
+    return Ok(letters);
   } else {
     return null;
   }
@@ -2338,20 +2337,20 @@ Dart code:
 ///   }
 /// ```
 Result<void>? parseLetters(State state) {
-  var isSuccess$ = false;
+  var isSuccess = false;
   // (1)
   while (true) {
     // [a-zA-Z]
-    final c$ = state.ch;
-    final isAlpha$ = c$ <= 90 ? c$ >= 65 : c$ >= 97 && c$ <= 122;
-    if (isAlpha$) {
+    final c = state.ch;
+    final isAlpha = c <= 90 ? c >= 65 : c >= 97 && c <= 122;
+    if (isAlpha) {
       state.nextChar();
-      isSuccess$ = true;
+      isSuccess = true;
       continue;
     }
     break;
   }
-  if (isSuccess$) {
+  if (isSuccess) {
     return Result.none;
   } else {
     return null;
@@ -2381,26 +2380,26 @@ Dart code:
 ///   }
 /// ```
 Result<List<int>>? parseLetters(State state) {
-  final pos$ = state.position;
-  final ch$ = state.ch;
-  final letters$ = <int>[];
+  final pos = state.position;
+  final ch = state.ch;
+  final letters = <int>[];
   // (2, 3)
-  while (letters$.length < 3) {
+  while (letters.length < 3) {
     // [a-zA-Z]
-    final c$ = state.ch;
-    final isAlpha$ = c$ <= 90 ? c$ >= 65 : c$ >= 97 && c$ <= 122;
-    if (isAlpha$) {
+    final c = state.ch;
+    final isAlpha = c <= 90 ? c >= 65 : c >= 97 && c <= 122;
+    if (isAlpha) {
       state.nextChar();
-      letters$.add(c$);
+      letters.add(c);
       continue;
     }
     break;
   }
-  if (letters$.length >= 2) {
-    return Ok(letters$);
+  if (letters.length >= 2) {
+    return Ok(letters);
   } else {
-    state.ch = ch$;
-    state.position = pos$;
+    state.ch = ch;
+    state.position = pos;
     return null;
   }
 }
@@ -2426,26 +2425,26 @@ Dart code:
 ///   }
 /// ```
 Result<void>? parseLetters(State state) {
-  final pos$ = state.position;
-  final ch$ = state.ch;
-  var count$ = 0;
+  final pos = state.position;
+  final ch = state.ch;
+  var count = 0;
   // (2, 3)
-  while (count$ < 3) {
+  while (count < 3) {
     // [a-zA-Z]
-    final c$ = state.ch;
-    final isAlpha$ = c$ <= 90 ? c$ >= 65 : c$ >= 97 && c$ <= 122;
-    if (isAlpha$) {
+    final c = state.ch;
+    final isAlpha = c <= 90 ? c >= 65 : c >= 97 && c <= 122;
+    if (isAlpha) {
       state.nextChar();
-      count$++;
+      count++;
       continue;
     }
     break;
   }
-  if (count$ >= 2) {
+  if (count >= 2) {
     return Result.none;
   } else {
-    state.ch = ch$;
-    state.position = pos$;
+    state.ch = ch;
+    state.position = pos;
     return null;
   }
 }
@@ -2473,26 +2472,26 @@ Dart code:
 ///   }
 /// ```
 Result<List<int>>? parseLetters(State state) {
-  final pos$ = state.position;
-  final ch$ = state.ch;
-  final letters$ = <int>[];
+  final pos = state.position;
+  final ch = state.ch;
+  final letters = <int>[];
   // (4, 4)
-  while (letters$.length < 4) {
+  while (letters.length < 4) {
     // [a-zA-Z]
-    final c$ = state.ch;
-    final isAlpha$ = c$ <= 90 ? c$ >= 65 : c$ >= 97 && c$ <= 122;
-    if (isAlpha$) {
+    final c = state.ch;
+    final isAlpha = c <= 90 ? c >= 65 : c >= 97 && c <= 122;
+    if (isAlpha) {
       state.nextChar();
-      letters$.add(c$);
+      letters.add(c);
       continue;
     }
     break;
   }
-  if (letters$.length == 4) {
-    return Ok(letters$);
+  if (letters.length == 4) {
+    return Ok(letters);
   } else {
-    state.ch = ch$;
-    state.position = pos$;
+    state.ch = ch;
+    state.position = pos;
     return null;
   }
 }
@@ -2518,26 +2517,26 @@ Dart code:
 ///   }
 /// ```
 Result<void>? parseLetters(State state) {
-  final pos$ = state.position;
-  final ch$ = state.ch;
-  var count$ = 0;
+  final pos = state.position;
+  final ch = state.ch;
+  var count = 0;
   // (4, 4)
-  while (count$ < 4) {
+  while (count < 4) {
     // [a-zA-Z]
-    final c$ = state.ch;
-    final isAlpha$ = c$ <= 90 ? c$ >= 65 : c$ >= 97 && c$ <= 122;
-    if (isAlpha$) {
+    final c = state.ch;
+    final isAlpha = c <= 90 ? c >= 65 : c >= 97 && c <= 122;
+    if (isAlpha) {
       state.nextChar();
-      count$++;
+      count++;
       continue;
     }
     break;
   }
-  if (count$ >= 4) {
+  if (count >= 4) {
     return Result.none;
   } else {
-    state.ch = ch$;
-    state.position = pos$;
+    state.ch = ch;
+    state.position = pos;
     return null;
   }
 }
@@ -2580,11 +2579,11 @@ Dart code:
 /// ```
 Result<Sting>? parseDigit(State state) {
   // [0-9]
-  final c$ = state.ch;
-  final isDigit$ = c$ >= 48 && c$ <= 57;
-  if (isDigit$) {
+  final c = state.ch;
+  final isDigit = c >= 48 && c <= 57;
+  if (isDigit) {
     state.nextChar();
-    final char = c$;
+    final char = c;
     return Ok(char - 48);
   }
   return null;
@@ -2650,22 +2649,22 @@ Dart code:
 ///   $ = { int.parse(text) }
 /// ```
 Result<int>? parseDecValue(State state) {
-  final start$ = state.position;
-  var isSuccess$ = false;
+  final start = state.position;
+  var isSuccess = false;
   // (1)
   while (true) {
     // [0-9]
-    final c$ = state.ch;
-    final isDigit$ = c$ >= 48 && c$ <= 57;
-    if (isDigit$) {
+    final c = state.ch;
+    final isDigit = c >= 48 && c <= 57;
+    if (isDigit) {
       state.nextChar();
-      isSuccess$ = true;
+      isSuccess = true;
       continue;
     }
     break;
   }
-  if (isSuccess$) {
-    final text = state.substring(start$, state.position);
+  if (isSuccess) {
+    final text = state.substring(start, state.position);
     return Ok(int.parse(text));
   } else {
     state.errorExpected('decimal number');

@@ -1,17 +1,18 @@
 class Allocator {
-  final Map<String, int> _indexes = {};
+  final Set<String> reserved = {};
 
-  String allocate([String name = '']) {
-    final index = _indexes[name] ??= 0;
-    _indexes[name] = index + 1;
-    if (name.isNotEmpty) {
-      if (index == 0) {
-        return '$name\$';
-      }
-
-      return '$name\$$index';
+  String allocate(String name) {
+    if (name.isEmpty) {
+      throw ArgumentError.value('Must not be empty', 'name');
     }
 
-    return '\$$index';
+    var result = name;
+    for (var i = 1; ; i++) {
+      if (reserved.add(result)) {
+        return result;
+      }
+
+      result = '$name$i';
+    }
   }
 }
