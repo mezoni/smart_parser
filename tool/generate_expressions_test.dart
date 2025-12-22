@@ -751,6 +751,46 @@ Test _testMatch() {
   final test = Test('Match', 'Match');
   {
     final production = test.addProduction('String', '''
+@match('')''');
+    {
+      production.addSuccess('', 0, escapeString(''));
+      production.addSuccess('a', 0, escapeString(''));
+    }
+  }
+
+  {
+    final production = test.addProduction('String', '''
+@match("")''');
+    {
+      production.addSuccess('', 0, escapeString(''));
+      production.addSuccess('a', 0, escapeString(''));
+    }
+  }
+
+  {
+    final production = test.addProduction('String', '''
+@match("F")''');
+    {
+      production.addSuccess('f', 1, escapeString('f'));
+      production.addSuccess('F', 1, escapeString('F'));
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('o', 0, [_errorSyntaxError(0, 0)]);
+    }
+  }
+
+  {
+    final production = test.addProduction('String', '''
+@match('f')''');
+    {
+      production.addSuccess('f', 1, escapeString('f'));
+      production.addSuccess('F', 1, escapeString('F'));
+      production.addFailure('', 0, [_errorSyntaxError(0, 0)]);
+      production.addFailure('o', 0, [_errorSyntaxError(0, 0)]);
+    }
+  }
+
+  {
+    final production = test.addProduction('String', '''
 @match('for')''');
     {
       production.addSuccess('for', 3, escapeString('for'));

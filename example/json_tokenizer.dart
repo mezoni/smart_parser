@@ -38,18 +38,18 @@ class JsonTokenizer {
   ///   $ = { t }
   /// ```
   Result<List<Token>>? parseStart(State state) {
-    final pos = state.position;
-    final ch1 = state.ch;
-    final t = parseTokens(state).$1;
-    final isSuccess = state.ch < 0;
-    if (isSuccess) {
-      final eof = _token(state.position, state.position, TokenKind.eof, null);
-      t.add(eof);
-      return Ok(t);
-    }
-    state.ch = ch1;
-    state.position = pos;
-    return null;
+  final pos = state.position;
+  final ch1 = state.ch;
+  final t = parseTokens(state).$1;
+  final isSuccess = state.ch < 0;
+  if (isSuccess) {
+    final eof = _token(state.position, state.position, TokenKind.eof, null);
+    t.add(eof);
+    return Ok(t);
+  }
+  state.ch = ch1;
+  state.position = pos;
+  return null;
   }
 
   /// [List<Token>] **Tokens**
@@ -97,89 +97,89 @@ class JsonTokenizer {
   ///   S
   /// ```
   Result<List<Token>> parseTokens(State state) {
-    final tokens = <Token>[];
-    // (0)
-    while (true) {
-      final pos = state.position;
-      final ch = state.ch;
-      parseS(state);
-      final int start = state.position;
-      // ":"
-      if (state.ch == 58) {
-        state.nextChar();
-        tokens.add(_token(start, state.position, TokenKind.colon, ':'));
-        continue;
-      }
-      // ","
-      if (state.ch == 44) {
-        state.nextChar();
-        tokens.add(_token(start, state.position, TokenKind.comma, ','));
-        continue;
-      }
-      // "{"
-      if (state.ch == 123) {
-        state.nextChar();
-        tokens.add(_token(start, state.position, TokenKind.openBrace, '\u007B'));
-        continue;
-      }
-      // "}"
-      if (state.ch == 125) {
-        state.nextChar();
-        tokens.add(_token(start, state.position, TokenKind.closeBrace, '\u007D'));
-        continue;
-      }
-      // "["
-      if (state.ch == 91) {
-        state.nextChar();
-        tokens.add(_token(start, state.position, TokenKind.openBracket, '['));
-        continue;
-      }
-      // "]"
-      if (state.ch == 93) {
-        state.nextChar();
-        tokens.add(_token(start, state.position, TokenKind.closeBracket, ']'));
-        continue;
-      }
-      // "null"
-      if (state.ch == 110 && state.startsWith('null')) {
-        state.readChar(state.position + 4);
-        tokens.add(_token(start, state.position, TokenKind.nullKeyword, null));
-        continue;
-      }
-      // "true"
-      if (state.ch == 116 && state.startsWith('true')) {
-        state.readChar(state.position + 4);
-        tokens.add(_token(start, state.position, TokenKind.trueKeyword, true));
-        continue;
-      }
-      // "false"
-      if (state.ch == 102 && state.startsWith('false')) {
-        state.readChar(state.position + 5);
-        tokens.add(_token(start, state.position, TokenKind.falseKeyword, false));
-        continue;
-      }
-      // ["]
-      if (state.ch == 34) {
-        final string1 = parseString(state);
-        if (string1 != null) {
-          final string = string1.$1;
-          tokens.add(_token(start, state.position, TokenKind.string, string));
-          continue;
-        }
-      }
-      final number1 = parseNumber(state);
-      if (number1 != null) {
-        final number = number1.$1;
-        tokens.add(_token(start, state.position, TokenKind.number, number));
-        continue;
-      }
-      state.ch = ch;
-      state.position = pos;
-      break;
-    }
-    final tokens1 = Ok(tokens);
+  final tokens = <Token>[];
+  // (0)
+  while (true) {
+    final pos = state.position;
+    final ch = state.ch;
     parseS(state);
-    return tokens1;
+    final int start = state.position;
+    // ":"
+    if (state.ch == 58) {
+      state.nextChar();
+      tokens.add(_token(start, state.position, TokenKind.colon, ':'));
+      continue;
+    }
+    // ","
+    if (state.ch == 44) {
+      state.nextChar();
+      tokens.add(_token(start, state.position, TokenKind.comma, ','));
+      continue;
+    }
+    // "{"
+    if (state.ch == 123) {
+      state.nextChar();
+      tokens.add(_token(start, state.position, TokenKind.openBrace, '\u007B'));
+      continue;
+    }
+    // "}"
+    if (state.ch == 125) {
+      state.nextChar();
+      tokens.add(_token(start, state.position, TokenKind.closeBrace, '\u007D'));
+      continue;
+    }
+    // "["
+    if (state.ch == 91) {
+      state.nextChar();
+      tokens.add(_token(start, state.position, TokenKind.openBracket, '['));
+      continue;
+    }
+    // "]"
+    if (state.ch == 93) {
+      state.nextChar();
+      tokens.add(_token(start, state.position, TokenKind.closeBracket, ']'));
+      continue;
+    }
+    // "null"
+    if (state.ch == 110 && state.startsWith('null')) {
+      state.readChar(state.position + 4);
+      tokens.add(_token(start, state.position, TokenKind.nullKeyword, null));
+      continue;
+    }
+    // "true"
+    if (state.ch == 116 && state.startsWith('true')) {
+      state.readChar(state.position + 4);
+      tokens.add(_token(start, state.position, TokenKind.trueKeyword, true));
+      continue;
+    }
+    // "false"
+    if (state.ch == 102 && state.startsWith('false')) {
+      state.readChar(state.position + 5);
+      tokens.add(_token(start, state.position, TokenKind.falseKeyword, false));
+      continue;
+    }
+    // ["]
+    if (state.ch == 34) {
+      final parsedString = parseString(state);
+      if (parsedString != null) {
+        final string = parsedString.$1;
+        tokens.add(_token(start, state.position, TokenKind.string, string));
+        continue;
+      }
+    }
+    final parsedNumber = parseNumber(state);
+    if (parsedNumber != null) {
+      final number = parsedNumber.$1;
+      tokens.add(_token(start, state.position, TokenKind.number, number));
+      continue;
+    }
+    state.ch = ch;
+    state.position = pos;
+    break;
+  }
+  final tokens1 = Ok(tokens);
+  parseS(state);
+  return tokens1;
   }
 
   /// [String] **EscapeC**
@@ -219,52 +219,52 @@ class JsonTokenizer {
   ///   }
   /// ```
   Result<String>? parseEscapeC(State state) {
-    // ["]
-    if (state.ch == 34) {
-      state.nextChar();
-      return const Ok('"');
-    }
-    // [\\]
-    if (state.ch == 92) {
-      state.nextChar();
-      return const Ok('\\');
-    }
-    // [/]
-    if (state.ch == 47) {
-      state.nextChar();
-      return const Ok('/');
-    }
-    // [b]
-    if (state.ch == 98) {
-      state.nextChar();
-      return const Ok('\b');
-    }
-    // [f]
-    if (state.ch == 102) {
-      state.nextChar();
-      return const Ok('\f');
-    }
-    // [n]
-    if (state.ch == 110) {
-      state.nextChar();
-      return const Ok('\n');
-    }
-    // [r]
-    if (state.ch == 114) {
-      state.nextChar();
-      return const Ok('\r');
-    }
-    // [t]
-    if (state.ch == 116) {
-      state.nextChar();
-      return const Ok('\t');
-    }
-    if (state.position == state.length) {
-      state.errorExpected('escape character');
-    } else {
-      state.error('Illegal escape character');
-    }
-    return null;
+  // ["]
+  if (state.ch == 34) {
+    state.nextChar();
+    return const Ok('"');
+  }
+  // [\\]
+  if (state.ch == 92) {
+    state.nextChar();
+    return const Ok('\\');
+  }
+  // [/]
+  if (state.ch == 47) {
+    state.nextChar();
+    return const Ok('/');
+  }
+  // [b]
+  if (state.ch == 98) {
+    state.nextChar();
+    return const Ok('\b');
+  }
+  // [f]
+  if (state.ch == 102) {
+    state.nextChar();
+    return const Ok('\f');
+  }
+  // [n]
+  if (state.ch == 110) {
+    state.nextChar();
+    return const Ok('\n');
+  }
+  // [r]
+  if (state.ch == 114) {
+    state.nextChar();
+    return const Ok('\r');
+  }
+  // [t]
+  if (state.ch == 116) {
+    state.nextChar();
+    return const Ok('\t');
+  }
+  if (state.position == state.length) {
+    state.errorExpected('escape character');
+  } else {
+    state.error('Illegal escape character');
+  }
+  return null;
   }
 
   /// [String] **EscapeUnicode**
@@ -286,44 +286,44 @@ class JsonTokenizer {
   ///   $ = { String.fromCharCode(int.parse(text, radix: 16)) }
   /// ```
   Result<String>? parseEscapeUnicode(State state) {
-    final start = state.position;
-    // "u"
-    if (state.ch == 117) {
-      final pos = state.position;
-      final ch = state.ch;
-      state.nextChar();
-      var end = 0;
-      final start1 = state.position;
-      final pos1 = state.position;
-      final ch1 = state.ch;
-      var count = 0;
-      // (4, 4)
-      while (count < 4) {
-        // [a-fA-F0-9]
-        final c = state.ch;
-        final isHexDigit = c <= 70 ? c >= 65 || c >= 48 && c <= 57 : c >= 97 && c <= 102;
-        if (isHexDigit) {
-          state.nextChar();
-          count++;
-          continue;
-        }
-        end = state.position;
-        state.errorExpected('hexadecimal digit');
-        break;
+  final start = state.position;
+  // "u"
+  if (state.ch == 117) {
+    final pos = state.position;
+    final ch = state.ch;
+    state.nextChar();
+    var end = 0;
+    final start1 = state.position;
+    final pos1 = state.position;
+    final ch1 = state.ch;
+    var count = 0;
+    // (4, 4)
+    while (count < 4) {
+      // [a-fA-F0-9]
+      final c = state.ch;
+      final isHexDigit = c <= 70 ? c >= 65 || c >= 48 && c <= 57 : c >= 97 && c <= 102;
+      if (isHexDigit) {
+        state.nextChar();
+        count++;
+        continue;
       }
-      if (count >= 4) {
-        final text = state.substring(start1, state.position);
-        return Ok(String.fromCharCode(int.parse(text, radix: 16)));
-      } else {
-        state.ch = ch1;
-        state.position = pos1;
-        state.error('Incorrect Unicode escape sequence', position: end, start: start, end: end);
-        state.ch = ch;
-        state.position = pos;
-        return null;
-      }
+      end = state.position;
+      state.errorExpected('hexadecimal digit');
+      break;
     }
-    return null;
+    if (count >= 4) {
+      final text = state.substring(start1, state.position);
+      return Ok(String.fromCharCode(int.parse(text, radix: 16)));
+    } else {
+      state.ch = ch1;
+      state.position = pos1;
+      state.error('Incorrect Unicode escape sequence', position: end, start: start, end: end);
+      state.ch = ch;
+      state.position = pos;
+      return null;
+    }
+  }
+  return null;
   }
 
   /// [String] **Escaped**
@@ -335,18 +335,18 @@ class JsonTokenizer {
   ///   EscapeC
   /// ```
   Result<String>? parseEscaped(State state) {
-    // "u"
-    if (state.ch == 117) {
-      final escapeUnicode = parseEscapeUnicode(state);
-      if (escapeUnicode != null) {
-        return escapeUnicode;
-      }
+  // "u"
+  if (state.ch == 117) {
+    final parsedEscapeUnicode = parseEscapeUnicode(state);
+    if (parsedEscapeUnicode != null) {
+      return parsedEscapeUnicode;
     }
-    final escapeC = parseEscapeC(state);
-    if (escapeC != null) {
-      return escapeC;
-    }
-    return null;
+  }
+  final parsedEscapeC = parseEscapeC(state);
+  if (parsedEscapeC != null) {
+    return parsedEscapeC;
+  }
+  return null;
   }
 
   /// [String] **String**
@@ -369,64 +369,64 @@ class JsonTokenizer {
   ///   $ = { parts.length == 1 ? parts[0] : parts.isNotEmpty ? parts.join() : '' }
   /// ```
   Result<String>? parseString(State state) {
-    final start = state.position;
-    // ["]
-    if (state.ch == 34) {
-      final pos = state.position;
-      final ch = state.ch;
-      state.nextChar();
-      final parts1 = <String>[];
-      // (0)
+  final start = state.position;
+  // ["]
+  if (state.ch == 34) {
+    final pos = state.position;
+    final ch = state.ch;
+    state.nextChar();
+    final parts1 = <String>[];
+    // (0)
+    while (true) {
+      final start1 = state.position;
+      var isSuccess = false;
+      // (1)
       while (true) {
-        final start1 = state.position;
-        var isSuccess = false;
-        // (1)
-        while (true) {
-          // [^{0-1f}"\\]
-          final c = state.ch;
-          final isNotBackslashOrControlOrDoubleQuote = !(c <= 34 ? c >= 34 || c >= 0 && c <= 31 : c == 92) && !(c < 0);
-          if (isNotBackslashOrControlOrDoubleQuote) {
-            state.nextChar();
-            isSuccess = true;
+        // [^{0-1f}"\\]
+        final c = state.ch;
+        final isNotBackslashOrControlOrDoubleQuote = !(c <= 34 ? c >= 34 || c >= 0 && c <= 31 : c == 92) && !(c < 0);
+        if (isNotBackslashOrControlOrDoubleQuote) {
+          state.nextChar();
+          isSuccess = true;
+          continue;
+        }
+        break;
+      }
+      if (isSuccess) {
+        parts1.add(state.substring(start1, state.position));
+        continue;
+      } else {
+        // [\\]
+        if (state.ch == 92) {
+          final pos1 = state.position;
+          final ch1 = state.ch;
+          state.nextChar();
+          final parsedEscaped = parseEscaped(state);
+          if (parsedEscaped != null) {
+            parts1.add(parsedEscaped.$1);
             continue;
           }
+          state.ch = ch1;
+          state.position = pos1;
           break;
         }
-        if (isSuccess) {
-          parts1.add(state.substring(start1, state.position));
-          continue;
-        } else {
-          // [\\]
-          if (state.ch == 92) {
-            final pos1 = state.position;
-            final ch1 = state.ch;
-            state.nextChar();
-            final escaped = parseEscaped(state);
-            if (escaped != null) {
-              parts1.add(escaped.$1);
-              continue;
-            }
-            state.ch = ch1;
-            state.position = pos1;
-            break;
-          }
-          break;
-        }
+        break;
       }
-      final parts = parts1;
-      // ["]
-      if (state.ch == 34) {
-        state.nextChar();
-        parseS(state);
-        return Ok(parts.length == 1 ? parts[0] : parts.isNotEmpty ? parts.join() : '');
-      }
-      state.error('Unterminated string', start: start);
-      state.errorExpected('"');
-      state.ch = ch;
-      state.position = pos;
-      return null;
     }
+    final parts = parts1;
+    // ["]
+    if (state.ch == 34) {
+      state.nextChar();
+      parseS(state);
+      return Ok(parts.length == 1 ? parts[0] : parts.isNotEmpty ? parts.join() : '');
+    }
+    state.error('Unterminated string', start: start);
+    state.errorExpected('"');
+    state.ch = ch;
+    state.position = pos;
     return null;
+  }
+  return null;
   }
 
   /// [num] **Number**
@@ -465,126 +465,126 @@ class JsonTokenizer {
   ///   $ = { flag && text.length <= 18 ? int.parse(text) : num.parse(text) }
   /// ```
   Result<num>? parseNumber(State state) {
-    final pos = state.position;
-    final ch = state.ch;
-    final start = state.position;
-    var flag = true;
-    // [\-]
-    if (state.ch == 45) {
+  final pos = state.position;
+  final ch = state.ch;
+  final start = state.position;
+  var flag = true;
+  // [\-]
+  if (state.ch == 45) {
+    state.nextChar();
+  }
+  l:
+  {
+    // [0]
+    if (state.ch == 48) {
       state.nextChar();
+      break l;
     }
-    l:
-    {
-      // [0]
-      if (state.ch == 48) {
-        state.nextChar();
-        break l;
-      }
-      // [1-9]
-      final c = state.ch;
-      final isNonZeroDigit = c >= 49 && c <= 57;
-      if (isNonZeroDigit) {
-        state.nextChar();
-        // (0)
-        while (true) {
-          // [0-9]
-          final c1 = state.ch;
-          final isDigit = c1 >= 48 && c1 <= 57;
-          if (isDigit) {
-            state.nextChar();
-            continue;
-          }
-          break;
-        }
-        break l;
-      }
-      state.errorExpected('digit');
-      state.ch = ch;
-      state.position = pos;
-      return null;
-    }
-    // l:
-    l1:
-    {
-      // [.]
-      if (state.ch == 46) {
-        final pos1 = state.position;
-        final ch1 = state.ch;
-        state.nextChar();
-        var isSuccess = false;
-        // (1)
-        while (true) {
-          // [0-9]
-          final c2 = state.ch;
-          final isDigit1 = c2 >= 48 && c2 <= 57;
-          if (isDigit1) {
-            state.nextChar();
-            isSuccess = true;
-            continue;
-          }
-          break;
-        }
-        if (isSuccess) {
-          flag = false;
-          break l1;
-        } else {
-          state.errorExpected('digit');
-          state.error('Fractional part is missing a number');
-          state.error('Malformed number', start: start, end: state.position);
-          state.ch = ch1;
-          state.position = pos1;
-          break l1;
-        }
-      }
-      break l1;
-    }
-    // l1:
-    l2:
-    {
-      // [eE]
-      final c3 = state.ch;
-      final isInRange = c3 == 69 || c3 == 101;
-      if (isInRange) {
-        final pos2 = state.position;
-        final ch2 = state.ch;
-        state.nextChar();
-        // [\-+]
-        final c4 = state.ch;
-        final isMinusOrPlus = c4 == 43 || c4 == 45;
-        if (isMinusOrPlus) {
+    // [1-9]
+    final c = state.ch;
+    final isNonZeroDigit = c >= 49 && c <= 57;
+    if (isNonZeroDigit) {
+      state.nextChar();
+      // (0)
+      while (true) {
+        // [0-9]
+        final c1 = state.ch;
+        final isDigit = c1 >= 48 && c1 <= 57;
+        if (isDigit) {
           state.nextChar();
+          continue;
         }
-        var isSuccess1 = false;
-        // (1)
-        while (true) {
-          // [0-9]
-          final c5 = state.ch;
-          final isDigit2 = c5 >= 48 && c5 <= 57;
-          if (isDigit2) {
-            state.nextChar();
-            isSuccess1 = true;
-            continue;
-          }
-          break;
-        }
-        if (isSuccess1) {
-          flag = false;
-          break l2;
-        } else {
-          state.errorExpected('digit');
-          state.error('Exponent part is missing a number');
-          state.error('Malformed number', start: start, end: state.position);
-          state.ch = ch2;
-          state.position = pos2;
-          break l2;
-        }
+        break;
       }
-      break l2;
+      break l;
     }
-    // l2:
-    final text = state.substring(start, state.position);
-    parseS(state);
-    return Ok(flag && text.length <= 18 ? int.parse(text) : num.parse(text));
+    state.errorExpected('digit');
+    state.ch = ch;
+    state.position = pos;
+    return null;
+  }
+  // l:
+  l1:
+  {
+    // [.]
+    if (state.ch == 46) {
+      final pos1 = state.position;
+      final ch1 = state.ch;
+      state.nextChar();
+      var isSuccess = false;
+      // (1)
+      while (true) {
+        // [0-9]
+        final c2 = state.ch;
+        final isDigit1 = c2 >= 48 && c2 <= 57;
+        if (isDigit1) {
+          state.nextChar();
+          isSuccess = true;
+          continue;
+        }
+        break;
+      }
+      if (isSuccess) {
+        flag = false;
+        break l1;
+      } else {
+        state.errorExpected('digit');
+        state.error('Fractional part is missing a number');
+        state.error('Malformed number', start: start, end: state.position);
+        state.ch = ch1;
+        state.position = pos1;
+        break l1;
+      }
+    }
+    break l1;
+  }
+  // l1:
+  l2:
+  {
+    // [eE]
+    final c3 = state.ch;
+    final isInRange = c3 == 69 || c3 == 101;
+    if (isInRange) {
+      final pos2 = state.position;
+      final ch2 = state.ch;
+      state.nextChar();
+      // [\-+]
+      final c4 = state.ch;
+      final isMinusOrPlus = c4 == 43 || c4 == 45;
+      if (isMinusOrPlus) {
+        state.nextChar();
+      }
+      var isSuccess1 = false;
+      // (1)
+      while (true) {
+        // [0-9]
+        final c5 = state.ch;
+        final isDigit2 = c5 >= 48 && c5 <= 57;
+        if (isDigit2) {
+          state.nextChar();
+          isSuccess1 = true;
+          continue;
+        }
+        break;
+      }
+      if (isSuccess1) {
+        flag = false;
+        break l2;
+      } else {
+        state.errorExpected('digit');
+        state.error('Exponent part is missing a number');
+        state.error('Malformed number', start: start, end: state.position);
+        state.ch = ch2;
+        state.position = pos2;
+        break l2;
+      }
+    }
+    break l2;
+  }
+  // l2:
+  final text = state.substring(start, state.position);
+  parseS(state);
+  return Ok(flag && text.length <= 18 ? int.parse(text) : num.parse(text));
   }
 
   /// [void] **S**
@@ -593,18 +593,18 @@ class JsonTokenizer {
   ///   [\n\r\t ]*
   /// ```
   Result<void> parseS(State state) {
-    // (0)
-    while (true) {
-      // [\n\r\t ]
-      final c = state.ch;
-      final isWhitespace = c <= 13 ? c >= 13 || c >= 9 && c <= 10 : c == 32;
-      if (isWhitespace) {
-        state.nextChar();
-        continue;
-      }
-      break;
+  // (0)
+  while (true) {
+    // [\n\r\t ]
+    final c = state.ch;
+    final isWhitespace = c <= 13 ? c >= 13 || c >= 9 && c <= 10 : c == 32;
+    if (isWhitespace) {
+      state.nextChar();
+      continue;
     }
-    return Result.none;
+    break;
+  }
+  return Result.none;
   }
 
 }

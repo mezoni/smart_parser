@@ -1,3 +1,8 @@
+## 2.2.1
+
+- Minor improvements in code generation.
+- Optimized the code generated for the `MatchExpression` expression.
+
 ## 2.2.0
 
 - Minor improvements in code generation.

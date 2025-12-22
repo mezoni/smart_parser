@@ -281,58 +281,82 @@
   [ ]
 
 `String` Match0 =>
-  @match('for')
+  @match('')
 
 `void` MatchVoid0 =>
-  @match('for')
+  @match('')
 
 `String` Match1 =>
-  @match('FOR')
+  @match("")
 
 `void` MatchVoid1 =>
-  @match('FOR')
+  @match("")
 
 `String` Match2 =>
-  @match('for')
-  ~{ state.errorExpected('for'); }
+  @match("F")
 
 `void` MatchVoid2 =>
+  @match("F")
+
+`String` Match3 =>
+  @match('f')
+
+`void` MatchVoid3 =>
+  @match('f')
+
+`String` Match4 =>
+  @match('for')
+
+`void` MatchVoid4 =>
+  @match('for')
+
+`String` Match5 =>
+  @match('FOR')
+
+`void` MatchVoid5 =>
+  @match('FOR')
+
+`String` Match6 =>
   @match('for')
   ~{ state.errorExpected('for'); }
 
-`void` Match3 =>
-  & @match('for')
-
-`void` Match4 =>
-  ! @match('for')
-
-`String` Match5 =>
-  @match('for')
-  ---
-  @match('while')
-
-`void` MatchVoid5 =>
-  @match('for')
-  ---
-  @match('while')
-
-`String` Match6 =>
-  $ = (
-    @match('for')
-    ---
-    @match('while')
-  )
-  [ ]
-
 `void` MatchVoid6 =>
-  $ = (
-    @match('for')
-    ---
-    @match('while')
-  )
-  [ ]
+  @match('for')
+  ~{ state.errorExpected('for'); }
 
 `void` Match7 =>
+  & @match('for')
+
+`void` Match8 =>
+  ! @match('for')
+
+`String` Match9 =>
+  @match('for')
+  ---
+  @match('while')
+
+`void` MatchVoid9 =>
+  @match('for')
+  ---
+  @match('while')
+
+`String` Match10 =>
+  $ = (
+    @match('for')
+    ---
+    @match('while')
+  )
+  [ ]
+
+`void` MatchVoid10 =>
+  $ = (
+    @match('for')
+    ---
+    @match('while')
+  )
+  [ ]
+
+`void` Match11 =>
   (
     @match('for')
     ---

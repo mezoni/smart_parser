@@ -3618,1021 +3618,1237 @@ void main() {
   test('Match', () {
     final r = parser.parseMatch0;
     final r1 = parser.parseMatchVoid0;
-    final s = State('for');
+    final s = State('');
     final r2 = r(s) as dynamic;
-    expect(r2, isNotNull, reason: '@match(\'for\')\n\'for\'\nresult != null');
-    expect(
-      s.position,
-      3,
-      reason: '@match(\'for\')\n\'for\'\nstate.position = 3',
-    );
-    expect(
-      r2.$1,
-      'for',
-      reason: '@match(\'for\')\n\'for\'\nresult.\$1 != \'for\'',
-    );
-    final s1 = State('for');
+    expect(r2, isNotNull, reason: '@match(\'\')\n\'\'\nresult != null');
+    expect(s.position, 0, reason: '@match(\'\')\n\'\'\nstate.position = 0');
+    expect(r2.$1, '', reason: '@match(\'\')\n\'\'\nresult.\$1 != \'\'');
+    final s1 = State('');
     final r3 = r1(s1) as dynamic;
-    expect(r3, isNotNull, reason: '@match(\'for\')\n\'for\'\nresult != null');
-    expect(
-      s1.position,
-      3,
-      reason: '@match(\'for\')\n\'for\'\nstate.position = 3',
-    );
-    expect(r3.$1, null, reason: '@match(\'for\')\n\'for\'\nresult.\$1 != null');
-    final s2 = State('FOR');
+    expect(r3, isNotNull, reason: '@match(\'\')\n\'\'\nresult != null');
+    expect(s1.position, 0, reason: '@match(\'\')\n\'\'\nstate.position = 0');
+    expect(r3.$1, null, reason: '@match(\'\')\n\'\'\nresult.\$1 != null');
+    final s2 = State('a');
     final r4 = r(s2) as dynamic;
-    expect(r4, isNotNull, reason: '@match(\'for\')\n\'FOR\'\nresult != null');
-    expect(
-      s2.position,
-      3,
-      reason: '@match(\'for\')\n\'FOR\'\nstate.position = 3',
-    );
-    expect(
-      r4.$1,
-      'FOR',
-      reason: '@match(\'for\')\n\'FOR\'\nresult.\$1 != \'FOR\'',
-    );
-    final s3 = State('FOR');
+    expect(r4, isNotNull, reason: '@match(\'\')\n\'a\'\nresult != null');
+    expect(s2.position, 0, reason: '@match(\'\')\n\'a\'\nstate.position = 0');
+    expect(r4.$1, '', reason: '@match(\'\')\n\'a\'\nresult.\$1 != \'\'');
+    final s3 = State('a');
     final r5 = r1(s3) as dynamic;
-    expect(r5, isNotNull, reason: '@match(\'for\')\n\'FOR\'\nresult != null');
-    expect(
-      s3.position,
-      3,
-      reason: '@match(\'for\')\n\'FOR\'\nstate.position = 3',
-    );
-    expect(r5.$1, null, reason: '@match(\'for\')\n\'FOR\'\nresult.\$1 != null');
-    final s4 = State('For');
-    final r6 = r(s4) as dynamic;
-    expect(r6, isNotNull, reason: '@match(\'for\')\n\'For\'\nresult != null');
-    expect(
-      s4.position,
-      3,
-      reason: '@match(\'for\')\n\'For\'\nstate.position = 3',
-    );
-    expect(
-      r6.$1,
-      'For',
-      reason: '@match(\'for\')\n\'For\'\nresult.\$1 != \'For\'',
-    );
-    final s5 = State('For');
-    final r7 = r1(s5) as dynamic;
-    expect(r7, isNotNull, reason: '@match(\'for\')\n\'For\'\nresult != null');
-    expect(
-      s5.position,
-      3,
-      reason: '@match(\'for\')\n\'For\'\nstate.position = 3',
-    );
-    expect(r7.$1, null, reason: '@match(\'for\')\n\'For\'\nresult.\$1 != null');
-    final s6 = State('fOr');
-    final r8 = r(s6) as dynamic;
-    expect(r8, isNotNull, reason: '@match(\'for\')\n\'fOr\'\nresult != null');
-    expect(
-      s6.position,
-      3,
-      reason: '@match(\'for\')\n\'fOr\'\nstate.position = 3',
-    );
-    expect(
-      r8.$1,
-      'fOr',
-      reason: '@match(\'for\')\n\'fOr\'\nresult.\$1 != \'fOr\'',
-    );
-    final s7 = State('fOr');
-    final r9 = r1(s7) as dynamic;
-    expect(r9, isNotNull, reason: '@match(\'for\')\n\'fOr\'\nresult != null');
-    expect(
-      s7.position,
-      3,
-      reason: '@match(\'for\')\n\'fOr\'\nstate.position = 3',
-    );
-    expect(r9.$1, null, reason: '@match(\'for\')\n\'fOr\'\nresult.\$1 != null');
-    final s8 = State('foR');
-    final r10 = r(s8) as dynamic;
-    expect(r10, isNotNull, reason: '@match(\'for\')\n\'foR\'\nresult != null');
-    expect(
-      s8.position,
-      3,
-      reason: '@match(\'for\')\n\'foR\'\nstate.position = 3',
-    );
-    expect(
-      r10.$1,
-      'foR',
-      reason: '@match(\'for\')\n\'foR\'\nresult.\$1 != \'foR\'',
-    );
-    final s9 = State('foR');
-    final r11 = r1(s9) as dynamic;
-    expect(r11, isNotNull, reason: '@match(\'for\')\n\'foR\'\nresult != null');
-    expect(
-      s9.position,
-      3,
-      reason: '@match(\'for\')\n\'foR\'\nstate.position = 3',
-    );
-    expect(
-      r11.$1,
-      null,
-      reason: '@match(\'for\')\n\'foR\'\nresult.\$1 != null',
-    );
-    final s10 = State('');
-    final r12 = r(s10) as dynamic;
-    expect(r12, isNull, reason: '@match(\'for\')\n\'\'\nresult == null');
-    expect(
-      s10.farthestPosition,
-      0,
-      reason: '@match(\'for\')\n\'\'\nstate.farthestPosition = 0',
-    );
-    expect(
-      s10.position,
-      0,
-      reason: '@match(\'for\')\n\'\'\nstate.position = 0',
-    );
-    final e = s10.getErrors().map((e) => '$e').toList()..sort();
-    expect(e.length, 1, reason: '@match(\'for\')\n\'\'\nerror count');
-    expect(e, [
-      '(end: 0, message: Syntax error, start: 0)',
-    ], reason: '@match(\'for\')\n\'\'\nerrors');
-    final s11 = State('');
-    final r13 = r1(s11) as dynamic;
-    expect(r13, isNull, reason: '@match(\'for\')\n\'\'\nresult == null');
-    expect(
-      s11.farthestPosition,
-      0,
-      reason: '@match(\'for\')\n\'\'\nstate.farthestPosition = 0',
-    );
-    expect(
-      s11.position,
-      0,
-      reason: '@match(\'for\')\n\'\'\nstate.position = 0',
-    );
-    final e1 = s11.getErrors().map((e) => '$e').toList()..sort();
-    expect(e1.length, 1, reason: '@match(\'for\')\n\'\'\nerror count');
-    expect(e1, [
-      '(end: 0, message: Syntax error, start: 0)',
-    ], reason: '@match(\'for\')\n\'\'\nerrors');
-    final s12 = State('fo');
-    final r14 = r(s12) as dynamic;
-    expect(r14, isNull, reason: '@match(\'for\')\n\'fo\'\nresult == null');
+    expect(r5, isNotNull, reason: '@match(\'\')\n\'a\'\nresult != null');
+    expect(s3.position, 0, reason: '@match(\'\')\n\'a\'\nstate.position = 0');
+    expect(r5.$1, null, reason: '@match(\'\')\n\'a\'\nresult.\$1 != null');
+    final r6 = parser.parseMatch1;
+    final r7 = parser.parseMatchVoid1;
+    final s4 = State('');
+    final r8 = r6(s4) as dynamic;
+    expect(r8, isNotNull, reason: '@match("")\n\'\'\nresult != null');
+    expect(s4.position, 0, reason: '@match("")\n\'\'\nstate.position = 0');
+    expect(r8.$1, '', reason: '@match("")\n\'\'\nresult.\$1 != \'\'');
+    final s5 = State('');
+    final r9 = r7(s5) as dynamic;
+    expect(r9, isNotNull, reason: '@match("")\n\'\'\nresult != null');
+    expect(s5.position, 0, reason: '@match("")\n\'\'\nstate.position = 0');
+    expect(r9.$1, null, reason: '@match("")\n\'\'\nresult.\$1 != null');
+    final s6 = State('a');
+    final r10 = r6(s6) as dynamic;
+    expect(r10, isNotNull, reason: '@match("")\n\'a\'\nresult != null');
+    expect(s6.position, 0, reason: '@match("")\n\'a\'\nstate.position = 0');
+    expect(r10.$1, '', reason: '@match("")\n\'a\'\nresult.\$1 != \'\'');
+    final s7 = State('a');
+    final r11 = r7(s7) as dynamic;
+    expect(r11, isNotNull, reason: '@match("")\n\'a\'\nresult != null');
+    expect(s7.position, 0, reason: '@match("")\n\'a\'\nstate.position = 0');
+    expect(r11.$1, null, reason: '@match("")\n\'a\'\nresult.\$1 != null');
+    final r12 = parser.parseMatch2;
+    final r13 = parser.parseMatchVoid2;
+    final s8 = State('f');
+    final r14 = r12(s8) as dynamic;
+    expect(r14, isNotNull, reason: '@match("F")\n\'f\'\nresult != null');
+    expect(s8.position, 1, reason: '@match("F")\n\'f\'\nstate.position = 1');
+    expect(r14.$1, 'f', reason: '@match("F")\n\'f\'\nresult.\$1 != \'f\'');
+    final s9 = State('f');
+    final r15 = r13(s9) as dynamic;
+    expect(r15, isNotNull, reason: '@match("F")\n\'f\'\nresult != null');
+    expect(s9.position, 1, reason: '@match("F")\n\'f\'\nstate.position = 1');
+    expect(r15.$1, null, reason: '@match("F")\n\'f\'\nresult.\$1 != null');
+    final s10 = State('F');
+    final r16 = r12(s10) as dynamic;
+    expect(r16, isNotNull, reason: '@match("F")\n\'F\'\nresult != null');
+    expect(s10.position, 1, reason: '@match("F")\n\'F\'\nstate.position = 1');
+    expect(r16.$1, 'F', reason: '@match("F")\n\'F\'\nresult.\$1 != \'F\'');
+    final s11 = State('F');
+    final r17 = r13(s11) as dynamic;
+    expect(r17, isNotNull, reason: '@match("F")\n\'F\'\nresult != null');
+    expect(s11.position, 1, reason: '@match("F")\n\'F\'\nstate.position = 1');
+    expect(r17.$1, null, reason: '@match("F")\n\'F\'\nresult.\$1 != null');
+    final s12 = State('');
+    final r18 = r12(s12) as dynamic;
+    expect(r18, isNull, reason: '@match("F")\n\'\'\nresult == null');
     expect(
       s12.farthestPosition,
       0,
-      reason: '@match(\'for\')\n\'fo\'\nstate.farthestPosition = 0',
+      reason: '@match("F")\n\'\'\nstate.farthestPosition = 0',
     );
-    expect(
-      s12.position,
-      0,
-      reason: '@match(\'for\')\n\'fo\'\nstate.position = 0',
-    );
-    final e2 = s12.getErrors().map((e) => '$e').toList()..sort();
-    expect(e2.length, 1, reason: '@match(\'for\')\n\'fo\'\nerror count');
-    expect(e2, [
+    expect(s12.position, 0, reason: '@match("F")\n\'\'\nstate.position = 0');
+    final e = s12.getErrors().map((e) => '$e').toList()..sort();
+    expect(e.length, 1, reason: '@match("F")\n\'\'\nerror count');
+    expect(e, [
       '(end: 0, message: Syntax error, start: 0)',
-    ], reason: '@match(\'for\')\n\'fo\'\nerrors');
-    final s13 = State('fo');
-    final r15 = r1(s13) as dynamic;
-    expect(r15, isNull, reason: '@match(\'for\')\n\'fo\'\nresult == null');
+    ], reason: '@match("F")\n\'\'\nerrors');
+    final s13 = State('');
+    final r19 = r13(s13) as dynamic;
+    expect(r19, isNull, reason: '@match("F")\n\'\'\nresult == null');
     expect(
       s13.farthestPosition,
       0,
-      reason: '@match(\'for\')\n\'fo\'\nstate.farthestPosition = 0',
+      reason: '@match("F")\n\'\'\nstate.farthestPosition = 0',
     );
+    expect(s13.position, 0, reason: '@match("F")\n\'\'\nstate.position = 0');
+    final e1 = s13.getErrors().map((e) => '$e').toList()..sort();
+    expect(e1.length, 1, reason: '@match("F")\n\'\'\nerror count');
+    expect(e1, [
+      '(end: 0, message: Syntax error, start: 0)',
+    ], reason: '@match("F")\n\'\'\nerrors');
+    final s14 = State('o');
+    final r20 = r12(s14) as dynamic;
+    expect(r20, isNull, reason: '@match("F")\n\'o\'\nresult == null');
     expect(
-      s13.position,
+      s14.farthestPosition,
       0,
-      reason: '@match(\'for\')\n\'fo\'\nstate.position = 0',
+      reason: '@match("F")\n\'o\'\nstate.farthestPosition = 0',
     );
-    final e3 = s13.getErrors().map((e) => '$e').toList()..sort();
-    expect(e3.length, 1, reason: '@match(\'for\')\n\'fo\'\nerror count');
+    expect(s14.position, 0, reason: '@match("F")\n\'o\'\nstate.position = 0');
+    final e2 = s14.getErrors().map((e) => '$e').toList()..sort();
+    expect(e2.length, 1, reason: '@match("F")\n\'o\'\nerror count');
+    expect(e2, [
+      '(end: 0, message: Syntax error, start: 0)',
+    ], reason: '@match("F")\n\'o\'\nerrors');
+    final s15 = State('o');
+    final r21 = r13(s15) as dynamic;
+    expect(r21, isNull, reason: '@match("F")\n\'o\'\nresult == null');
+    expect(
+      s15.farthestPosition,
+      0,
+      reason: '@match("F")\n\'o\'\nstate.farthestPosition = 0',
+    );
+    expect(s15.position, 0, reason: '@match("F")\n\'o\'\nstate.position = 0');
+    final e3 = s15.getErrors().map((e) => '$e').toList()..sort();
+    expect(e3.length, 1, reason: '@match("F")\n\'o\'\nerror count');
     expect(e3, [
       '(end: 0, message: Syntax error, start: 0)',
-    ], reason: '@match(\'for\')\n\'fo\'\nerrors');
-    final r16 = parser.parseMatch1;
-    final r17 = parser.parseMatchVoid1;
-    final s14 = State('for');
-    final r18 = r16(s14) as dynamic;
-    expect(r18, isNotNull, reason: '@match(\'FOR\')\n\'for\'\nresult != null');
+    ], reason: '@match("F")\n\'o\'\nerrors');
+    final r22 = parser.parseMatch3;
+    final r23 = parser.parseMatchVoid3;
+    final s16 = State('f');
+    final r24 = r22(s16) as dynamic;
+    expect(r24, isNotNull, reason: '@match(\'f\')\n\'f\'\nresult != null');
+    expect(s16.position, 1, reason: '@match(\'f\')\n\'f\'\nstate.position = 1');
+    expect(r24.$1, 'f', reason: '@match(\'f\')\n\'f\'\nresult.\$1 != \'f\'');
+    final s17 = State('f');
+    final r25 = r23(s17) as dynamic;
+    expect(r25, isNotNull, reason: '@match(\'f\')\n\'f\'\nresult != null');
+    expect(s17.position, 1, reason: '@match(\'f\')\n\'f\'\nstate.position = 1');
+    expect(r25.$1, null, reason: '@match(\'f\')\n\'f\'\nresult.\$1 != null');
+    final s18 = State('F');
+    final r26 = r22(s18) as dynamic;
+    expect(r26, isNotNull, reason: '@match(\'f\')\n\'F\'\nresult != null');
+    expect(s18.position, 1, reason: '@match(\'f\')\n\'F\'\nstate.position = 1');
+    expect(r26.$1, 'F', reason: '@match(\'f\')\n\'F\'\nresult.\$1 != \'F\'');
+    final s19 = State('F');
+    final r27 = r23(s19) as dynamic;
+    expect(r27, isNotNull, reason: '@match(\'f\')\n\'F\'\nresult != null');
+    expect(s19.position, 1, reason: '@match(\'f\')\n\'F\'\nstate.position = 1');
+    expect(r27.$1, null, reason: '@match(\'f\')\n\'F\'\nresult.\$1 != null');
+    final s20 = State('');
+    final r28 = r22(s20) as dynamic;
+    expect(r28, isNull, reason: '@match(\'f\')\n\'\'\nresult == null');
     expect(
-      s14.position,
-      3,
-      reason: '@match(\'FOR\')\n\'for\'\nstate.position = 3',
-    );
-    expect(
-      r18.$1,
-      'for',
-      reason: '@match(\'FOR\')\n\'for\'\nresult.\$1 != \'for\'',
-    );
-    final s15 = State('for');
-    final r19 = r17(s15) as dynamic;
-    expect(r19, isNotNull, reason: '@match(\'FOR\')\n\'for\'\nresult != null');
-    expect(
-      s15.position,
-      3,
-      reason: '@match(\'FOR\')\n\'for\'\nstate.position = 3',
-    );
-    expect(
-      r19.$1,
-      null,
-      reason: '@match(\'FOR\')\n\'for\'\nresult.\$1 != null',
-    );
-    final s16 = State('FOR');
-    final r20 = r16(s16) as dynamic;
-    expect(r20, isNotNull, reason: '@match(\'FOR\')\n\'FOR\'\nresult != null');
-    expect(
-      s16.position,
-      3,
-      reason: '@match(\'FOR\')\n\'FOR\'\nstate.position = 3',
-    );
-    expect(
-      r20.$1,
-      'FOR',
-      reason: '@match(\'FOR\')\n\'FOR\'\nresult.\$1 != \'FOR\'',
-    );
-    final s17 = State('FOR');
-    final r21 = r17(s17) as dynamic;
-    expect(r21, isNotNull, reason: '@match(\'FOR\')\n\'FOR\'\nresult != null');
-    expect(
-      s17.position,
-      3,
-      reason: '@match(\'FOR\')\n\'FOR\'\nstate.position = 3',
-    );
-    expect(
-      r21.$1,
-      null,
-      reason: '@match(\'FOR\')\n\'FOR\'\nresult.\$1 != null',
-    );
-    final s18 = State('For');
-    final r22 = r16(s18) as dynamic;
-    expect(r22, isNotNull, reason: '@match(\'FOR\')\n\'For\'\nresult != null');
-    expect(
-      s18.position,
-      3,
-      reason: '@match(\'FOR\')\n\'For\'\nstate.position = 3',
-    );
-    expect(
-      r22.$1,
-      'For',
-      reason: '@match(\'FOR\')\n\'For\'\nresult.\$1 != \'For\'',
-    );
-    final s19 = State('For');
-    final r23 = r17(s19) as dynamic;
-    expect(r23, isNotNull, reason: '@match(\'FOR\')\n\'For\'\nresult != null');
-    expect(
-      s19.position,
-      3,
-      reason: '@match(\'FOR\')\n\'For\'\nstate.position = 3',
-    );
-    expect(
-      r23.$1,
-      null,
-      reason: '@match(\'FOR\')\n\'For\'\nresult.\$1 != null',
-    );
-    final s20 = State('fOr');
-    final r24 = r16(s20) as dynamic;
-    expect(r24, isNotNull, reason: '@match(\'FOR\')\n\'fOr\'\nresult != null');
-    expect(
-      s20.position,
-      3,
-      reason: '@match(\'FOR\')\n\'fOr\'\nstate.position = 3',
-    );
-    expect(
-      r24.$1,
-      'fOr',
-      reason: '@match(\'FOR\')\n\'fOr\'\nresult.\$1 != \'fOr\'',
-    );
-    final s21 = State('fOr');
-    final r25 = r17(s21) as dynamic;
-    expect(r25, isNotNull, reason: '@match(\'FOR\')\n\'fOr\'\nresult != null');
-    expect(
-      s21.position,
-      3,
-      reason: '@match(\'FOR\')\n\'fOr\'\nstate.position = 3',
-    );
-    expect(
-      r25.$1,
-      null,
-      reason: '@match(\'FOR\')\n\'fOr\'\nresult.\$1 != null',
-    );
-    final s22 = State('foR');
-    final r26 = r16(s22) as dynamic;
-    expect(r26, isNotNull, reason: '@match(\'FOR\')\n\'foR\'\nresult != null');
-    expect(
-      s22.position,
-      3,
-      reason: '@match(\'FOR\')\n\'foR\'\nstate.position = 3',
-    );
-    expect(
-      r26.$1,
-      'foR',
-      reason: '@match(\'FOR\')\n\'foR\'\nresult.\$1 != \'foR\'',
-    );
-    final s23 = State('foR');
-    final r27 = r17(s23) as dynamic;
-    expect(r27, isNotNull, reason: '@match(\'FOR\')\n\'foR\'\nresult != null');
-    expect(
-      s23.position,
-      3,
-      reason: '@match(\'FOR\')\n\'foR\'\nstate.position = 3',
-    );
-    expect(
-      r27.$1,
-      null,
-      reason: '@match(\'FOR\')\n\'foR\'\nresult.\$1 != null',
-    );
-    final s24 = State('');
-    final r28 = r16(s24) as dynamic;
-    expect(r28, isNull, reason: '@match(\'FOR\')\n\'\'\nresult == null');
-    expect(
-      s24.farthestPosition,
+      s20.farthestPosition,
       0,
-      reason: '@match(\'FOR\')\n\'\'\nstate.farthestPosition = 0',
+      reason: '@match(\'f\')\n\'\'\nstate.farthestPosition = 0',
     );
-    expect(
-      s24.position,
-      0,
-      reason: '@match(\'FOR\')\n\'\'\nstate.position = 0',
-    );
-    final e4 = s24.getErrors().map((e) => '$e').toList()..sort();
-    expect(e4.length, 1, reason: '@match(\'FOR\')\n\'\'\nerror count');
+    expect(s20.position, 0, reason: '@match(\'f\')\n\'\'\nstate.position = 0');
+    final e4 = s20.getErrors().map((e) => '$e').toList()..sort();
+    expect(e4.length, 1, reason: '@match(\'f\')\n\'\'\nerror count');
     expect(e4, [
       '(end: 0, message: Syntax error, start: 0)',
-    ], reason: '@match(\'FOR\')\n\'\'\nerrors');
-    final s25 = State('');
-    final r29 = r17(s25) as dynamic;
-    expect(r29, isNull, reason: '@match(\'FOR\')\n\'\'\nresult == null');
+    ], reason: '@match(\'f\')\n\'\'\nerrors');
+    final s21 = State('');
+    final r29 = r23(s21) as dynamic;
+    expect(r29, isNull, reason: '@match(\'f\')\n\'\'\nresult == null');
     expect(
-      s25.farthestPosition,
+      s21.farthestPosition,
       0,
-      reason: '@match(\'FOR\')\n\'\'\nstate.farthestPosition = 0',
+      reason: '@match(\'f\')\n\'\'\nstate.farthestPosition = 0',
     );
-    expect(
-      s25.position,
-      0,
-      reason: '@match(\'FOR\')\n\'\'\nstate.position = 0',
-    );
-    final e5 = s25.getErrors().map((e) => '$e').toList()..sort();
-    expect(e5.length, 1, reason: '@match(\'FOR\')\n\'\'\nerror count');
+    expect(s21.position, 0, reason: '@match(\'f\')\n\'\'\nstate.position = 0');
+    final e5 = s21.getErrors().map((e) => '$e').toList()..sort();
+    expect(e5.length, 1, reason: '@match(\'f\')\n\'\'\nerror count');
     expect(e5, [
       '(end: 0, message: Syntax error, start: 0)',
-    ], reason: '@match(\'FOR\')\n\'\'\nerrors');
-    final s26 = State('fo');
-    final r30 = r16(s26) as dynamic;
-    expect(r30, isNull, reason: '@match(\'FOR\')\n\'fo\'\nresult == null');
+    ], reason: '@match(\'f\')\n\'\'\nerrors');
+    final s22 = State('o');
+    final r30 = r22(s22) as dynamic;
+    expect(r30, isNull, reason: '@match(\'f\')\n\'o\'\nresult == null');
     expect(
-      s26.farthestPosition,
+      s22.farthestPosition,
       0,
-      reason: '@match(\'FOR\')\n\'fo\'\nstate.farthestPosition = 0',
+      reason: '@match(\'f\')\n\'o\'\nstate.farthestPosition = 0',
     );
-    expect(
-      s26.position,
-      0,
-      reason: '@match(\'FOR\')\n\'fo\'\nstate.position = 0',
-    );
-    final e6 = s26.getErrors().map((e) => '$e').toList()..sort();
-    expect(e6.length, 1, reason: '@match(\'FOR\')\n\'fo\'\nerror count');
+    expect(s22.position, 0, reason: '@match(\'f\')\n\'o\'\nstate.position = 0');
+    final e6 = s22.getErrors().map((e) => '$e').toList()..sort();
+    expect(e6.length, 1, reason: '@match(\'f\')\n\'o\'\nerror count');
     expect(e6, [
       '(end: 0, message: Syntax error, start: 0)',
-    ], reason: '@match(\'FOR\')\n\'fo\'\nerrors');
-    final s27 = State('fo');
-    final r31 = r17(s27) as dynamic;
-    expect(r31, isNull, reason: '@match(\'FOR\')\n\'fo\'\nresult == null');
+    ], reason: '@match(\'f\')\n\'o\'\nerrors');
+    final s23 = State('o');
+    final r31 = r23(s23) as dynamic;
+    expect(r31, isNull, reason: '@match(\'f\')\n\'o\'\nresult == null');
     expect(
-      s27.farthestPosition,
+      s23.farthestPosition,
       0,
-      reason: '@match(\'FOR\')\n\'fo\'\nstate.farthestPosition = 0',
+      reason: '@match(\'f\')\n\'o\'\nstate.farthestPosition = 0',
     );
-    expect(
-      s27.position,
-      0,
-      reason: '@match(\'FOR\')\n\'fo\'\nstate.position = 0',
-    );
-    final e7 = s27.getErrors().map((e) => '$e').toList()..sort();
-    expect(e7.length, 1, reason: '@match(\'FOR\')\n\'fo\'\nerror count');
+    expect(s23.position, 0, reason: '@match(\'f\')\n\'o\'\nstate.position = 0');
+    final e7 = s23.getErrors().map((e) => '$e').toList()..sort();
+    expect(e7.length, 1, reason: '@match(\'f\')\n\'o\'\nerror count');
     expect(e7, [
       '(end: 0, message: Syntax error, start: 0)',
-    ], reason: '@match(\'FOR\')\n\'fo\'\nerrors');
-    final r32 = parser.parseMatch2;
-    final r33 = parser.parseMatchVoid2;
-    final s28 = State('FOR');
-    final r34 = r32(s28) as dynamic;
+    ], reason: '@match(\'f\')\n\'o\'\nerrors');
+    final r32 = parser.parseMatch4;
+    final r33 = parser.parseMatchVoid4;
+    final s24 = State('for');
+    final r34 = r32(s24) as dynamic;
+    expect(r34, isNotNull, reason: '@match(\'for\')\n\'for\'\nresult != null');
     expect(
-      r34,
-      isNotNull,
-      reason:
-          '@match(\'for\')\n~{ state.errorExpected(\'for\'); }\n\'FOR\'\nresult != null',
-    );
-    expect(
-      s28.position,
+      s24.position,
       3,
-      reason:
-          '@match(\'for\')\n~{ state.errorExpected(\'for\'); }\n\'FOR\'\nstate.position = 3',
+      reason: '@match(\'for\')\n\'for\'\nstate.position = 3',
     );
     expect(
       r34.$1,
-      'FOR',
-      reason:
-          '@match(\'for\')\n~{ state.errorExpected(\'for\'); }\n\'FOR\'\nresult.\$1 != \'FOR\'',
+      'for',
+      reason: '@match(\'for\')\n\'for\'\nresult.\$1 != \'for\'',
     );
-    final s29 = State('FOR');
-    final r35 = r33(s29) as dynamic;
+    final s25 = State('for');
+    final r35 = r33(s25) as dynamic;
+    expect(r35, isNotNull, reason: '@match(\'for\')\n\'for\'\nresult != null');
     expect(
-      r35,
-      isNotNull,
-      reason:
-          '@match(\'for\')\n~{ state.errorExpected(\'for\'); }\n\'FOR\'\nresult != null',
-    );
-    expect(
-      s29.position,
+      s25.position,
       3,
-      reason:
-          '@match(\'for\')\n~{ state.errorExpected(\'for\'); }\n\'FOR\'\nstate.position = 3',
+      reason: '@match(\'for\')\n\'for\'\nstate.position = 3',
     );
     expect(
       r35.$1,
       null,
-      reason:
-          '@match(\'for\')\n~{ state.errorExpected(\'for\'); }\n\'FOR\'\nresult.\$1 != null',
+      reason: '@match(\'for\')\n\'for\'\nresult.\$1 != null',
     );
-    final s30 = State('');
-    final r36 = r32(s30) as dynamic;
+    final s26 = State('FOR');
+    final r36 = r32(s26) as dynamic;
+    expect(r36, isNotNull, reason: '@match(\'for\')\n\'FOR\'\nresult != null');
     expect(
-      r36,
-      isNull,
-      reason:
-          '@match(\'for\')\n~{ state.errorExpected(\'for\'); }\n\'\'\nresult == null',
+      s26.position,
+      3,
+      reason: '@match(\'for\')\n\'FOR\'\nstate.position = 3',
     );
     expect(
-      s30.farthestPosition,
-      0,
-      reason:
-          '@match(\'for\')\n~{ state.errorExpected(\'for\'); }\n\'\'\nstate.farthestPosition = 0',
+      r36.$1,
+      'FOR',
+      reason: '@match(\'for\')\n\'FOR\'\nresult.\$1 != \'FOR\'',
     );
+    final s27 = State('FOR');
+    final r37 = r33(s27) as dynamic;
+    expect(r37, isNotNull, reason: '@match(\'for\')\n\'FOR\'\nresult != null');
+    expect(
+      s27.position,
+      3,
+      reason: '@match(\'for\')\n\'FOR\'\nstate.position = 3',
+    );
+    expect(
+      r37.$1,
+      null,
+      reason: '@match(\'for\')\n\'FOR\'\nresult.\$1 != null',
+    );
+    final s28 = State('For');
+    final r38 = r32(s28) as dynamic;
+    expect(r38, isNotNull, reason: '@match(\'for\')\n\'For\'\nresult != null');
+    expect(
+      s28.position,
+      3,
+      reason: '@match(\'for\')\n\'For\'\nstate.position = 3',
+    );
+    expect(
+      r38.$1,
+      'For',
+      reason: '@match(\'for\')\n\'For\'\nresult.\$1 != \'For\'',
+    );
+    final s29 = State('For');
+    final r39 = r33(s29) as dynamic;
+    expect(r39, isNotNull, reason: '@match(\'for\')\n\'For\'\nresult != null');
+    expect(
+      s29.position,
+      3,
+      reason: '@match(\'for\')\n\'For\'\nstate.position = 3',
+    );
+    expect(
+      r39.$1,
+      null,
+      reason: '@match(\'for\')\n\'For\'\nresult.\$1 != null',
+    );
+    final s30 = State('fOr');
+    final r40 = r32(s30) as dynamic;
+    expect(r40, isNotNull, reason: '@match(\'for\')\n\'fOr\'\nresult != null');
     expect(
       s30.position,
-      0,
-      reason:
-          '@match(\'for\')\n~{ state.errorExpected(\'for\'); }\n\'\'\nstate.position = 0',
-    );
-    final e8 = s30.getErrors().map((e) => '$e').toList()..sort();
-    expect(
-      e8.length,
-      1,
-      reason:
-          '@match(\'for\')\n~{ state.errorExpected(\'for\'); }\n\'\'\nerror count',
+      3,
+      reason: '@match(\'for\')\n\'fOr\'\nstate.position = 3',
     );
     expect(
-      e8,
-      ['(end: 0, message: Expected: \'for\', start: 0)'],
-      reason:
-          '@match(\'for\')\n~{ state.errorExpected(\'for\'); }\n\'\'\nerrors',
+      r40.$1,
+      'fOr',
+      reason: '@match(\'for\')\n\'fOr\'\nresult.\$1 != \'fOr\'',
     );
-    final s31 = State('');
-    final r37 = r33(s31) as dynamic;
-    expect(
-      r37,
-      isNull,
-      reason:
-          '@match(\'for\')\n~{ state.errorExpected(\'for\'); }\n\'\'\nresult == null',
-    );
-    expect(
-      s31.farthestPosition,
-      0,
-      reason:
-          '@match(\'for\')\n~{ state.errorExpected(\'for\'); }\n\'\'\nstate.farthestPosition = 0',
-    );
+    final s31 = State('fOr');
+    final r41 = r33(s31) as dynamic;
+    expect(r41, isNotNull, reason: '@match(\'for\')\n\'fOr\'\nresult != null');
     expect(
       s31.position,
-      0,
-      reason:
-          '@match(\'for\')\n~{ state.errorExpected(\'for\'); }\n\'\'\nstate.position = 0',
-    );
-    final e9 = s31.getErrors().map((e) => '$e').toList()..sort();
-    expect(
-      e9.length,
-      1,
-      reason:
-          '@match(\'for\')\n~{ state.errorExpected(\'for\'); }\n\'\'\nerror count',
-    );
-    expect(
-      e9,
-      ['(end: 0, message: Expected: \'for\', start: 0)'],
-      reason:
-          '@match(\'for\')\n~{ state.errorExpected(\'for\'); }\n\'\'\nerrors',
-    );
-    final s32 = State('fo');
-    final r38 = r32(s32) as dynamic;
-    expect(
-      r38,
-      isNull,
-      reason:
-          '@match(\'for\')\n~{ state.errorExpected(\'for\'); }\n\'fo\'\nresult == null',
-    );
-    expect(
-      s32.farthestPosition,
-      0,
-      reason:
-          '@match(\'for\')\n~{ state.errorExpected(\'for\'); }\n\'fo\'\nstate.farthestPosition = 0',
-    );
-    expect(
-      s32.position,
-      0,
-      reason:
-          '@match(\'for\')\n~{ state.errorExpected(\'for\'); }\n\'fo\'\nstate.position = 0',
-    );
-    final e10 = s32.getErrors().map((e) => '$e').toList()..sort();
-    expect(
-      e10.length,
-      1,
-      reason:
-          '@match(\'for\')\n~{ state.errorExpected(\'for\'); }\n\'fo\'\nerror count',
-    );
-    expect(
-      e10,
-      ['(end: 0, message: Expected: \'for\', start: 0)'],
-      reason:
-          '@match(\'for\')\n~{ state.errorExpected(\'for\'); }\n\'fo\'\nerrors',
-    );
-    final s33 = State('fo');
-    final r39 = r33(s33) as dynamic;
-    expect(
-      r39,
-      isNull,
-      reason:
-          '@match(\'for\')\n~{ state.errorExpected(\'for\'); }\n\'fo\'\nresult == null',
-    );
-    expect(
-      s33.farthestPosition,
-      0,
-      reason:
-          '@match(\'for\')\n~{ state.errorExpected(\'for\'); }\n\'fo\'\nstate.farthestPosition = 0',
-    );
-    expect(
-      s33.position,
-      0,
-      reason:
-          '@match(\'for\')\n~{ state.errorExpected(\'for\'); }\n\'fo\'\nstate.position = 0',
-    );
-    final e11 = s33.getErrors().map((e) => '$e').toList()..sort();
-    expect(
-      e11.length,
-      1,
-      reason:
-          '@match(\'for\')\n~{ state.errorExpected(\'for\'); }\n\'fo\'\nerror count',
-    );
-    expect(
-      e11,
-      ['(end: 0, message: Expected: \'for\', start: 0)'],
-      reason:
-          '@match(\'for\')\n~{ state.errorExpected(\'for\'); }\n\'fo\'\nerrors',
-    );
-    final r40 = parser.parseMatch3;
-    final s34 = State('for');
-    final r41 = r40(s34) as dynamic;
-    expect(
-      r41,
-      isNotNull,
-      reason: '& @match(\'for\')\n\'for\'\nresult != null',
-    );
-    expect(
-      s34.position,
-      0,
-      reason: '& @match(\'for\')\n\'for\'\nstate.position = 0',
+      3,
+      reason: '@match(\'for\')\n\'fOr\'\nstate.position = 3',
     );
     expect(
       r41.$1,
       null,
-      reason: '& @match(\'for\')\n\'for\'\nresult.\$1 != null',
+      reason: '@match(\'for\')\n\'fOr\'\nresult.\$1 != null',
     );
+    final s32 = State('foR');
+    final r42 = r32(s32) as dynamic;
+    expect(r42, isNotNull, reason: '@match(\'for\')\n\'foR\'\nresult != null');
+    expect(
+      s32.position,
+      3,
+      reason: '@match(\'for\')\n\'foR\'\nstate.position = 3',
+    );
+    expect(
+      r42.$1,
+      'foR',
+      reason: '@match(\'for\')\n\'foR\'\nresult.\$1 != \'foR\'',
+    );
+    final s33 = State('foR');
+    final r43 = r33(s33) as dynamic;
+    expect(r43, isNotNull, reason: '@match(\'for\')\n\'foR\'\nresult != null');
+    expect(
+      s33.position,
+      3,
+      reason: '@match(\'for\')\n\'foR\'\nstate.position = 3',
+    );
+    expect(
+      r43.$1,
+      null,
+      reason: '@match(\'for\')\n\'foR\'\nresult.\$1 != null',
+    );
+    final s34 = State('');
+    final r44 = r32(s34) as dynamic;
+    expect(r44, isNull, reason: '@match(\'for\')\n\'\'\nresult == null');
+    expect(
+      s34.farthestPosition,
+      0,
+      reason: '@match(\'for\')\n\'\'\nstate.farthestPosition = 0',
+    );
+    expect(
+      s34.position,
+      0,
+      reason: '@match(\'for\')\n\'\'\nstate.position = 0',
+    );
+    final e8 = s34.getErrors().map((e) => '$e').toList()..sort();
+    expect(e8.length, 1, reason: '@match(\'for\')\n\'\'\nerror count');
+    expect(e8, [
+      '(end: 0, message: Syntax error, start: 0)',
+    ], reason: '@match(\'for\')\n\'\'\nerrors');
     final s35 = State('');
-    final r42 = r40(s35) as dynamic;
-    expect(r42, isNull, reason: '& @match(\'for\')\n\'\'\nresult == null');
+    final r45 = r33(s35) as dynamic;
+    expect(r45, isNull, reason: '@match(\'for\')\n\'\'\nresult == null');
     expect(
       s35.farthestPosition,
       0,
-      reason: '& @match(\'for\')\n\'\'\nstate.farthestPosition = 0',
+      reason: '@match(\'for\')\n\'\'\nstate.farthestPosition = 0',
     );
     expect(
       s35.position,
       0,
-      reason: '& @match(\'for\')\n\'\'\nstate.position = 0',
+      reason: '@match(\'for\')\n\'\'\nstate.position = 0',
     );
-    final e12 = s35.getErrors().map((e) => '$e').toList()..sort();
-    expect(e12.length, 1, reason: '& @match(\'for\')\n\'\'\nerror count');
-    expect(e12, [
+    final e9 = s35.getErrors().map((e) => '$e').toList()..sort();
+    expect(e9.length, 1, reason: '@match(\'for\')\n\'\'\nerror count');
+    expect(e9, [
       '(end: 0, message: Syntax error, start: 0)',
-    ], reason: '& @match(\'for\')\n\'\'\nerrors');
+    ], reason: '@match(\'for\')\n\'\'\nerrors');
     final s36 = State('fo');
-    final r43 = r40(s36) as dynamic;
-    expect(r43, isNull, reason: '& @match(\'for\')\n\'fo\'\nresult == null');
+    final r46 = r32(s36) as dynamic;
+    expect(r46, isNull, reason: '@match(\'for\')\n\'fo\'\nresult == null');
     expect(
       s36.farthestPosition,
       0,
-      reason: '& @match(\'for\')\n\'fo\'\nstate.farthestPosition = 0',
+      reason: '@match(\'for\')\n\'fo\'\nstate.farthestPosition = 0',
     );
     expect(
       s36.position,
       0,
-      reason: '& @match(\'for\')\n\'fo\'\nstate.position = 0',
+      reason: '@match(\'for\')\n\'fo\'\nstate.position = 0',
     );
-    final e13 = s36.getErrors().map((e) => '$e').toList()..sort();
-    expect(e13.length, 1, reason: '& @match(\'for\')\n\'fo\'\nerror count');
-    expect(e13, [
+    final e10 = s36.getErrors().map((e) => '$e').toList()..sort();
+    expect(e10.length, 1, reason: '@match(\'for\')\n\'fo\'\nerror count');
+    expect(e10, [
       '(end: 0, message: Syntax error, start: 0)',
-    ], reason: '& @match(\'for\')\n\'fo\'\nerrors');
-    final r44 = parser.parseMatch4;
-    final s37 = State('');
-    final r45 = r44(s37) as dynamic;
-    expect(r45, isNotNull, reason: '! @match(\'for\')\n\'\'\nresult != null');
+    ], reason: '@match(\'for\')\n\'fo\'\nerrors');
+    final s37 = State('fo');
+    final r47 = r33(s37) as dynamic;
+    expect(r47, isNull, reason: '@match(\'for\')\n\'fo\'\nresult == null');
+    expect(
+      s37.farthestPosition,
+      0,
+      reason: '@match(\'for\')\n\'fo\'\nstate.farthestPosition = 0',
+    );
     expect(
       s37.position,
       0,
-      reason: '! @match(\'for\')\n\'\'\nstate.position = 0',
+      reason: '@match(\'for\')\n\'fo\'\nstate.position = 0',
     );
-    expect(r45.$1, null, reason: '! @match(\'for\')\n\'\'\nresult.\$1 != null');
-    final s38 = State('fo');
-    final r46 = r44(s38) as dynamic;
-    expect(r46, isNotNull, reason: '! @match(\'for\')\n\'fo\'\nresult != null');
-    expect(
-      s38.position,
-      0,
-      reason: '! @match(\'for\')\n\'fo\'\nstate.position = 0',
-    );
-    expect(
-      r46.$1,
-      null,
-      reason: '! @match(\'for\')\n\'fo\'\nresult.\$1 != null',
-    );
-    final s39 = State('for');
-    final r47 = r44(s39) as dynamic;
-    expect(r47, isNull, reason: '! @match(\'for\')\n\'for\'\nresult == null');
-    expect(
-      s39.farthestPosition,
-      0,
-      reason: '! @match(\'for\')\n\'for\'\nstate.farthestPosition = 0',
-    );
-    expect(
-      s39.position,
-      0,
-      reason: '! @match(\'for\')\n\'for\'\nstate.position = 0',
-    );
-    final e14 = s39.getErrors().map((e) => '$e').toList()..sort();
-    expect(e14.length, 1, reason: '! @match(\'for\')\n\'for\'\nerror count');
-    expect(e14, [
+    final e11 = s37.getErrors().map((e) => '$e').toList()..sort();
+    expect(e11.length, 1, reason: '@match(\'for\')\n\'fo\'\nerror count');
+    expect(e11, [
       '(end: 0, message: Syntax error, start: 0)',
-    ], reason: '! @match(\'for\')\n\'for\'\nerrors');
+    ], reason: '@match(\'for\')\n\'fo\'\nerrors');
     final r48 = parser.parseMatch5;
     final r49 = parser.parseMatchVoid5;
-    final s40 = State('FOR');
-    final r50 = r48(s40) as dynamic;
+    final s38 = State('for');
+    final r50 = r48(s38) as dynamic;
+    expect(r50, isNotNull, reason: '@match(\'FOR\')\n\'for\'\nresult != null');
     expect(
-      r50,
-      isNotNull,
-      reason:
-          '@match(\'for\')\n---\n@match(\'while\')\n\'FOR\'\nresult != null',
-    );
-    expect(
-      s40.position,
+      s38.position,
       3,
-      reason:
-          '@match(\'for\')\n---\n@match(\'while\')\n\'FOR\'\nstate.position = 3',
+      reason: '@match(\'FOR\')\n\'for\'\nstate.position = 3',
     );
     expect(
       r50.$1,
-      'FOR',
-      reason:
-          '@match(\'for\')\n---\n@match(\'while\')\n\'FOR\'\nresult.\$1 != \'FOR\'',
+      'for',
+      reason: '@match(\'FOR\')\n\'for\'\nresult.\$1 != \'for\'',
     );
-    final s41 = State('FOR');
-    final r51 = r49(s41) as dynamic;
+    final s39 = State('for');
+    final r51 = r49(s39) as dynamic;
+    expect(r51, isNotNull, reason: '@match(\'FOR\')\n\'for\'\nresult != null');
     expect(
-      r51,
-      isNotNull,
-      reason:
-          '@match(\'for\')\n---\n@match(\'while\')\n\'FOR\'\nresult != null',
-    );
-    expect(
-      s41.position,
+      s39.position,
       3,
-      reason:
-          '@match(\'for\')\n---\n@match(\'while\')\n\'FOR\'\nstate.position = 3',
+      reason: '@match(\'FOR\')\n\'for\'\nstate.position = 3',
     );
     expect(
       r51.$1,
       null,
-      reason:
-          '@match(\'for\')\n---\n@match(\'while\')\n\'FOR\'\nresult.\$1 != null',
+      reason: '@match(\'FOR\')\n\'for\'\nresult.\$1 != null',
     );
-    final s42 = State('WHILE');
-    final r52 = r48(s42) as dynamic;
+    final s40 = State('FOR');
+    final r52 = r48(s40) as dynamic;
+    expect(r52, isNotNull, reason: '@match(\'FOR\')\n\'FOR\'\nresult != null');
     expect(
-      r52,
-      isNotNull,
-      reason:
-          '@match(\'for\')\n---\n@match(\'while\')\n\'WHILE\'\nresult != null',
-    );
-    expect(
-      s42.position,
-      5,
-      reason:
-          '@match(\'for\')\n---\n@match(\'while\')\n\'WHILE\'\nstate.position = 5',
+      s40.position,
+      3,
+      reason: '@match(\'FOR\')\n\'FOR\'\nstate.position = 3',
     );
     expect(
       r52.$1,
-      'WHILE',
-      reason:
-          '@match(\'for\')\n---\n@match(\'while\')\n\'WHILE\'\nresult.\$1 != \'WHILE\'',
+      'FOR',
+      reason: '@match(\'FOR\')\n\'FOR\'\nresult.\$1 != \'FOR\'',
     );
-    final s43 = State('WHILE');
-    final r53 = r49(s43) as dynamic;
+    final s41 = State('FOR');
+    final r53 = r49(s41) as dynamic;
+    expect(r53, isNotNull, reason: '@match(\'FOR\')\n\'FOR\'\nresult != null');
     expect(
-      r53,
-      isNotNull,
-      reason:
-          '@match(\'for\')\n---\n@match(\'while\')\n\'WHILE\'\nresult != null',
-    );
-    expect(
-      s43.position,
-      5,
-      reason:
-          '@match(\'for\')\n---\n@match(\'while\')\n\'WHILE\'\nstate.position = 5',
+      s41.position,
+      3,
+      reason: '@match(\'FOR\')\n\'FOR\'\nstate.position = 3',
     );
     expect(
       r53.$1,
       null,
-      reason:
-          '@match(\'for\')\n---\n@match(\'while\')\n\'WHILE\'\nresult.\$1 != null',
+      reason: '@match(\'FOR\')\n\'FOR\'\nresult.\$1 != null',
     );
-    final s44 = State('');
-    final r54 = r48(s44) as dynamic;
+    final s42 = State('For');
+    final r54 = r48(s42) as dynamic;
+    expect(r54, isNotNull, reason: '@match(\'FOR\')\n\'For\'\nresult != null');
     expect(
-      r54,
-      isNull,
-      reason: '@match(\'for\')\n---\n@match(\'while\')\n\'\'\nresult == null',
+      s42.position,
+      3,
+      reason: '@match(\'FOR\')\n\'For\'\nstate.position = 3',
     );
     expect(
-      s44.farthestPosition,
-      0,
-      reason:
-          '@match(\'for\')\n---\n@match(\'while\')\n\'\'\nstate.farthestPosition = 0',
+      r54.$1,
+      'For',
+      reason: '@match(\'FOR\')\n\'For\'\nresult.\$1 != \'For\'',
     );
+    final s43 = State('For');
+    final r55 = r49(s43) as dynamic;
+    expect(r55, isNotNull, reason: '@match(\'FOR\')\n\'For\'\nresult != null');
+    expect(
+      s43.position,
+      3,
+      reason: '@match(\'FOR\')\n\'For\'\nstate.position = 3',
+    );
+    expect(
+      r55.$1,
+      null,
+      reason: '@match(\'FOR\')\n\'For\'\nresult.\$1 != null',
+    );
+    final s44 = State('fOr');
+    final r56 = r48(s44) as dynamic;
+    expect(r56, isNotNull, reason: '@match(\'FOR\')\n\'fOr\'\nresult != null');
     expect(
       s44.position,
-      0,
-      reason:
-          '@match(\'for\')\n---\n@match(\'while\')\n\'\'\nstate.position = 0',
-    );
-    final e15 = s44.getErrors().map((e) => '$e').toList()..sort();
-    expect(
-      e15.length,
-      1,
-      reason: '@match(\'for\')\n---\n@match(\'while\')\n\'\'\nerror count',
-    );
-    expect(e15, [
-      '(end: 0, message: Syntax error, start: 0)',
-    ], reason: '@match(\'for\')\n---\n@match(\'while\')\n\'\'\nerrors');
-    final s45 = State('');
-    final r55 = r49(s45) as dynamic;
-    expect(
-      r55,
-      isNull,
-      reason: '@match(\'for\')\n---\n@match(\'while\')\n\'\'\nresult == null',
+      3,
+      reason: '@match(\'FOR\')\n\'fOr\'\nstate.position = 3',
     );
     expect(
-      s45.farthestPosition,
-      0,
-      reason:
-          '@match(\'for\')\n---\n@match(\'while\')\n\'\'\nstate.farthestPosition = 0',
+      r56.$1,
+      'fOr',
+      reason: '@match(\'FOR\')\n\'fOr\'\nresult.\$1 != \'fOr\'',
     );
+    final s45 = State('fOr');
+    final r57 = r49(s45) as dynamic;
+    expect(r57, isNotNull, reason: '@match(\'FOR\')\n\'fOr\'\nresult != null');
     expect(
       s45.position,
-      0,
-      reason:
-          '@match(\'for\')\n---\n@match(\'while\')\n\'\'\nstate.position = 0',
+      3,
+      reason: '@match(\'FOR\')\n\'fOr\'\nstate.position = 3',
     );
-    final e16 = s45.getErrors().map((e) => '$e').toList()..sort();
     expect(
-      e16.length,
-      1,
-      reason: '@match(\'for\')\n---\n@match(\'while\')\n\'\'\nerror count',
+      r57.$1,
+      null,
+      reason: '@match(\'FOR\')\n\'fOr\'\nresult.\$1 != null',
     );
-    expect(e16, [
-      '(end: 0, message: Syntax error, start: 0)',
-    ], reason: '@match(\'for\')\n---\n@match(\'while\')\n\'\'\nerrors');
-    final r56 = parser.parseMatch6;
-    final r57 = parser.parseMatchVoid6;
-    final s46 = State('FOR ');
-    final r58 = r56(s46) as dynamic;
-    expect(
-      r58,
-      isNotNull,
-      reason:
-          '\$ = (\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'FOR \'\nresult != null',
-    );
+    final s46 = State('foR');
+    final r58 = r48(s46) as dynamic;
+    expect(r58, isNotNull, reason: '@match(\'FOR\')\n\'foR\'\nresult != null');
     expect(
       s46.position,
-      4,
-      reason:
-          '\$ = (\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'FOR \'\nstate.position = 4',
+      3,
+      reason: '@match(\'FOR\')\n\'foR\'\nstate.position = 3',
     );
     expect(
       r58.$1,
-      'FOR',
-      reason:
-          '\$ = (\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'FOR \'\nresult.\$1 != \'FOR\'',
+      'foR',
+      reason: '@match(\'FOR\')\n\'foR\'\nresult.\$1 != \'foR\'',
     );
-    final s47 = State('FOR ');
-    final r59 = r57(s47) as dynamic;
-    expect(
-      r59,
-      isNotNull,
-      reason:
-          '\$ = (\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'FOR \'\nresult != null',
-    );
+    final s47 = State('foR');
+    final r59 = r49(s47) as dynamic;
+    expect(r59, isNotNull, reason: '@match(\'FOR\')\n\'foR\'\nresult != null');
     expect(
       s47.position,
-      4,
-      reason:
-          '\$ = (\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'FOR \'\nstate.position = 4',
+      3,
+      reason: '@match(\'FOR\')\n\'foR\'\nstate.position = 3',
     );
     expect(
       r59.$1,
       null,
-      reason:
-          '\$ = (\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'FOR \'\nresult.\$1 != null',
+      reason: '@match(\'FOR\')\n\'foR\'\nresult.\$1 != null',
     );
-    final s48 = State('WHILE ');
-    final r60 = r56(s48) as dynamic;
+    final s48 = State('');
+    final r60 = r48(s48) as dynamic;
+    expect(r60, isNull, reason: '@match(\'FOR\')\n\'\'\nresult == null');
     expect(
-      r60,
-      isNotNull,
-      reason:
-          '\$ = (\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'WHILE \'\nresult != null',
+      s48.farthestPosition,
+      0,
+      reason: '@match(\'FOR\')\n\'\'\nstate.farthestPosition = 0',
     );
     expect(
       s48.position,
-      6,
-      reason:
-          '\$ = (\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'WHILE \'\nstate.position = 6',
+      0,
+      reason: '@match(\'FOR\')\n\'\'\nstate.position = 0',
     );
+    final e12 = s48.getErrors().map((e) => '$e').toList()..sort();
+    expect(e12.length, 1, reason: '@match(\'FOR\')\n\'\'\nerror count');
+    expect(e12, [
+      '(end: 0, message: Syntax error, start: 0)',
+    ], reason: '@match(\'FOR\')\n\'\'\nerrors');
+    final s49 = State('');
+    final r61 = r49(s49) as dynamic;
+    expect(r61, isNull, reason: '@match(\'FOR\')\n\'\'\nresult == null');
     expect(
-      r60.$1,
-      'WHILE',
-      reason:
-          '\$ = (\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'WHILE \'\nresult.\$1 != \'WHILE\'',
-    );
-    final s49 = State('WHILE ');
-    final r61 = r57(s49) as dynamic;
-    expect(
-      r61,
-      isNotNull,
-      reason:
-          '\$ = (\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'WHILE \'\nresult != null',
+      s49.farthestPosition,
+      0,
+      reason: '@match(\'FOR\')\n\'\'\nstate.farthestPosition = 0',
     );
     expect(
       s49.position,
-      6,
-      reason:
-          '\$ = (\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'WHILE \'\nstate.position = 6',
+      0,
+      reason: '@match(\'FOR\')\n\'\'\nstate.position = 0',
     );
-    expect(
-      r61.$1,
-      null,
-      reason:
-          '\$ = (\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'WHILE \'\nresult.\$1 != null',
-    );
-    final s50 = State('');
-    final r62 = r56(s50) as dynamic;
-    expect(
-      r62,
-      isNull,
-      reason:
-          '\$ = (\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'\'\nresult == null',
-    );
+    final e13 = s49.getErrors().map((e) => '$e').toList()..sort();
+    expect(e13.length, 1, reason: '@match(\'FOR\')\n\'\'\nerror count');
+    expect(e13, [
+      '(end: 0, message: Syntax error, start: 0)',
+    ], reason: '@match(\'FOR\')\n\'\'\nerrors');
+    final s50 = State('fo');
+    final r62 = r48(s50) as dynamic;
+    expect(r62, isNull, reason: '@match(\'FOR\')\n\'fo\'\nresult == null');
     expect(
       s50.farthestPosition,
       0,
-      reason:
-          '\$ = (\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'\'\nstate.farthestPosition = 0',
+      reason: '@match(\'FOR\')\n\'fo\'\nstate.farthestPosition = 0',
     );
     expect(
       s50.position,
       0,
-      reason:
-          '\$ = (\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'\'\nstate.position = 0',
+      reason: '@match(\'FOR\')\n\'fo\'\nstate.position = 0',
     );
-    final e17 = s50.getErrors().map((e) => '$e').toList()..sort();
-    expect(
-      e17.length,
-      1,
-      reason:
-          '\$ = (\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'\'\nerror count',
-    );
-    expect(
-      e17,
-      ['(end: 0, message: Syntax error, start: 0)'],
-      reason:
-          '\$ = (\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'\'\nerrors',
-    );
-    final s51 = State('');
-    final r63 = r57(s51) as dynamic;
-    expect(
-      r63,
-      isNull,
-      reason:
-          '\$ = (\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'\'\nresult == null',
-    );
+    final e14 = s50.getErrors().map((e) => '$e').toList()..sort();
+    expect(e14.length, 1, reason: '@match(\'FOR\')\n\'fo\'\nerror count');
+    expect(e14, [
+      '(end: 0, message: Syntax error, start: 0)',
+    ], reason: '@match(\'FOR\')\n\'fo\'\nerrors');
+    final s51 = State('fo');
+    final r63 = r49(s51) as dynamic;
+    expect(r63, isNull, reason: '@match(\'FOR\')\n\'fo\'\nresult == null');
     expect(
       s51.farthestPosition,
       0,
-      reason:
-          '\$ = (\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'\'\nstate.farthestPosition = 0',
+      reason: '@match(\'FOR\')\n\'fo\'\nstate.farthestPosition = 0',
     );
     expect(
       s51.position,
       0,
-      reason:
-          '\$ = (\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'\'\nstate.position = 0',
+      reason: '@match(\'FOR\')\n\'fo\'\nstate.position = 0',
     );
-    final e18 = s51.getErrors().map((e) => '$e').toList()..sort();
-    expect(
-      e18.length,
-      1,
-      reason:
-          '\$ = (\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'\'\nerror count',
-    );
-    expect(
-      e18,
-      ['(end: 0, message: Syntax error, start: 0)'],
-      reason:
-          '\$ = (\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'\'\nerrors',
-    );
-    final r64 = parser.parseMatch7;
-    final s52 = State('FOR ');
-    final r65 = r64(s52) as dynamic;
-    expect(
-      r65,
-      isNotNull,
-      reason:
-          '(\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'FOR \'\nresult != null',
-    );
-    expect(
-      s52.position,
-      4,
-      reason:
-          '(\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'FOR \'\nstate.position = 4',
-    );
-    expect(
-      r65.$1,
-      null,
-      reason:
-          '(\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'FOR \'\nresult.\$1 != null',
-    );
-    final s53 = State('WHILE ');
-    final r66 = r64(s53) as dynamic;
+    final e15 = s51.getErrors().map((e) => '$e').toList()..sort();
+    expect(e15.length, 1, reason: '@match(\'FOR\')\n\'fo\'\nerror count');
+    expect(e15, [
+      '(end: 0, message: Syntax error, start: 0)',
+    ], reason: '@match(\'FOR\')\n\'fo\'\nerrors');
+    final r64 = parser.parseMatch6;
+    final r65 = parser.parseMatchVoid6;
+    final s52 = State('FOR');
+    final r66 = r64(s52) as dynamic;
     expect(
       r66,
       isNotNull,
       reason:
-          '(\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'WHILE \'\nresult != null',
+          '@match(\'for\')\n~{ state.errorExpected(\'for\'); }\n\'FOR\'\nresult != null',
     );
     expect(
-      s53.position,
-      6,
+      s52.position,
+      3,
       reason:
-          '(\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'WHILE \'\nstate.position = 6',
+          '@match(\'for\')\n~{ state.errorExpected(\'for\'); }\n\'FOR\'\nstate.position = 3',
     );
     expect(
       r66.$1,
-      null,
+      'FOR',
       reason:
-          '(\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'WHILE \'\nresult.\$1 != null',
+          '@match(\'for\')\n~{ state.errorExpected(\'for\'); }\n\'FOR\'\nresult.\$1 != \'FOR\'',
     );
-    final s54 = State('');
-    final r67 = r64(s54) as dynamic;
+    final s53 = State('FOR');
+    final r67 = r65(s53) as dynamic;
     expect(
       r67,
+      isNotNull,
+      reason:
+          '@match(\'for\')\n~{ state.errorExpected(\'for\'); }\n\'FOR\'\nresult != null',
+    );
+    expect(
+      s53.position,
+      3,
+      reason:
+          '@match(\'for\')\n~{ state.errorExpected(\'for\'); }\n\'FOR\'\nstate.position = 3',
+    );
+    expect(
+      r67.$1,
+      null,
+      reason:
+          '@match(\'for\')\n~{ state.errorExpected(\'for\'); }\n\'FOR\'\nresult.\$1 != null',
+    );
+    final s54 = State('');
+    final r68 = r64(s54) as dynamic;
+    expect(
+      r68,
       isNull,
       reason:
-          '(\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'\'\nresult == null',
+          '@match(\'for\')\n~{ state.errorExpected(\'for\'); }\n\'\'\nresult == null',
     );
     expect(
       s54.farthestPosition,
       0,
       reason:
-          '(\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'\'\nstate.farthestPosition = 0',
+          '@match(\'for\')\n~{ state.errorExpected(\'for\'); }\n\'\'\nstate.farthestPosition = 0',
     );
     expect(
       s54.position,
       0,
       reason:
-          '(\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'\'\nstate.position = 0',
+          '@match(\'for\')\n~{ state.errorExpected(\'for\'); }\n\'\'\nstate.position = 0',
     );
-    final e19 = s54.getErrors().map((e) => '$e').toList()..sort();
+    final e16 = s54.getErrors().map((e) => '$e').toList()..sort();
+    expect(
+      e16.length,
+      1,
+      reason:
+          '@match(\'for\')\n~{ state.errorExpected(\'for\'); }\n\'\'\nerror count',
+    );
+    expect(
+      e16,
+      ['(end: 0, message: Expected: \'for\', start: 0)'],
+      reason:
+          '@match(\'for\')\n~{ state.errorExpected(\'for\'); }\n\'\'\nerrors',
+    );
+    final s55 = State('');
+    final r69 = r65(s55) as dynamic;
+    expect(
+      r69,
+      isNull,
+      reason:
+          '@match(\'for\')\n~{ state.errorExpected(\'for\'); }\n\'\'\nresult == null',
+    );
+    expect(
+      s55.farthestPosition,
+      0,
+      reason:
+          '@match(\'for\')\n~{ state.errorExpected(\'for\'); }\n\'\'\nstate.farthestPosition = 0',
+    );
+    expect(
+      s55.position,
+      0,
+      reason:
+          '@match(\'for\')\n~{ state.errorExpected(\'for\'); }\n\'\'\nstate.position = 0',
+    );
+    final e17 = s55.getErrors().map((e) => '$e').toList()..sort();
+    expect(
+      e17.length,
+      1,
+      reason:
+          '@match(\'for\')\n~{ state.errorExpected(\'for\'); }\n\'\'\nerror count',
+    );
+    expect(
+      e17,
+      ['(end: 0, message: Expected: \'for\', start: 0)'],
+      reason:
+          '@match(\'for\')\n~{ state.errorExpected(\'for\'); }\n\'\'\nerrors',
+    );
+    final s56 = State('fo');
+    final r70 = r64(s56) as dynamic;
+    expect(
+      r70,
+      isNull,
+      reason:
+          '@match(\'for\')\n~{ state.errorExpected(\'for\'); }\n\'fo\'\nresult == null',
+    );
+    expect(
+      s56.farthestPosition,
+      0,
+      reason:
+          '@match(\'for\')\n~{ state.errorExpected(\'for\'); }\n\'fo\'\nstate.farthestPosition = 0',
+    );
+    expect(
+      s56.position,
+      0,
+      reason:
+          '@match(\'for\')\n~{ state.errorExpected(\'for\'); }\n\'fo\'\nstate.position = 0',
+    );
+    final e18 = s56.getErrors().map((e) => '$e').toList()..sort();
+    expect(
+      e18.length,
+      1,
+      reason:
+          '@match(\'for\')\n~{ state.errorExpected(\'for\'); }\n\'fo\'\nerror count',
+    );
+    expect(
+      e18,
+      ['(end: 0, message: Expected: \'for\', start: 0)'],
+      reason:
+          '@match(\'for\')\n~{ state.errorExpected(\'for\'); }\n\'fo\'\nerrors',
+    );
+    final s57 = State('fo');
+    final r71 = r65(s57) as dynamic;
+    expect(
+      r71,
+      isNull,
+      reason:
+          '@match(\'for\')\n~{ state.errorExpected(\'for\'); }\n\'fo\'\nresult == null',
+    );
+    expect(
+      s57.farthestPosition,
+      0,
+      reason:
+          '@match(\'for\')\n~{ state.errorExpected(\'for\'); }\n\'fo\'\nstate.farthestPosition = 0',
+    );
+    expect(
+      s57.position,
+      0,
+      reason:
+          '@match(\'for\')\n~{ state.errorExpected(\'for\'); }\n\'fo\'\nstate.position = 0',
+    );
+    final e19 = s57.getErrors().map((e) => '$e').toList()..sort();
     expect(
       e19.length,
+      1,
+      reason:
+          '@match(\'for\')\n~{ state.errorExpected(\'for\'); }\n\'fo\'\nerror count',
+    );
+    expect(
+      e19,
+      ['(end: 0, message: Expected: \'for\', start: 0)'],
+      reason:
+          '@match(\'for\')\n~{ state.errorExpected(\'for\'); }\n\'fo\'\nerrors',
+    );
+    final r72 = parser.parseMatch7;
+    final s58 = State('for');
+    final r73 = r72(s58) as dynamic;
+    expect(
+      r73,
+      isNotNull,
+      reason: '& @match(\'for\')\n\'for\'\nresult != null',
+    );
+    expect(
+      s58.position,
+      0,
+      reason: '& @match(\'for\')\n\'for\'\nstate.position = 0',
+    );
+    expect(
+      r73.$1,
+      null,
+      reason: '& @match(\'for\')\n\'for\'\nresult.\$1 != null',
+    );
+    final s59 = State('');
+    final r74 = r72(s59) as dynamic;
+    expect(r74, isNull, reason: '& @match(\'for\')\n\'\'\nresult == null');
+    expect(
+      s59.farthestPosition,
+      0,
+      reason: '& @match(\'for\')\n\'\'\nstate.farthestPosition = 0',
+    );
+    expect(
+      s59.position,
+      0,
+      reason: '& @match(\'for\')\n\'\'\nstate.position = 0',
+    );
+    final e20 = s59.getErrors().map((e) => '$e').toList()..sort();
+    expect(e20.length, 1, reason: '& @match(\'for\')\n\'\'\nerror count');
+    expect(e20, [
+      '(end: 0, message: Syntax error, start: 0)',
+    ], reason: '& @match(\'for\')\n\'\'\nerrors');
+    final s60 = State('fo');
+    final r75 = r72(s60) as dynamic;
+    expect(r75, isNull, reason: '& @match(\'for\')\n\'fo\'\nresult == null');
+    expect(
+      s60.farthestPosition,
+      0,
+      reason: '& @match(\'for\')\n\'fo\'\nstate.farthestPosition = 0',
+    );
+    expect(
+      s60.position,
+      0,
+      reason: '& @match(\'for\')\n\'fo\'\nstate.position = 0',
+    );
+    final e21 = s60.getErrors().map((e) => '$e').toList()..sort();
+    expect(e21.length, 1, reason: '& @match(\'for\')\n\'fo\'\nerror count');
+    expect(e21, [
+      '(end: 0, message: Syntax error, start: 0)',
+    ], reason: '& @match(\'for\')\n\'fo\'\nerrors');
+    final r76 = parser.parseMatch8;
+    final s61 = State('');
+    final r77 = r76(s61) as dynamic;
+    expect(r77, isNotNull, reason: '! @match(\'for\')\n\'\'\nresult != null');
+    expect(
+      s61.position,
+      0,
+      reason: '! @match(\'for\')\n\'\'\nstate.position = 0',
+    );
+    expect(r77.$1, null, reason: '! @match(\'for\')\n\'\'\nresult.\$1 != null');
+    final s62 = State('fo');
+    final r78 = r76(s62) as dynamic;
+    expect(r78, isNotNull, reason: '! @match(\'for\')\n\'fo\'\nresult != null');
+    expect(
+      s62.position,
+      0,
+      reason: '! @match(\'for\')\n\'fo\'\nstate.position = 0',
+    );
+    expect(
+      r78.$1,
+      null,
+      reason: '! @match(\'for\')\n\'fo\'\nresult.\$1 != null',
+    );
+    final s63 = State('for');
+    final r79 = r76(s63) as dynamic;
+    expect(r79, isNull, reason: '! @match(\'for\')\n\'for\'\nresult == null');
+    expect(
+      s63.farthestPosition,
+      0,
+      reason: '! @match(\'for\')\n\'for\'\nstate.farthestPosition = 0',
+    );
+    expect(
+      s63.position,
+      0,
+      reason: '! @match(\'for\')\n\'for\'\nstate.position = 0',
+    );
+    final e22 = s63.getErrors().map((e) => '$e').toList()..sort();
+    expect(e22.length, 1, reason: '! @match(\'for\')\n\'for\'\nerror count');
+    expect(e22, [
+      '(end: 0, message: Syntax error, start: 0)',
+    ], reason: '! @match(\'for\')\n\'for\'\nerrors');
+    final r80 = parser.parseMatch9;
+    final r81 = parser.parseMatchVoid9;
+    final s64 = State('FOR');
+    final r82 = r80(s64) as dynamic;
+    expect(
+      r82,
+      isNotNull,
+      reason:
+          '@match(\'for\')\n---\n@match(\'while\')\n\'FOR\'\nresult != null',
+    );
+    expect(
+      s64.position,
+      3,
+      reason:
+          '@match(\'for\')\n---\n@match(\'while\')\n\'FOR\'\nstate.position = 3',
+    );
+    expect(
+      r82.$1,
+      'FOR',
+      reason:
+          '@match(\'for\')\n---\n@match(\'while\')\n\'FOR\'\nresult.\$1 != \'FOR\'',
+    );
+    final s65 = State('FOR');
+    final r83 = r81(s65) as dynamic;
+    expect(
+      r83,
+      isNotNull,
+      reason:
+          '@match(\'for\')\n---\n@match(\'while\')\n\'FOR\'\nresult != null',
+    );
+    expect(
+      s65.position,
+      3,
+      reason:
+          '@match(\'for\')\n---\n@match(\'while\')\n\'FOR\'\nstate.position = 3',
+    );
+    expect(
+      r83.$1,
+      null,
+      reason:
+          '@match(\'for\')\n---\n@match(\'while\')\n\'FOR\'\nresult.\$1 != null',
+    );
+    final s66 = State('WHILE');
+    final r84 = r80(s66) as dynamic;
+    expect(
+      r84,
+      isNotNull,
+      reason:
+          '@match(\'for\')\n---\n@match(\'while\')\n\'WHILE\'\nresult != null',
+    );
+    expect(
+      s66.position,
+      5,
+      reason:
+          '@match(\'for\')\n---\n@match(\'while\')\n\'WHILE\'\nstate.position = 5',
+    );
+    expect(
+      r84.$1,
+      'WHILE',
+      reason:
+          '@match(\'for\')\n---\n@match(\'while\')\n\'WHILE\'\nresult.\$1 != \'WHILE\'',
+    );
+    final s67 = State('WHILE');
+    final r85 = r81(s67) as dynamic;
+    expect(
+      r85,
+      isNotNull,
+      reason:
+          '@match(\'for\')\n---\n@match(\'while\')\n\'WHILE\'\nresult != null',
+    );
+    expect(
+      s67.position,
+      5,
+      reason:
+          '@match(\'for\')\n---\n@match(\'while\')\n\'WHILE\'\nstate.position = 5',
+    );
+    expect(
+      r85.$1,
+      null,
+      reason:
+          '@match(\'for\')\n---\n@match(\'while\')\n\'WHILE\'\nresult.\$1 != null',
+    );
+    final s68 = State('');
+    final r86 = r80(s68) as dynamic;
+    expect(
+      r86,
+      isNull,
+      reason: '@match(\'for\')\n---\n@match(\'while\')\n\'\'\nresult == null',
+    );
+    expect(
+      s68.farthestPosition,
+      0,
+      reason:
+          '@match(\'for\')\n---\n@match(\'while\')\n\'\'\nstate.farthestPosition = 0',
+    );
+    expect(
+      s68.position,
+      0,
+      reason:
+          '@match(\'for\')\n---\n@match(\'while\')\n\'\'\nstate.position = 0',
+    );
+    final e23 = s68.getErrors().map((e) => '$e').toList()..sort();
+    expect(
+      e23.length,
+      1,
+      reason: '@match(\'for\')\n---\n@match(\'while\')\n\'\'\nerror count',
+    );
+    expect(e23, [
+      '(end: 0, message: Syntax error, start: 0)',
+    ], reason: '@match(\'for\')\n---\n@match(\'while\')\n\'\'\nerrors');
+    final s69 = State('');
+    final r87 = r81(s69) as dynamic;
+    expect(
+      r87,
+      isNull,
+      reason: '@match(\'for\')\n---\n@match(\'while\')\n\'\'\nresult == null',
+    );
+    expect(
+      s69.farthestPosition,
+      0,
+      reason:
+          '@match(\'for\')\n---\n@match(\'while\')\n\'\'\nstate.farthestPosition = 0',
+    );
+    expect(
+      s69.position,
+      0,
+      reason:
+          '@match(\'for\')\n---\n@match(\'while\')\n\'\'\nstate.position = 0',
+    );
+    final e24 = s69.getErrors().map((e) => '$e').toList()..sort();
+    expect(
+      e24.length,
+      1,
+      reason: '@match(\'for\')\n---\n@match(\'while\')\n\'\'\nerror count',
+    );
+    expect(e24, [
+      '(end: 0, message: Syntax error, start: 0)',
+    ], reason: '@match(\'for\')\n---\n@match(\'while\')\n\'\'\nerrors');
+    final r88 = parser.parseMatch10;
+    final r89 = parser.parseMatchVoid10;
+    final s70 = State('FOR ');
+    final r90 = r88(s70) as dynamic;
+    expect(
+      r90,
+      isNotNull,
+      reason:
+          '\$ = (\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'FOR \'\nresult != null',
+    );
+    expect(
+      s70.position,
+      4,
+      reason:
+          '\$ = (\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'FOR \'\nstate.position = 4',
+    );
+    expect(
+      r90.$1,
+      'FOR',
+      reason:
+          '\$ = (\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'FOR \'\nresult.\$1 != \'FOR\'',
+    );
+    final s71 = State('FOR ');
+    final r91 = r89(s71) as dynamic;
+    expect(
+      r91,
+      isNotNull,
+      reason:
+          '\$ = (\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'FOR \'\nresult != null',
+    );
+    expect(
+      s71.position,
+      4,
+      reason:
+          '\$ = (\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'FOR \'\nstate.position = 4',
+    );
+    expect(
+      r91.$1,
+      null,
+      reason:
+          '\$ = (\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'FOR \'\nresult.\$1 != null',
+    );
+    final s72 = State('WHILE ');
+    final r92 = r88(s72) as dynamic;
+    expect(
+      r92,
+      isNotNull,
+      reason:
+          '\$ = (\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'WHILE \'\nresult != null',
+    );
+    expect(
+      s72.position,
+      6,
+      reason:
+          '\$ = (\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'WHILE \'\nstate.position = 6',
+    );
+    expect(
+      r92.$1,
+      'WHILE',
+      reason:
+          '\$ = (\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'WHILE \'\nresult.\$1 != \'WHILE\'',
+    );
+    final s73 = State('WHILE ');
+    final r93 = r89(s73) as dynamic;
+    expect(
+      r93,
+      isNotNull,
+      reason:
+          '\$ = (\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'WHILE \'\nresult != null',
+    );
+    expect(
+      s73.position,
+      6,
+      reason:
+          '\$ = (\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'WHILE \'\nstate.position = 6',
+    );
+    expect(
+      r93.$1,
+      null,
+      reason:
+          '\$ = (\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'WHILE \'\nresult.\$1 != null',
+    );
+    final s74 = State('');
+    final r94 = r88(s74) as dynamic;
+    expect(
+      r94,
+      isNull,
+      reason:
+          '\$ = (\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'\'\nresult == null',
+    );
+    expect(
+      s74.farthestPosition,
+      0,
+      reason:
+          '\$ = (\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'\'\nstate.farthestPosition = 0',
+    );
+    expect(
+      s74.position,
+      0,
+      reason:
+          '\$ = (\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'\'\nstate.position = 0',
+    );
+    final e25 = s74.getErrors().map((e) => '$e').toList()..sort();
+    expect(
+      e25.length,
+      1,
+      reason:
+          '\$ = (\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'\'\nerror count',
+    );
+    expect(
+      e25,
+      ['(end: 0, message: Syntax error, start: 0)'],
+      reason:
+          '\$ = (\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'\'\nerrors',
+    );
+    final s75 = State('');
+    final r95 = r89(s75) as dynamic;
+    expect(
+      r95,
+      isNull,
+      reason:
+          '\$ = (\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'\'\nresult == null',
+    );
+    expect(
+      s75.farthestPosition,
+      0,
+      reason:
+          '\$ = (\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'\'\nstate.farthestPosition = 0',
+    );
+    expect(
+      s75.position,
+      0,
+      reason:
+          '\$ = (\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'\'\nstate.position = 0',
+    );
+    final e26 = s75.getErrors().map((e) => '$e').toList()..sort();
+    expect(
+      e26.length,
+      1,
+      reason:
+          '\$ = (\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'\'\nerror count',
+    );
+    expect(
+      e26,
+      ['(end: 0, message: Syntax error, start: 0)'],
+      reason:
+          '\$ = (\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'\'\nerrors',
+    );
+    final r96 = parser.parseMatch11;
+    final s76 = State('FOR ');
+    final r97 = r96(s76) as dynamic;
+    expect(
+      r97,
+      isNotNull,
+      reason:
+          '(\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'FOR \'\nresult != null',
+    );
+    expect(
+      s76.position,
+      4,
+      reason:
+          '(\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'FOR \'\nstate.position = 4',
+    );
+    expect(
+      r97.$1,
+      null,
+      reason:
+          '(\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'FOR \'\nresult.\$1 != null',
+    );
+    final s77 = State('WHILE ');
+    final r98 = r96(s77) as dynamic;
+    expect(
+      r98,
+      isNotNull,
+      reason:
+          '(\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'WHILE \'\nresult != null',
+    );
+    expect(
+      s77.position,
+      6,
+      reason:
+          '(\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'WHILE \'\nstate.position = 6',
+    );
+    expect(
+      r98.$1,
+      null,
+      reason:
+          '(\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'WHILE \'\nresult.\$1 != null',
+    );
+    final s78 = State('');
+    final r99 = r96(s78) as dynamic;
+    expect(
+      r99,
+      isNull,
+      reason:
+          '(\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'\'\nresult == null',
+    );
+    expect(
+      s78.farthestPosition,
+      0,
+      reason:
+          '(\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'\'\nstate.farthestPosition = 0',
+    );
+    expect(
+      s78.position,
+      0,
+      reason:
+          '(\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'\'\nstate.position = 0',
+    );
+    final e27 = s78.getErrors().map((e) => '$e').toList()..sort();
+    expect(
+      e27.length,
       1,
       reason:
           '(\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'\'\nerror count',
     );
     expect(
-      e19,
+      e27,
       ['(end: 0, message: Syntax error, start: 0)'],
       reason:
           '(\n  @match(\'for\')\n  ---\n  @match(\'while\')\n)\n[ ]\n\'\'\nerrors',
@@ -9290,7 +9506,7 @@ class _TestParser {
   ///   $ = `const` { 41 }
   /// ```
   Result<int> parseAction0(State state) {
-    return const Ok(41);
+  return const Ok(41);
   }
 
   /// [void] **ActionVoid0**
@@ -9299,8 +9515,8 @@ class _TestParser {
   ///   $ = `const` { 41 }
   /// ```
   Result<void> parseActionVoid0(State state) {
-    const actionVoid0 = Ok(41);
-    return Result.none;
+  const actionVoid0 = Ok(41);
+  return Result.none;
   }
 
   /// [int] **Action1**
@@ -9309,7 +9525,7 @@ class _TestParser {
   ///   $ = `const int` { 41 }
   /// ```
   Result<int> parseAction1(State state) {
-    return const Ok(41);
+  return const Ok(41);
   }
 
   /// [void] **ActionVoid1**
@@ -9318,8 +9534,8 @@ class _TestParser {
   ///   $ = `const int` { 41 }
   /// ```
   Result<void> parseActionVoid1(State state) {
-    const actionVoid1 = Ok(41);
-    return Result.none;
+  const actionVoid1 = Ok(41);
+  return Result.none;
   }
 
   /// [int] **Action2**
@@ -9329,8 +9545,8 @@ class _TestParser {
   ///   $ = `const` { x }
   /// ```
   Result<int> parseAction2(State state) {
-    const x = 41;
-    return const Ok(x);
+  const x = 41;
+  return const Ok(x);
   }
 
   /// [void] **ActionVoid2**
@@ -9340,9 +9556,9 @@ class _TestParser {
   ///   $ = `const` { x }
   /// ```
   Result<void> parseActionVoid2(State state) {
-    const x = 41;
-    const actionVoid2 = Ok(x);
-    return Result.none;
+  const x = 41;
+  const actionVoid2 = Ok(x);
+  return Result.none;
   }
 
   /// [String] **AndPredicate0**
@@ -9352,17 +9568,17 @@ class _TestParser {
   ///   $ = 'abcd'
   /// ```
   Result<String>? parseAndPredicate0(State state) {
-    // "abc"
-    if (state.ch == 97 && state.startsWith('abc')) {
-      // 'abcd'
-      if (state.ch == 97 && state.startsWith('abcd')) {
-        state.readChar(state.position + 4);
-        return const Ok('abcd');
-      }
-      state.errorExpected('abcd');
-      return null;
+  // "abc"
+  if (state.ch == 97 && state.startsWith('abc')) {
+    // 'abcd'
+    if (state.ch == 97 && state.startsWith('abcd')) {
+      state.readChar(state.position + 4);
+      return const Ok('abcd');
     }
+    state.errorExpected('abcd');
     return null;
+  }
+  return null;
   }
 
   /// [void] **AndPredicateVoid0**
@@ -9372,18 +9588,18 @@ class _TestParser {
   ///   $ = 'abcd'
   /// ```
   Result<void>? parseAndPredicateVoid0(State state) {
-    // "abc"
-    if (state.ch == 97 && state.startsWith('abc')) {
-      // 'abcd'
-      if (state.ch == 97 && state.startsWith('abcd')) {
-        state.readChar(state.position + 4);
-        const andPredicateVoid0 = Ok('abcd');
-        return Result.none;
-      }
-      state.errorExpected('abcd');
-      return null;
+  // "abc"
+  if (state.ch == 97 && state.startsWith('abc')) {
+    // 'abcd'
+    if (state.ch == 97 && state.startsWith('abcd')) {
+      state.readChar(state.position + 4);
+      const andPredicateVoid0 = Ok('abcd');
+      return Result.none;
     }
+    state.errorExpected('abcd');
     return null;
+  }
+  return null;
   }
 
   /// [void] **AndPredicate1**
@@ -9392,11 +9608,11 @@ class _TestParser {
   ///   &"abc"
   /// ```
   Result<void>? parseAndPredicate1(State state) {
-    // "abc"
-    if (state.ch == 97 && state.startsWith('abc')) {
-      return Result.none;
-    }
-    return null;
+  // "abc"
+  if (state.ch == 97 && state.startsWith('abc')) {
+    return Result.none;
+  }
+  return null;
   }
 
   /// [int] **AnyCharacter0**
@@ -9405,12 +9621,12 @@ class _TestParser {
   ///   .
   /// ```
   Result<int>? parseAnyCharacter0(State state) {
-    if (state.ch >= 0) {
-      final anyCharacter0 = state.ch;
-      state.nextChar();
-      return Ok(anyCharacter0);
-    }
-    return null;
+  if (state.ch >= 0) {
+    final anyCharacter0 = state.ch;
+    state.nextChar();
+    return Ok(anyCharacter0);
+  }
+  return null;
   }
 
   /// [void] **AnyCharacterVoid0**
@@ -9419,11 +9635,11 @@ class _TestParser {
   ///   .
   /// ```
   Result<void>? parseAnyCharacterVoid0(State state) {
-    if (state.ch >= 0) {
-      state.nextChar();
-      return Result.none;
-    }
-    return null;
+  if (state.ch >= 0) {
+    state.nextChar();
+    return Result.none;
+  }
+  return null;
   }
 
   /// [String] **Capture0**
@@ -9432,13 +9648,13 @@ class _TestParser {
   ///   <[a]>
   /// ```
   Result<String>? parseCapture0(State state) {
-    final start = state.position;
-    // [a]
-    if (state.ch == 97) {
-      state.nextChar();
-      return Ok(state.substring(start, state.position));
-    }
-    return null;
+  final start = state.position;
+  // [a]
+  if (state.ch == 97) {
+    state.nextChar();
+    return Ok(state.substring(start, state.position));
+  }
+  return null;
   }
 
   /// [void] **CaptureVoid0**
@@ -9447,12 +9663,12 @@ class _TestParser {
   ///   <[a]>
   /// ```
   Result<void>? parseCaptureVoid0(State state) {
-    // [a]
-    if (state.ch == 97) {
-      state.nextChar();
-      return Result.none;
-    }
-    return null;
+  // [a]
+  if (state.ch == 97) {
+    state.nextChar();
+    return Result.none;
+  }
+  return null;
   }
 
   /// [void] **Capture1**
@@ -9461,12 +9677,12 @@ class _TestParser {
   ///   <[a]>
   /// ```
   Result<void>? parseCapture1(State state) {
-    // [a]
-    if (state.ch == 97) {
-      state.nextChar();
-      return Result.none;
-    }
-    return null;
+  // [a]
+  if (state.ch == 97) {
+    state.nextChar();
+    return Result.none;
+  }
+  return null;
   }
 
   /// [String] **Capture2**
@@ -9475,18 +9691,18 @@ class _TestParser {
   ///   <[a] / [b]>
   /// ```
   Result<String>? parseCapture2(State state) {
-    final start = state.position;
-    // [a]
-    if (state.ch == 97) {
-      state.nextChar();
-      return Ok(state.substring(start, state.position));
-    }
-    // [b]
-    if (state.ch == 98) {
-      state.nextChar();
-      return Ok(state.substring(start, state.position));
-    }
-    return null;
+  final start = state.position;
+  // [a]
+  if (state.ch == 97) {
+    state.nextChar();
+    return Ok(state.substring(start, state.position));
+  }
+  // [b]
+  if (state.ch == 98) {
+    state.nextChar();
+    return Ok(state.substring(start, state.position));
+  }
+  return null;
   }
 
   /// [void] **CaptureVoid2**
@@ -9495,17 +9711,17 @@ class _TestParser {
   ///   <[a] / [b]>
   /// ```
   Result<void>? parseCaptureVoid2(State state) {
-    // [a]
-    if (state.ch == 97) {
-      state.nextChar();
-      return Result.none;
-    }
-    // [b]
-    if (state.ch == 98) {
-      state.nextChar();
-      return Result.none;
-    }
-    return null;
+  // [a]
+  if (state.ch == 97) {
+    state.nextChar();
+    return Result.none;
+  }
+  // [b]
+  if (state.ch == 98) {
+    state.nextChar();
+    return Result.none;
+  }
+  return null;
   }
 
   /// [String] **Capture3**
@@ -9515,27 +9731,27 @@ class _TestParser {
   ///   $ = <[b] / [c]>
   /// ```
   Result<String>? parseCapture3(State state) {
-    // [a]
-    if (state.ch == 97) {
-      final pos = state.position;
-      final ch = state.ch;
+  // [a]
+  if (state.ch == 97) {
+    final pos = state.position;
+    final ch = state.ch;
+    state.nextChar();
+    final start = state.position;
+    // [b]
+    if (state.ch == 98) {
       state.nextChar();
-      final start = state.position;
-      // [b]
-      if (state.ch == 98) {
-        state.nextChar();
-        return Ok(state.substring(start, state.position));
-      }
-      // [c]
-      if (state.ch == 99) {
-        state.nextChar();
-        return Ok(state.substring(start, state.position));
-      }
-      state.ch = ch;
-      state.position = pos;
-      return null;
+      return Ok(state.substring(start, state.position));
     }
+    // [c]
+    if (state.ch == 99) {
+      state.nextChar();
+      return Ok(state.substring(start, state.position));
+    }
+    state.ch = ch;
+    state.position = pos;
     return null;
+  }
+  return null;
   }
 
   /// [void] **CaptureVoid3**
@@ -9545,29 +9761,29 @@ class _TestParser {
   ///   $ = <[b] / [c]>
   /// ```
   Result<void>? parseCaptureVoid3(State state) {
-    // [a]
-    if (state.ch == 97) {
-      final pos = state.position;
-      final ch = state.ch;
+  // [a]
+  if (state.ch == 97) {
+    final pos = state.position;
+    final ch = state.ch;
+    state.nextChar();
+    final start = state.position;
+    // [b]
+    if (state.ch == 98) {
       state.nextChar();
-      final start = state.position;
-      // [b]
-      if (state.ch == 98) {
-        state.nextChar();
-        final captureVoid3 = Ok(state.substring(start, state.position));
-        return Result.none;
-      }
-      // [c]
-      if (state.ch == 99) {
-        state.nextChar();
-        final captureVoid31 = Ok(state.substring(start, state.position));
-        return Result.none;
-      }
-      state.ch = ch;
-      state.position = pos;
-      return null;
+      final captureVoid3 = Ok(state.substring(start, state.position));
+      return Result.none;
     }
+    // [c]
+    if (state.ch == 99) {
+      state.nextChar();
+      final captureVoid31 = Ok(state.substring(start, state.position));
+      return Result.none;
+    }
+    state.ch = ch;
+    state.position = pos;
     return null;
+  }
+  return null;
   }
 
   /// [int] **CharacterClass0**
@@ -9576,12 +9792,12 @@ class _TestParser {
   ///   [a]
   /// ```
   Result<int>? parseCharacterClass0(State state) {
-    // [a]
-    if (state.ch == 97) {
-      state.nextChar();
-      return const Ok(97);
-    }
-    return null;
+  // [a]
+  if (state.ch == 97) {
+    state.nextChar();
+    return const Ok(97);
+  }
+  return null;
   }
 
   /// [void] **CharacterClassVoid0**
@@ -9590,12 +9806,12 @@ class _TestParser {
   ///   [a]
   /// ```
   Result<void>? parseCharacterClassVoid0(State state) {
-    // [a]
-    if (state.ch == 97) {
-      state.nextChar();
-      return Result.none;
-    }
-    return null;
+  // [a]
+  if (state.ch == 97) {
+    state.nextChar();
+    return Result.none;
+  }
+  return null;
   }
 
   /// [int] **CharacterClass1**
@@ -9604,14 +9820,14 @@ class _TestParser {
   ///   [a-z]
   /// ```
   Result<int>? parseCharacterClass1(State state) {
-    // [a-z]
-    final c = state.ch;
-    final isLower = c >= 97 && c <= 122;
-    if (isLower) {
-      state.nextChar();
-      return Ok(c);
-    }
-    return null;
+  // [a-z]
+  final c = state.ch;
+  final isLower = c >= 97 && c <= 122;
+  if (isLower) {
+    state.nextChar();
+    return Ok(c);
+  }
+  return null;
   }
 
   /// [void] **CharacterClassVoid1**
@@ -9620,14 +9836,14 @@ class _TestParser {
   ///   [a-z]
   /// ```
   Result<void>? parseCharacterClassVoid1(State state) {
-    // [a-z]
-    final c = state.ch;
-    final isLower = c >= 97 && c <= 122;
-    if (isLower) {
-      state.nextChar();
-      return Result.none;
-    }
-    return null;
+  // [a-z]
+  final c = state.ch;
+  final isLower = c >= 97 && c <= 122;
+  if (isLower) {
+    state.nextChar();
+    return Result.none;
+  }
+  return null;
   }
 
   /// [int] **CharacterClass2**
@@ -9636,14 +9852,14 @@ class _TestParser {
   ///   [^a]
   /// ```
   Result<int>? parseCharacterClass2(State state) {
-    // [^a]
-    final c = state.ch;
-    final isInRange = !(c == 97) && !(c < 0);
-    if (isInRange) {
-      state.nextChar();
-      return Ok(c);
-    }
-    return null;
+  // [^a]
+  final c = state.ch;
+  final isInRange = !(c == 97) && !(c < 0);
+  if (isInRange) {
+    state.nextChar();
+    return Ok(c);
+  }
+  return null;
   }
 
   /// [void] **CharacterClassVoid2**
@@ -9652,14 +9868,14 @@ class _TestParser {
   ///   [^a]
   /// ```
   Result<void>? parseCharacterClassVoid2(State state) {
-    // [^a]
-    final c = state.ch;
-    final isInRange = !(c == 97) && !(c < 0);
-    if (isInRange) {
-      state.nextChar();
-      return Result.none;
-    }
-    return null;
+  // [^a]
+  final c = state.ch;
+  final isInRange = !(c == 97) && !(c < 0);
+  if (isInRange) {
+    state.nextChar();
+    return Result.none;
+  }
+  return null;
   }
 
   /// [int] **CharacterClass3**
@@ -9668,14 +9884,14 @@ class _TestParser {
   ///   [^ab]
   /// ```
   Result<int>? parseCharacterClass3(State state) {
-    // [^ab]
-    final c = state.ch;
-    final isInRange = !(c >= 97 && c <= 98) && !(c < 0);
-    if (isInRange) {
-      state.nextChar();
-      return Ok(c);
-    }
-    return null;
+  // [^ab]
+  final c = state.ch;
+  final isInRange = !(c >= 97 && c <= 98) && !(c < 0);
+  if (isInRange) {
+    state.nextChar();
+    return Ok(c);
+  }
+  return null;
   }
 
   /// [void] **CharacterClassVoid3**
@@ -9684,14 +9900,14 @@ class _TestParser {
   ///   [^ab]
   /// ```
   Result<void>? parseCharacterClassVoid3(State state) {
-    // [^ab]
-    final c = state.ch;
-    final isInRange = !(c >= 97 && c <= 98) && !(c < 0);
-    if (isInRange) {
-      state.nextChar();
-      return Result.none;
-    }
-    return null;
+  // [^ab]
+  final c = state.ch;
+  final isInRange = !(c >= 97 && c <= 98) && !(c < 0);
+  if (isInRange) {
+    state.nextChar();
+    return Result.none;
+  }
+  return null;
   }
 
   /// [int] **CharacterClass4**
@@ -9700,14 +9916,14 @@ class _TestParser {
   ///   [^abc]
   /// ```
   Result<int>? parseCharacterClass4(State state) {
-    // [^abc]
-    final c = state.ch;
-    final isInRange = !(c >= 97 && c <= 99) && !(c < 0);
-    if (isInRange) {
-      state.nextChar();
-      return Ok(c);
-    }
-    return null;
+  // [^abc]
+  final c = state.ch;
+  final isInRange = !(c >= 97 && c <= 99) && !(c < 0);
+  if (isInRange) {
+    state.nextChar();
+    return Ok(c);
+  }
+  return null;
   }
 
   /// [void] **CharacterClassVoid4**
@@ -9716,14 +9932,14 @@ class _TestParser {
   ///   [^abc]
   /// ```
   Result<void>? parseCharacterClassVoid4(State state) {
-    // [^abc]
-    final c = state.ch;
-    final isInRange = !(c >= 97 && c <= 99) && !(c < 0);
-    if (isInRange) {
-      state.nextChar();
-      return Result.none;
-    }
-    return null;
+  // [^abc]
+  final c = state.ch;
+  final isInRange = !(c >= 97 && c <= 99) && !(c < 0);
+  if (isInRange) {
+    state.nextChar();
+    return Result.none;
+  }
+  return null;
   }
 
   /// [int] **CharacterClass5**
@@ -9732,14 +9948,14 @@ class _TestParser {
   ///   [^a-z]
   /// ```
   Result<int>? parseCharacterClass5(State state) {
-    // [^a-z]
-    final c = state.ch;
-    final isNotLower = !(c >= 97 && c <= 122) && !(c < 0);
-    if (isNotLower) {
-      state.nextChar();
-      return Ok(c);
-    }
-    return null;
+  // [^a-z]
+  final c = state.ch;
+  final isNotLower = !(c >= 97 && c <= 122) && !(c < 0);
+  if (isNotLower) {
+    state.nextChar();
+    return Ok(c);
+  }
+  return null;
   }
 
   /// [void] **CharacterClassVoid5**
@@ -9748,14 +9964,14 @@ class _TestParser {
   ///   [^a-z]
   /// ```
   Result<void>? parseCharacterClassVoid5(State state) {
-    // [^a-z]
-    final c = state.ch;
-    final isNotLower = !(c >= 97 && c <= 122) && !(c < 0);
-    if (isNotLower) {
-      state.nextChar();
-      return Result.none;
-    }
-    return null;
+  // [^a-z]
+  final c = state.ch;
+  final isNotLower = !(c >= 97 && c <= 122) && !(c < 0);
+  if (isNotLower) {
+    state.nextChar();
+    return Result.none;
+  }
+  return null;
   }
 
   /// [int] **CharacterClass6**
@@ -9764,12 +9980,12 @@ class _TestParser {
   ///   [\^]
   /// ```
   Result<int>? parseCharacterClass6(State state) {
-    // [\^]
-    if (state.ch == 94) {
-      state.nextChar();
-      return const Ok(94);
-    }
-    return null;
+  // [\^]
+  if (state.ch == 94) {
+    state.nextChar();
+    return const Ok(94);
+  }
+  return null;
   }
 
   /// [void] **CharacterClassVoid6**
@@ -9778,12 +9994,12 @@ class _TestParser {
   ///   [\^]
   /// ```
   Result<void>? parseCharacterClassVoid6(State state) {
-    // [\^]
-    if (state.ch == 94) {
-      state.nextChar();
-      return Result.none;
-    }
-    return null;
+  // [\^]
+  if (state.ch == 94) {
+    state.nextChar();
+    return Result.none;
+  }
+  return null;
   }
 
   /// [int] **CharacterClass7**
@@ -9792,12 +10008,12 @@ class _TestParser {
   ///   [\-]
   /// ```
   Result<int>? parseCharacterClass7(State state) {
-    // [\-]
-    if (state.ch == 45) {
-      state.nextChar();
-      return const Ok(45);
-    }
-    return null;
+  // [\-]
+  if (state.ch == 45) {
+    state.nextChar();
+    return const Ok(45);
+  }
+  return null;
   }
 
   /// [void] **CharacterClassVoid7**
@@ -9806,12 +10022,12 @@ class _TestParser {
   ///   [\-]
   /// ```
   Result<void>? parseCharacterClassVoid7(State state) {
-    // [\-]
-    if (state.ch == 45) {
-      state.nextChar();
-      return Result.none;
-    }
-    return null;
+  // [\-]
+  if (state.ch == 45) {
+    state.nextChar();
+    return Result.none;
+  }
+  return null;
   }
 
   /// [int] **CharacterClass8**
@@ -9820,12 +10036,12 @@ class _TestParser {
   ///   [\u{20}]
   /// ```
   Result<int>? parseCharacterClass8(State state) {
-    // [ ]
-    if (state.ch == 32) {
-      state.nextChar();
-      return const Ok(32);
-    }
-    return null;
+  // [ ]
+  if (state.ch == 32) {
+    state.nextChar();
+    return const Ok(32);
+  }
+  return null;
   }
 
   /// [void] **CharacterClassVoid8**
@@ -9834,12 +10050,12 @@ class _TestParser {
   ///   [\u{20}]
   /// ```
   Result<void>? parseCharacterClassVoid8(State state) {
-    // [ ]
-    if (state.ch == 32) {
-      state.nextChar();
-      return Result.none;
-    }
-    return null;
+  // [ ]
+  if (state.ch == 32) {
+    state.nextChar();
+    return Result.none;
+  }
+  return null;
   }
 
   /// [int] **CharacterClass9**
@@ -9848,14 +10064,14 @@ class _TestParser {
   ///   [\u{30}-\u{39}]
   /// ```
   Result<int>? parseCharacterClass9(State state) {
-    // [0-9]
-    final c = state.ch;
-    final isDigit = c >= 48 && c <= 57;
-    if (isDigit) {
-      state.nextChar();
-      return Ok(c);
-    }
-    return null;
+  // [0-9]
+  final c = state.ch;
+  final isDigit = c >= 48 && c <= 57;
+  if (isDigit) {
+    state.nextChar();
+    return Ok(c);
+  }
+  return null;
   }
 
   /// [void] **CharacterClassVoid9**
@@ -9864,14 +10080,14 @@ class _TestParser {
   ///   [\u{30}-\u{39}]
   /// ```
   Result<void>? parseCharacterClassVoid9(State state) {
-    // [0-9]
-    final c = state.ch;
-    final isDigit = c >= 48 && c <= 57;
-    if (isDigit) {
-      state.nextChar();
-      return Result.none;
-    }
-    return null;
+  // [0-9]
+  final c = state.ch;
+  final isDigit = c >= 48 && c <= 57;
+  if (isDigit) {
+    state.nextChar();
+    return Result.none;
+  }
+  return null;
   }
 
   /// [int] **CharacterClass10**
@@ -9880,12 +10096,12 @@ class _TestParser {
   ///   [\u{0}]
   /// ```
   Result<int>? parseCharacterClass10(State state) {
-    // [{0}]
-    if (state.ch == 0) {
-      state.nextChar();
-      return const Ok(0);
-    }
-    return null;
+  // [{0}]
+  if (state.ch == 0) {
+    state.nextChar();
+    return const Ok(0);
+  }
+  return null;
   }
 
   /// [void] **CharacterClassVoid10**
@@ -9894,12 +10110,12 @@ class _TestParser {
   ///   [\u{0}]
   /// ```
   Result<void>? parseCharacterClassVoid10(State state) {
-    // [{0}]
-    if (state.ch == 0) {
-      state.nextChar();
-      return Result.none;
-    }
-    return null;
+  // [{0}]
+  if (state.ch == 0) {
+    state.nextChar();
+    return Result.none;
+  }
+  return null;
   }
 
   /// [int] **CharacterClass11**
@@ -9908,14 +10124,14 @@ class _TestParser {
   ///   [\u{0}-\u{9}]
   /// ```
   Result<int>? parseCharacterClass11(State state) {
-    // [{0}-\t]
-    final c = state.ch;
-    final isInRange = c >= 0 && c <= 9;
-    if (isInRange) {
-      state.nextChar();
-      return Ok(c);
-    }
-    return null;
+  // [{0}-\t]
+  final c = state.ch;
+  final isInRange = c >= 0 && c <= 9;
+  if (isInRange) {
+    state.nextChar();
+    return Ok(c);
+  }
+  return null;
   }
 
   /// [void] **CharacterClassVoid11**
@@ -9924,14 +10140,14 @@ class _TestParser {
   ///   [\u{0}-\u{9}]
   /// ```
   Result<void>? parseCharacterClassVoid11(State state) {
-    // [{0}-\t]
-    final c = state.ch;
-    final isInRange = c >= 0 && c <= 9;
-    if (isInRange) {
-      state.nextChar();
-      return Result.none;
-    }
-    return null;
+  // [{0}-\t]
+  final c = state.ch;
+  final isInRange = c >= 0 && c <= 9;
+  if (isInRange) {
+    state.nextChar();
+    return Result.none;
+  }
+  return null;
   }
 
   /// [int] **CharacterClass12**
@@ -9940,14 +10156,14 @@ class _TestParser {
   ///   [^\u{0}]
   /// ```
   Result<int>? parseCharacterClass12(State state) {
-    // [^{0}]
-    final c = state.ch;
-    final isInRange = !(c == 0) && !(c < 0);
-    if (isInRange) {
-      state.nextChar();
-      return Ok(c);
-    }
-    return null;
+  // [^{0}]
+  final c = state.ch;
+  final isInRange = !(c == 0) && !(c < 0);
+  if (isInRange) {
+    state.nextChar();
+    return Ok(c);
+  }
+  return null;
   }
 
   /// [void] **CharacterClassVoid12**
@@ -9956,14 +10172,14 @@ class _TestParser {
   ///   [^\u{0}]
   /// ```
   Result<void>? parseCharacterClassVoid12(State state) {
-    // [^{0}]
-    final c = state.ch;
-    final isInRange = !(c == 0) && !(c < 0);
-    if (isInRange) {
-      state.nextChar();
-      return Result.none;
-    }
-    return null;
+  // [^{0}]
+  final c = state.ch;
+  final isInRange = !(c == 0) && !(c < 0);
+  if (isInRange) {
+    state.nextChar();
+    return Result.none;
+  }
+  return null;
   }
 
   /// [int] **CharacterClass13**
@@ -9972,14 +10188,14 @@ class _TestParser {
   ///   [^\u{0}-\u{9}]
   /// ```
   Result<int>? parseCharacterClass13(State state) {
-    // [^{0}-\t]
-    final c = state.ch;
-    final isInRange = !(c >= 0 && c <= 9) && !(c < 0);
-    if (isInRange) {
-      state.nextChar();
-      return Ok(c);
-    }
-    return null;
+  // [^{0}-\t]
+  final c = state.ch;
+  final isInRange = !(c >= 0 && c <= 9) && !(c < 0);
+  if (isInRange) {
+    state.nextChar();
+    return Ok(c);
+  }
+  return null;
   }
 
   /// [void] **CharacterClassVoid13**
@@ -9988,14 +10204,14 @@ class _TestParser {
   ///   [^\u{0}-\u{9}]
   /// ```
   Result<void>? parseCharacterClassVoid13(State state) {
-    // [^{0}-\t]
-    final c = state.ch;
-    final isInRange = !(c >= 0 && c <= 9) && !(c < 0);
-    if (isInRange) {
-      state.nextChar();
-      return Result.none;
-    }
-    return null;
+  // [^{0}-\t]
+  final c = state.ch;
+  final isInRange = !(c >= 0 && c <= 9) && !(c < 0);
+  if (isInRange) {
+    state.nextChar();
+    return Result.none;
+  }
+  return null;
   }
 
   /// [int] **CharacterClass14**
@@ -10006,17 +10222,17 @@ class _TestParser {
   ///   [b]
   /// ```
   Result<int>? parseCharacterClass14(State state) {
-    // [a]
-    if (state.ch == 97) {
-      state.nextChar();
-      return const Ok(97);
-    }
-    // [b]
-    if (state.ch == 98) {
-      state.nextChar();
-      return const Ok(98);
-    }
-    return null;
+  // [a]
+  if (state.ch == 97) {
+    state.nextChar();
+    return const Ok(97);
+  }
+  // [b]
+  if (state.ch == 98) {
+    state.nextChar();
+    return const Ok(98);
+  }
+  return null;
   }
 
   /// [void] **CharacterClassVoid14**
@@ -10027,17 +10243,17 @@ class _TestParser {
   ///   [b]
   /// ```
   Result<void>? parseCharacterClassVoid14(State state) {
-    // [a]
-    if (state.ch == 97) {
-      state.nextChar();
-      return Result.none;
-    }
-    // [b]
-    if (state.ch == 98) {
-      state.nextChar();
-      return Result.none;
-    }
-    return null;
+  // [a]
+  if (state.ch == 97) {
+    state.nextChar();
+    return Result.none;
+  }
+  // [b]
+  if (state.ch == 98) {
+    state.nextChar();
+    return Result.none;
+  }
+  return null;
   }
 
   /// [int] **CharacterClass15**
@@ -10051,35 +10267,35 @@ class _TestParser {
   ///   [ ]
   /// ```
   Result<int>? parseCharacterClass15(State state) {
-    final pos = state.position;
-    final ch = state.ch;
-    final Result<int> characterClass15;
-    l:
-    {
-      // [a]
-      if (state.ch == 97) {
-        state.nextChar();
-        characterClass15 = const Ok(97);
-        break l;
-      }
-      // [b]
-      if (state.ch == 98) {
-        state.nextChar();
-        characterClass15 = const Ok(98);
-        break l;
-      }
-      return null;
-    }
-    // l:
-    final characterClass151 = characterClass15;
-    // [ ]
-    if (state.ch == 32) {
+  final pos = state.position;
+  final ch = state.ch;
+  final Result<int> characterClass15;
+  l:
+  {
+    // [a]
+    if (state.ch == 97) {
       state.nextChar();
-      return characterClass151;
+      characterClass15 = const Ok(97);
+      break l;
     }
-    state.ch = ch;
-    state.position = pos;
+    // [b]
+    if (state.ch == 98) {
+      state.nextChar();
+      characterClass15 = const Ok(98);
+      break l;
+    }
     return null;
+  }
+  // l:
+  final characterClass151 = characterClass15;
+  // [ ]
+  if (state.ch == 32) {
+    state.nextChar();
+    return characterClass151;
+  }
+  state.ch = ch;
+  state.position = pos;
+  return null;
   }
 
   /// [void] **CharacterClassVoid15**
@@ -10093,35 +10309,35 @@ class _TestParser {
   ///   [ ]
   /// ```
   Result<void>? parseCharacterClassVoid15(State state) {
-    final pos = state.position;
-    final ch = state.ch;
-    final Result<int> characterClassVoid15;
-    l:
-    {
-      // [a]
-      if (state.ch == 97) {
-        state.nextChar();
-        characterClassVoid15 = const Ok(97);
-        break l;
-      }
-      // [b]
-      if (state.ch == 98) {
-        state.nextChar();
-        characterClassVoid15 = const Ok(98);
-        break l;
-      }
-      return null;
-    }
-    // l:
-    final characterClassVoid151 = characterClassVoid15;
-    // [ ]
-    if (state.ch == 32) {
+  final pos = state.position;
+  final ch = state.ch;
+  final Result<int> characterClassVoid15;
+  l:
+  {
+    // [a]
+    if (state.ch == 97) {
       state.nextChar();
-      return Result.none;
+      characterClassVoid15 = const Ok(97);
+      break l;
     }
-    state.ch = ch;
-    state.position = pos;
+    // [b]
+    if (state.ch == 98) {
+      state.nextChar();
+      characterClassVoid15 = const Ok(98);
+      break l;
+    }
     return null;
+  }
+  // l:
+  final characterClassVoid151 = characterClassVoid15;
+  // [ ]
+  if (state.ch == 32) {
+    state.nextChar();
+    return Result.none;
+  }
+  state.ch = ch;
+  state.position = pos;
+  return null;
   }
 
   /// [void] **CharacterClass16**
@@ -10135,31 +10351,31 @@ class _TestParser {
   ///   [ ]
   /// ```
   Result<void>? parseCharacterClass16(State state) {
-    final pos = state.position;
-    final ch = state.ch;
-    l:
-    {
-      // [a]
-      if (state.ch == 97) {
-        state.nextChar();
-        break l;
-      }
-      // [b]
-      if (state.ch == 98) {
-        state.nextChar();
-        break l;
-      }
-      return null;
-    }
-    // l:
-    // [ ]
-    if (state.ch == 32) {
+  final pos = state.position;
+  final ch = state.ch;
+  l:
+  {
+    // [a]
+    if (state.ch == 97) {
       state.nextChar();
-      return Result.none;
+      break l;
     }
-    state.ch = ch;
-    state.position = pos;
+    // [b]
+    if (state.ch == 98) {
+      state.nextChar();
+      break l;
+    }
     return null;
+  }
+  // l:
+  // [ ]
+  if (state.ch == 32) {
+    state.nextChar();
+    return Result.none;
+  }
+  state.ch = ch;
+  state.position = pos;
+  return null;
   }
 
   /// [int] **Group0**
@@ -10168,17 +10384,17 @@ class _TestParser {
   ///   ([a] / [z])
   /// ```
   Result<int>? parseGroup0(State state) {
-    // [a]
-    if (state.ch == 97) {
-      state.nextChar();
-      return const Ok(97);
-    }
-    // [z]
-    if (state.ch == 122) {
-      state.nextChar();
-      return const Ok(122);
-    }
-    return null;
+  // [a]
+  if (state.ch == 97) {
+    state.nextChar();
+    return const Ok(97);
+  }
+  // [z]
+  if (state.ch == 122) {
+    state.nextChar();
+    return const Ok(122);
+  }
+  return null;
   }
 
   /// [void] **GroupVoid0**
@@ -10187,17 +10403,17 @@ class _TestParser {
   ///   ([a] / [z])
   /// ```
   Result<void>? parseGroupVoid0(State state) {
-    // [a]
-    if (state.ch == 97) {
-      state.nextChar();
-      return Result.none;
-    }
-    // [z]
-    if (state.ch == 122) {
-      state.nextChar();
-      return Result.none;
-    }
-    return null;
+  // [a]
+  if (state.ch == 97) {
+    state.nextChar();
+    return Result.none;
+  }
+  // [z]
+  if (state.ch == 122) {
+    state.nextChar();
+    return Result.none;
+  }
+  return null;
   }
 
   /// [String] **Literal0**
@@ -10206,13 +10422,13 @@ class _TestParser {
   ///   'abc'
   /// ```
   Result<String>? parseLiteral0(State state) {
-    // 'abc'
-    if (state.ch == 97 && state.startsWith('abc')) {
-      state.readChar(state.position + 3);
-      return const Ok('abc');
-    }
-    state.errorExpected('abc');
-    return null;
+  // 'abc'
+  if (state.ch == 97 && state.startsWith('abc')) {
+    state.readChar(state.position + 3);
+    return const Ok('abc');
+  }
+  state.errorExpected('abc');
+  return null;
   }
 
   /// [void] **LiteralVoid0**
@@ -10221,13 +10437,13 @@ class _TestParser {
   ///   'abc'
   /// ```
   Result<void>? parseLiteralVoid0(State state) {
-    // 'abc'
-    if (state.ch == 97 && state.startsWith('abc')) {
-      state.readChar(state.position + 3);
-      return Result.none;
-    }
-    state.errorExpected('abc');
-    return null;
+  // 'abc'
+  if (state.ch == 97 && state.startsWith('abc')) {
+    state.readChar(state.position + 3);
+    return Result.none;
+  }
+  state.errorExpected('abc');
+  return null;
   }
 
   /// [String] **Literal1**
@@ -10236,12 +10452,12 @@ class _TestParser {
   ///   "abc"
   /// ```
   Result<String>? parseLiteral1(State state) {
-    // "abc"
-    if (state.ch == 97 && state.startsWith('abc')) {
-      state.readChar(state.position + 3);
-      return const Ok('abc');
-    }
-    return null;
+  // "abc"
+  if (state.ch == 97 && state.startsWith('abc')) {
+    state.readChar(state.position + 3);
+    return const Ok('abc');
+  }
+  return null;
   }
 
   /// [void] **LiteralVoid1**
@@ -10250,12 +10466,12 @@ class _TestParser {
   ///   "abc"
   /// ```
   Result<void>? parseLiteralVoid1(State state) {
-    // "abc"
-    if (state.ch == 97 && state.startsWith('abc')) {
-      state.readChar(state.position + 3);
-      return Result.none;
-    }
-    return null;
+  // "abc"
+  if (state.ch == 97 && state.startsWith('abc')) {
+    state.readChar(state.position + 3);
+    return Result.none;
+  }
+  return null;
   }
 
   /// [String] **Literal2**
@@ -10264,8 +10480,8 @@ class _TestParser {
   ///   ""
   /// ```
   Result<String> parseLiteral2(State state) {
-    // ""
-    return const Ok('');
+  // ""
+  return const Ok('');
   }
 
   /// [void] **LiteralVoid2**
@@ -10274,8 +10490,8 @@ class _TestParser {
   ///   ""
   /// ```
   Result<void> parseLiteralVoid2(State state) {
-    // ""
-    return Result.none;
+  // ""
+  return Result.none;
   }
 
   /// [String] **Literal3**
@@ -10284,8 +10500,8 @@ class _TestParser {
   ///   ''
   /// ```
   Result<String> parseLiteral3(State state) {
-    // ''
-    return const Ok('');
+  // ''
+  return const Ok('');
   }
 
   /// [void] **LiteralVoid3**
@@ -10294,8 +10510,8 @@ class _TestParser {
   ///   ''
   /// ```
   Result<void> parseLiteralVoid3(State state) {
-    // ''
-    return Result.none;
+  // ''
+  return Result.none;
   }
 
   /// [String] **Literal4**
@@ -10304,12 +10520,12 @@ class _TestParser {
   ///   "\r\n"
   /// ```
   Result<String>? parseLiteral4(State state) {
-    // "\r\n"
-    if (state.ch == 13 && state.startsWith('\r\n')) {
-      state.readChar(state.position + 2);
-      return const Ok('\r\n');
-    }
-    return null;
+  // "\r\n"
+  if (state.ch == 13 && state.startsWith('\r\n')) {
+    state.readChar(state.position + 2);
+    return const Ok('\r\n');
+  }
+  return null;
   }
 
   /// [void] **LiteralVoid4**
@@ -10318,12 +10534,12 @@ class _TestParser {
   ///   "\r\n"
   /// ```
   Result<void>? parseLiteralVoid4(State state) {
-    // "\r\n"
-    if (state.ch == 13 && state.startsWith('\r\n')) {
-      state.readChar(state.position + 2);
-      return Result.none;
-    }
-    return null;
+  // "\r\n"
+  if (state.ch == 13 && state.startsWith('\r\n')) {
+    state.readChar(state.position + 2);
+    return Result.none;
+  }
+  return null;
   }
 
   /// [String] **Literal5**
@@ -10334,17 +10550,17 @@ class _TestParser {
   ///   "def"
   /// ```
   Result<String>? parseLiteral5(State state) {
-    // "abc"
-    if (state.ch == 97 && state.startsWith('abc')) {
-      state.readChar(state.position + 3);
-      return const Ok('abc');
-    }
-    // "def"
-    if (state.ch == 100 && state.startsWith('def')) {
-      state.readChar(state.position + 3);
-      return const Ok('def');
-    }
-    return null;
+  // "abc"
+  if (state.ch == 97 && state.startsWith('abc')) {
+    state.readChar(state.position + 3);
+    return const Ok('abc');
+  }
+  // "def"
+  if (state.ch == 100 && state.startsWith('def')) {
+    state.readChar(state.position + 3);
+    return const Ok('def');
+  }
+  return null;
   }
 
   /// [void] **LiteralVoid5**
@@ -10355,17 +10571,17 @@ class _TestParser {
   ///   "def"
   /// ```
   Result<void>? parseLiteralVoid5(State state) {
-    // "abc"
-    if (state.ch == 97 && state.startsWith('abc')) {
-      state.readChar(state.position + 3);
-      return Result.none;
-    }
-    // "def"
-    if (state.ch == 100 && state.startsWith('def')) {
-      state.readChar(state.position + 3);
-      return Result.none;
-    }
-    return null;
+  // "abc"
+  if (state.ch == 97 && state.startsWith('abc')) {
+    state.readChar(state.position + 3);
+    return Result.none;
+  }
+  // "def"
+  if (state.ch == 100 && state.startsWith('def')) {
+    state.readChar(state.position + 3);
+    return Result.none;
+  }
+  return null;
   }
 
   /// [String] **Literal6**
@@ -10379,35 +10595,35 @@ class _TestParser {
   ///   [ ]
   /// ```
   Result<String>? parseLiteral6(State state) {
-    final pos = state.position;
-    final ch = state.ch;
-    final Result<String> literal6;
-    l:
-    {
-      // "abc"
-      if (state.ch == 97 && state.startsWith('abc')) {
-        state.readChar(state.position + 3);
-        literal6 = const Ok('abc');
-        break l;
-      }
-      // "def"
-      if (state.ch == 100 && state.startsWith('def')) {
-        state.readChar(state.position + 3);
-        literal6 = const Ok('def');
-        break l;
-      }
-      return null;
+  final pos = state.position;
+  final ch = state.ch;
+  final Result<String> literal6;
+  l:
+  {
+    // "abc"
+    if (state.ch == 97 && state.startsWith('abc')) {
+      state.readChar(state.position + 3);
+      literal6 = const Ok('abc');
+      break l;
     }
-    // l:
-    final literal61 = literal6;
-    // [ ]
-    if (state.ch == 32) {
-      state.nextChar();
-      return literal61;
+    // "def"
+    if (state.ch == 100 && state.startsWith('def')) {
+      state.readChar(state.position + 3);
+      literal6 = const Ok('def');
+      break l;
     }
-    state.ch = ch;
-    state.position = pos;
     return null;
+  }
+  // l:
+  final literal61 = literal6;
+  // [ ]
+  if (state.ch == 32) {
+    state.nextChar();
+    return literal61;
+  }
+  state.ch = ch;
+  state.position = pos;
+  return null;
   }
 
   /// [void] **LiteralVoid6**
@@ -10421,35 +10637,35 @@ class _TestParser {
   ///   [ ]
   /// ```
   Result<void>? parseLiteralVoid6(State state) {
-    final pos = state.position;
-    final ch = state.ch;
-    final Result<String> literalVoid6;
-    l:
-    {
-      // "abc"
-      if (state.ch == 97 && state.startsWith('abc')) {
-        state.readChar(state.position + 3);
-        literalVoid6 = const Ok('abc');
-        break l;
-      }
-      // "def"
-      if (state.ch == 100 && state.startsWith('def')) {
-        state.readChar(state.position + 3);
-        literalVoid6 = const Ok('def');
-        break l;
-      }
-      return null;
+  final pos = state.position;
+  final ch = state.ch;
+  final Result<String> literalVoid6;
+  l:
+  {
+    // "abc"
+    if (state.ch == 97 && state.startsWith('abc')) {
+      state.readChar(state.position + 3);
+      literalVoid6 = const Ok('abc');
+      break l;
     }
-    // l:
-    final literalVoid61 = literalVoid6;
-    // [ ]
-    if (state.ch == 32) {
-      state.nextChar();
-      return Result.none;
+    // "def"
+    if (state.ch == 100 && state.startsWith('def')) {
+      state.readChar(state.position + 3);
+      literalVoid6 = const Ok('def');
+      break l;
     }
-    state.ch = ch;
-    state.position = pos;
     return null;
+  }
+  // l:
+  final literalVoid61 = literalVoid6;
+  // [ ]
+  if (state.ch == 32) {
+    state.nextChar();
+    return Result.none;
+  }
+  state.ch = ch;
+  state.position = pos;
+  return null;
   }
 
   /// [void] **Literal7**
@@ -10463,31 +10679,31 @@ class _TestParser {
   ///   [ ]
   /// ```
   Result<void>? parseLiteral7(State state) {
-    final pos = state.position;
-    final ch = state.ch;
-    l:
-    {
-      // "abc"
-      if (state.ch == 97 && state.startsWith('abc')) {
-        state.readChar(state.position + 3);
-        break l;
-      }
-      // "def"
-      if (state.ch == 100 && state.startsWith('def')) {
-        state.readChar(state.position + 3);
-        break l;
-      }
-      return null;
+  final pos = state.position;
+  final ch = state.ch;
+  l:
+  {
+    // "abc"
+    if (state.ch == 97 && state.startsWith('abc')) {
+      state.readChar(state.position + 3);
+      break l;
     }
-    // l:
-    // [ ]
-    if (state.ch == 32) {
-      state.nextChar();
-      return Result.none;
+    // "def"
+    if (state.ch == 100 && state.startsWith('def')) {
+      state.readChar(state.position + 3);
+      break l;
     }
-    state.ch = ch;
-    state.position = pos;
     return null;
+  }
+  // l:
+  // [ ]
+  if (state.ch == 32) {
+    state.nextChar();
+    return Result.none;
+  }
+  state.ch = ch;
+  state.position = pos;
+  return null;
   }
 
   /// [String] **Literal8**
@@ -10498,19 +10714,19 @@ class _TestParser {
   ///   'def'
   /// ```
   Result<String>? parseLiteral8(State state) {
-    // 'abc'
-    if (state.ch == 97 && state.startsWith('abc')) {
-      state.readChar(state.position + 3);
-      return const Ok('abc');
-    }
-    state.errorExpected('abc');
-    // 'def'
-    if (state.ch == 100 && state.startsWith('def')) {
-      state.readChar(state.position + 3);
-      return const Ok('def');
-    }
-    state.errorExpected('def');
-    return null;
+  // 'abc'
+  if (state.ch == 97 && state.startsWith('abc')) {
+    state.readChar(state.position + 3);
+    return const Ok('abc');
+  }
+  state.errorExpected('abc');
+  // 'def'
+  if (state.ch == 100 && state.startsWith('def')) {
+    state.readChar(state.position + 3);
+    return const Ok('def');
+  }
+  state.errorExpected('def');
+  return null;
   }
 
   /// [void] **LiteralVoid8**
@@ -10521,19 +10737,19 @@ class _TestParser {
   ///   'def'
   /// ```
   Result<void>? parseLiteralVoid8(State state) {
-    // 'abc'
-    if (state.ch == 97 && state.startsWith('abc')) {
-      state.readChar(state.position + 3);
-      return Result.none;
-    }
-    state.errorExpected('abc');
-    // 'def'
-    if (state.ch == 100 && state.startsWith('def')) {
-      state.readChar(state.position + 3);
-      return Result.none;
-    }
-    state.errorExpected('def');
-    return null;
+  // 'abc'
+  if (state.ch == 97 && state.startsWith('abc')) {
+    state.readChar(state.position + 3);
+    return Result.none;
+  }
+  state.errorExpected('abc');
+  // 'def'
+  if (state.ch == 100 && state.startsWith('def')) {
+    state.readChar(state.position + 3);
+    return Result.none;
+  }
+  state.errorExpected('def');
+  return null;
   }
 
   /// [String] **Literal9**
@@ -10547,37 +10763,37 @@ class _TestParser {
   ///   [ ]
   /// ```
   Result<String>? parseLiteral9(State state) {
-    final pos = state.position;
-    final ch = state.ch;
-    final Result<String> literal9;
-    l:
-    {
-      // 'abc'
-      if (state.ch == 97 && state.startsWith('abc')) {
-        state.readChar(state.position + 3);
-        literal9 = const Ok('abc');
-        break l;
-      }
-      state.errorExpected('abc');
-      // 'def'
-      if (state.ch == 100 && state.startsWith('def')) {
-        state.readChar(state.position + 3);
-        literal9 = const Ok('def');
-        break l;
-      }
-      state.errorExpected('def');
-      return null;
+  final pos = state.position;
+  final ch = state.ch;
+  final Result<String> literal9;
+  l:
+  {
+    // 'abc'
+    if (state.ch == 97 && state.startsWith('abc')) {
+      state.readChar(state.position + 3);
+      literal9 = const Ok('abc');
+      break l;
     }
-    // l:
-    final literal91 = literal9;
-    // [ ]
-    if (state.ch == 32) {
-      state.nextChar();
-      return literal91;
+    state.errorExpected('abc');
+    // 'def'
+    if (state.ch == 100 && state.startsWith('def')) {
+      state.readChar(state.position + 3);
+      literal9 = const Ok('def');
+      break l;
     }
-    state.ch = ch;
-    state.position = pos;
+    state.errorExpected('def');
     return null;
+  }
+  // l:
+  final literal91 = literal9;
+  // [ ]
+  if (state.ch == 32) {
+    state.nextChar();
+    return literal91;
+  }
+  state.ch = ch;
+  state.position = pos;
+  return null;
   }
 
   /// [void] **LiteralVoid9**
@@ -10591,37 +10807,37 @@ class _TestParser {
   ///   [ ]
   /// ```
   Result<void>? parseLiteralVoid9(State state) {
-    final pos = state.position;
-    final ch = state.ch;
-    final Result<String> literalVoid9;
-    l:
-    {
-      // 'abc'
-      if (state.ch == 97 && state.startsWith('abc')) {
-        state.readChar(state.position + 3);
-        literalVoid9 = const Ok('abc');
-        break l;
-      }
-      state.errorExpected('abc');
-      // 'def'
-      if (state.ch == 100 && state.startsWith('def')) {
-        state.readChar(state.position + 3);
-        literalVoid9 = const Ok('def');
-        break l;
-      }
-      state.errorExpected('def');
-      return null;
+  final pos = state.position;
+  final ch = state.ch;
+  final Result<String> literalVoid9;
+  l:
+  {
+    // 'abc'
+    if (state.ch == 97 && state.startsWith('abc')) {
+      state.readChar(state.position + 3);
+      literalVoid9 = const Ok('abc');
+      break l;
     }
-    // l:
-    final literalVoid91 = literalVoid9;
-    // [ ]
-    if (state.ch == 32) {
-      state.nextChar();
-      return Result.none;
+    state.errorExpected('abc');
+    // 'def'
+    if (state.ch == 100 && state.startsWith('def')) {
+      state.readChar(state.position + 3);
+      literalVoid9 = const Ok('def');
+      break l;
     }
-    state.ch = ch;
-    state.position = pos;
+    state.errorExpected('def');
     return null;
+  }
+  // l:
+  final literalVoid91 = literalVoid9;
+  // [ ]
+  if (state.ch == 32) {
+    state.nextChar();
+    return Result.none;
+  }
+  state.ch = ch;
+  state.position = pos;
+  return null;
   }
 
   /// [void] **Literal10**
@@ -10635,374 +10851,486 @@ class _TestParser {
   ///   [ ]
   /// ```
   Result<void>? parseLiteral10(State state) {
-    final pos = state.position;
-    final ch = state.ch;
-    l:
-    {
-      // 'abc'
-      if (state.ch == 97 && state.startsWith('abc')) {
-        state.readChar(state.position + 3);
-        break l;
-      }
-      state.errorExpected('abc');
-      // 'def'
-      if (state.ch == 100 && state.startsWith('def')) {
-        state.readChar(state.position + 3);
-        break l;
-      }
-      state.errorExpected('def');
-      return null;
+  final pos = state.position;
+  final ch = state.ch;
+  l:
+  {
+    // 'abc'
+    if (state.ch == 97 && state.startsWith('abc')) {
+      state.readChar(state.position + 3);
+      break l;
     }
-    // l:
-    // [ ]
-    if (state.ch == 32) {
-      state.nextChar();
-      return Result.none;
+    state.errorExpected('abc');
+    // 'def'
+    if (state.ch == 100 && state.startsWith('def')) {
+      state.readChar(state.position + 3);
+      break l;
     }
-    state.ch = ch;
-    state.position = pos;
+    state.errorExpected('def');
     return null;
+  }
+  // l:
+  // [ ]
+  if (state.ch == 32) {
+    state.nextChar();
+    return Result.none;
+  }
+  state.ch = ch;
+  state.position = pos;
+  return null;
   }
 
   /// [String] **Match0**
   /// ```txt
   /// `String` Match0 =>
-  ///   @match('for')
+  ///   @match('')
   /// ```
-  Result<String>? parseMatch0(State state) {
-    // @match('for')
-    var pos = state.position;
-    if (state.ch == 102 || state.ch == 70) {
-      var c = state.charAt(pos += 1);
-      if (c == 111 || c == 79) {
-        c = state.charAt(pos += 1);
-        if (c == 114 || c == 82) {
-          final match0 = state.substring(state.position, pos += 1);
-          state.readChar(pos);
-          return Ok(match0);
-        }
-      }
-    }
-    return null;
+  Result<String> parseMatch0(State state) {
+  // @match('')
+  return const Ok('');
   }
 
   /// [void] **MatchVoid0**
   /// ```txt
   /// `void` MatchVoid0 =>
-  ///   @match('for')
+  ///   @match('')
   /// ```
-  Result<void>? parseMatchVoid0(State state) {
-    // @match('for')
-    var pos = state.position;
-    if (state.ch == 102 || state.ch == 70) {
-      var c = state.charAt(pos += 1);
-      if (c == 111 || c == 79) {
-        c = state.charAt(pos += 1);
-        if (c == 114 || c == 82) {
-          state.readChar(pos += 1);
-          return Result.none;
-        }
-      }
-    }
-    return null;
+  Result<void> parseMatchVoid0(State state) {
+  // @match('')
+  return Result.none;
   }
 
   /// [String] **Match1**
   /// ```txt
   /// `String` Match1 =>
-  ///   @match('FOR')
+  ///   @match("")
   /// ```
-  Result<String>? parseMatch1(State state) {
-    // @match('FOR')
-    var pos = state.position;
-    if (state.ch == 102 || state.ch == 70) {
-      var c = state.charAt(pos += 1);
-      if (c == 111 || c == 79) {
-        c = state.charAt(pos += 1);
-        if (c == 114 || c == 82) {
-          final match1 = state.substring(state.position, pos += 1);
-          state.readChar(pos);
-          return Ok(match1);
-        }
-      }
-    }
-    return null;
+  Result<String> parseMatch1(State state) {
+  // @match("")
+  return const Ok("");
   }
 
   /// [void] **MatchVoid1**
   /// ```txt
   /// `void` MatchVoid1 =>
-  ///   @match('FOR')
+  ///   @match("")
   /// ```
-  Result<void>? parseMatchVoid1(State state) {
-    // @match('FOR')
-    var pos = state.position;
-    if (state.ch == 102 || state.ch == 70) {
-      var c = state.charAt(pos += 1);
-      if (c == 111 || c == 79) {
-        c = state.charAt(pos += 1);
-        if (c == 114 || c == 82) {
-          state.readChar(pos += 1);
-          return Result.none;
-        }
-      }
-    }
-    return null;
+  Result<void> parseMatchVoid1(State state) {
+  // @match("")
+  return Result.none;
   }
 
   /// [String] **Match2**
   /// ```txt
   /// `String` Match2 =>
-  ///   @match('for')
-  ///   ~{ state.errorExpected('for'); }
+  ///   @match("F")
   /// ```
   Result<String>? parseMatch2(State state) {
-    // @match('for')
-    var pos = state.position;
-    if (state.ch == 102 || state.ch == 70) {
-      var c = state.charAt(pos += 1);
-      if (c == 111 || c == 79) {
-        c = state.charAt(pos += 1);
-        if (c == 114 || c == 82) {
-          final match2 = state.substring(state.position, pos += 1);
-          state.readChar(pos);
-          return Ok(match2);
-        }
-      }
-    }
-    state.errorExpected('for');
-    return null;
+  if (state.ch == 102 || state.ch == 70) {
+    final end = state.position + 1;
+    final match2 = state.substring(state.position, end);
+    state.readChar(end);
+    return Ok(match2);
+  }
+  return null;
   }
 
   /// [void] **MatchVoid2**
   /// ```txt
   /// `void` MatchVoid2 =>
-  ///   @match('for')
-  ///   ~{ state.errorExpected('for'); }
+  ///   @match("F")
   /// ```
   Result<void>? parseMatchVoid2(State state) {
-    // @match('for')
-    var pos = state.position;
-    if (state.ch == 102 || state.ch == 70) {
-      var c = state.charAt(pos += 1);
-      if (c == 111 || c == 79) {
-        c = state.charAt(pos += 1);
-        if (c == 114 || c == 82) {
-          state.readChar(pos += 1);
-          return Result.none;
-        }
-      }
-    }
-    state.errorExpected('for');
-    return null;
-  }
-
-  /// [void] **Match3**
-  /// ```txt
-  /// `void` Match3 =>
-  ///   & @match('for')
-  /// ```
-  Result<void>? parseMatch3(State state) {
-    state.predicate++;
-    final pos = state.position;
-    final ch = state.ch;
-    // @match('for')
-    var pos1 = state.position;
-    if (state.ch == 102 || state.ch == 70) {
-      var c = state.charAt(pos1 += 1);
-      if (c == 111 || c == 79) {
-        c = state.charAt(pos1 += 1);
-        if (c == 114 || c == 82) {
-          state.readChar(pos1 += 1);
-          state.ch = ch;
-          state.position = pos;
-          state.predicate--;
-          return Result.none;
-        }
-      }
-    }
-    return null;
-  }
-
-  /// [void] **Match4**
-  /// ```txt
-  /// `void` Match4 =>
-  ///   ! @match('for')
-  /// ```
-  Result<void>? parseMatch4(State state) {
-    state.predicate++;
-    final pos = state.position;
-    final ch = state.ch;
-    // @match('for')
-    var pos1 = state.position;
-    if (state.ch == 102 || state.ch == 70) {
-      var c = state.charAt(pos1 += 1);
-      if (c == 111 || c == 79) {
-        c = state.charAt(pos1 += 1);
-        if (c == 114 || c == 82) {
-          state.readChar(pos1 += 1);
-          state.ch = ch;
-          state.position = pos;
-          state.predicate--;
-          return null;
-        }
-      }
-    }
-    state.predicate--;
+  if (state.ch == 102 || state.ch == 70) {
+    state.readChar(state.position + 1);
     return Result.none;
+  }
+  return null;
+  }
+
+  /// [String] **Match3**
+  /// ```txt
+  /// `String` Match3 =>
+  ///   @match('f')
+  /// ```
+  Result<String>? parseMatch3(State state) {
+  if (state.ch == 102 || state.ch == 70) {
+    final end = state.position + 1;
+    final match3 = state.substring(state.position, end);
+    state.readChar(end);
+    return Ok(match3);
+  }
+  return null;
+  }
+
+  /// [void] **MatchVoid3**
+  /// ```txt
+  /// `void` MatchVoid3 =>
+  ///   @match('f')
+  /// ```
+  Result<void>? parseMatchVoid3(State state) {
+  if (state.ch == 102 || state.ch == 70) {
+    state.readChar(state.position + 1);
+    return Result.none;
+  }
+  return null;
+  }
+
+  /// [String] **Match4**
+  /// ```txt
+  /// `String` Match4 =>
+  ///   @match('for')
+  /// ```
+  Result<String>? parseMatch4(State state) {
+  // @match('for')
+  switch (state.ch) {
+    case 102:
+    case 70:
+      var pos = state.position;
+      var c = state.charAt(pos += 1);
+      switch (c) {
+        case 111:
+        case 79:
+          c = state.charAt(pos += 1);
+          switch (c) {
+            case 114:
+            case 82:
+              final match4 = state.substring(state.position, pos += 1);
+              state.readChar(pos);
+              return Ok(match4);
+          }
+      }
+  }
+  return null;
+  }
+
+  /// [void] **MatchVoid4**
+  /// ```txt
+  /// `void` MatchVoid4 =>
+  ///   @match('for')
+  /// ```
+  Result<void>? parseMatchVoid4(State state) {
+  // @match('for')
+  switch (state.ch) {
+    case 102:
+    case 70:
+      var pos = state.position;
+      var c = state.charAt(pos += 1);
+      switch (c) {
+        case 111:
+        case 79:
+          c = state.charAt(pos += 1);
+          switch (c) {
+            case 114:
+            case 82:
+              state.readChar(pos += 1);
+              return Result.none;
+          }
+      }
+  }
+  return null;
   }
 
   /// [String] **Match5**
   /// ```txt
   /// `String` Match5 =>
-  ///   @match('for')
-  ///   ---
-  ///   @match('while')
+  ///   @match('FOR')
   /// ```
   Result<String>? parseMatch5(State state) {
-    // @match('for')
-    var pos = state.position;
-    if (state.ch == 102 || state.ch == 70) {
+  // @match('FOR')
+  switch (state.ch) {
+    case 102:
+    case 70:
+      var pos = state.position;
       var c = state.charAt(pos += 1);
-      if (c == 111 || c == 79) {
-        c = state.charAt(pos += 1);
-        if (c == 114 || c == 82) {
-          final match5 = state.substring(state.position, pos += 1);
-          state.readChar(pos);
-          return Ok(match5);
-        }
-      }
-    }
-    // @match('while')
-    var pos1 = state.position;
-    if (state.ch == 119 || state.ch == 87) {
-      var c1 = state.charAt(pos1 += 1);
-      if (c1 == 104 || c1 == 72) {
-        c1 = state.charAt(pos1 += 1);
-        if (c1 == 105 || c1 == 73) {
-          c1 = state.charAt(pos1 += 1);
-          if (c1 == 108 || c1 == 76) {
-            c1 = state.charAt(pos1 += 1);
-            if (c1 == 101 || c1 == 69) {
-              final match51 = state.substring(state.position, pos1 += 1);
-              state.readChar(pos1);
-              return Ok(match51);
-            }
+      switch (c) {
+        case 111:
+        case 79:
+          c = state.charAt(pos += 1);
+          switch (c) {
+            case 114:
+            case 82:
+              final match5 = state.substring(state.position, pos += 1);
+              state.readChar(pos);
+              return Ok(match5);
           }
-        }
       }
-    }
-    return null;
+  }
+  return null;
   }
 
   /// [void] **MatchVoid5**
   /// ```txt
   /// `void` MatchVoid5 =>
-  ///   @match('for')
-  ///   ---
-  ///   @match('while')
+  ///   @match('FOR')
   /// ```
   Result<void>? parseMatchVoid5(State state) {
-    // @match('for')
-    var pos = state.position;
-    if (state.ch == 102 || state.ch == 70) {
+  // @match('FOR')
+  switch (state.ch) {
+    case 102:
+    case 70:
+      var pos = state.position;
       var c = state.charAt(pos += 1);
-      if (c == 111 || c == 79) {
-        c = state.charAt(pos += 1);
-        if (c == 114 || c == 82) {
-          state.readChar(pos += 1);
-          return Result.none;
-        }
-      }
-    }
-    // @match('while')
-    var pos1 = state.position;
-    if (state.ch == 119 || state.ch == 87) {
-      var c1 = state.charAt(pos1 += 1);
-      if (c1 == 104 || c1 == 72) {
-        c1 = state.charAt(pos1 += 1);
-        if (c1 == 105 || c1 == 73) {
-          c1 = state.charAt(pos1 += 1);
-          if (c1 == 108 || c1 == 76) {
-            c1 = state.charAt(pos1 += 1);
-            if (c1 == 101 || c1 == 69) {
-              state.readChar(pos1 += 1);
+      switch (c) {
+        case 111:
+        case 79:
+          c = state.charAt(pos += 1);
+          switch (c) {
+            case 114:
+            case 82:
+              state.readChar(pos += 1);
               return Result.none;
-            }
           }
-        }
       }
-    }
-    return null;
+  }
+  return null;
   }
 
   /// [String] **Match6**
   /// ```txt
   /// `String` Match6 =>
-  ///   $ = (
-  ///     @match('for')
-  ///     ---
-  ///     @match('while')
-  ///   )
-  ///   [ ]
+  ///   @match('for')
+  ///   ~{ state.errorExpected('for'); }
   /// ```
   Result<String>? parseMatch6(State state) {
-    final pos = state.position;
-    final ch = state.ch;
-    final Result<String> match62;
-    l:
-    {
-      // @match('for')
-      var pos1 = state.position;
-      if (state.ch == 102 || state.ch == 70) {
-        var c = state.charAt(pos1 += 1);
-        if (c == 111 || c == 79) {
-          c = state.charAt(pos1 += 1);
-          if (c == 114 || c == 82) {
-            final match6 = state.substring(state.position, pos1 += 1);
-            state.readChar(pos1);
-            match62 = Ok(match6);
-            break l;
+  // @match('for')
+  switch (state.ch) {
+    case 102:
+    case 70:
+      var pos = state.position;
+      var c = state.charAt(pos += 1);
+      switch (c) {
+        case 111:
+        case 79:
+          c = state.charAt(pos += 1);
+          switch (c) {
+            case 114:
+            case 82:
+              final match6 = state.substring(state.position, pos += 1);
+              state.readChar(pos);
+              return Ok(match6);
           }
-        }
       }
-      // @match('while')
-      var pos2 = state.position;
-      if (state.ch == 119 || state.ch == 87) {
-        var c1 = state.charAt(pos2 += 1);
-        if (c1 == 104 || c1 == 72) {
-          c1 = state.charAt(pos2 += 1);
-          if (c1 == 105 || c1 == 73) {
-            c1 = state.charAt(pos2 += 1);
-            if (c1 == 108 || c1 == 76) {
-              c1 = state.charAt(pos2 += 1);
-              if (c1 == 101 || c1 == 69) {
-                final match61 = state.substring(state.position, pos2 += 1);
-                state.readChar(pos2);
-                match62 = Ok(match61);
-                break l;
-              }
-            }
-          }
-        }
-      }
-      return null;
-    }
-    // l:
-    final match63 = match62;
-    // [ ]
-    if (state.ch == 32) {
-      state.nextChar();
-      return match63;
-    }
-    state.ch = ch;
-    state.position = pos;
-    return null;
+  }
+  state.errorExpected('for');
+  return null;
   }
 
   /// [void] **MatchVoid6**
   /// ```txt
   /// `void` MatchVoid6 =>
+  ///   @match('for')
+  ///   ~{ state.errorExpected('for'); }
+  /// ```
+  Result<void>? parseMatchVoid6(State state) {
+  // @match('for')
+  switch (state.ch) {
+    case 102:
+    case 70:
+      var pos = state.position;
+      var c = state.charAt(pos += 1);
+      switch (c) {
+        case 111:
+        case 79:
+          c = state.charAt(pos += 1);
+          switch (c) {
+            case 114:
+            case 82:
+              state.readChar(pos += 1);
+              return Result.none;
+          }
+      }
+  }
+  state.errorExpected('for');
+  return null;
+  }
+
+  /// [void] **Match7**
+  /// ```txt
+  /// `void` Match7 =>
+  ///   & @match('for')
+  /// ```
+  Result<void>? parseMatch7(State state) {
+  state.predicate++;
+  final pos = state.position;
+  final ch = state.ch;
+  // @match('for')
+  switch (state.ch) {
+    case 102:
+    case 70:
+      var pos1 = state.position;
+      var c = state.charAt(pos1 += 1);
+      switch (c) {
+        case 111:
+        case 79:
+          c = state.charAt(pos1 += 1);
+          switch (c) {
+            case 114:
+            case 82:
+              state.readChar(pos1 += 1);
+              state.ch = ch;
+              state.position = pos;
+              state.predicate--;
+              return Result.none;
+          }
+      }
+  }
+  return null;
+  }
+
+  /// [void] **Match8**
+  /// ```txt
+  /// `void` Match8 =>
+  ///   ! @match('for')
+  /// ```
+  Result<void>? parseMatch8(State state) {
+  state.predicate++;
+  final pos = state.position;
+  final ch = state.ch;
+  // @match('for')
+  switch (state.ch) {
+    case 102:
+    case 70:
+      var pos1 = state.position;
+      var c = state.charAt(pos1 += 1);
+      switch (c) {
+        case 111:
+        case 79:
+          c = state.charAt(pos1 += 1);
+          switch (c) {
+            case 114:
+            case 82:
+              state.readChar(pos1 += 1);
+              state.ch = ch;
+              state.position = pos;
+              state.predicate--;
+              return null;
+          }
+      }
+  }
+  state.predicate--;
+  return Result.none;
+  }
+
+  /// [String] **Match9**
+  /// ```txt
+  /// `String` Match9 =>
+  ///   @match('for')
+  ///   ---
+  ///   @match('while')
+  /// ```
+  Result<String>? parseMatch9(State state) {
+  // @match('for')
+  switch (state.ch) {
+    case 102:
+    case 70:
+      var pos = state.position;
+      var c = state.charAt(pos += 1);
+      switch (c) {
+        case 111:
+        case 79:
+          c = state.charAt(pos += 1);
+          switch (c) {
+            case 114:
+            case 82:
+              final match9 = state.substring(state.position, pos += 1);
+              state.readChar(pos);
+              return Ok(match9);
+          }
+      }
+  }
+  // @match('while')
+  switch (state.ch) {
+    case 119:
+    case 87:
+      var pos1 = state.position;
+      var c1 = state.charAt(pos1 += 1);
+      switch (c1) {
+        case 104:
+        case 72:
+          c1 = state.charAt(pos1 += 1);
+          switch (c1) {
+            case 105:
+            case 73:
+              c1 = state.charAt(pos1 += 1);
+              switch (c1) {
+                case 108:
+                case 76:
+                  c1 = state.charAt(pos1 += 1);
+                  switch (c1) {
+                    case 101:
+                    case 69:
+                      final match91 = state.substring(state.position, pos1 += 1);
+                      state.readChar(pos1);
+                      return Ok(match91);
+                  }
+              }
+          }
+      }
+  }
+  return null;
+  }
+
+  /// [void] **MatchVoid9**
+  /// ```txt
+  /// `void` MatchVoid9 =>
+  ///   @match('for')
+  ///   ---
+  ///   @match('while')
+  /// ```
+  Result<void>? parseMatchVoid9(State state) {
+  // @match('for')
+  switch (state.ch) {
+    case 102:
+    case 70:
+      var pos = state.position;
+      var c = state.charAt(pos += 1);
+      switch (c) {
+        case 111:
+        case 79:
+          c = state.charAt(pos += 1);
+          switch (c) {
+            case 114:
+            case 82:
+              state.readChar(pos += 1);
+              return Result.none;
+          }
+      }
+  }
+  // @match('while')
+  switch (state.ch) {
+    case 119:
+    case 87:
+      var pos1 = state.position;
+      var c1 = state.charAt(pos1 += 1);
+      switch (c1) {
+        case 104:
+        case 72:
+          c1 = state.charAt(pos1 += 1);
+          switch (c1) {
+            case 105:
+            case 73:
+              c1 = state.charAt(pos1 += 1);
+              switch (c1) {
+                case 108:
+                case 76:
+                  c1 = state.charAt(pos1 += 1);
+                  switch (c1) {
+                    case 101:
+                    case 69:
+                      state.readChar(pos1 += 1);
+                      return Result.none;
+                  }
+              }
+          }
+      }
+  }
+  return null;
+  }
+
+  /// [String] **Match10**
+  /// ```txt
+  /// `String` Match10 =>
   ///   $ = (
   ///     @match('for')
   ///     ---
@@ -11010,63 +11338,159 @@ class _TestParser {
   ///   )
   ///   [ ]
   /// ```
-  Result<void>? parseMatchVoid6(State state) {
-    final pos = state.position;
-    final ch = state.ch;
-    final Result<String> matchVoid62;
-    l:
-    {
-      // @match('for')
-      var pos1 = state.position;
-      if (state.ch == 102 || state.ch == 70) {
+  Result<String>? parseMatch10(State state) {
+  final pos = state.position;
+  final ch = state.ch;
+  final Result<String> match102;
+  l:
+  {
+    // @match('for')
+    switch (state.ch) {
+      case 102:
+      case 70:
+        var pos1 = state.position;
         var c = state.charAt(pos1 += 1);
-        if (c == 111 || c == 79) {
-          c = state.charAt(pos1 += 1);
-          if (c == 114 || c == 82) {
-            final matchVoid6 = state.substring(state.position, pos1 += 1);
-            state.readChar(pos1);
-            matchVoid62 = Ok(matchVoid6);
-            break l;
-          }
-        }
-      }
-      // @match('while')
-      var pos2 = state.position;
-      if (state.ch == 119 || state.ch == 87) {
-        var c1 = state.charAt(pos2 += 1);
-        if (c1 == 104 || c1 == 72) {
-          c1 = state.charAt(pos2 += 1);
-          if (c1 == 105 || c1 == 73) {
-            c1 = state.charAt(pos2 += 1);
-            if (c1 == 108 || c1 == 76) {
-              c1 = state.charAt(pos2 += 1);
-              if (c1 == 101 || c1 == 69) {
-                final matchVoid61 = state.substring(state.position, pos2 += 1);
-                state.readChar(pos2);
-                matchVoid62 = Ok(matchVoid61);
+        switch (c) {
+          case 111:
+          case 79:
+            c = state.charAt(pos1 += 1);
+            switch (c) {
+              case 114:
+              case 82:
+                final match10 = state.substring(state.position, pos1 += 1);
+                state.readChar(pos1);
+                match102 = Ok(match10);
                 break l;
-              }
             }
-          }
         }
-      }
-      return null;
     }
-    // l:
-    final matchVoid63 = matchVoid62;
-    // [ ]
-    if (state.ch == 32) {
-      state.nextChar();
-      return Result.none;
+    // @match('while')
+    switch (state.ch) {
+      case 119:
+      case 87:
+        var pos2 = state.position;
+        var c1 = state.charAt(pos2 += 1);
+        switch (c1) {
+          case 104:
+          case 72:
+            c1 = state.charAt(pos2 += 1);
+            switch (c1) {
+              case 105:
+              case 73:
+                c1 = state.charAt(pos2 += 1);
+                switch (c1) {
+                  case 108:
+                  case 76:
+                    c1 = state.charAt(pos2 += 1);
+                    switch (c1) {
+                      case 101:
+                      case 69:
+                        final match101 = state.substring(state.position, pos2 += 1);
+                        state.readChar(pos2);
+                        match102 = Ok(match101);
+                        break l;
+                    }
+                }
+            }
+        }
     }
-    state.ch = ch;
-    state.position = pos;
     return null;
   }
+  // l:
+  final match103 = match102;
+  // [ ]
+  if (state.ch == 32) {
+    state.nextChar();
+    return match103;
+  }
+  state.ch = ch;
+  state.position = pos;
+  return null;
+  }
 
-  /// [void] **Match7**
+  /// [void] **MatchVoid10**
   /// ```txt
-  /// `void` Match7 =>
+  /// `void` MatchVoid10 =>
+  ///   $ = (
+  ///     @match('for')
+  ///     ---
+  ///     @match('while')
+  ///   )
+  ///   [ ]
+  /// ```
+  Result<void>? parseMatchVoid10(State state) {
+  final pos = state.position;
+  final ch = state.ch;
+  final Result<String> matchVoid102;
+  l:
+  {
+    // @match('for')
+    switch (state.ch) {
+      case 102:
+      case 70:
+        var pos1 = state.position;
+        var c = state.charAt(pos1 += 1);
+        switch (c) {
+          case 111:
+          case 79:
+            c = state.charAt(pos1 += 1);
+            switch (c) {
+              case 114:
+              case 82:
+                final matchVoid10 = state.substring(state.position, pos1 += 1);
+                state.readChar(pos1);
+                matchVoid102 = Ok(matchVoid10);
+                break l;
+            }
+        }
+    }
+    // @match('while')
+    switch (state.ch) {
+      case 119:
+      case 87:
+        var pos2 = state.position;
+        var c1 = state.charAt(pos2 += 1);
+        switch (c1) {
+          case 104:
+          case 72:
+            c1 = state.charAt(pos2 += 1);
+            switch (c1) {
+              case 105:
+              case 73:
+                c1 = state.charAt(pos2 += 1);
+                switch (c1) {
+                  case 108:
+                  case 76:
+                    c1 = state.charAt(pos2 += 1);
+                    switch (c1) {
+                      case 101:
+                      case 69:
+                        final matchVoid101 = state.substring(state.position, pos2 += 1);
+                        state.readChar(pos2);
+                        matchVoid102 = Ok(matchVoid101);
+                        break l;
+                    }
+                }
+            }
+        }
+    }
+    return null;
+  }
+  // l:
+  final matchVoid103 = matchVoid102;
+  // [ ]
+  if (state.ch == 32) {
+    state.nextChar();
+    return Result.none;
+  }
+  state.ch = ch;
+  state.position = pos;
+  return null;
+  }
+
+  /// [void] **Match11**
+  /// ```txt
+  /// `void` Match11 =>
   ///   (
   ///     @match('for')
   ///     ---
@@ -11074,52 +11498,68 @@ class _TestParser {
   ///   )
   ///   [ ]
   /// ```
-  Result<void>? parseMatch7(State state) {
-    final pos = state.position;
-    final ch = state.ch;
-    l:
-    {
-      // @match('for')
-      var pos1 = state.position;
-      if (state.ch == 102 || state.ch == 70) {
+  Result<void>? parseMatch11(State state) {
+  final pos = state.position;
+  final ch = state.ch;
+  l:
+  {
+    // @match('for')
+    switch (state.ch) {
+      case 102:
+      case 70:
+        var pos1 = state.position;
         var c = state.charAt(pos1 += 1);
-        if (c == 111 || c == 79) {
-          c = state.charAt(pos1 += 1);
-          if (c == 114 || c == 82) {
-            state.readChar(pos1 += 1);
-            break l;
-          }
-        }
-      }
-      // @match('while')
-      var pos2 = state.position;
-      if (state.ch == 119 || state.ch == 87) {
-        var c1 = state.charAt(pos2 += 1);
-        if (c1 == 104 || c1 == 72) {
-          c1 = state.charAt(pos2 += 1);
-          if (c1 == 105 || c1 == 73) {
-            c1 = state.charAt(pos2 += 1);
-            if (c1 == 108 || c1 == 76) {
-              c1 = state.charAt(pos2 += 1);
-              if (c1 == 101 || c1 == 69) {
-                state.readChar(pos2 += 1);
+        switch (c) {
+          case 111:
+          case 79:
+            c = state.charAt(pos1 += 1);
+            switch (c) {
+              case 114:
+              case 82:
+                state.readChar(pos1 += 1);
                 break l;
-              }
             }
-          }
         }
-      }
-      return null;
     }
-    // l:
-    // [ ]
-    if (state.ch == 32) {
-      state.nextChar();
-      return Result.none;
+    // @match('while')
+    switch (state.ch) {
+      case 119:
+      case 87:
+        var pos2 = state.position;
+        var c1 = state.charAt(pos2 += 1);
+        switch (c1) {
+          case 104:
+          case 72:
+            c1 = state.charAt(pos2 += 1);
+            switch (c1) {
+              case 105:
+              case 73:
+                c1 = state.charAt(pos2 += 1);
+                switch (c1) {
+                  case 108:
+                  case 76:
+                    c1 = state.charAt(pos2 += 1);
+                    switch (c1) {
+                      case 101:
+                      case 69:
+                        state.readChar(pos2 += 1);
+                        break l;
+                    }
+                }
+            }
+        }
     }
-    state.ch = ch;
-    state.position = pos;
     return null;
+  }
+  // l:
+  // [ ]
+  if (state.ch == 32) {
+    state.nextChar();
+    return Result.none;
+  }
+  state.ch = ch;
+  state.position = pos;
+  return null;
   }
 
   /// [String] **NotPredicate0**
@@ -11129,18 +11569,18 @@ class _TestParser {
   ///   $ = 'ab'
   /// ```
   Result<String>? parseNotPredicate0(State state) {
-    // 'abc'
-    if (state.ch == 97 && state.startsWith('abc')) {
-      return null;
-    }
-    state.errorExpected('abc');
-    // 'ab'
-    if (state.ch == 97 && state.startsWith('ab')) {
-      state.readChar(state.position + 2);
-      return const Ok('ab');
-    }
-    state.errorExpected('ab');
+  // 'abc'
+  if (state.ch == 97 && state.startsWith('abc')) {
     return null;
+  }
+  state.errorExpected('abc');
+  // 'ab'
+  if (state.ch == 97 && state.startsWith('ab')) {
+    state.readChar(state.position + 2);
+    return const Ok('ab');
+  }
+  state.errorExpected('ab');
+  return null;
   }
 
   /// [void] **NotPredicateVoid0**
@@ -11150,19 +11590,19 @@ class _TestParser {
   ///   $ = 'ab'
   /// ```
   Result<void>? parseNotPredicateVoid0(State state) {
-    // 'abc'
-    if (state.ch == 97 && state.startsWith('abc')) {
-      return null;
-    }
-    state.errorExpected('abc');
-    // 'ab'
-    if (state.ch == 97 && state.startsWith('ab')) {
-      state.readChar(state.position + 2);
-      const notPredicateVoid0 = Ok('ab');
-      return Result.none;
-    }
-    state.errorExpected('ab');
+  // 'abc'
+  if (state.ch == 97 && state.startsWith('abc')) {
     return null;
+  }
+  state.errorExpected('abc');
+  // 'ab'
+  if (state.ch == 97 && state.startsWith('ab')) {
+    state.readChar(state.position + 2);
+    const notPredicateVoid0 = Ok('ab');
+    return Result.none;
+  }
+  state.errorExpected('ab');
+  return null;
   }
 
   /// [String] **NotPredicate1**
@@ -11172,23 +11612,23 @@ class _TestParser {
   ///   ! '=>'
   /// ```
   Result<String>? parseNotPredicate1(State state) {
-    // 'abc'
-    if (state.ch == 97 && state.startsWith('abc')) {
-      final pos = state.position;
-      final ch = state.ch;
-      state.readChar(state.position + 3);
-      const notPredicate1 = Ok('abc');
-      // '=>'
-      if (state.ch == 61 && state.startsWith('=>')) {
-        state.ch = ch;
-        state.position = pos;
-        return null;
-      }
-      state.errorExpected('=>');
-      return notPredicate1;
+  // 'abc'
+  if (state.ch == 97 && state.startsWith('abc')) {
+    final pos = state.position;
+    final ch = state.ch;
+    state.readChar(state.position + 3);
+    const notPredicate1 = Ok('abc');
+    // '=>'
+    if (state.ch == 61 && state.startsWith('=>')) {
+      state.ch = ch;
+      state.position = pos;
+      return null;
     }
-    state.errorExpected('abc');
-    return null;
+    state.errorExpected('=>');
+    return notPredicate1;
+  }
+  state.errorExpected('abc');
+  return null;
   }
 
   /// [void] **NotPredicateVoid1**
@@ -11198,23 +11638,23 @@ class _TestParser {
   ///   ! '=>'
   /// ```
   Result<void>? parseNotPredicateVoid1(State state) {
-    // 'abc'
-    if (state.ch == 97 && state.startsWith('abc')) {
-      final pos = state.position;
-      final ch = state.ch;
-      state.readChar(state.position + 3);
-      const notPredicateVoid1 = Ok('abc');
-      // '=>'
-      if (state.ch == 61 && state.startsWith('=>')) {
-        state.ch = ch;
-        state.position = pos;
-        return null;
-      }
-      state.errorExpected('=>');
-      return Result.none;
+  // 'abc'
+  if (state.ch == 97 && state.startsWith('abc')) {
+    final pos = state.position;
+    final ch = state.ch;
+    state.readChar(state.position + 3);
+    const notPredicateVoid1 = Ok('abc');
+    // '=>'
+    if (state.ch == 61 && state.startsWith('=>')) {
+      state.ch = ch;
+      state.position = pos;
+      return null;
     }
-    state.errorExpected('abc');
-    return null;
+    state.errorExpected('=>');
+    return Result.none;
+  }
+  state.errorExpected('abc');
+  return null;
   }
 
   /// [List<int>] **NotPredicate2**
@@ -11226,44 +11666,44 @@ class _TestParser {
   ///   $ = [a]*
   /// ```
   Result<List<int>>? parseNotPredicate2(State state) {
-    state.predicate++;
-    final pos = state.position;
-    final ch = state.ch;
-    final pos1 = state.position;
-    final ch1 = state.ch;
-    var count = 0;
-    // (2)
+  state.predicate++;
+  final pos = state.position;
+  final ch = state.ch;
+  final pos1 = state.position;
+  final ch1 = state.ch;
+  var count = 0;
+  // (2)
+  while (true) {
+    // [a]
+    if (state.ch == 97) {
+      state.nextChar();
+      count++;
+      continue;
+    }
+    break;
+  }
+  if (count >= 2) {
+    state.ch = ch;
+    state.position = pos;
+    state.predicate--;
+    return null;
+  } else {
+    state.ch = ch1;
+    state.position = pos1;
+    state.predicate--;
+    final notPredicate2 = <int>[];
+    // (0)
     while (true) {
       // [a]
       if (state.ch == 97) {
         state.nextChar();
-        count++;
+        notPredicate2.add(97);
         continue;
       }
       break;
     }
-    if (count >= 2) {
-      state.ch = ch;
-      state.position = pos;
-      state.predicate--;
-      return null;
-    } else {
-      state.ch = ch1;
-      state.position = pos1;
-      state.predicate--;
-      final notPredicate2 = <int>[];
-      // (0)
-      while (true) {
-        // [a]
-        if (state.ch == 97) {
-          state.nextChar();
-          notPredicate2.add(97);
-          continue;
-        }
-        break;
-      }
-      return Ok(notPredicate2);
-    }
+    return Ok(notPredicate2);
+  }
   }
 
   /// [void] **NotPredicateVoid2**
@@ -11275,45 +11715,45 @@ class _TestParser {
   ///   $ = [a]*
   /// ```
   Result<void>? parseNotPredicateVoid2(State state) {
-    state.predicate++;
-    final pos = state.position;
-    final ch = state.ch;
-    final pos1 = state.position;
-    final ch1 = state.ch;
-    var count = 0;
-    // (2)
+  state.predicate++;
+  final pos = state.position;
+  final ch = state.ch;
+  final pos1 = state.position;
+  final ch1 = state.ch;
+  var count = 0;
+  // (2)
+  while (true) {
+    // [a]
+    if (state.ch == 97) {
+      state.nextChar();
+      count++;
+      continue;
+    }
+    break;
+  }
+  if (count >= 2) {
+    state.ch = ch;
+    state.position = pos;
+    state.predicate--;
+    return null;
+  } else {
+    state.ch = ch1;
+    state.position = pos1;
+    state.predicate--;
+    final notPredicateVoid2 = <int>[];
+    // (0)
     while (true) {
       // [a]
       if (state.ch == 97) {
         state.nextChar();
-        count++;
+        notPredicateVoid2.add(97);
         continue;
       }
       break;
     }
-    if (count >= 2) {
-      state.ch = ch;
-      state.position = pos;
-      state.predicate--;
-      return null;
-    } else {
-      state.ch = ch1;
-      state.position = pos1;
-      state.predicate--;
-      final notPredicateVoid2 = <int>[];
-      // (0)
-      while (true) {
-        // [a]
-        if (state.ch == 97) {
-          state.nextChar();
-          notPredicateVoid2.add(97);
-          continue;
-        }
-        break;
-      }
-      final notPredicateVoid21 = Ok(notPredicateVoid2);
-      return Result.none;
-    }
+    final notPredicateVoid21 = Ok(notPredicateVoid2);
+    return Result.none;
+  }
   }
 
   /// [List<int>] **OneOrMore0**
@@ -11322,22 +11762,22 @@ class _TestParser {
   ///   [a]+
   /// ```
   Result<List<int>>? parseOneOrMore0(State state) {
-    final oneOrMore0 = <int>[];
-    // (1)
-    while (true) {
-      // [a]
-      if (state.ch == 97) {
-        state.nextChar();
-        oneOrMore0.add(97);
-        continue;
-      }
-      break;
+  final oneOrMore0 = <int>[];
+  // (1)
+  while (true) {
+    // [a]
+    if (state.ch == 97) {
+      state.nextChar();
+      oneOrMore0.add(97);
+      continue;
     }
-    if (oneOrMore0.isNotEmpty) {
-      return Ok(oneOrMore0);
-    } else {
-      return null;
-    }
+    break;
+  }
+  if (oneOrMore0.isNotEmpty) {
+    return Ok(oneOrMore0);
+  } else {
+    return null;
+  }
   }
 
   /// [void] **OneOrMoreVoid0**
@@ -11346,22 +11786,22 @@ class _TestParser {
   ///   [a]+
   /// ```
   Result<void>? parseOneOrMoreVoid0(State state) {
-    var isSuccess = false;
-    // (1)
-    while (true) {
-      // [a]
-      if (state.ch == 97) {
-        state.nextChar();
-        isSuccess = true;
-        continue;
-      }
-      break;
+  var isSuccess = false;
+  // (1)
+  while (true) {
+    // [a]
+    if (state.ch == 97) {
+      state.nextChar();
+      isSuccess = true;
+      continue;
     }
-    if (isSuccess) {
-      return Result.none;
-    } else {
-      return null;
-    }
+    break;
+  }
+  if (isSuccess) {
+    return Result.none;
+  } else {
+    return null;
+  }
   }
 
   /// [List<int>] **OneOrMore1**
@@ -11370,28 +11810,28 @@ class _TestParser {
   ///   ([a] / [z])+
   /// ```
   Result<List<int>>? parseOneOrMore1(State state) {
-    final oneOrMore1 = <int>[];
-    // (1)
-    while (true) {
-      // [a]
-      if (state.ch == 97) {
-        state.nextChar();
-        oneOrMore1.add(97);
-        continue;
-      }
-      // [z]
-      if (state.ch == 122) {
-        state.nextChar();
-        oneOrMore1.add(122);
-        continue;
-      }
-      break;
+  final oneOrMore1 = <int>[];
+  // (1)
+  while (true) {
+    // [a]
+    if (state.ch == 97) {
+      state.nextChar();
+      oneOrMore1.add(97);
+      continue;
     }
-    if (oneOrMore1.isNotEmpty) {
-      return Ok(oneOrMore1);
-    } else {
-      return null;
+    // [z]
+    if (state.ch == 122) {
+      state.nextChar();
+      oneOrMore1.add(122);
+      continue;
     }
+    break;
+  }
+  if (oneOrMore1.isNotEmpty) {
+    return Ok(oneOrMore1);
+  } else {
+    return null;
+  }
   }
 
   /// [void] **OneOrMoreVoid1**
@@ -11400,28 +11840,28 @@ class _TestParser {
   ///   ([a] / [z])+
   /// ```
   Result<void>? parseOneOrMoreVoid1(State state) {
-    var isSuccess = false;
-    // (1)
-    while (true) {
-      // [a]
-      if (state.ch == 97) {
-        state.nextChar();
-        isSuccess = true;
-        continue;
-      }
-      // [z]
-      if (state.ch == 122) {
-        state.nextChar();
-        isSuccess = true;
-        continue;
-      }
-      break;
+  var isSuccess = false;
+  // (1)
+  while (true) {
+    // [a]
+    if (state.ch == 97) {
+      state.nextChar();
+      isSuccess = true;
+      continue;
     }
-    if (isSuccess) {
-      return Result.none;
-    } else {
-      return null;
+    // [z]
+    if (state.ch == 122) {
+      state.nextChar();
+      isSuccess = true;
+      continue;
     }
+    break;
+  }
+  if (isSuccess) {
+    return Result.none;
+  } else {
+    return null;
+  }
   }
 
   /// [int?] **Optional0**
@@ -11430,12 +11870,12 @@ class _TestParser {
   ///   [a]?
   /// ```
   Result<int?> parseOptional0(State state) {
-    // [a]
-    if (state.ch == 97) {
-      state.nextChar();
-      return const Ok(97);
-    }
-    return const Ok(null);
+  // [a]
+  if (state.ch == 97) {
+    state.nextChar();
+    return const Ok(97);
+  }
+  return const Ok(null);
   }
 
   /// [void] **OptionalVoid0**
@@ -11444,11 +11884,11 @@ class _TestParser {
   ///   [a]?
   /// ```
   Result<void> parseOptionalVoid0(State state) {
-    // [a]
-    if (state.ch == 97) {
-      state.nextChar();
-    }
-    return Result.none;
+  // [a]
+  if (state.ch == 97) {
+    state.nextChar();
+  }
+  return Result.none;
   }
 
   /// [int?] **Optional1**
@@ -11457,17 +11897,17 @@ class _TestParser {
   ///   ([a] / [b])?
   /// ```
   Result<int?> parseOptional1(State state) {
-    // [a]
-    if (state.ch == 97) {
-      state.nextChar();
-      return const Ok(97);
-    }
-    // [b]
-    if (state.ch == 98) {
-      state.nextChar();
-      return const Ok(98);
-    }
-    return const Ok(null);
+  // [a]
+  if (state.ch == 97) {
+    state.nextChar();
+    return const Ok(97);
+  }
+  // [b]
+  if (state.ch == 98) {
+    state.nextChar();
+    return const Ok(98);
+  }
+  return const Ok(null);
   }
 
   /// [void] **OptionalVoid1**
@@ -11476,17 +11916,17 @@ class _TestParser {
   ///   ([a] / [b])?
   /// ```
   Result<void> parseOptionalVoid1(State state) {
-    // [a]
-    if (state.ch == 97) {
-      state.nextChar();
-      return Result.none;
-    }
-    // [b]
-    if (state.ch == 98) {
-      state.nextChar();
-      return Result.none;
-    }
+  // [a]
+  if (state.ch == 97) {
+    state.nextChar();
     return Result.none;
+  }
+  // [b]
+  if (state.ch == 98) {
+    state.nextChar();
+    return Result.none;
+  }
+  return Result.none;
   }
 
   /// [int?] **Optional2**
@@ -11495,21 +11935,21 @@ class _TestParser {
   ///   ([a] $ = [b])?
   /// ```
   Result<int?> parseOptional2(State state) {
-    // [a]
-    if (state.ch == 97) {
-      final pos = state.position;
-      final ch = state.ch;
+  // [a]
+  if (state.ch == 97) {
+    final pos = state.position;
+    final ch = state.ch;
+    state.nextChar();
+    // [b]
+    if (state.ch == 98) {
       state.nextChar();
-      // [b]
-      if (state.ch == 98) {
-        state.nextChar();
-        return const Ok(98);
-      }
-      state.ch = ch;
-      state.position = pos;
-      return const Ok(null);
+      return const Ok(98);
     }
+    state.ch = ch;
+    state.position = pos;
     return const Ok(null);
+  }
+  return const Ok(null);
   }
 
   /// [void] **OptionalVoid2**
@@ -11518,22 +11958,22 @@ class _TestParser {
   ///   ([a] $ = [b])?
   /// ```
   Result<void> parseOptionalVoid2(State state) {
-    // [a]
-    if (state.ch == 97) {
-      final pos = state.position;
-      final ch = state.ch;
+  // [a]
+  if (state.ch == 97) {
+    final pos = state.position;
+    final ch = state.ch;
+    state.nextChar();
+    // [b]
+    if (state.ch == 98) {
       state.nextChar();
-      // [b]
-      if (state.ch == 98) {
-        state.nextChar();
-        const optionalVoid2 = Ok(98);
-        return Result.none;
-      }
-      state.ch = ch;
-      state.position = pos;
+      const optionalVoid2 = Ok(98);
       return Result.none;
     }
+    state.ch = ch;
+    state.position = pos;
     return Result.none;
+  }
+  return Result.none;
   }
 
   /// [int?] **Optional3**
@@ -11542,22 +11982,22 @@ class _TestParser {
   ///   ($ = [a] [b])?
   /// ```
   Result<int?> parseOptional3(State state) {
-    // [a]
-    if (state.ch == 97) {
-      final pos = state.position;
-      final ch = state.ch;
+  // [a]
+  if (state.ch == 97) {
+    final pos = state.position;
+    final ch = state.ch;
+    state.nextChar();
+    const optional3 = Ok(97);
+    // [b]
+    if (state.ch == 98) {
       state.nextChar();
-      const optional3 = Ok(97);
-      // [b]
-      if (state.ch == 98) {
-        state.nextChar();
-        return optional3;
-      }
-      state.ch = ch;
-      state.position = pos;
-      return const Ok(null);
+      return optional3;
     }
+    state.ch = ch;
+    state.position = pos;
     return const Ok(null);
+  }
+  return const Ok(null);
   }
 
   /// [void] **OptionalVoid3**
@@ -11566,22 +12006,22 @@ class _TestParser {
   ///   ($ = [a] [b])?
   /// ```
   Result<void> parseOptionalVoid3(State state) {
-    // [a]
-    if (state.ch == 97) {
-      final pos = state.position;
-      final ch = state.ch;
+  // [a]
+  if (state.ch == 97) {
+    final pos = state.position;
+    final ch = state.ch;
+    state.nextChar();
+    const optionalVoid3 = Ok(97);
+    // [b]
+    if (state.ch == 98) {
       state.nextChar();
-      const optionalVoid3 = Ok(97);
-      // [b]
-      if (state.ch == 98) {
-        state.nextChar();
-        return Result.none;
-      }
-      state.ch = ch;
-      state.position = pos;
       return Result.none;
     }
+    state.ch = ch;
+    state.position = pos;
     return Result.none;
+  }
+  return Result.none;
   }
 
   /// [int?] **Optional4**
@@ -11591,31 +12031,31 @@ class _TestParser {
   ///   $ = [c]
   /// ```
   Result<int?>? parseOptional4(State state) {
-    final pos = state.position;
-    final ch = state.ch;
-    l:
-    {
-      // [a]
-      if (state.ch == 97) {
-        state.nextChar();
-        break l;
-      }
-      // [b]
-      if (state.ch == 98) {
-        state.nextChar();
-        break l;
-      }
+  final pos = state.position;
+  final ch = state.ch;
+  l:
+  {
+    // [a]
+    if (state.ch == 97) {
+      state.nextChar();
       break l;
     }
-    // l:
-    // [c]
-    if (state.ch == 99) {
+    // [b]
+    if (state.ch == 98) {
       state.nextChar();
-      return const Ok(99);
+      break l;
     }
-    state.ch = ch;
-    state.position = pos;
-    return null;
+    break l;
+  }
+  // l:
+  // [c]
+  if (state.ch == 99) {
+    state.nextChar();
+    return const Ok(99);
+  }
+  state.ch = ch;
+  state.position = pos;
+  return null;
   }
 
   /// [void] **OptionalVoid4**
@@ -11625,32 +12065,32 @@ class _TestParser {
   ///   $ = [c]
   /// ```
   Result<void>? parseOptionalVoid4(State state) {
-    final pos = state.position;
-    final ch = state.ch;
-    l:
-    {
-      // [a]
-      if (state.ch == 97) {
-        state.nextChar();
-        break l;
-      }
-      // [b]
-      if (state.ch == 98) {
-        state.nextChar();
-        break l;
-      }
+  final pos = state.position;
+  final ch = state.ch;
+  l:
+  {
+    // [a]
+    if (state.ch == 97) {
+      state.nextChar();
       break l;
     }
-    // l:
-    // [c]
-    if (state.ch == 99) {
+    // [b]
+    if (state.ch == 98) {
       state.nextChar();
-      const optionalVoid4 = Ok(99);
-      return Result.none;
+      break l;
     }
-    state.ch = ch;
-    state.position = pos;
-    return null;
+    break l;
+  }
+  // l:
+  // [c]
+  if (state.ch == 99) {
+    state.nextChar();
+    const optionalVoid4 = Ok(99);
+    return Result.none;
+  }
+  state.ch = ch;
+  state.position = pos;
+  return null;
   }
 
   /// [void] **Predicate0**
@@ -11659,11 +12099,11 @@ class _TestParser {
   ///   & { true }
   /// ```
   Result<void>? parsePredicate0(State state) {
-    final isSuccess = true;
-    if (isSuccess) {
-      return Result.none;
-    }
-    return null;
+  final isSuccess = true;
+  if (isSuccess) {
+    return Result.none;
+  }
+  return null;
   }
 
   /// [void] **Predicate1**
@@ -11672,11 +12112,11 @@ class _TestParser {
   ///   & { false }
   /// ```
   Result<void>? parsePredicate1(State state) {
-    final isSuccess = false;
-    if (isSuccess) {
-      return Result.none;
-    }
-    return null;
+  final isSuccess = false;
+  if (isSuccess) {
+    return Result.none;
+  }
+  return null;
   }
 
   /// [void] **Predicate2**
@@ -11685,11 +12125,11 @@ class _TestParser {
   ///   ! { true }
   /// ```
   Result<void>? parsePredicate2(State state) {
-    final isSuccess = true;
-    if (!isSuccess) {
-      return Result.none;
-    }
-    return null;
+  final isSuccess = true;
+  if (!isSuccess) {
+    return Result.none;
+  }
+  return null;
   }
 
   /// [void] **Predicate3**
@@ -11698,11 +12138,11 @@ class _TestParser {
   ///   ! { false }
   /// ```
   Result<void>? parsePredicate3(State state) {
-    final isSuccess = false;
-    if (!isSuccess) {
-      return Result.none;
-    }
-    return null;
+  final isSuccess = false;
+  if (!isSuccess) {
+    return Result.none;
+  }
+  return null;
   }
 
   /// [void] **Predicate4**
@@ -11712,16 +12152,16 @@ class _TestParser {
   ///   [ ]
   /// ```
   Result<void>? parsePredicate4(State state) {
-    final isSuccess = false;
-    if (!isSuccess) {
-      // [ ]
-      if (state.ch == 32) {
-        state.nextChar();
-        return Result.none;
-      }
-      return null;
+  final isSuccess = false;
+  if (!isSuccess) {
+    // [ ]
+    if (state.ch == 32) {
+      state.nextChar();
+      return Result.none;
     }
     return null;
+  }
+  return null;
   }
 
   /// [void] **Predicate5**
@@ -11732,15 +12172,15 @@ class _TestParser {
   ///   ! { false }
   /// ```
   Result<void>? parsePredicate5(State state) {
-    final isSuccess = true;
-    if (!isSuccess) {
-      return Result.none;
-    }
-    final isSuccess1 = false;
-    if (!isSuccess1) {
-      return Result.none;
-    }
-    return null;
+  final isSuccess = true;
+  if (!isSuccess) {
+    return Result.none;
+  }
+  final isSuccess1 = false;
+  if (!isSuccess1) {
+    return Result.none;
+  }
+  return null;
   }
 
   /// [int] **Sequence0**
@@ -11752,40 +12192,40 @@ class _TestParser {
   ///   $ = { a - 48 + b - 48 + c - 48 }
   /// ```
   Result<int>? parseSequence0(State state) {
-    // [0-9]
-    final c1 = state.ch;
-    final isDigit = c1 >= 48 && c1 <= 57;
-    if (isDigit) {
-      final pos = state.position;
-      final ch = state.ch;
-      state.nextChar();
-      final a = c1;
-      l:
-      {
+  // [0-9]
+  final c1 = state.ch;
+  final isDigit = c1 >= 48 && c1 <= 57;
+  if (isDigit) {
+    final pos = state.position;
+    final ch = state.ch;
+    state.nextChar();
+    final a = c1;
+    l:
+    {
+      // [0-9]
+      final c2 = state.ch;
+      final isDigit1 = c2 >= 48 && c2 <= 57;
+      if (isDigit1) {
+        state.nextChar();
+        final b = c2;
         // [0-9]
-        final c2 = state.ch;
-        final isDigit1 = c2 >= 48 && c2 <= 57;
-        if (isDigit1) {
+        final c3 = state.ch;
+        final isDigit2 = c3 >= 48 && c3 <= 57;
+        if (isDigit2) {
           state.nextChar();
-          final b = c2;
-          // [0-9]
-          final c3 = state.ch;
-          final isDigit2 = c3 >= 48 && c3 <= 57;
-          if (isDigit2) {
-            state.nextChar();
-            final c = c3;
-            return Ok(a - 48 + b - 48 + c - 48);
-          }
-          break l;
+          final c = c3;
+          return Ok(a - 48 + b - 48 + c - 48);
         }
         break l;
       }
-      // l:
-      state.ch = ch;
-      state.position = pos;
-      return null;
+      break l;
     }
+    // l:
+    state.ch = ch;
+    state.position = pos;
     return null;
+  }
+  return null;
   }
 
   /// [void] **SequenceVoid0**
@@ -11797,41 +12237,41 @@ class _TestParser {
   ///   $ = { a - 48 + b - 48 + c - 48 }
   /// ```
   Result<void>? parseSequenceVoid0(State state) {
-    // [0-9]
-    final c1 = state.ch;
-    final isDigit = c1 >= 48 && c1 <= 57;
-    if (isDigit) {
-      final pos = state.position;
-      final ch = state.ch;
-      state.nextChar();
-      final a = c1;
-      l:
-      {
+  // [0-9]
+  final c1 = state.ch;
+  final isDigit = c1 >= 48 && c1 <= 57;
+  if (isDigit) {
+    final pos = state.position;
+    final ch = state.ch;
+    state.nextChar();
+    final a = c1;
+    l:
+    {
+      // [0-9]
+      final c2 = state.ch;
+      final isDigit1 = c2 >= 48 && c2 <= 57;
+      if (isDigit1) {
+        state.nextChar();
+        final b = c2;
         // [0-9]
-        final c2 = state.ch;
-        final isDigit1 = c2 >= 48 && c2 <= 57;
-        if (isDigit1) {
+        final c3 = state.ch;
+        final isDigit2 = c3 >= 48 && c3 <= 57;
+        if (isDigit2) {
           state.nextChar();
-          final b = c2;
-          // [0-9]
-          final c3 = state.ch;
-          final isDigit2 = c3 >= 48 && c3 <= 57;
-          if (isDigit2) {
-            state.nextChar();
-            final c = c3;
-            final sequenceVoid0 = Ok(a - 48 + b - 48 + c - 48);
-            return Result.none;
-          }
-          break l;
+          final c = c3;
+          final sequenceVoid0 = Ok(a - 48 + b - 48 + c - 48);
+          return Result.none;
         }
         break l;
       }
-      // l:
-      state.ch = ch;
-      state.position = pos;
-      return null;
+      break l;
     }
+    // l:
+    state.ch = ch;
+    state.position = pos;
     return null;
+  }
+  return null;
   }
 
   /// [String] **Sequence1**
@@ -11843,31 +12283,31 @@ class _TestParser {
   ///   $ = `const` { 'abc' }
   /// ```
   Result<String>? parseSequence1(State state) {
-    // [a]
-    if (state.ch == 97) {
-      final pos = state.position;
-      final ch = state.ch;
-      state.nextChar();
-      l:
-      {
-        // [b]
-        if (state.ch == 98) {
+  // [a]
+  if (state.ch == 97) {
+    final pos = state.position;
+    final ch = state.ch;
+    state.nextChar();
+    l:
+    {
+      // [b]
+      if (state.ch == 98) {
+        state.nextChar();
+        // [c]
+        if (state.ch == 99) {
           state.nextChar();
-          // [c]
-          if (state.ch == 99) {
-            state.nextChar();
-            return const Ok('abc');
-          }
-          break l;
+          return const Ok('abc');
         }
         break l;
       }
-      // l:
-      state.ch = ch;
-      state.position = pos;
-      return null;
+      break l;
     }
+    // l:
+    state.ch = ch;
+    state.position = pos;
     return null;
+  }
+  return null;
   }
 
   /// [void] **SequenceVoid1**
@@ -11879,32 +12319,32 @@ class _TestParser {
   ///   $ = `const` { 'abc' }
   /// ```
   Result<void>? parseSequenceVoid1(State state) {
-    // [a]
-    if (state.ch == 97) {
-      final pos = state.position;
-      final ch = state.ch;
-      state.nextChar();
-      l:
-      {
-        // [b]
-        if (state.ch == 98) {
+  // [a]
+  if (state.ch == 97) {
+    final pos = state.position;
+    final ch = state.ch;
+    state.nextChar();
+    l:
+    {
+      // [b]
+      if (state.ch == 98) {
+        state.nextChar();
+        // [c]
+        if (state.ch == 99) {
           state.nextChar();
-          // [c]
-          if (state.ch == 99) {
-            state.nextChar();
-            const sequenceVoid1 = Ok('abc');
-            return Result.none;
-          }
-          break l;
+          const sequenceVoid1 = Ok('abc');
+          return Result.none;
         }
         break l;
       }
-      // l:
-      state.ch = ch;
-      state.position = pos;
-      return null;
+      break l;
     }
+    // l:
+    state.ch = ch;
+    state.position = pos;
     return null;
+  }
+  return null;
   }
 
   /// [String] **Sequence2**
@@ -11914,13 +12354,13 @@ class _TestParser {
   ///   ~ { state.errorExpected('foo'); }
   /// ```
   Result<String>? parseSequence2(State state) {
-    // "foo"
-    if (state.ch == 102 && state.startsWith('foo')) {
-      state.readChar(state.position + 3);
-      return const Ok('foo');
-    }
-    state.errorExpected('foo');
-    return null;
+  // "foo"
+  if (state.ch == 102 && state.startsWith('foo')) {
+    state.readChar(state.position + 3);
+    return const Ok('foo');
+  }
+  state.errorExpected('foo');
+  return null;
   }
 
   /// [void] **SequenceVoid2**
@@ -11930,13 +12370,13 @@ class _TestParser {
   ///   ~ { state.errorExpected('foo'); }
   /// ```
   Result<void>? parseSequenceVoid2(State state) {
-    // "foo"
-    if (state.ch == 102 && state.startsWith('foo')) {
-      state.readChar(state.position + 3);
-      return Result.none;
-    }
-    state.errorExpected('foo');
-    return null;
+  // "foo"
+  if (state.ch == 102 && state.startsWith('foo')) {
+    state.readChar(state.position + 3);
+    return Result.none;
+  }
+  state.errorExpected('foo');
+  return null;
   }
 
   /// [List<int>] **While0**
@@ -11947,18 +12387,18 @@ class _TestParser {
   ///   }
   /// ```
   Result<List<int>> parseWhile0(State state) {
-    final while0 = <int>[];
-    // (0)
-    while (true) {
-      // [a]
-      if (state.ch == 97) {
-        state.nextChar();
-        while0.add(97);
-        continue;
-      }
-      break;
+  final while0 = <int>[];
+  // (0)
+  while (true) {
+    // [a]
+    if (state.ch == 97) {
+      state.nextChar();
+      while0.add(97);
+      continue;
     }
-    return Ok(while0);
+    break;
+  }
+  return Ok(while0);
   }
 
   /// [void] **WhileVoid0**
@@ -11969,16 +12409,16 @@ class _TestParser {
   ///   }
   /// ```
   Result<void> parseWhileVoid0(State state) {
-    // (0)
-    while (true) {
-      // [a]
-      if (state.ch == 97) {
-        state.nextChar();
-        continue;
-      }
-      break;
+  // (0)
+  while (true) {
+    // [a]
+    if (state.ch == 97) {
+      state.nextChar();
+      continue;
     }
-    return Result.none;
+    break;
+  }
+  return Result.none;
   }
 
   /// [List<int>] **While1**
@@ -11989,24 +12429,24 @@ class _TestParser {
   ///   }
   /// ```
   Result<List<int>> parseWhile1(State state) {
-    final while1 = <int>[];
-    // (0)
-    while (true) {
-      // [a]
-      if (state.ch == 97) {
-        state.nextChar();
-        while1.add(97);
-        continue;
-      }
-      // [z]
-      if (state.ch == 122) {
-        state.nextChar();
-        while1.add(122);
-        continue;
-      }
-      break;
+  final while1 = <int>[];
+  // (0)
+  while (true) {
+    // [a]
+    if (state.ch == 97) {
+      state.nextChar();
+      while1.add(97);
+      continue;
     }
-    return Ok(while1);
+    // [z]
+    if (state.ch == 122) {
+      state.nextChar();
+      while1.add(122);
+      continue;
+    }
+    break;
+  }
+  return Ok(while1);
   }
 
   /// [void] **WhileVoid1**
@@ -12017,21 +12457,21 @@ class _TestParser {
   ///   }
   /// ```
   Result<void> parseWhileVoid1(State state) {
-    // (0)
-    while (true) {
-      // [a]
-      if (state.ch == 97) {
-        state.nextChar();
-        continue;
-      }
-      // [z]
-      if (state.ch == 122) {
-        state.nextChar();
-        continue;
-      }
-      break;
+  // (0)
+  while (true) {
+    // [a]
+    if (state.ch == 97) {
+      state.nextChar();
+      continue;
     }
-    return Result.none;
+    // [z]
+    if (state.ch == 122) {
+      state.nextChar();
+      continue;
+    }
+    break;
+  }
+  return Result.none;
   }
 
   /// [List<int>] **While2**
@@ -12042,22 +12482,22 @@ class _TestParser {
   ///   }
   /// ```
   Result<List<int>>? parseWhile2(State state) {
-    final while2 = <int>[];
-    // (1)
-    while (true) {
-      // [a]
-      if (state.ch == 97) {
-        state.nextChar();
-        while2.add(97);
-        continue;
-      }
-      break;
+  final while2 = <int>[];
+  // (1)
+  while (true) {
+    // [a]
+    if (state.ch == 97) {
+      state.nextChar();
+      while2.add(97);
+      continue;
     }
-    if (while2.isNotEmpty) {
-      return Ok(while2);
-    } else {
-      return null;
-    }
+    break;
+  }
+  if (while2.isNotEmpty) {
+    return Ok(while2);
+  } else {
+    return null;
+  }
   }
 
   /// [void] **WhileVoid2**
@@ -12068,22 +12508,22 @@ class _TestParser {
   ///   }
   /// ```
   Result<void>? parseWhileVoid2(State state) {
-    var isSuccess = false;
-    // (1)
-    while (true) {
-      // [a]
-      if (state.ch == 97) {
-        state.nextChar();
-        isSuccess = true;
-        continue;
-      }
-      break;
+  var isSuccess = false;
+  // (1)
+  while (true) {
+    // [a]
+    if (state.ch == 97) {
+      state.nextChar();
+      isSuccess = true;
+      continue;
     }
-    if (isSuccess) {
-      return Result.none;
-    } else {
-      return null;
-    }
+    break;
+  }
+  if (isSuccess) {
+    return Result.none;
+  } else {
+    return null;
+  }
   }
 
   /// [List<int>] **While3**
@@ -12094,28 +12534,28 @@ class _TestParser {
   ///   }
   /// ```
   Result<List<int>>? parseWhile3(State state) {
-    final while3 = <int>[];
-    // (1)
-    while (true) {
-      // [a]
-      if (state.ch == 97) {
-        state.nextChar();
-        while3.add(97);
-        continue;
-      }
-      // [z]
-      if (state.ch == 122) {
-        state.nextChar();
-        while3.add(122);
-        continue;
-      }
-      break;
+  final while3 = <int>[];
+  // (1)
+  while (true) {
+    // [a]
+    if (state.ch == 97) {
+      state.nextChar();
+      while3.add(97);
+      continue;
     }
-    if (while3.isNotEmpty) {
-      return Ok(while3);
-    } else {
-      return null;
+    // [z]
+    if (state.ch == 122) {
+      state.nextChar();
+      while3.add(122);
+      continue;
     }
+    break;
+  }
+  if (while3.isNotEmpty) {
+    return Ok(while3);
+  } else {
+    return null;
+  }
   }
 
   /// [void] **WhileVoid3**
@@ -12126,28 +12566,28 @@ class _TestParser {
   ///   }
   /// ```
   Result<void>? parseWhileVoid3(State state) {
-    var isSuccess = false;
-    // (1)
-    while (true) {
-      // [a]
-      if (state.ch == 97) {
-        state.nextChar();
-        isSuccess = true;
-        continue;
-      }
-      // [z]
-      if (state.ch == 122) {
-        state.nextChar();
-        isSuccess = true;
-        continue;
-      }
-      break;
+  var isSuccess = false;
+  // (1)
+  while (true) {
+    // [a]
+    if (state.ch == 97) {
+      state.nextChar();
+      isSuccess = true;
+      continue;
     }
-    if (isSuccess) {
-      return Result.none;
-    } else {
-      return null;
+    // [z]
+    if (state.ch == 122) {
+      state.nextChar();
+      isSuccess = true;
+      continue;
     }
+    break;
+  }
+  if (isSuccess) {
+    return Result.none;
+  } else {
+    return null;
+  }
   }
 
   /// [List<int>] **While4**
@@ -12158,26 +12598,26 @@ class _TestParser {
   ///   }
   /// ```
   Result<List<int>>? parseWhile4(State state) {
-    final pos = state.position;
-    final ch = state.ch;
-    final while4 = <int>[];
-    // (2)
-    while (true) {
-      // [a]
-      if (state.ch == 97) {
-        state.nextChar();
-        while4.add(97);
-        continue;
-      }
-      break;
+  final pos = state.position;
+  final ch = state.ch;
+  final while4 = <int>[];
+  // (2)
+  while (true) {
+    // [a]
+    if (state.ch == 97) {
+      state.nextChar();
+      while4.add(97);
+      continue;
     }
-    if (while4.length >= 2) {
-      return Ok(while4);
-    } else {
-      state.ch = ch;
-      state.position = pos;
-      return null;
-    }
+    break;
+  }
+  if (while4.length >= 2) {
+    return Ok(while4);
+  } else {
+    state.ch = ch;
+    state.position = pos;
+    return null;
+  }
   }
 
   /// [void] **WhileVoid4**
@@ -12188,26 +12628,26 @@ class _TestParser {
   ///   }
   /// ```
   Result<void>? parseWhileVoid4(State state) {
-    final pos = state.position;
-    final ch = state.ch;
-    var count = 0;
-    // (2)
-    while (true) {
-      // [a]
-      if (state.ch == 97) {
-        state.nextChar();
-        count++;
-        continue;
-      }
-      break;
+  final pos = state.position;
+  final ch = state.ch;
+  var count = 0;
+  // (2)
+  while (true) {
+    // [a]
+    if (state.ch == 97) {
+      state.nextChar();
+      count++;
+      continue;
     }
-    if (count >= 2) {
-      return Result.none;
-    } else {
-      state.ch = ch;
-      state.position = pos;
-      return null;
-    }
+    break;
+  }
+  if (count >= 2) {
+    return Result.none;
+  } else {
+    state.ch = ch;
+    state.position = pos;
+    return null;
+  }
   }
 
   /// [List<int>] **While5**
@@ -12218,32 +12658,32 @@ class _TestParser {
   ///   }
   /// ```
   Result<List<int>>? parseWhile5(State state) {
-    final pos = state.position;
-    final ch = state.ch;
-    final while5 = <int>[];
-    // (2)
-    while (true) {
-      // [a]
-      if (state.ch == 97) {
-        state.nextChar();
-        while5.add(97);
-        continue;
-      }
-      // [z]
-      if (state.ch == 122) {
-        state.nextChar();
-        while5.add(122);
-        continue;
-      }
-      break;
+  final pos = state.position;
+  final ch = state.ch;
+  final while5 = <int>[];
+  // (2)
+  while (true) {
+    // [a]
+    if (state.ch == 97) {
+      state.nextChar();
+      while5.add(97);
+      continue;
     }
-    if (while5.length >= 2) {
-      return Ok(while5);
-    } else {
-      state.ch = ch;
-      state.position = pos;
-      return null;
+    // [z]
+    if (state.ch == 122) {
+      state.nextChar();
+      while5.add(122);
+      continue;
     }
+    break;
+  }
+  if (while5.length >= 2) {
+    return Ok(while5);
+  } else {
+    state.ch = ch;
+    state.position = pos;
+    return null;
+  }
   }
 
   /// [void] **WhileVoid5**
@@ -12254,32 +12694,32 @@ class _TestParser {
   ///   }
   /// ```
   Result<void>? parseWhileVoid5(State state) {
-    final pos = state.position;
-    final ch = state.ch;
-    var count = 0;
-    // (2)
-    while (true) {
-      // [a]
-      if (state.ch == 97) {
-        state.nextChar();
-        count++;
-        continue;
-      }
-      // [z]
-      if (state.ch == 122) {
-        state.nextChar();
-        count++;
-        continue;
-      }
-      break;
+  final pos = state.position;
+  final ch = state.ch;
+  var count = 0;
+  // (2)
+  while (true) {
+    // [a]
+    if (state.ch == 97) {
+      state.nextChar();
+      count++;
+      continue;
     }
-    if (count >= 2) {
-      return Result.none;
-    } else {
-      state.ch = ch;
-      state.position = pos;
-      return null;
+    // [z]
+    if (state.ch == 122) {
+      state.nextChar();
+      count++;
+      continue;
     }
+    break;
+  }
+  if (count >= 2) {
+    return Result.none;
+  } else {
+    state.ch = ch;
+    state.position = pos;
+    return null;
+  }
   }
 
   /// [List<int>] **While6**
@@ -12290,18 +12730,18 @@ class _TestParser {
   ///   }
   /// ```
   Result<List<int>> parseWhile6(State state) {
-    final while6 = <int>[];
-    // (0, 1)
-    while (while6.isEmpty) {
-      // [a]
-      if (state.ch == 97) {
-        state.nextChar();
-        while6.add(97);
-        continue;
-      }
-      break;
+  final while6 = <int>[];
+  // (0, 1)
+  while (while6.isEmpty) {
+    // [a]
+    if (state.ch == 97) {
+      state.nextChar();
+      while6.add(97);
+      continue;
     }
-    return Ok(while6);
+    break;
+  }
+  return Ok(while6);
   }
 
   /// [void] **WhileVoid6**
@@ -12312,18 +12752,18 @@ class _TestParser {
   ///   }
   /// ```
   Result<void> parseWhileVoid6(State state) {
-    var isSuccess = false;
-    // (0, 1)
-    while (!isSuccess) {
-      // [a]
-      if (state.ch == 97) {
-        state.nextChar();
-        isSuccess = true;
-        continue;
-      }
-      break;
+  var isSuccess = false;
+  // (0, 1)
+  while (!isSuccess) {
+    // [a]
+    if (state.ch == 97) {
+      state.nextChar();
+      isSuccess = true;
+      continue;
     }
-    return Result.none;
+    break;
+  }
+  return Result.none;
   }
 
   /// [List<int>] **While7**
@@ -12334,18 +12774,18 @@ class _TestParser {
   ///   }
   /// ```
   Result<List<int>> parseWhile7(State state) {
-    final while7 = <int>[];
-    // (0, 2)
-    while (while7.length < 2) {
-      // [a]
-      if (state.ch == 97) {
-        state.nextChar();
-        while7.add(97);
-        continue;
-      }
-      break;
+  final while7 = <int>[];
+  // (0, 2)
+  while (while7.length < 2) {
+    // [a]
+    if (state.ch == 97) {
+      state.nextChar();
+      while7.add(97);
+      continue;
     }
-    return Ok(while7);
+    break;
+  }
+  return Ok(while7);
   }
 
   /// [void] **WhileVoid7**
@@ -12356,18 +12796,18 @@ class _TestParser {
   ///   }
   /// ```
   Result<void> parseWhileVoid7(State state) {
-    var count = 0;
-    // (0, 2)
-    while (count < 2) {
-      // [a]
-      if (state.ch == 97) {
-        state.nextChar();
-        count++;
-        continue;
-      }
-      break;
+  var count = 0;
+  // (0, 2)
+  while (count < 2) {
+    // [a]
+    if (state.ch == 97) {
+      state.nextChar();
+      count++;
+      continue;
     }
-    return Result.none;
+    break;
+  }
+  return Result.none;
   }
 
   /// [List<int>] **While8**
@@ -12378,22 +12818,22 @@ class _TestParser {
   ///   }
   /// ```
   Result<List<int>>? parseWhile8(State state) {
-    final while8 = <int>[];
-    // (1, 1)
-    while (while8.isEmpty) {
-      // [a]
-      if (state.ch == 97) {
-        state.nextChar();
-        while8.add(97);
-        continue;
-      }
-      break;
+  final while8 = <int>[];
+  // (1, 1)
+  while (while8.isEmpty) {
+    // [a]
+    if (state.ch == 97) {
+      state.nextChar();
+      while8.add(97);
+      continue;
     }
-    if (while8.isNotEmpty) {
-      return Ok(while8);
-    } else {
-      return null;
-    }
+    break;
+  }
+  if (while8.isNotEmpty) {
+    return Ok(while8);
+  } else {
+    return null;
+  }
   }
 
   /// [void] **WhileVoid8**
@@ -12404,22 +12844,22 @@ class _TestParser {
   ///   }
   /// ```
   Result<void>? parseWhileVoid8(State state) {
-    var isSuccess = false;
-    // (1, 1)
-    while (!isSuccess) {
-      // [a]
-      if (state.ch == 97) {
-        state.nextChar();
-        isSuccess = true;
-        continue;
-      }
-      break;
+  var isSuccess = false;
+  // (1, 1)
+  while (!isSuccess) {
+    // [a]
+    if (state.ch == 97) {
+      state.nextChar();
+      isSuccess = true;
+      continue;
     }
-    if (isSuccess) {
-      return Result.none;
-    } else {
-      return null;
-    }
+    break;
+  }
+  if (isSuccess) {
+    return Result.none;
+  } else {
+    return null;
+  }
   }
 
   /// [List<int>] **While9**
@@ -12430,26 +12870,26 @@ class _TestParser {
   ///   }
   /// ```
   Result<List<int>>? parseWhile9(State state) {
-    final pos = state.position;
-    final ch = state.ch;
-    final while9 = <int>[];
-    // (2, 2)
-    while (while9.length < 2) {
-      // [a]
-      if (state.ch == 97) {
-        state.nextChar();
-        while9.add(97);
-        continue;
-      }
-      break;
+  final pos = state.position;
+  final ch = state.ch;
+  final while9 = <int>[];
+  // (2, 2)
+  while (while9.length < 2) {
+    // [a]
+    if (state.ch == 97) {
+      state.nextChar();
+      while9.add(97);
+      continue;
     }
-    if (while9.length == 2) {
-      return Ok(while9);
-    } else {
-      state.ch = ch;
-      state.position = pos;
-      return null;
-    }
+    break;
+  }
+  if (while9.length == 2) {
+    return Ok(while9);
+  } else {
+    state.ch = ch;
+    state.position = pos;
+    return null;
+  }
   }
 
   /// [void] **WhileVoid9**
@@ -12460,26 +12900,26 @@ class _TestParser {
   ///   }
   /// ```
   Result<void>? parseWhileVoid9(State state) {
-    final pos = state.position;
-    final ch = state.ch;
-    var count = 0;
-    // (2, 2)
-    while (count < 2) {
-      // [a]
-      if (state.ch == 97) {
-        state.nextChar();
-        count++;
-        continue;
-      }
-      break;
+  final pos = state.position;
+  final ch = state.ch;
+  var count = 0;
+  // (2, 2)
+  while (count < 2) {
+    // [a]
+    if (state.ch == 97) {
+      state.nextChar();
+      count++;
+      continue;
     }
-    if (count >= 2) {
-      return Result.none;
-    } else {
-      state.ch = ch;
-      state.position = pos;
-      return null;
-    }
+    break;
+  }
+  if (count >= 2) {
+    return Result.none;
+  } else {
+    state.ch = ch;
+    state.position = pos;
+    return null;
+  }
   }
 
   /// [List<int>] **While10**
@@ -12490,26 +12930,26 @@ class _TestParser {
   ///   }
   /// ```
   Result<List<int>>? parseWhile10(State state) {
-    final pos = state.position;
-    final ch = state.ch;
-    final while10 = <int>[];
-    // (2, 3)
-    while (while10.length < 3) {
-      // [a]
-      if (state.ch == 97) {
-        state.nextChar();
-        while10.add(97);
-        continue;
-      }
-      break;
+  final pos = state.position;
+  final ch = state.ch;
+  final while10 = <int>[];
+  // (2, 3)
+  while (while10.length < 3) {
+    // [a]
+    if (state.ch == 97) {
+      state.nextChar();
+      while10.add(97);
+      continue;
     }
-    if (while10.length >= 2) {
-      return Ok(while10);
-    } else {
-      state.ch = ch;
-      state.position = pos;
-      return null;
-    }
+    break;
+  }
+  if (while10.length >= 2) {
+    return Ok(while10);
+  } else {
+    state.ch = ch;
+    state.position = pos;
+    return null;
+  }
   }
 
   /// [void] **WhileVoid10**
@@ -12520,26 +12960,26 @@ class _TestParser {
   ///   }
   /// ```
   Result<void>? parseWhileVoid10(State state) {
-    final pos = state.position;
-    final ch = state.ch;
-    var count = 0;
-    // (2, 3)
-    while (count < 3) {
-      // [a]
-      if (state.ch == 97) {
-        state.nextChar();
-        count++;
-        continue;
-      }
-      break;
+  final pos = state.position;
+  final ch = state.ch;
+  var count = 0;
+  // (2, 3)
+  while (count < 3) {
+    // [a]
+    if (state.ch == 97) {
+      state.nextChar();
+      count++;
+      continue;
     }
-    if (count >= 2) {
-      return Result.none;
-    } else {
-      state.ch = ch;
-      state.position = pos;
-      return null;
-    }
+    break;
+  }
+  if (count >= 2) {
+    return Result.none;
+  } else {
+    state.ch = ch;
+    state.position = pos;
+    return null;
+  }
   }
 
   /// [List<int>] **While11**
@@ -12551,41 +12991,41 @@ class _TestParser {
   ///   }
   /// ```
   Result<List<int>>? parseWhile11(State state) {
-    final pos = state.position;
-    final ch = state.ch;
-    l:
-    {
-      // [a]
-      if (state.ch == 97) {
-        state.nextChar();
-        break l;
-      }
-      // [b]
-      if (state.ch == 98) {
-        state.nextChar();
-        break l;
-      }
-      return null;
+  final pos = state.position;
+  final ch = state.ch;
+  l:
+  {
+    // [a]
+    if (state.ch == 97) {
+      state.nextChar();
+      break l;
     }
-    // l:
-    final while11 = <int>[];
-    // (1)
-    while (true) {
-      // [c]
-      if (state.ch == 99) {
-        state.nextChar();
-        while11.add(99);
-        continue;
-      }
-      break;
+    // [b]
+    if (state.ch == 98) {
+      state.nextChar();
+      break l;
     }
-    if (while11.isNotEmpty) {
-      return Ok(while11);
-    } else {
-      state.ch = ch;
-      state.position = pos;
-      return null;
+    return null;
+  }
+  // l:
+  final while11 = <int>[];
+  // (1)
+  while (true) {
+    // [c]
+    if (state.ch == 99) {
+      state.nextChar();
+      while11.add(99);
+      continue;
     }
+    break;
+  }
+  if (while11.isNotEmpty) {
+    return Ok(while11);
+  } else {
+    state.ch = ch;
+    state.position = pos;
+    return null;
+  }
   }
 
   /// [void] **WhileVoid11**
@@ -12597,42 +13037,42 @@ class _TestParser {
   ///   }
   /// ```
   Result<void>? parseWhileVoid11(State state) {
-    final pos = state.position;
-    final ch = state.ch;
-    l:
-    {
-      // [a]
-      if (state.ch == 97) {
-        state.nextChar();
-        break l;
-      }
-      // [b]
-      if (state.ch == 98) {
-        state.nextChar();
-        break l;
-      }
-      return null;
+  final pos = state.position;
+  final ch = state.ch;
+  l:
+  {
+    // [a]
+    if (state.ch == 97) {
+      state.nextChar();
+      break l;
     }
-    // l:
-    final whileVoid11 = <int>[];
-    // (1)
-    while (true) {
-      // [c]
-      if (state.ch == 99) {
-        state.nextChar();
-        whileVoid11.add(99);
-        continue;
-      }
-      break;
+    // [b]
+    if (state.ch == 98) {
+      state.nextChar();
+      break l;
     }
-    if (whileVoid11.isNotEmpty) {
-      final whileVoid111 = Ok(whileVoid11);
-      return Result.none;
-    } else {
-      state.ch = ch;
-      state.position = pos;
-      return null;
+    return null;
+  }
+  // l:
+  final whileVoid11 = <int>[];
+  // (1)
+  while (true) {
+    // [c]
+    if (state.ch == 99) {
+      state.nextChar();
+      whileVoid11.add(99);
+      continue;
     }
+    break;
+  }
+  if (whileVoid11.isNotEmpty) {
+    final whileVoid111 = Ok(whileVoid11);
+    return Result.none;
+  } else {
+    state.ch = ch;
+    state.position = pos;
+    return null;
+  }
   }
 
   /// [List<int>] **ZeroOrMore0**
@@ -12641,18 +13081,18 @@ class _TestParser {
   ///   [a]*
   /// ```
   Result<List<int>> parseZeroOrMore0(State state) {
-    final zeroOrMore0 = <int>[];
-    // (0)
-    while (true) {
-      // [a]
-      if (state.ch == 97) {
-        state.nextChar();
-        zeroOrMore0.add(97);
-        continue;
-      }
-      break;
+  final zeroOrMore0 = <int>[];
+  // (0)
+  while (true) {
+    // [a]
+    if (state.ch == 97) {
+      state.nextChar();
+      zeroOrMore0.add(97);
+      continue;
     }
-    return Ok(zeroOrMore0);
+    break;
+  }
+  return Ok(zeroOrMore0);
   }
 
   /// [void] **ZeroOrMoreVoid0**
@@ -12661,16 +13101,16 @@ class _TestParser {
   ///   [a]*
   /// ```
   Result<void> parseZeroOrMoreVoid0(State state) {
-    // (0)
-    while (true) {
-      // [a]
-      if (state.ch == 97) {
-        state.nextChar();
-        continue;
-      }
-      break;
+  // (0)
+  while (true) {
+    // [a]
+    if (state.ch == 97) {
+      state.nextChar();
+      continue;
     }
-    return Result.none;
+    break;
+  }
+  return Result.none;
   }
 
   /// [List<int>] **ZeroOrMore1**
@@ -12679,24 +13119,24 @@ class _TestParser {
   ///   ([a] / [z])*
   /// ```
   Result<List<int>> parseZeroOrMore1(State state) {
-    final zeroOrMore1 = <int>[];
-    // (0)
-    while (true) {
-      // [a]
-      if (state.ch == 97) {
-        state.nextChar();
-        zeroOrMore1.add(97);
-        continue;
-      }
-      // [z]
-      if (state.ch == 122) {
-        state.nextChar();
-        zeroOrMore1.add(122);
-        continue;
-      }
-      break;
+  final zeroOrMore1 = <int>[];
+  // (0)
+  while (true) {
+    // [a]
+    if (state.ch == 97) {
+      state.nextChar();
+      zeroOrMore1.add(97);
+      continue;
     }
-    return Ok(zeroOrMore1);
+    // [z]
+    if (state.ch == 122) {
+      state.nextChar();
+      zeroOrMore1.add(122);
+      continue;
+    }
+    break;
+  }
+  return Ok(zeroOrMore1);
   }
 
   /// [void] **ZeroOrMoreVoid1**
@@ -12705,21 +13145,21 @@ class _TestParser {
   ///   ([a] / [z])*
   /// ```
   Result<void> parseZeroOrMoreVoid1(State state) {
-    // (0)
-    while (true) {
-      // [a]
-      if (state.ch == 97) {
-        state.nextChar();
-        continue;
-      }
-      // [z]
-      if (state.ch == 122) {
-        state.nextChar();
-        continue;
-      }
-      break;
+  // (0)
+  while (true) {
+    // [a]
+    if (state.ch == 97) {
+      state.nextChar();
+      continue;
     }
-    return Result.none;
+    // [z]
+    if (state.ch == 122) {
+      state.nextChar();
+      continue;
+    }
+    break;
+  }
+  return Result.none;
   }
 
   /// [String] **Identifier0**
@@ -12739,64 +13179,64 @@ class _TestParser {
   ///   >
   /// ```
   Result<String>? parseIdentifier0(State state) {
-    l1:
+  l1:
+  {
+    state.predicate++;
+    final pos = state.position;
+    final ch = state.ch;
+    final pos1 = state.position;
+    final ch1 = state.ch;
+    l:
     {
-      state.predicate++;
-      final pos = state.position;
-      final ch = state.ch;
-      final pos1 = state.position;
-      final ch1 = state.ch;
-      l:
-      {
-        // "foreach"
-        if (state.ch == 102 && state.startsWith('foreach')) {
-          state.readChar(state.position + 7);
-          break l;
-        }
-        // "for"
-        if (state.ch == 102 && state.startsWith('for')) {
-          state.readChar(state.position + 3);
-          break l;
-        }
-        state.predicate--;
-        break l1;
+      // "foreach"
+      if (state.ch == 102 && state.startsWith('foreach')) {
+        state.readChar(state.position + 7);
+        break l;
       }
-      // l:
-      // [a-zA-Z0-9]
-      final c = state.ch;
-      final isAlphaOrDigit = c <= 90 ? c >= 65 || c >= 48 && c <= 57 : c >= 97 && c <= 122;
-      if (isAlphaOrDigit) {
-        state.ch = ch1;
-        state.position = pos1;
-        state.predicate--;
-        break l1;
+      // "for"
+      if (state.ch == 102 && state.startsWith('for')) {
+        state.readChar(state.position + 3);
+        break l;
       }
-      state.ch = ch;
-      state.position = pos;
       state.predicate--;
-      return null;
+      break l1;
     }
-    // l1:
-    final start = state.position;
-    // [a-zA-Z]
-    final c1 = state.ch;
-    final isAlpha = c1 <= 90 ? c1 >= 65 : c1 >= 97 && c1 <= 122;
-    if (isAlpha) {
-      state.nextChar();
-      // (0)
-      while (true) {
-        // [a-zA-Z0-9]
-        final c2 = state.ch;
-        final isAlphaOrDigit1 = c2 <= 90 ? c2 >= 65 || c2 >= 48 && c2 <= 57 : c2 >= 97 && c2 <= 122;
-        if (isAlphaOrDigit1) {
-          state.nextChar();
-          continue;
-        }
-        break;
-      }
-      return Ok(state.substring(start, state.position));
+    // l:
+    // [a-zA-Z0-9]
+    final c = state.ch;
+    final isDigitOrLetter = c <= 90 ? c >= 65 || c >= 48 && c <= 57 : c >= 97 && c <= 122;
+    if (isDigitOrLetter) {
+      state.ch = ch1;
+      state.position = pos1;
+      state.predicate--;
+      break l1;
     }
+    state.ch = ch;
+    state.position = pos;
+    state.predicate--;
     return null;
+  }
+  // l1:
+  final start = state.position;
+  // [a-zA-Z]
+  final c1 = state.ch;
+  final isLetter = c1 <= 90 ? c1 >= 65 : c1 >= 97 && c1 <= 122;
+  if (isLetter) {
+    state.nextChar();
+    // (0)
+    while (true) {
+      // [a-zA-Z0-9]
+      final c2 = state.ch;
+      final isDigitOrLetter1 = c2 <= 90 ? c2 >= 65 || c2 >= 48 && c2 <= 57 : c2 >= 97 && c2 <= 122;
+      if (isDigitOrLetter1) {
+        state.nextChar();
+        continue;
+      }
+      break;
+    }
+    return Ok(state.substring(start, state.position));
+  }
+  return null;
   }
 
   /// [void] **IdentifierVoid0**
@@ -12816,65 +13256,65 @@ class _TestParser {
   ///   >
   /// ```
   Result<void>? parseIdentifierVoid0(State state) {
-    l1:
+  l1:
+  {
+    state.predicate++;
+    final pos = state.position;
+    final ch = state.ch;
+    final pos1 = state.position;
+    final ch1 = state.ch;
+    l:
     {
-      state.predicate++;
-      final pos = state.position;
-      final ch = state.ch;
-      final pos1 = state.position;
-      final ch1 = state.ch;
-      l:
-      {
-        // "foreach"
-        if (state.ch == 102 && state.startsWith('foreach')) {
-          state.readChar(state.position + 7);
-          break l;
-        }
-        // "for"
-        if (state.ch == 102 && state.startsWith('for')) {
-          state.readChar(state.position + 3);
-          break l;
-        }
-        state.predicate--;
-        break l1;
+      // "foreach"
+      if (state.ch == 102 && state.startsWith('foreach')) {
+        state.readChar(state.position + 7);
+        break l;
       }
-      // l:
-      // [a-zA-Z0-9]
-      final c = state.ch;
-      final isAlphaOrDigit = c <= 90 ? c >= 65 || c >= 48 && c <= 57 : c >= 97 && c <= 122;
-      if (isAlphaOrDigit) {
-        state.ch = ch1;
-        state.position = pos1;
-        state.predicate--;
-        break l1;
+      // "for"
+      if (state.ch == 102 && state.startsWith('for')) {
+        state.readChar(state.position + 3);
+        break l;
       }
-      state.ch = ch;
-      state.position = pos;
       state.predicate--;
-      return null;
+      break l1;
     }
-    // l1:
-    final start = state.position;
-    // [a-zA-Z]
-    final c1 = state.ch;
-    final isAlpha = c1 <= 90 ? c1 >= 65 : c1 >= 97 && c1 <= 122;
-    if (isAlpha) {
-      state.nextChar();
-      // (0)
-      while (true) {
-        // [a-zA-Z0-9]
-        final c2 = state.ch;
-        final isAlphaOrDigit1 = c2 <= 90 ? c2 >= 65 || c2 >= 48 && c2 <= 57 : c2 >= 97 && c2 <= 122;
-        if (isAlphaOrDigit1) {
-          state.nextChar();
-          continue;
-        }
-        break;
-      }
-      final identifierVoid0 = Ok(state.substring(start, state.position));
-      return Result.none;
+    // l:
+    // [a-zA-Z0-9]
+    final c = state.ch;
+    final isDigitOrLetter = c <= 90 ? c >= 65 || c >= 48 && c <= 57 : c >= 97 && c <= 122;
+    if (isDigitOrLetter) {
+      state.ch = ch1;
+      state.position = pos1;
+      state.predicate--;
+      break l1;
     }
+    state.ch = ch;
+    state.position = pos;
+    state.predicate--;
     return null;
+  }
+  // l1:
+  final start = state.position;
+  // [a-zA-Z]
+  final c1 = state.ch;
+  final isLetter = c1 <= 90 ? c1 >= 65 : c1 >= 97 && c1 <= 122;
+  if (isLetter) {
+    state.nextChar();
+    // (0)
+    while (true) {
+      // [a-zA-Z0-9]
+      final c2 = state.ch;
+      final isDigitOrLetter1 = c2 <= 90 ? c2 >= 65 || c2 >= 48 && c2 <= 57 : c2 >= 97 && c2 <= 122;
+      if (isDigitOrLetter1) {
+        state.nextChar();
+        continue;
+      }
+      break;
+    }
+    final identifierVoid0 = Ok(state.substring(start, state.position));
+    return Result.none;
+  }
+  return null;
   }
 
   /// [String] **Identifier1**
@@ -12903,89 +13343,89 @@ class _TestParser {
   ///   >
   /// ```
   Result<String>? parseIdentifier1(State state) {
-    var end = -1;
-    l1:
+  var end = -1;
+  l1:
+  {
+    state.predicate++;
+    final pos = state.position;
+    final ch = state.ch;
+    final pos1 = state.position;
+    final ch1 = state.ch;
+    l:
     {
-      state.predicate++;
-      final pos = state.position;
-      final ch = state.ch;
-      final pos1 = state.position;
-      final ch1 = state.ch;
-      l:
-      {
-        // "foreach"
-        if (state.ch == 102 && state.startsWith('foreach')) {
-          state.readChar(state.position + 7);
-          break l;
-        }
-        // "for"
-        if (state.ch == 102 && state.startsWith('for')) {
-          state.readChar(state.position + 3);
-          break l;
-        }
-        state.predicate--;
-        break l1;
+      // "foreach"
+      if (state.ch == 102 && state.startsWith('foreach')) {
+        state.readChar(state.position + 7);
+        break l;
       }
-      // l:
-      state.predicate++;
-      final pos2 = state.position;
-      final ch2 = state.ch;
-      var isSuccess = false;
-      // (1)
-      while (true) {
-        // [a-zA-Z0-9]
-        final c = state.ch;
-        final isAlphaOrDigit = c <= 90 ? c >= 65 || c >= 48 && c <= 57 : c >= 97 && c <= 122;
-        if (isAlphaOrDigit) {
-          state.nextChar();
-          end = state.position;
-          isSuccess = true;
-          continue;
-        }
-        break;
+      // "for"
+      if (state.ch == 102 && state.startsWith('for')) {
+        state.readChar(state.position + 3);
+        break l;
       }
-      if (isSuccess) {
-        state.ch = ch2;
-        state.position = pos2;
-        state.predicate--;
-        state.ch = ch1;
-        state.position = pos1;
-        state.predicate--;
-        break l1;
-      } else {
-        state.predicate--;
-        state.ch = ch;
-        state.position = pos;
-        state.predicate--;
-        return null;
-      }
+      state.predicate--;
+      break l1;
     }
-    // l1:
-    final start = state.position;
-    final isSuccess1 = end != -1;
-    if (isSuccess1) {
-      state.readChar(end);
-      return Ok(state.substring(start, state.position));
-    }
-    // [a-zA-Z]
-    final c1 = state.ch;
-    final isAlpha = c1 <= 90 ? c1 >= 65 : c1 >= 97 && c1 <= 122;
-    if (isAlpha) {
-      state.nextChar();
-      // (0)
-      while (true) {
-        // [a-zA-Z0-9]
-        final c2 = state.ch;
-        final isAlphaOrDigit1 = c2 <= 90 ? c2 >= 65 || c2 >= 48 && c2 <= 57 : c2 >= 97 && c2 <= 122;
-        if (isAlphaOrDigit1) {
-          state.nextChar();
-          continue;
-        }
-        break;
+    // l:
+    state.predicate++;
+    final pos2 = state.position;
+    final ch2 = state.ch;
+    var isSuccess = false;
+    // (1)
+    while (true) {
+      // [a-zA-Z0-9]
+      final c = state.ch;
+      final isDigitOrLetter = c <= 90 ? c >= 65 || c >= 48 && c <= 57 : c >= 97 && c <= 122;
+      if (isDigitOrLetter) {
+        state.nextChar();
+        end = state.position;
+        isSuccess = true;
+        continue;
       }
-      return Ok(state.substring(start, state.position));
+      break;
     }
-    return null;
+    if (isSuccess) {
+      state.ch = ch2;
+      state.position = pos2;
+      state.predicate--;
+      state.ch = ch1;
+      state.position = pos1;
+      state.predicate--;
+      break l1;
+    } else {
+      state.predicate--;
+      state.ch = ch;
+      state.position = pos;
+      state.predicate--;
+      return null;
+    }
+  }
+  // l1:
+  final start = state.position;
+  final isSuccess1 = end != -1;
+  if (isSuccess1) {
+    state.readChar(end);
+    return Ok(state.substring(start, state.position));
+  }
+  // [a-zA-Z]
+  final c1 = state.ch;
+  final isLetter = c1 <= 90 ? c1 >= 65 : c1 >= 97 && c1 <= 122;
+  if (isLetter) {
+    state.nextChar();
+    // (0)
+    while (true) {
+      // [a-zA-Z0-9]
+      final c2 = state.ch;
+      final isDigitOrLetter1 = c2 <= 90 ? c2 >= 65 || c2 >= 48 && c2 <= 57 : c2 >= 97 && c2 <= 122;
+      if (isDigitOrLetter1) {
+        state.nextChar();
+        continue;
+      }
+      break;
+    }
+    return Ok(state.substring(start, state.position));
+  }
+  return null;
   }
 
   /// [void] **IdentifierVoid1**
@@ -13014,91 +13454,91 @@ class _TestParser {
   ///   >
   /// ```
   Result<void>? parseIdentifierVoid1(State state) {
-    var end = -1;
-    l1:
+  var end = -1;
+  l1:
+  {
+    state.predicate++;
+    final pos = state.position;
+    final ch = state.ch;
+    final pos1 = state.position;
+    final ch1 = state.ch;
+    l:
     {
-      state.predicate++;
-      final pos = state.position;
-      final ch = state.ch;
-      final pos1 = state.position;
-      final ch1 = state.ch;
-      l:
-      {
-        // "foreach"
-        if (state.ch == 102 && state.startsWith('foreach')) {
-          state.readChar(state.position + 7);
-          break l;
-        }
-        // "for"
-        if (state.ch == 102 && state.startsWith('for')) {
-          state.readChar(state.position + 3);
-          break l;
-        }
-        state.predicate--;
-        break l1;
+      // "foreach"
+      if (state.ch == 102 && state.startsWith('foreach')) {
+        state.readChar(state.position + 7);
+        break l;
       }
-      // l:
-      state.predicate++;
-      final pos2 = state.position;
-      final ch2 = state.ch;
-      var isSuccess = false;
-      // (1)
-      while (true) {
-        // [a-zA-Z0-9]
-        final c = state.ch;
-        final isAlphaOrDigit = c <= 90 ? c >= 65 || c >= 48 && c <= 57 : c >= 97 && c <= 122;
-        if (isAlphaOrDigit) {
-          state.nextChar();
-          end = state.position;
-          isSuccess = true;
-          continue;
-        }
-        break;
+      // "for"
+      if (state.ch == 102 && state.startsWith('for')) {
+        state.readChar(state.position + 3);
+        break l;
       }
-      if (isSuccess) {
-        state.ch = ch2;
-        state.position = pos2;
-        state.predicate--;
-        state.ch = ch1;
-        state.position = pos1;
-        state.predicate--;
-        break l1;
-      } else {
-        state.predicate--;
-        state.ch = ch;
-        state.position = pos;
-        state.predicate--;
-        return null;
-      }
+      state.predicate--;
+      break l1;
     }
-    // l1:
-    final start = state.position;
-    final isSuccess1 = end != -1;
-    if (isSuccess1) {
-      state.readChar(end);
-      final identifierVoid1 = Ok(state.substring(start, state.position));
-      return Result.none;
-    }
-    // [a-zA-Z]
-    final c1 = state.ch;
-    final isAlpha = c1 <= 90 ? c1 >= 65 : c1 >= 97 && c1 <= 122;
-    if (isAlpha) {
-      state.nextChar();
-      // (0)
-      while (true) {
-        // [a-zA-Z0-9]
-        final c2 = state.ch;
-        final isAlphaOrDigit1 = c2 <= 90 ? c2 >= 65 || c2 >= 48 && c2 <= 57 : c2 >= 97 && c2 <= 122;
-        if (isAlphaOrDigit1) {
-          state.nextChar();
-          continue;
-        }
-        break;
+    // l:
+    state.predicate++;
+    final pos2 = state.position;
+    final ch2 = state.ch;
+    var isSuccess = false;
+    // (1)
+    while (true) {
+      // [a-zA-Z0-9]
+      final c = state.ch;
+      final isDigitOrLetter = c <= 90 ? c >= 65 || c >= 48 && c <= 57 : c >= 97 && c <= 122;
+      if (isDigitOrLetter) {
+        state.nextChar();
+        end = state.position;
+        isSuccess = true;
+        continue;
       }
-      final identifierVoid11 = Ok(state.substring(start, state.position));
-      return Result.none;
+      break;
     }
-    return null;
+    if (isSuccess) {
+      state.ch = ch2;
+      state.position = pos2;
+      state.predicate--;
+      state.ch = ch1;
+      state.position = pos1;
+      state.predicate--;
+      break l1;
+    } else {
+      state.predicate--;
+      state.ch = ch;
+      state.position = pos;
+      state.predicate--;
+      return null;
+    }
+  }
+  // l1:
+  final start = state.position;
+  final isSuccess1 = end != -1;
+  if (isSuccess1) {
+    state.readChar(end);
+    final identifierVoid1 = Ok(state.substring(start, state.position));
+    return Result.none;
+  }
+  // [a-zA-Z]
+  final c1 = state.ch;
+  final isLetter = c1 <= 90 ? c1 >= 65 : c1 >= 97 && c1 <= 122;
+  if (isLetter) {
+    state.nextChar();
+    // (0)
+    while (true) {
+      // [a-zA-Z0-9]
+      final c2 = state.ch;
+      final isDigitOrLetter1 = c2 <= 90 ? c2 >= 65 || c2 >= 48 && c2 <= 57 : c2 >= 97 && c2 <= 122;
+      if (isDigitOrLetter1) {
+        state.nextChar();
+        continue;
+      }
+      break;
+    }
+    final identifierVoid11 = Ok(state.substring(start, state.position));
+    return Result.none;
+  }
+  return null;
   }
 
 }

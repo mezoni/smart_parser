@@ -386,6 +386,132 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     final upperCase = toUpperCase(text);
     final lowerCaseRunes = lowerCase.runes.toList();
     final upperCaseRunes = upperCase.runes.toList();
+    if (lowerCaseRunes.length == 1) {
+      const ch = 'state.ch';
+      final lc = lowerCaseRunes[0];
+      final uc = upperCaseRunes[0];
+      final range = toRange(lc, uc);
+      code.if$('$ch == $lc || $ch == $uc', (code) {
+        final charSize = _charSize(ch, [range], false);
+        if (!isVoid) {
+          final end = _allocate('end');
+          code.declare('final', end, 'state.position + $charSize');
+          final variable = _allocate(_getSuitableName(node) ?? 'temp');
+          code.declare(
+            'final',
+            variable,
+            'state.substring(state.position, $end)',
+          );
+          code.stmt('state.readChar($end)');
+          success.setValue(variable, false);
+        } else {
+          code.stmt('state.readChar(state.position + $charSize)');
+        }
+
+        code.add(success.succeeds);
+      });
+
+      _addErrorHandler(node, [failure]);
+      code.add(failure.fails);
+      return BuildResult(code: code, successes: [success], failures: [failure]);
+    }
+
+    final pos = _allocate('pos');
+    final c = _allocate('c');
+    _addNodeSourceToComment(node, code, false);
+    var variable = _invalid;
+    var ch = 'state.ch';
+    final switches = <(String, List<String>, Code)>[];
+    for (var i = 0; i < lowerCaseRunes.length; i++) {
+      final lc = lowerCaseRunes[i];
+      final uc = upperCaseRunes[i];
+      final range = toRange(lc, uc);
+      final charSize = _charSize(ch, [range], false);
+      final caseCode = Code();
+      if (i != lowerCaseRunes.length - 1) {
+        if (i == 0) {
+          caseCode.declare('var', pos, 'state.position');
+          caseCode.declare('var', c, 'state.charAt($pos += $charSize)');
+        } else {
+          caseCode.assign(c, 'state.charAt($pos += $charSize)');
+        }
+      } else {
+        if (!isVoid) {
+          variable = _allocate(_getSuitableName(node) ?? 'temp');
+          caseCode.declare(
+            'final',
+            variable,
+            'state.substring(state.position, $pos += $charSize)',
+          );
+          caseCode.stmt('state.readChar($pos)');
+          success.setValue(variable, false);
+        } else {
+          caseCode.stmt('state.readChar($pos += $charSize)');
+        }
+
+        caseCode.add(success.succeeds);
+      }
+
+      switches.add((ch, ['$lc', '$uc'], caseCode));
+      ch = c;
+    }
+
+    var body = Code();
+    for (var i = lowerCaseRunes.length - 1; i >= 0; i--) {
+      final element = switches[i];
+      final expr = element.$1;
+      final values = element.$2;
+      final caseCode = element.$3;
+      if (i == lowerCaseRunes.length - 1) {
+        body.switch$(expr, [(values, caseCode)]);
+      } else {
+        final temp = body;
+        body = Code();
+        caseCode.add(temp);
+        body.switch$(expr, [(values, caseCode)]);
+      }
+    }
+
+    code.add(body);
+    _addErrorHandler(node, [failure]);
+    code.add(failure.fails);
+    return BuildResult(code: code, successes: [success], failures: [failure]);
+  }
+
+  @override
+  BuildResult visitMatch__(MatchExpression node) {
+    final text = node.text;
+    final quote = node.quote;
+    final isVoid = node.isVoid;
+    final code = Code();
+    final failure = Failure();
+    final success = Success.none();
+    final escaped = escapeString(text, quote);
+    if (text.isEmpty) {
+      _writeSaveParsingState(code, node);
+      _addNodeSourceToComment(node, code, false);
+      code.add(success.succeeds);
+      if (!isVoid) {
+        success.setValue(escaped, true);
+      }
+
+      _addErrorHandler(node, const []);
+      return BuildResult(code: code, successes: [success], failures: const []);
+    }
+
+    _writeSaveParsingState(code, node);
+    (int, int) toRange(int c1, int c2) {
+      if (c1 <= c2) {
+        return (c1, c2);
+      }
+
+      return (c2, c1);
+    }
+
+    final lowerCase = toLowerCase(text);
+    final upperCase = toUpperCase(text);
+    final lowerCaseRunes = lowerCase.runes.toList();
+    final upperCaseRunes = upperCase.runes.toList();
     final pos = _allocate('pos');
     final c = _allocate('c');
     _addNodeSourceToComment(node, code, false);
@@ -606,7 +732,6 @@ class ExpressionGenerator implements Visitor<BuildResult> {
         }
       }
 
-      _addErrorHandler(node, res.failures);
       return res;
     }
 
@@ -1422,7 +1547,7 @@ class ExpressionGenerator implements Visitor<BuildResult> {
     }
 
     const replacements = [
-      (['lower', 'upper'], 'alpha'),
+      (['lower', 'upper'], 'letter'),
       (['carriage_return', 'line_feed'], 'newline'),
       (['digit', 'hex'], 'hex_digit'),
     ];
@@ -1462,7 +1587,9 @@ class ExpressionGenerator implements Visitor<BuildResult> {
 
   String? _getSuitableName(Expression node) {
     if (node is ProductionExpression) {
-      return camelize(node.name);
+      var name = node.name;
+      name = 'parsed$name';
+      return name;
     }
 
     if (node is TokenExpression) {

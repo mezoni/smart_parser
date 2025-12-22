@@ -8,9 +8,16 @@ class Code extends CodeBuilder {
 
   final bool hideEmpty;
 
+  final String indent;
+
   final List<Object> _elements = [];
 
-  Code({this.begin = '', this.end = '', this.hideEmpty = true});
+  Code({
+    this.begin = '',
+    this.end = '',
+    this.hideEmpty = true,
+    this.indent = '',
+  });
 
   @override
   bool get isEmpty {
@@ -39,8 +46,8 @@ class Code extends CodeBuilder {
     return element;
   }
 
-  Code addBlock({String begin = '{', String end = '}'}) {
-    final block = Code(begin: begin, end: end);
+  Code addBlock({String begin = '{', String end = '}', String indent = '  '}) {
+    final block = Code(begin: begin, end: end, indent: indent);
     _elements.add(block);
     return block;
   }
@@ -67,7 +74,7 @@ class Code extends CodeBuilder {
       return;
     }
 
-    final indent2 = begin.isEmpty ? indent : '$indent  ';
+    final indent2 = '$indent${this.indent}';
     if (begin.isNotEmpty) {
       lines.add('$indent$begin');
     }
@@ -131,6 +138,43 @@ class Code extends CodeBuilder {
 
   void stmt(String statement) {
     writeln('$statement;');
+  }
+
+  Code switch$(
+    String expr,
+    List<(List<String>, Code code)> cases, [
+    Code? defaultCase,
+  ]) {
+    if (expr.isEmpty) {
+      throw ArgumentError.value('Must not be empty', 'expr');
+    }
+
+    final code = Code();
+    final block = code.addBlock(begin: 'switch ($expr) {');
+    for (final caseClause in cases) {
+      final conditions = caseClause.$1;
+      if (conditions.isEmpty) {
+        throw ArgumentError('Condition list must not be empty');
+      }
+
+      for (final condition in conditions) {
+        block.writeln('case $condition:');
+      }
+
+      block.addBlock(begin: '', end: '')((code) {
+        code.add(caseClause.$2);
+      });
+    }
+
+    if (defaultCase != null) {
+      block.writeln('default:');
+      block.addBlock(begin: '', end: '')((code) {
+        code.add(defaultCase);
+      });
+    }
+
+    add(code);
+    return code;
   }
 
   Code while$(String cond, void Function(Code code) f) {
